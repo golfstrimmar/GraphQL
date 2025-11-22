@@ -114,7 +114,14 @@ export const GET_FIGMA_PROJECT_DATA = gql`
       }
       colors
       fonts
-      textNodes
+      textNodes {
+        text
+        fontFamily
+        fontWeight
+        fontSize
+        color
+        mixin
+      }
     }
   }
 `;

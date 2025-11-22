@@ -110,6 +110,14 @@ export const typeDefs = gql`
     figmaImages: [FigmaImage!]!
     fileCache: JSON
   }
+  type TextNodeWithStyle {
+    text: String!
+    fontFamily: String!
+    fontWeight: String!
+    fontSize: String!
+    color: String
+    mixin: String!
+  }
 
   type FigmaProjectData {
     id: ID!
@@ -120,13 +128,14 @@ export const typeDefs = gql`
     owner: User!
     colors: [String!]!
     fonts: [String!]!
-    textNodes: [String!]!
+    textNodes: [TextNodeWithStyle!]!
   }
+
   type FigmaProjectExtended {
     project: FigmaProject!
     colors: [String!]!
     fonts: JSON
-    textNodes: [String!]!
+    textNodes: [TextNodeWithStyle!]!
   }
   type AuthPayload {
     token: String!

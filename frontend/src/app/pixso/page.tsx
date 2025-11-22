@@ -11,7 +11,7 @@ import "../figma/figma.scss";
 import Loading from "@/components/ui/Loading/Loading";
 import { useStateContext } from "@/providers/StateProvider";
 import { useRouter } from "next/navigation";
-import { set } from "lodash";
+import Image from "next/image";
 
 // --------
 type FigmaProject = {
@@ -74,7 +74,7 @@ export default function FigmaPage() {
   useEffect(() => {
     if (figmaProjectData?.getFigmaProjectData) {
       console.log(
-        "<====figmaProjectData ============== colors====>",
+        "<==🔥🔥🔥🔥==figmaProjectData ==🔥🔥🔥==>",
         figmaProjectData.getFigmaProjectData
       );
       setcurrentProject(figmaProjectData.getFigmaProjectData.project);
@@ -119,7 +119,15 @@ export default function FigmaPage() {
     // file — это instance of File
     reader.readAsText(file);
   };
-
+  const uniqueMixins = Object.values(
+    texts.reduce((acc, el) => {
+      const key = `${el.mixin}`;
+      if (!acc[key]) {
+        acc[key] = el;
+      }
+      return acc;
+    }, {})
+  );
   return (
     <div className="figma">
       <div className="container">
@@ -171,19 +179,12 @@ export default function FigmaPage() {
             <h4>Colors</h4>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
               {colors.map((value, index) => (
-                <div
-                  key={index}
-                  style={{ display: "flex", alignItems: "center" }}
-                >
+                <div key={index} className="flex items-center gap-2">
                   <div
                     style={{
-                      width: 32,
-                      height: 32,
                       background: value,
-                      borderRadius: 6,
-                      border: "1px solid #ccc rounded-full",
-                      marginRight: 8,
                     }}
+                    className="w-8 h-8 border rounded-full mr-4 ml-2"
                   />
                   <span>{value}</span>
                 </div>
@@ -221,12 +222,110 @@ export default function FigmaPage() {
         )}
 
         {texts.length > 0 && (
-          <div style={{ marginTop: 20 }}>
-            <h4>Texts</h4>
-            <div className="flex flex-col gap-2">
-              {texts.map((text) => (
-                <div key={text}>{text}</div>
+          <div className="my-4">
+            <h4>Mixins</h4>
+            <div className="flex flex-col gap-1">
+              {uniqueMixins.map((el) => {
+                const scssMixin = `@mixin ${el.mixin} {\n  font-family: "${el.fontFamily}", sans-serif;\n  font-weight: ${el.fontWeight};\n  font-size: ${el.fontSize};\n color: ${el.color};\n}`;
+
+                return (
+                  <button
+                    key={el.mixin}
+                    onClick={() => {
+                      navigator.clipboard.writeText(scssMixin);
+                      setModalMessage("Scss copied!");
+                    }}
+                    className="border rounded px-1 text-left whitespace-pre font-mono  text-sm py-1 pl-6 relative"
+                  >
+                    <div className="absolute top-1 left-1">
+                      <Image
+                        src="/svg/copy.svg"
+                        alt="copy"
+                        width={16}
+                        height={16}
+                      />
+                    </div>
+                    {scssMixin}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* <div className="flex flex-col gap-1 my-2">
+              {uniqueMixins.map((el) => (
+                <button
+                  key={el.text}
+                  onClick={() => {
+                    navigator.clipboard.writeText(`@include ${el.mixin};`);
+                    setModalMessage("Mixin copied!");
+                  }}
+                  className="border rounded px-1 relative"
+                >
+                  <div className="absolute top-1 left-1">
+                    <Image
+                      src="/svg/copy.svg"
+                      alt="copy"
+                      width={16}
+                      height={16}
+                    />
+                  </div>
+                  @include {el.mixin}
+                </button>
               ))}
+            </div> */}
+            <div className="my-2">
+              <h4>Texts</h4>
+              <div className="flex flex-col gap-2">
+                {texts.map((el) => (
+                  <div key={el.text}>
+                    <button
+                      key={el.text}
+                      onClick={() => {
+                        navigator.clipboard.writeText(`${el.text}`);
+                        setModalMessage("Text copied!");
+                      }}
+                      className="border rounded px-1 relative pl-6 "
+                    >
+                      <div className="absolute top-1 left-1">
+                        <Image
+                          src="/svg/copy.svg"
+                          alt="copy"
+                          width={16}
+                          height={16}
+                        />
+                      </div>
+                      <div
+                        style={{
+                          fontFamily: el.fontFamily,
+                          fontWeight: el.fontWeight,
+                          fontSize: el.fontSize,
+                        }}
+                      >
+                        {el.text}
+                      </div>
+                    </button>
+
+                    <button
+                      key={el.text}
+                      onClick={() => {
+                        navigator.clipboard.writeText(`@include ${el.mixin};`);
+                        setModalMessage("Mixin copied!");
+                      }}
+                      className="border rounded px-1 relative  pl-6 ml-2"
+                    >
+                      <div className="absolute top-1 left-1 ">
+                        <Image
+                          src="/svg/copy.svg"
+                          alt="copy"
+                          width={16}
+                          height={16}
+                        />
+                      </div>
+                      @include {el.mixin};
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
