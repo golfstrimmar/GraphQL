@@ -1,0 +1,12 @@
+[
+  {
+    "type": "p",
+    "attributes": {
+      "tag": "p",
+      "text": "default p",
+      "class": "default-p",
+      "style": "background-color: #b9f8cf;"
+    },
+    "children": "p"
+  }
+]

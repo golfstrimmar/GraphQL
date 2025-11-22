@@ -1,0 +1,119 @@
+.editor {
+  &__workspace {
+    position: relative;
+    margin: 20px 0 20px 0;
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 5px;
+  }
+
+  &__plaza {
+    position: relative;
+    margin: 30px 0 0 0;
+  }
+
+  &__controls {
+    position: absolute;
+    top: -30px;
+    left: 0;
+  }
+}
+
+
+
+
+.myHighlight {
+  background-color: rgba(65, 243, 145, 1);
+  border-radius: 2px;
+  transition: background-color 0.3s ease;
+}
+
+.monaco-editor {
+  .minimap-slider {
+    height: 40px !important;
+    /* делает сам ползунок уже */
+    background: rgba(100, 100, 100, 0.4) !important;
+  }
+
+  .minimap {
+    opacity: 0.95;
+  }
+}
+
+.preview-wrap {
+  min-height: calc(100vh - 180px);
+  // max-width: 90vw;
+  overflow: scroll;
+  margin: 10px 0 10px 0;
+}
+
+#preview {
+  min-height: 150px;
+  border: 1px solid var(--grey-30);
+  padding: 5px 5px 0px 5px;
+  border-radius: 5px;
+  background: #0F172A;
+  display: flex;
+  flex-direction: column;
+
+
+  *:not(img) {
+    position: relative;
+
+    &::after {
+      content: attr(data-label);
+      position: absolute;
+      top: -1em;
+      left: 0;
+      font-size: 13px;
+      background: #193756;
+      color: #51C9CD;
+      white-space: nowrap;
+      padding: 2px 3px;
+      line-height: 1;
+      border-radius: 4px;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+  }
+
+}
+
+.cart {
+  position: relative;
+  background-color: var(--primary) !important;
+  color: white;
+  padding: 5px;
+  margin: 60px 0 5px 0 !important;
+  border-radius: var(--token-04);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  width: 100%;
+  min-height: 80px;
+  border: 8px solid;
+  border-image: repeating-linear-gradient(45deg,
+      black 0 20px,
+      yellow 20px 40px) 8;
+
+}
+
+.marker {
+  // position: absolute !important;
+  // top: 0;
+  // left: 0;
+  display: inline-block;
+  background: red;
+  z-index: 200;
+  width: 23px !important;
+  height: 23px !important;
+  border-radius: 50%;
+  transition: all 0.5s ease-in-out;
+  background: red url('/assets/svg/target.svg') no-repeat center center;
+
+  &::after {
+    display: none;
+  }
+}

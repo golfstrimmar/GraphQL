@@ -1,0 +1,9 @@
+[
+  {
+    "type": "section",
+    "attributes": {
+      "class": "bg-indigo-300"
+    },
+    "children": "section"
+  }
+]
