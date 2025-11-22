@@ -72,12 +72,6 @@ export const typeDefs = gql`
     content: JSON!
     createdAt: String!
   }
-  type FigmaProjectExtended {
-    project: FigmaProject!
-    colors: [String!]!
-    fonts: JSON
-    textNodes: [String!]!
-  }
 
   type Project {
     id: ID!
@@ -122,12 +116,18 @@ export const typeDefs = gql`
     name: String!
     fileKey: String!
     nodeId: String!
-    file: JSON!
-    previewUrl: String
+    fileCache: JSON!
     owner: User!
-    figmaImages: [FigmaImage!]!
+    colors: [String!]!
+    fonts: [String!]!
+    textNodes: [String!]!
   }
-
+  type FigmaProjectExtended {
+    project: FigmaProject!
+    colors: [String!]!
+    fonts: JSON
+    textNodes: [String!]!
+  }
   type AuthPayload {
     token: String!
     user: User!
@@ -154,7 +154,7 @@ export const typeDefs = gql`
     jsonDocumentByName(name: String!): JsonDocument
     figmaProject(id: ID!): FigmaProject
     figmaProjectsByUser(userId: ID!): [FigmaProject!]!
-    getFigmaProjectData(projectId: ID!): FigmaProjectData!
+    getFigmaProjectData(projectId: ID!): FigmaProjectExtended!
     getColorVariablesByFileKey(fileKey: String!): [ColorVariable!]!
     getFontsByFileKey(fileKey: String!): [Font!]
   }

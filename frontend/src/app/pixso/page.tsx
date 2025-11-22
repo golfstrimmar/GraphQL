@@ -1,7 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { UPLOAD_FIGMA_JSON_PROJECT } from "@/apollo/mutations";
+import {
+  GET_FIGMA_PROJECTS_BY_USER,
+  GET_FIGMA_PROJECT_DATA,
+} from "@/apollo/queries";
 import Button from "@/components/ui/Button/Button";
 import "../figma/figma.scss";
 import Loading from "@/components/ui/Loading/Loading";
@@ -10,7 +14,23 @@ import { useRouter } from "next/navigation";
 import { set } from "lodash";
 
 // --------
+type FigmaProject = {
+  id: string;
+  name: string;
+  fileKey: string;
+  nodeId?: string | null;
+  file?: any | null;
+  owner: ProjectOwner;
+};
 
+type ProjectOwner = {
+  id: string;
+  name: string;
+};
+type Project = {
+  id: string;
+  name: string;
+};
 export default function FigmaPage() {
   const router = useRouter();
   const { user, setModalMessage } = useStateContext();
@@ -19,17 +39,50 @@ export default function FigmaPage() {
   const [colors, setColors] = useState<string[]>([]);
   const [fonts, setFonts] = useState<string[]>([]);
   const [texts, setTexts] = useState<string[]>([]);
-  // Apollo
+  const [allProjects, setAllProjects] = useState<Project[]>([]);
+  const [projectId, setProjectId] = useState<string>("");
+  const [currentProject, setcurrentProject] = useState<FigmaProject | null>(
+    null
+  );
+
+  // Query
+  const {
+    data: figmaProjectsByUser,
+    loading: allProjectsLoading,
+    error: allProjectsError,
+  } = useQuery(GET_FIGMA_PROJECTS_BY_USER, {
+    variables: { userId: user?.id },
+  });
+  const {
+    data: figmaProjectData,
+    loading: figmaProjectLoading,
+    error: figmaProjectError,
+  } = useQuery(GET_FIGMA_PROJECT_DATA, {
+    variables: { projectId: projectId },
+  });
+
+  //Mutation
   const [uploadFigmaJsonProject, { loading }] = useMutation(
     UPLOAD_FIGMA_JSON_PROJECT
   );
   //
-
   useEffect(() => {
-    if (user) {
-      console.log("<==== user====>", user);
+    if (figmaProjectsByUser?.figmaProjectsByUser) {
+      setAllProjects(figmaProjectsByUser.figmaProjectsByUser);
     }
-  }, [user]);
+  }, [figmaProjectsByUser]);
+  useEffect(() => {
+    if (figmaProjectData?.getFigmaProjectData) {
+      console.log(
+        "<====figmaProjectData ============== colors====>",
+        figmaProjectData.getFigmaProjectData
+      );
+      setcurrentProject(figmaProjectData.getFigmaProjectData.project);
+      setColors(figmaProjectData.getFigmaProjectData.colors);
+      setFonts(figmaProjectData.getFigmaProjectData.fonts);
+      setTexts(figmaProjectData.getFigmaProjectData.textNodes);
+    }
+  }, [figmaProjectData]);
   //
   const handleUpload = async () => {
     if (!file) return;
@@ -49,46 +102,46 @@ export default function FigmaPage() {
       const { data } = await uploadFigmaJsonProject({
         variables: { ownerId: user.id, name, jsonContent },
       });
-      console.log(
-        "<========>",
-        data.uploadFigmaJsonProject.colors,
-        data.uploadFigmaJsonProject.fonts,
-        data.uploadFigmaJsonProject.textNodes
-      );
       setColors(data.uploadFigmaJsonProject.colors);
       setFonts(data.uploadFigmaJsonProject.fonts);
       setTexts(data.uploadFigmaJsonProject.textNodes);
+      setAllProjects(() => {
+        return [
+          ...allProjects,
+          {
+            id: data.uploadFigmaJsonProject.project.id,
+            name: data.uploadFigmaJsonProject.project.name,
+          },
+        ];
+      });
     };
 
     // file — это instance of File
     reader.readAsText(file);
   };
 
-  //
-
-  // Получение SVG для одной картинки
-  // const handleTraceSVG = async (filename: string) => {
-  //   if (!file) return;
-  //   try {
-  //     const { data } = await traceImage({
-  //       variables: {
-  //         imageName: filename,
-  //         archiveBuffer: file,
-  //       },
-  //     });
-  //     // Удаляем сконвертированную из images
-  //     setImages((prev) => prev.filter((img) => img.filename !== filename));
-  //     // Добавляем в SVG-массив
-  //     setSvgs((prev) => [...prev, data.traceImageFromFig]);
-  //   } catch (e) {
-  //     setModalMessage("SVG conversion error: " + e.message);
-  //   }
-  // };
-
   return (
     <div className="figma">
       <div className="container">
         <h2 className="text-center mb-4">Figma projects</h2>
+        {allProjects.length === 0 && (
+          <p className="text-center text-red-500 my-4">
+            No Figma projects found
+          </p>
+        )}
+        <div className="flex flex-col gap-2">
+          {allProjects &&
+            allProjects.map((project) => (
+              <button
+                key={project.id}
+                onClick={() => {
+                  setProjectId(project.id);
+                }}
+              >
+                {project.name}
+              </button>
+            ))}
+        </div>
         <form>
           <input
             type="file"
@@ -107,7 +160,12 @@ export default function FigmaPage() {
             {loading ? "Uploading..." : "Upload file"}
           </Button>
         </form>
-
+        {currentProject && (
+          <div style={{ marginTop: 20 }}>
+            <h4>Current project</h4>
+            <p>{currentProject.name}</p>
+          </div>
+        )}
         {colors.length > 0 && (
           <div style={{ marginTop: 20 }}>
             <h4>Colors</h4>

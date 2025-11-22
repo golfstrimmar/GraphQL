@@ -89,8 +89,10 @@ export const GET_FIGMA_PROJECTS_BY_USER = gql`
       name
       fileKey
       nodeId
-      token
-      previewUrl
+      owner {
+        id
+        name
+      }
     }
   }
 `;
@@ -99,24 +101,20 @@ export const GET_FIGMA_PROJECTS_BY_USER = gql`
 export const GET_FIGMA_PROJECT_DATA = gql`
   query GetFigmaProjectData($projectId: ID!) {
     getFigmaProjectData(projectId: $projectId) {
-      id
-      name
-      fileKey
-      nodeId
-      token
-      previewUrl
-      file
-      owner {
+      project {
         id
         name
-      }
-      figmaImages {
-        fileName
-        filePath
+        fileKey
         nodeId
-        imageRef
-        type
+        owner {
+          id
+          name
+        }
+        fileCache
       }
+      colors
+      fonts
+      textNodes
     }
   }
 `;
