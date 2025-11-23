@@ -141,15 +141,13 @@ export function StateProvider({ children }: { children: ReactNode }) {
   }, [usersData, subscribeToUsers]);
 
   // ==================== MODAL ====================
-  const showModal = (message: string, duration = 2000) => {
+  const showModal = (message: string, duration = 3000) => {
     setModalMessage(message);
     setIsModalOpen(true);
     setTimeout(() => {
       setIsModalOpen(false);
-    }, duration);
-    setTimeout(() => {
       setModalMessage("");
-    }, 3000);
+    }, duration);
   };
   useEffect(() => {
     if (modalMessage) showModal(modalMessage);

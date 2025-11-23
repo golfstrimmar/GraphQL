@@ -44,16 +44,17 @@ export function extractFigmaData(realJsonContent) {
       `${node.fontFamily}|${node.fontWeight}|${node.fontSize}|${node.color}`
     );
   });
-  usedCombos.forEach((combo) => {
-    const [family, weight, size, color] = combo.split("|");
-    const mixinName = getMixinName(family, weight, size, color);
-    console.log(`@mixin ${mixinName} {
-  font-family: "${family}", sans-serif;
-  font-weight: ${weight};
-  font-size: ${size};
-  color: ${color};
-}`);
-  });
+  // usedCombos.forEach((combo) => {
+  // const [family, weight, size, color] = combo.split("|");
+  //     const mixinName = getMixinName(family, weight, size, color);
+  //     console.log(`@mixin ${mixinName} {
+  //   font-family: "${family}", sans-serif;
+  //   font-weight: ${weight};
+  //   font-size: ${size};
+  //   color: ${color};
+  // }
+  //   `);
+  // });
   const enhancedTextNodes = textNodes.map((node) => ({
     ...node,
     mixin: getMixinName(node.fontFamily, node.fontWeight, node.fontSize),

@@ -17,6 +17,8 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import generateGoogleFontsImport from "@/utils/generateGoogleFontsImport";
 import { AnimatePresence, motion } from "framer-motion";
+import FigmaProjectsList from "@/components/FigmaProjectsList/FigmaProjectsList";
+import { set } from "lodash";
 // --------
 type FigmaProject = {
   id: string;
@@ -111,14 +113,7 @@ export default function FigmaPage() {
     }
   }, [fonts]);
   //
-  const fetchProjectData = (id) => {
-    setColors([]);
-    setFonts([]);
-    setTexts([]);
 
-    setProjectId(id);
-    figmaProjectRefetch({ projectId: id });
-  };
   //
   const handleUpload = async () => {
     if (!file) return;
@@ -169,59 +164,79 @@ export default function FigmaPage() {
   );
   const toFontFamily = (fam) => `"${fam}", sans-serif`;
   //
-  const handlerRemoveFigmaProject = (id) => {
-    removeFigmaProject({ variables: { figmaProjectId: id } });
-    setAllProjects(allProjects.filter((p) => p.id !== id));
-    setProjectId("");
-    setcurrentProject(null);
-    setColors([]);
-    setFonts([]);
-    setTexts([]);
+  const colorVars = colors.map((value, idx) => ({
+    name: `$color-${idx + 1}`,
+    value,
+  }));
+
+  const allVars = colors
+    .map((value, idx) => `$color-${idx + 1}: ${value};`)
+    .join("\n");
+
+  const getColorVarByValue = (colorValue) => {
+    const found = colorVars.find((v) => v.value === colorValue);
+    return found ? found.name : colorValue;
   };
+
+  const renderColorVars = () => {
+    return (
+      <div className="flex flex-col gap-1 mt-4">
+        <h4 className="opacity-30">SCSS color variables:</h4>
+        {colors.map((value, idx) => (
+          <div key={value} className="font-mono  py-1 flex items-center gap-3">
+            <span>{`$color-${idx + 1}: ${value};`}</span>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(`$color-${idx + 1}: ${value};`);
+                setModalMessage("Variable copied to clipboard");
+              }}
+              className="ml-2 px-2 py-1 border rounded text-xs bg-slate-200 hover:bg-slate-300"
+            >
+              Copy
+            </button>
+          </div>
+        ))}
+        <button
+          onClick={() => {
+            navigator.clipboard.writeText(allVars);
+            setModalMessage("Variables copied to clipboard");
+          }}
+          className="mt-1 w-fit px-3 py-1 border rounded text-xs bg-slate-200 hover:bg-slate-300 font-bold"
+        >
+          Copy all variables
+        </button>
+      </div>
+    );
+  };
+
   //
   return (
     <div className="figma">
-      {loading && <Loading />}
-      {allProjectsLoading && <Loading />}
-      {figmaProjectLoading && <Loading />}
-      {removeLoading && <Loading />}
-
       <div className="container">
+        {loading && <Loading />}
+        {allProjectsLoading && <Loading />}
+        {figmaProjectLoading && <Loading />}
+        {removeLoading && <Loading />}
         <h2 className="text-center mb-4">Figma projects</h2>
-        {allProjects.length === 0 && (
+        {allProjects.length === 0 ? (
           <p className="text-center text-red-500 my-4">
             No Figma projects found
           </p>
+        ) : (
+          <FigmaProjectsList
+            allProjects={allProjects}
+            setAllProjects={setAllProjects}
+            projectId={projectId}
+            setColors={setColors}
+            setFonts={setFonts}
+            setTexts={setTexts}
+            setProjectId={setProjectId}
+            setcurrentProject={setcurrentProject}
+            figmaProjectRefetch={figmaProjectRefetch}
+            removeFigmaProject={removeFigmaProject}
+          />
         )}
-        <div className="flex flex-col gap-2 mb-2">
-          {allProjects &&
-            allProjects.map((project) => (
-              <div key={project.id} className="flex items-center gap-1">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    fetchProjectData(project.id);
-                  }}
-                  disabled={project.id === projectId}
-                  className={`${
-                    project.id === projectId
-                      ? "bg-slate-400"
-                      : "bg-slate-200 hover:bg-slate-300"
-                  } p-2 rounded pr-6`}
-                >
-                  {project.name}
-                </button>
-                <button
-                  className="btn btn-allert p-1 "
-                  onClick={(e) => {
-                    handlerRemoveFigmaProject(project.id);
-                  }}
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
-        </div>
+
         <Button
           onClick={() => {
             setFile(null);
@@ -243,17 +258,18 @@ export default function FigmaPage() {
             <h4 className=" opacity-30">Colors:</h4>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
               {colors.map((value, index) => (
-                <div key={index} className="flex items-center gap-2">
+                <div key={index} className="flex items-center gap-1">
                   <div
                     style={{
                       background: value,
                     }}
-                    className="w-8 h-8 border rounded-full mr-4 ml-2"
+                    className="w-8 h-8 border rounded-full  ml-1"
                   />
                   <span>{value}</span>
                 </div>
               ))}
             </div>
+            {renderColorVars(colors)}
           </div>
         )}
         {fonts && Object.keys(fonts).length > 0 && (
@@ -290,7 +306,13 @@ export default function FigmaPage() {
             <h4 className=" opacity-30">Mixins:</h4>
             <div className="flex flex-col gap-1">
               {uniqueMixins.map((el) => {
-                const scssMixin = `@mixin ${el.mixin} {\n  font-family: "${el.fontFamily}", sans-serif;\n  font-weight: ${el.fontWeight};\n  font-size: ${el.fontSize};\n color: ${el.color};\n}`;
+                const colorVariable = getColorVarByValue(el.color);
+                const scssMixin = `@mixin ${el.mixin} {
+  font-family: "${el.fontFamily}", sans-serif;
+  font-weight: ${el.fontWeight};
+  font-size: ${el.fontSize};
+  color: ${colorVariable};
+}`;
 
                 return (
                   <button
@@ -299,7 +321,7 @@ export default function FigmaPage() {
                       navigator.clipboard.writeText(scssMixin);
                       setModalMessage("Scss copied!");
                     }}
-                    className="border rounded px-1 text-left whitespace-pre font-mono  text-sm py-1 pl-6 relative"
+                    className="border rounded px-1 text-left whitespace-pre font-mono text-sm py-1 pl-6 relative"
                   >
                     <div className="absolute top-1 left-1">
                       <Image
