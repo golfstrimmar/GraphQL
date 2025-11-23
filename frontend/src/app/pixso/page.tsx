@@ -47,7 +47,7 @@ type Project = {
 export default function FigmaPage() {
   const router = useRouter();
   const { user, setHtmlJson, setModalMessage } = useStateContext();
-  const [file, setFile] = useState<File | null>(null); // archive
+  const [file, setFile] = useState<File | null>(null);
   const [name, setName] = useState<string>("");
   const [colors, setColors] = useState<string[]>([]);
   const [fonts, setFonts] = useState<string[]>([]);
@@ -239,7 +239,7 @@ export default function FigmaPage() {
 
   //
   return (
-    <div className="figma">
+    <div className="figma my-4">
       <div className="container">
         {loading && <Loading />}
         {allProjectsLoading && <Loading />}

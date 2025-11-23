@@ -1,3 +1,6 @@
 от храилища к редактору кода---
-StateProvider.tsx  --> orderIndexes  --> jsonToHtml  --> formatHtml  --> monaco
-                                                                                                     --> document.getElementById("preview") визуализация
+StateProvider.tsx --> orderIndexes --> jsonToHtml --> formatHtml --> monaco
+--> document.getElementById("preview") визуализация
+
+Figma to JSON Exporter
+Bulk image

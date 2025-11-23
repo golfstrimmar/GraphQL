@@ -358,7 +358,7 @@ export default function Plaza() {
 
   //⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️
   return (
-    <section className={` isFigma?pt-[100px]:pt-0`}>
+    <section className={` isFigma?pt-[100px]:pt-0 mb-8`}>
       {/* <div className=" mt-6 mb-6 relative w-full h-1 ">
         <hr className="bordered border-slate-900 mt-6 mb-6" />
         <div className="bg-white text-slate-900 p-1 rounded-2xl  absolute top-[50%] left-[50%] translate-[-50%] ">
