@@ -93,8 +93,6 @@ export function StateProvider({ children }: { children: ReactNode }) {
   };
 
   const undo = () => {
-    console.log("<====undoStack====>", undoStack);
-
     if (undoStack.length === 0) return;
     const prev = undoStack[undoStack.length - 1];
     setUndoStack((stack) => stack.slice(0, -1));
@@ -103,7 +101,6 @@ export function StateProvider({ children }: { children: ReactNode }) {
   };
 
   const redo = () => {
-    console.log("<====redoStack====>", redoStack);
     if (redoStack.length === 0) return;
     const next = redoStack[redoStack.length - 1];
     setRedoStack((stack) => stack.slice(0, -1));
@@ -160,17 +157,12 @@ export function StateProvider({ children }: { children: ReactNode }) {
   // ==================== INIT HTML JSON ====================
   useEffect(() => {
     if (typeof window === "undefined") return;
-    console.log(
-      "<=🚀🚀🚀🚀===jsonData.jsonDocumentByName Provider===🚀🚀🚀🚀=>",
-      jsonData?.jsonDocumentByName
-    );
     const stored = localStorage.getItem("htmlJson");
     if (stored && stored !== "[]") {
       setHtmlJson(JSON.parse(stored));
     } else if (jsonData) {
       const initialJson = jsonData?.jsonDocumentByName?.content[0];
       localStorage.setItem("htmlJson", JSON.stringify(initialJson));
-      console.log("<=🚀🚀🚀🚀===initialJson====🚀🚀🚀🚀>", initialJson);
       setHtmlJson(initialJson);
       localStorage.setItem("htmlJson", JSON.stringify(initialJson));
     } else {
@@ -206,29 +198,6 @@ export function StateProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("htmlJson", JSON.stringify(htmlJson));
     }
   }, [htmlJson, jsonData]);
-  // ====================
-  // useEffect(() => {
-  //   if (typeof window === "undefined") return;
-  //   if (!texts?.length) return;
-  //   console.log("<====texts====>", texts);
-  //   const allTexts: string[] = texts.flatMap((item) => item.texts || []);
-  //   if (!allTexts.length) return;
-  //   console.log("<====allTexts====>", allTexts);
-  //   const newNodes: HtmlNode[] = allTexts.map((text) => ({
-  //     tag: "div",
-  //     text: text,
-  //     class: "",
-  //     style:
-  //       "background: rgb(226, 232, 240); padding: 2px 4px; border: 1px solid #adadad;",
-  //     children: [],
-  //   }));
-
-  //   setHtmlJson((prev) => {
-  //     const next = { ...prev };
-  //     next.children = [...next.children, ...newNodes];
-  //     return next;
-  //   });
-  // }, [texts]);
 
   return (
     <StateContext.Provider

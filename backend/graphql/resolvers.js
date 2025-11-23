@@ -43,7 +43,6 @@ export const resolvers = {
     },
 
     figmaProjectsByUser: async (_, { userId }) => {
-      console.log("<====userId====>", userId);
       return prisma.figmaProject.findMany({
         where: { ownerId: Number(userId) },
         include: { owner: true },

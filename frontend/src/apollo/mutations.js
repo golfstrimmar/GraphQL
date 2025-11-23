@@ -138,7 +138,14 @@ export const UPLOAD_FIGMA_JSON_PROJECT = gql`
       }
       colors
       fonts
-      textNodes
+      textNodes {
+        text
+        fontFamily
+        fontWeight
+        fontSize
+        color
+        mixin
+      }
     }
   }
 `;

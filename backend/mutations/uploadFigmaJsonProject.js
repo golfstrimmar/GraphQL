@@ -1,24 +1,14 @@
 import prisma from "../prisma/client.js";
-
-function findAllTextNodes(obj, acc = []) {
-  if (!obj || typeof obj !== "object") return acc;
-  if (obj.type === "TEXT" && obj.content) acc.push(obj.content);
-  if (Array.isArray(obj.children)) {
-    obj.children.forEach((child) => findAllTextNodes(child, acc));
-  }
-  return acc;
-}
+import { extractFigmaData } from "../utils/figmaExtractors.js";
 
 const uploadFigmaJsonProject = async (_, { ownerId, name, jsonContent }) => {
   console.log("<====name====>", name);
   const realJsonContent =
     typeof jsonContent === "string" ? JSON.parse(jsonContent) : jsonContent;
-  //
-  const colors = Object.values(realJsonContent.designTokens?.colors || {});
-  const fonts = realJsonContent.designTokens?.fonts || {};
-  const textNodes = findAllTextNodes(realJsonContent.structure);
 
-  //
+  // Получаем все необходимые данные одной функцией
+  const { colors, fonts, textNodes } = extractFigmaData(realJsonContent);
+
   const project = await prisma.figmaProject.create({
     data: {
       name,

@@ -1,7 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useMutation, useQuery } from "@apollo/client";
-import { UPLOAD_FIGMA_JSON_PROJECT } from "@/apollo/mutations";
+import {
+  UPLOAD_FIGMA_JSON_PROJECT,
+  REMOVE_FIGMA_PROJECT,
+} from "@/apollo/mutations";
 import {
   GET_FIGMA_PROJECTS_BY_USER,
   GET_FIGMA_PROJECT_DATA,
@@ -12,7 +15,8 @@ import Loading from "@/components/ui/Loading/Loading";
 import { useStateContext } from "@/providers/StateProvider";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-
+import generateGoogleFontsImport from "@/utils/generateGoogleFontsImport";
+import { AnimatePresence, motion } from "framer-motion";
 // --------
 type FigmaProject = {
   id: string;
@@ -44,7 +48,7 @@ export default function FigmaPage() {
   const [currentProject, setcurrentProject] = useState<FigmaProject | null>(
     null
   );
-
+  const [modalOpen, setModalOpen] = useState(false);
   // Query
   const {
     data: figmaProjectsByUser,
@@ -57,6 +61,7 @@ export default function FigmaPage() {
     data: figmaProjectData,
     loading: figmaProjectLoading,
     error: figmaProjectError,
+    refetch: figmaProjectRefetch,
   } = useQuery(GET_FIGMA_PROJECT_DATA, {
     variables: { projectId: projectId },
   });
@@ -65,7 +70,11 @@ export default function FigmaPage() {
   const [uploadFigmaJsonProject, { loading }] = useMutation(
     UPLOAD_FIGMA_JSON_PROJECT
   );
+  const [removeFigmaProject, { loading: removeLoading }] =
+    useMutation(REMOVE_FIGMA_PROJECT);
+
   //
+
   useEffect(() => {
     if (figmaProjectsByUser?.figmaProjectsByUser) {
       setAllProjects(figmaProjectsByUser.figmaProjectsByUser);
@@ -83,6 +92,33 @@ export default function FigmaPage() {
       setTexts(figmaProjectData.getFigmaProjectData.textNodes);
     }
   }, [figmaProjectData]);
+  useEffect(() => {
+    console.log("<====fonts====>", fonts);
+    if (Object.keys(fonts).length > 0) {
+      const links = Object.entries(fonts).map(([key, fontObj]) => ({
+        fontFamily: key,
+      }));
+      console.log("<====links====>", links);
+      const link = generateGoogleFontsImport(links);
+      console.log("<====link====>", link);
+      //   console.log("<====link====>", link);
+      if (link) {
+        const l = document.createElement("link");
+        l.rel = "stylesheet";
+        l.href = link;
+        document.head.appendChild(l);
+      }
+    }
+  }, [fonts]);
+  //
+  const fetchProjectData = (id) => {
+    setColors([]);
+    setFonts([]);
+    setTexts([]);
+
+    setProjectId(id);
+    figmaProjectRefetch({ projectId: id });
+  };
   //
   const handleUpload = async () => {
     if (!file) return;
@@ -102,6 +138,9 @@ export default function FigmaPage() {
       const { data } = await uploadFigmaJsonProject({
         variables: { ownerId: user.id, name, jsonContent },
       });
+      if (data) {
+        setModalOpen(false);
+      }
       setColors(data.uploadFigmaJsonProject.colors);
       setFonts(data.uploadFigmaJsonProject.fonts);
       setTexts(data.uploadFigmaJsonProject.textNodes);
@@ -128,8 +167,25 @@ export default function FigmaPage() {
       return acc;
     }, {})
   );
+  const toFontFamily = (fam) => `"${fam}", sans-serif`;
+  //
+  const handlerRemoveFigmaProject = (id) => {
+    removeFigmaProject({ variables: { figmaProjectId: id } });
+    setAllProjects(allProjects.filter((p) => p.id !== id));
+    setProjectId("");
+    setcurrentProject(null);
+    setColors([]);
+    setFonts([]);
+    setTexts([]);
+  };
+  //
   return (
     <div className="figma">
+      {loading && <Loading />}
+      {allProjectsLoading && <Loading />}
+      {figmaProjectLoading && <Loading />}
+      {removeLoading && <Loading />}
+
       <div className="container">
         <h2 className="text-center mb-4">Figma projects</h2>
         {allProjects.length === 0 && (
@@ -137,46 +193,54 @@ export default function FigmaPage() {
             No Figma projects found
           </p>
         )}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 mb-2">
           {allProjects &&
             allProjects.map((project) => (
-              <button
-                key={project.id}
-                onClick={() => {
-                  setProjectId(project.id);
-                }}
-              >
-                {project.name}
-              </button>
+              <div key={project.id} className="flex items-center gap-1">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    fetchProjectData(project.id);
+                  }}
+                  disabled={project.id === projectId}
+                  className={`${
+                    project.id === projectId
+                      ? "bg-slate-400"
+                      : "bg-slate-200 hover:bg-slate-300"
+                  } p-2 rounded pr-6`}
+                >
+                  {project.name}
+                </button>
+                <button
+                  className="btn btn-allert p-1 "
+                  onClick={(e) => {
+                    handlerRemoveFigmaProject(project.id);
+                  }}
+                >
+                  Remove
+                </button>
+              </div>
             ))}
         </div>
-        <form>
-          <input
-            type="file"
-            onChange={(e) => setFile(e.target.files?.[0] || null)}
-            className="border rounded p-2 mb-2"
-            placeholder="Select a file"
-          />
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="border rounded p-2 mb-2"
-            placeholder="Project name"
-          />
-          <Button disabled={!file || loading} onClick={handleUpload}>
-            {loading ? "Uploading..." : "Upload file"}
-          </Button>
-        </form>
+        <Button
+          onClick={() => {
+            setFile(null);
+            setName("");
+            setModalOpen(true);
+          }}
+        >
+          Add project
+        </Button>
+
         {currentProject && (
-          <div style={{ marginTop: 20 }}>
-            <h4>Current project</h4>
-            <p>{currentProject.name}</p>
+          <div className="mt-4 flex items-center gap-2">
+            <h4 className="inline-block opacity-30">Current project:</h4>
+            <span className="font-bold text-[25px]">{currentProject.name}</span>
           </div>
         )}
         {colors.length > 0 && (
           <div style={{ marginTop: 20 }}>
-            <h4>Colors</h4>
+            <h4 className=" opacity-30">Colors:</h4>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
               {colors.map((value, index) => (
                 <div key={index} className="flex items-center gap-2">
@@ -194,7 +258,7 @@ export default function FigmaPage() {
         )}
         {fonts && Object.keys(fonts).length > 0 && (
           <div style={{ marginTop: 20 }}>
-            <h4>Fonts</h4>
+            <h4 className=" opacity-30">Fonts:</h4>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
               {Object.entries(fonts).map(([key, fontObj]) => (
                 <div
@@ -223,7 +287,7 @@ export default function FigmaPage() {
 
         {texts.length > 0 && (
           <div className="my-4">
-            <h4>Mixins</h4>
+            <h4 className=" opacity-30">Mixins:</h4>
             <div className="flex flex-col gap-1">
               {uniqueMixins.map((el) => {
                 const scssMixin = `@mixin ${el.mixin} {\n  font-family: "${el.fontFamily}", sans-serif;\n  font-weight: ${el.fontWeight};\n  font-size: ${el.fontSize};\n color: ${el.color};\n}`;
@@ -274,17 +338,16 @@ export default function FigmaPage() {
               ))}
             </div> */}
             <div className="my-2">
-              <h4>Texts</h4>
+              <h4 className=" opacity-30">Texts:</h4>
               <div className="flex flex-col gap-2">
                 {texts.map((el) => (
-                  <div key={el.text}>
+                  <div key={el.text} className="grid grid-cols-[80%_1fr]">
                     <button
-                      key={el.text}
                       onClick={() => {
                         navigator.clipboard.writeText(`${el.text}`);
                         setModalMessage("Text copied!");
                       }}
-                      className="border rounded px-1 relative pl-6 "
+                      className="border rounded px-1 relative pl-6 bg-slate-200 overflow-hidden"
                     >
                       <div className="absolute top-1 left-1">
                         <Image
@@ -296,10 +359,12 @@ export default function FigmaPage() {
                       </div>
                       <div
                         style={{
-                          fontFamily: el.fontFamily,
+                          fontFamily: toFontFamily(el.fontFamily),
                           fontWeight: el.fontWeight,
                           fontSize: el.fontSize,
+                          color: el.color,
                         }}
+                        className="whitespace-pre "
                       >
                         {el.text}
                       </div>
@@ -329,6 +394,65 @@ export default function FigmaPage() {
             </div>
           </div>
         )}
+        <AnimatePresence>
+          {modalOpen && (
+            <div onClick={() => setModalOpen(false)}>
+              <motion.div
+                initial={{
+                  opacity: 0,
+                  scale: 0.8,
+                  y: -100,
+                }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8, y: -100 }}
+                transition={{ duration: 0.3 }}
+                className=" w-[100vw] h-[100vh] fixed top-0 left-0 flex items-center justify-center bg-black bg-opacity-90 z-500"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (
+                    !e.target.closest(".modal-content") &&
+                    !e.target.classList.contains("modal-content")
+                  ) {
+                    setModalOpen(false);
+                  }
+                }}
+              >
+                <Image
+                  src="/svg/cross.svg"
+                  alt="close"
+                  width={24}
+                  height={24}
+                  className="absolute top-4 right-4 cursor-pointer"
+                  onClick={() => setModalOpen(false)}
+                />
+                <div className="modal-content  min-w-[500px] bg-white p-6 rounded-lg ">
+                  <form className="flex flex-col gap-2">
+                    <input
+                      type="file"
+                      onChange={(e) => setFile(e.target.files?.[0] || null)}
+                      className="border rounded p-2 mb-1"
+                      placeholder="Select a file"
+                    />
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="border rounded p-2 mb-4"
+                      placeholder="Project name"
+                    />
+                    <button
+                      className="btn btn-primary"
+                      disabled={!file || loading}
+                      onClick={handleUpload}
+                    >
+                      {loading ? "Uploading..." : "Upload file"}
+                    </button>
+                  </form>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
