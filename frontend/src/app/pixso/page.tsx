@@ -18,7 +18,7 @@ import Image from "next/image";
 import generateGoogleFontsImport from "@/utils/generateGoogleFontsImport";
 import { AnimatePresence, motion } from "framer-motion";
 import FigmaProjectsList from "@/components/FigmaProjectsList/FigmaProjectsList";
-import { set } from "lodash";
+import Plaza from "@/app/plaza/page";
 // --------
 type FigmaProject = {
   id: string;
@@ -28,7 +28,14 @@ type FigmaProject = {
   file?: any | null;
   owner: ProjectOwner;
 };
-
+type HtmlNode = {
+  tag: string;
+  class?: string;
+  children?: HtmlNode[] | HtmlNode | string;
+  text?: string;
+  style?: string;
+  attributes?: Record<string, string>;
+};
 type ProjectOwner = {
   id: string;
   name: string;
@@ -39,7 +46,7 @@ type Project = {
 };
 export default function FigmaPage() {
   const router = useRouter();
-  const { user, setModalMessage } = useStateContext();
+  const { user, setHtmlJson, setModalMessage } = useStateContext();
   const [file, setFile] = useState<File | null>(null); // archive
   const [name, setName] = useState<string>("");
   const [colors, setColors] = useState<string[]>([]);
@@ -112,9 +119,30 @@ export default function FigmaPage() {
       }
     }
   }, [fonts]);
-  //
+  //////////////////
 
-  //
+  useEffect(() => {
+    if (texts.length > 0) {
+      const styleStr =
+        "background: rgb(226, 232, 240); padding: 2px 4px; border: 1px solid #adadad;";
+
+      const newNodes: HtmlNode[] = texts.map((el, i) => ({
+        tag: "div",
+        text: el.text,
+        class: "",
+        style: styleStr,
+        children: [],
+      }));
+      setHtmlJson((prev) => ({
+        ...prev,
+        children: [
+          ...(Array.isArray(prev.children) ? prev.children : []),
+          ...newNodes,
+        ],
+      }));
+    }
+  }, [texts]);
+  //////////////////
   const handleUpload = async () => {
     if (!file) return;
     if (!user) {
@@ -308,11 +336,11 @@ export default function FigmaPage() {
               {uniqueMixins.map((el) => {
                 const colorVariable = getColorVarByValue(el.color);
                 const scssMixin = `@mixin ${el.mixin} {
-  font-family: "${el.fontFamily}", sans-serif;
-  font-weight: ${el.fontWeight};
-  font-size: ${el.fontSize};
-  color: ${colorVariable};
-}`;
+                font-family: "${el.fontFamily}", sans-serif;
+                font-weight: ${el.fontWeight};
+                font-size: ${el.fontSize};
+                color: ${colorVariable};
+              }`;
 
                 return (
                   <button
@@ -362,8 +390,8 @@ export default function FigmaPage() {
             <div className="my-2">
               <h4 className=" opacity-30">Texts:</h4>
               <div className="flex flex-col gap-2">
-                {texts.map((el) => (
-                  <div key={el.text} className="grid grid-cols-[80%_1fr]">
+                {texts.map((el, idx) => (
+                  <div key={idx} className="grid grid-cols-[80%_1fr]">
                     <button
                       onClick={() => {
                         navigator.clipboard.writeText(`${el.text}`);
@@ -416,6 +444,8 @@ export default function FigmaPage() {
             </div>
           </div>
         )}
+        {/*🔹🔹🔹🔹🔹 Plaza 🔹🔹🔹🔹🔹*/}
+        <Plaza />
         <AnimatePresence>
           {modalOpen && (
             <div onClick={() => setModalOpen(false)}>
