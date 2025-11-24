@@ -158,9 +158,12 @@ export default function FigmaPage() {
   }, [texts]);
   //////////////////
   const handleUpload = async () => {
-    if (!file) return;
     if (!user) {
       setModalMessage("You are not logged in.");
+      return;
+    }
+    if (!file) {
+      setModalMessage("Please select a file.");
       return;
     }
     if (name.length === 0) {
@@ -197,6 +200,7 @@ export default function FigmaPage() {
     // file — это instance of File
     reader.readAsText(file);
   };
+  //////////////////
   const uniqueMixins = Object.values(
     texts.reduce<Record<string, TextNode>>((acc, el) => {
       const key = `${el.mixin}`;
@@ -224,7 +228,7 @@ export default function FigmaPage() {
 
   const renderColorVars = () => {
     return (
-      <div className="mt-6 p-6 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl border border-slate-200">
+      <div className="mt-6 p-2 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl border border-slate-200">
         <div className="flex items-center justify-between mb-4">
           <h4 className="text-sm font-semibold text-slate-600 uppercase tracking-wide">
             SCSS Variables
@@ -243,9 +247,9 @@ export default function FigmaPage() {
           {colors.map((value, idx) => (
             <div
               key={value}
-              className="group flex items-center gap-3 p-3 bg-white rounded-lg border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all"
+              className="group flex items-center gap-3 p-1 bg-navy rounded-lg border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all"
             >
-              <code className="flex-1 font-mono text-sm text-slate-700">{`$color-${idx + 1}: ${value};`}</code>
+              <code className="flex-1 font-mono text-sm text-slate-900">{`$color-${idx + 1}: ${value};`}</code>
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(`$color-${idx + 1}: ${value};`);
@@ -278,7 +282,7 @@ export default function FigmaPage() {
             Extract and manage your design system
           </p>
         </div>
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-slate-200">
+        <div className="bg-navy rounded-2xl shadow-xl p-2 mb-8 border border-slate-200">
           {allProjects.length === 0 ? (
             <div className="text-center py-12">
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -299,20 +303,7 @@ export default function FigmaPage() {
             </div>
           ) : (
             <>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-slate-800">
-                  Your Projects
-                </h2>
-                <Button
-                  onClick={() => {
-                    setFile(null);
-                    setName("");
-                    setModalOpen(true);
-                  }}
-                >
-                  + Add Project
-                </Button>
-              </div>
+              <h2 className="mb-2">Your Projects</h2>
               <FigmaProjectsList
                 allProjects={allProjects}
                 setAllProjects={setAllProjects}
@@ -325,14 +316,23 @@ export default function FigmaPage() {
                 figmaProjectRefetch={figmaProjectRefetch}
                 removeFigmaProject={removeFigmaProject}
               />
+              <Button
+                onClick={() => {
+                  setFile(null);
+                  setName("");
+                  setModalOpen(true);
+                }}
+              >
+                + Add Project
+              </Button>
             </>
           )}
         </div>
         {currentProject && (
-          <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl shadow-xl p-6 mb-8 text-white">
+          <div className=" rounded-2xl shadow-xl  mb-8 ">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center">
-                <span className="text-2xl">🎨</span>
+              <div className="w-12 h-12 bg-navy/20 backdrop-blur rounded-xl flex items-center justify-center">
+                <span className="text-2xl">📝</span>
               </div>
               <div>
                 <p className="text-sm text-white/80 font-medium">
@@ -344,7 +344,7 @@ export default function FigmaPage() {
           </div>
         )}
         {colors.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-slate-200">
+          <div className="bg-navy rounded-2xl shadow-xl p-2 mb-8 border border-slate-200">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-orange-500 rounded-lg flex items-center justify-center">
                 <span className="text-xl">🎨</span>
@@ -353,11 +353,11 @@ export default function FigmaPage() {
                 Color Palette
               </h3>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            <div className="grid grid-cols-[repeat(auto-fill,_minmax(150px,_1fr))] gap-2">
               {colors.map((value, index) => (
                 <div
                   key={index}
-                  className="group relative bg-slate-50 rounded-xl p-4 border border-slate-200 hover:shadow-lg hover:scale-105 transition-all cursor-pointer"
+                  className="group relative bg-slate-50 rounded-xl p-2 border border-slate-200 hover:shadow-lg hover:scale-105 transition-all cursor-pointer"
                   onClick={() => {
                     navigator.clipboard.writeText(value);
                     setModalMessage(`Color ${value} copied!`);
@@ -365,7 +365,7 @@ export default function FigmaPage() {
                 >
                   <div
                     style={{ background: value }}
-                    className="w-full h-24 rounded-lg shadow-md mb-3 border-2 border-white"
+                    className="w-full h-14 rounded-lg shadow-md mb-3 border-2 border-white"
                   />
                   <div className="text-center">
                     <p className="text-xs font-mono text-slate-600 font-medium">
@@ -373,7 +373,7 @@ export default function FigmaPage() {
                     </p>
                     <p className="text-xs text-slate-400 mt-1">Click to copy</p>
                   </div>
-                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute top-2 right-2 opacity-0 transition-all duration-200 group-hover:opacity-100 ">
                     <div className="bg-white rounded-full p-1.5 shadow-md">
                       <Image
                         src="/svg/copy.svg"
@@ -390,7 +390,7 @@ export default function FigmaPage() {
           </div>
         )}
         {fonts && Object.keys(fonts).length > 0 && (
-          <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-slate-200">
+          <div className="bg-navy rounded-2xl shadow-xl p-2 mb-8 border border-slate-200">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
                 <span className="text-xl">Aa</span>
@@ -412,7 +412,7 @@ export default function FigmaPage() {
                         {key}
                       </p>
                     </div>
-                    <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm">
+                    <div className="w-8 h-8 bg-navy rounded-lg flex items-center justify-center shadow-sm">
                       <span className="text-sm font-bold text-slate-600">
                         T
                       </span>
@@ -427,7 +427,7 @@ export default function FigmaPage() {
                         {Object.values(fontObj.sizes).map((size, idx) => (
                           <span
                             key={idx}
-                            className="px-2 py-1 bg-white rounded-md text-xs font-mono text-slate-700 border border-slate-200"
+                            className="px-2 py-1 bg-navy rounded-md text-xs font-mono text-slate-700 border border-slate-200"
                           >
                             {size}
                           </span>
@@ -444,7 +444,7 @@ export default function FigmaPage() {
                         {Object.values(fontObj.weights).map((weight, idx) => (
                           <span
                             key={idx}
-                            className="px-2 py-1 bg-white rounded-md text-xs font-mono text-slate-700 border border-slate-200"
+                            className="px-2 py-1 bg-navy rounded-md text-xs font-mono text-slate-700 border border-slate-200"
                           >
                             {weight}
                           </span>
@@ -458,7 +458,7 @@ export default function FigmaPage() {
           </div>
         )}
         {texts.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-slate-200">
+          <div className="bg-navy rounded-2xl shadow-xl p-2 mb-8 border border-slate-200">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
                 <span className="text-xl">{"{ }"}</span>
@@ -478,7 +478,7 @@ export default function FigmaPage() {
                 return (
                   <div
                     key={el.mixin}
-                    className="group relative bg-slate-900 rounded-xl p-4 border border-slate-700 hover:border-purple-500 transition-all overflow-hidden"
+                    className="group relative bg-slate-900 rounded-xl p-2 border border-slate-700 hover:border-purple-500 transition-all overflow-hidden"
                   >
                     <button
                       onClick={() => {
@@ -522,7 +522,7 @@ export default function FigmaPage() {
             <div className="mt-8">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
-                  <span className="text-xl">📝</span>
+                  <span className="text-xl">🧻</span>
                 </div>
                 <h3 className="text-2xl font-bold text-slate-800">
                   Text Styles
@@ -532,32 +532,32 @@ export default function FigmaPage() {
                 {texts.map((el, idx) => (
                   <div
                     key={idx}
-                    className="group bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200 hover:shadow-lg hover:border-green-300 transition-all"
+                    className="group bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-2 border border-slate-200 hover:shadow-lg hover:border-green-300 transition-all"
                   >
-                    <div className="flex items-start gap-4">
+                    <div className="flex items-start gap-2">
                       <button
                         onClick={() => {
                           navigator.clipboard.writeText(`${el.text}`);
                           setModalMessage("Text copied!");
                         }}
-                        className="flex-1 text-left p-4 bg-slate-200 rounded-lg border border-slate-200 hover:border-green-400 transition-colors relative overflow-hidden"
+                        className="flex-1 text-left p-2 bg-slate-300 rounded-lg border border-slate-200 hover:border-[var(--teal)] transition-colors relative overflow-hidden group"
                       >
-                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="absolute top-[50%] translate-y-[-50%] right-2 opacity-40 group-hover:opacity-100 transition-opacity ">
                           <div className="bg-green-500 text-white px-2 py-1 rounded-md text-xs font-medium">
                             Copy Text
                           </div>
                         </div>
-                        <div
+                        <p
                           style={{
                             fontFamily: toFontFamily(el.fontFamily),
                             fontWeight: el.fontWeight,
                             fontSize: el.fontSize,
                             color: el.color,
                           }}
-                          className="whitespace-pre-wrap break-words"
+                          className="whitespace-nowrap "
                         >
                           {el.text}
-                        </div>
+                        </p>
                       </button>
 
                       <button
@@ -567,7 +567,7 @@ export default function FigmaPage() {
                           );
                           setModalMessage("Mixin copied!");
                         }}
-                        className="px-4 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-900 transition-colors font-mono text-sm whitespace-nowrap"
+                        className="px-4 py-2  rounded-lg border hover:border-[var(--teal)] hover:text-[var(--teal)] transition-colors font-mono text-sm whitespace-nowrap z-50"
                       >
                         @include {el.mixin};
                       </button>
@@ -588,7 +588,7 @@ export default function FigmaPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-500 p-2"
               onClick={() => setModalOpen(false)}
             >
               <motion.div
@@ -596,7 +596,7 @@ export default function FigmaPage() {
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.9, y: 20 }}
                 transition={{ type: "spring", duration: 0.5 }}
-                className="modal-content bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+                className="modal-content bg-navy rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-6 text-white">
@@ -609,7 +609,7 @@ export default function FigmaPage() {
                     </div>
                     <button
                       onClick={() => setModalOpen(false)}
-                      className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
+                      className="w-8 h-8 rounded-full bg-navy/20 hover:bg-navy/30 flex items-center justify-center transition-colors"
                     >
                       <Image
                         src="/svg/cross.svg"
@@ -649,9 +649,12 @@ export default function FigmaPage() {
 
                   <button
                     type="button"
-                    disabled={!file || loading}
-                    onClick={handleUpload}
-                    className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    // disabled={!file || !name || loading}
+                    onClick={(e) => {
+                      handleUpload();
+                      e.preventDefault();
+                    }}
+                    className="btn btn-primary w-full hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                   >
                     {loading ? "Uploading..." : "Upload Project"}
                   </button>

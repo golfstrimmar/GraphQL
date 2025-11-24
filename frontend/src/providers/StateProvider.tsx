@@ -9,7 +9,11 @@ import {
 import dynamic from "next/dynamic";
 import { useQuery } from "@apollo/client";
 import { GET_USERS, GET_JSON_DOCUMENT } from "@/apollo/queries";
-import { USER_CREATED } from "@/apollo/subscriptions";
+import {
+  USER_CREATED,
+  USER_UPDATED,
+  USER_DELETED,
+} from "@/apollo/subscriptions";
 
 const ModalMessage = dynamic(
   () => import("@/components/ModalMessage/ModalMessage"),
@@ -125,7 +129,7 @@ export function StateProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (usersData?.users) setUsers(usersData.users);
 
-    const unsubscribe = subscribeToUsers({
+    const unsubCreate = subscribeToUsers({
       document: USER_CREATED,
       updateQuery: (prev, { subscriptionData }) => {
         if (!subscriptionData.data) return prev;
@@ -137,7 +141,47 @@ export function StateProvider({ children }: { children: ReactNode }) {
       },
     });
 
-    return () => unsubscribe();
+    const unsubUpdate = subscribeToUsers({
+      document: USER_UPDATED,
+      updateQuery: (prev, { subscriptionData }) => {
+        if (!subscriptionData.data) return prev;
+        const updatedUser = subscriptionData.data.userUpdated;
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user.id === updatedUser.id ? updatedUser : user
+          )
+        );
+        return {
+          users: prev.users.map((user) =>
+            user.id === updatedUser.id ? updatedUser : user
+          ),
+        };
+      },
+    });
+
+    const unsubDelete = subscribeToUsers({
+      document: USER_DELETED,
+      updateQuery: (prev, { subscriptionData }) => {
+        if (!subscriptionData.data) return prev;
+        const deletedUserId = subscriptionData.data.userDeleted;
+        setUsers((prevUsers) =>
+          prevUsers
+            ? prevUsers.filter((user) => user.id !== deletedUserId)
+            : null
+        );
+        return {
+          users: prev.users
+            ? prev.users.filter((user) => user.id !== deletedUserId)
+            : [],
+        };
+      },
+    });
+
+    return () => {
+      unsubCreate();
+      unsubUpdate();
+      unsubDelete();
+    };
   }, [usersData, subscribeToUsers]);
 
   // ==================== MODAL ====================
@@ -150,6 +194,7 @@ export function StateProvider({ children }: { children: ReactNode }) {
     }, duration);
   };
   useEffect(() => {
+    console.log("<====modalMessage====>", modalMessage);
     if (modalMessage) showModal(modalMessage);
   }, [modalMessage]);
   // ==================== INIT HTML JSON ====================

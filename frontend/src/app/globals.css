@@ -1,4 +1,102 @@
 @import "tailwindcss";
+
+/* Dark Professional Theme - Brittany Chiang Style */
+:root {
+  --navy: #0a192f;
+  --light-navy: #112240;
+  --lightest-navy: #233554;
+  --slate: #8892b0;
+  --light-slate: #a8b2d1;
+  --lightest-slate: #ccd6f6;
+  --white: #e6f1ff;
+  --teal: #64ffda;
+}
+
+body {
+  background-color: var(--navy);
+  color: var(--slate);
+}
+
+/* Override bright gradients with professional dark theme */
+.bg-gradient-to-br {
+  background: var(--navy) !important;
+}
+
+.bg-gradient-to-r {
+  background: transparent !important;
+}
+
+.bg-clip-text {
+  background-clip: unset !important;
+  -webkit-background-clip: unset !important;
+  color: var(--lightest-slate) !important;
+}
+
+.text-transparent {
+  color: var(--lightest-slate) !important;
+}
+
+/* Card styles */
+.bg-navy {
+  background-color: var(--light-navy) !important;
+  border-color: var(--lightest-navy) !important;
+}
+
+.bg-slate-50,
+.bg-slate-100,
+.bg-slate-200 {
+  background-color: var(--lightest-navy) !important;
+}
+
+/* Text colors */
+.text-slate-600,
+.text-slate-700,
+.text-slate-800 {
+  color: var(--light-slate) !important;
+}
+
+/* .text-slate-900 {
+  color: var(--lightest-slate) !important;
+} */
+
+/* Borders */
+.border-slate-200,
+.border-slate-300 {
+  border-color: var(--lightest-navy) !important;
+}
+
+/* Buttons */
+.bg-blue-500,
+.bg-purple-500,
+.bg-pink-500 {
+  background-color: transparent !important;
+  border: 1px solid var(--teal) !important;
+  color: var(--teal) !important;
+}
+.teal-500 {
+  border: 1px solid var(--teal) !important;
+  color: var(--teal) !important;
+}
+.bg-blue-500:hover,
+.bg-purple-500:hover,
+.bg-pink-500:hover {
+  background-color: rgba(100, 255, 218, 0.1) !important;
+}
+
+/* Remove shadows */
+.shadow-xl,
+.shadow-lg,
+.shadow-md,
+.shadow-sm {
+  box-shadow: none !important;
+}
+
+/* Remove rounded corners for professional look */
+.rounded-2xl,
+.rounded-xl,
+.rounded-lg {
+  border-radius: 0 !important;
+}
 :root {
   --background: #ffffff;
   --foreground: #171717;

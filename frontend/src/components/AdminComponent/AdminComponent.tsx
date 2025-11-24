@@ -91,7 +91,7 @@ const AdminComponent = () => {
         {TagsNamen1.map((el, i) => (
           <button
             key={i}
-            className={"btn  px-2! border-1 border-[#aaa] "}
+            className={"btn  px-2! border-1 border-[#aaa] text-black"}
             style={{ background: el.color }}
             type="button"
             onClick={() => handleLoad(el.tag)}
@@ -104,7 +104,7 @@ const AdminComponent = () => {
         {TagsNamen2.map((el, i) => (
           <button
             key={i}
-            className={"btn  px-2!  bordered "}
+            className={"btn  px-2!  bordered text-black"}
             style={{ background: el.color }}
             type="button"
             onClick={() => handleLoad(el.tag)}
@@ -117,7 +117,7 @@ const AdminComponent = () => {
         {TagsNamen3.map((el, i) => (
           <button
             key={i}
-            className={"btn  px-2!  bordered "}
+            className={"btn  px-2!  bordered text-black"}
             style={{ background: el.color }}
             type="button"
             onClick={() => handleLoad(el.tag)}
@@ -131,7 +131,7 @@ const AdminComponent = () => {
         {TagsNamen4.map((el, i) => (
           <button
             key={i}
-            className={"btn  px-2!  bordered "}
+            className={"btn  px-2!  bordered text-black"}
             style={{ background: el.color }}
             type="button"
             onClick={() => handleLoad(el.tag)}
@@ -145,7 +145,7 @@ const AdminComponent = () => {
         {TagsNamen5.map((el, i) => (
           <button
             key={i}
-            className={"btn  px-2!  bordered "}
+            className={"btn  px-2!  bordered text-black"}
             style={{ background: el.color }}
             type="button"
             onClick={() => handleLoad(el.tag)}

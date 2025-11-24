@@ -9,21 +9,22 @@ export const USER_CREATED = gql`
     }
   }
 `;
+export const USER_UPDATED = gql`
+  subscription UserUpdated {
+    userUpdated {
+      id
+      name
+      email
+      projects {
+        id
+        name
+      }
+    }
+  }
+`;
 
-// export const FIGMA_PROJECT_CREATED_SUBSCRIPTION = gql`
-//   subscription FigmaProjectCreated {
-//     figmaProjectCreated {
-//       id
-//       name
-//       fileKey
-//       nodeId
-//       token
-//       previewUrl
-//       owner {
-//         id
-//         name
-//         email
-//       }
-//     }
-//   }
-// `;
+export const USER_DELETED = gql`
+  subscription UserDeleted {
+    userDeleted
+  }
+`;

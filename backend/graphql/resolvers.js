@@ -145,19 +145,66 @@ export const resolvers = {
       };
       return { token, user: formattedUser };
     },
-    createProject: async (_, { ownerId, name, data }) =>
-      prisma.project.create({
+    removeUser: async (_, { userId }) => {
+      const id = Number(userId);
+
+      // 1. Получаем все figmaProjects этого пользователя, чтобы найти fileKeys
+      const userFigmaProjects = await prisma.figmaProject.findMany({
+        where: { ownerId: id },
+      });
+      const fileKeys = userFigmaProjects.map((f) => f.fileKey);
+
+      // 2. Удаляем все шрифты, связанные с этими fileKey
+      if (fileKeys.length) {
+        await prisma.font.deleteMany({ where: { fileKey: { in: fileKeys } } });
+        await prisma.colorVariable.deleteMany({
+          where: { fileKey: { in: fileKeys } },
+        });
+        // Добавь сюда аналогично удаление других сущностей по fileKey, если появятся.
+      }
+
+      // 3. Удаляем проекты и figmaProjects пользователя (эти действия удалят и каскадные FigmaImages)
+      await prisma.project.deleteMany({ where: { ownerId: id } });
+      await prisma.figmaProject.deleteMany({ where: { ownerId: id } });
+
+      // 4. Удаляем юзера
+      const deletedUser = await prisma.user.delete({
+        where: { id },
+        select: { id: true },
+      });
+
+      // 5. Триггерим событие подписки на удаление
+      ee.emit("USER_DELETED", deletedUser.id);
+
+      return deletedUser.id;
+    },
+
+    createProject: async (_, { ownerId, name, data }) => {
+      const project = await prisma.project.create({
         data: { name, data, ownerId: Number(ownerId) },
-      }),
+      });
+      const user = await prisma.user.findUnique({
+        where: { id: Number(ownerId) },
+        include: { projects: true },
+      });
+      ee.emit("USER_UPDATED", user); // <<< ВЫПУСКАЕМ событие для подписки
+      return project;
+    },
     updateProject: async (_, { projectId, data }) =>
       prisma.project.update({
         where: { id: Number(projectId) },
         data: { data },
       }),
+
     removeProject: async (_, { projectId }) => {
       const project = await prisma.project.delete({
         where: { id: Number(projectId) },
       });
+      const user = await prisma.user.findUnique({
+        where: { id: project.ownerId },
+        include: { projects: true },
+      });
+      ee.emit("USER_UPDATED", user); // <<< чтобы подписчики обновили пользователя
       return project.id;
     },
     uploadFigmaImagesToCloudinary,
@@ -207,6 +254,42 @@ export const resolvers = {
           }
         } finally {
           ee.off("USER_CREATED", handler);
+        }
+      },
+    },
+    userUpdated: {
+      subscribe: async function* () {
+        const queue = [];
+        const handler = (payload) => queue.push(payload);
+        ee.on("USER_UPDATED", handler);
+        try {
+          while (true) {
+            if (queue.length === 0) {
+              await new Promise((resolve) => setTimeout(resolve, 100));
+            } else {
+              yield { userUpdated: queue.shift() };
+            }
+          }
+        } finally {
+          ee.off("USER_UPDATED", handler);
+        }
+      },
+    },
+    userDeleted: {
+      subscribe: async function* () {
+        const queue = [];
+        const handler = (payload) => queue.push(payload);
+        ee.on("USER_DELETED", handler);
+        try {
+          while (true) {
+            if (queue.length === 0) {
+              await new Promise((resolve) => setTimeout(resolve, 100));
+            } else {
+              yield { userDeleted: queue.shift() };
+            }
+          }
+        } finally {
+          ee.off("USER_DELETED", handler);
         }
       },
     },

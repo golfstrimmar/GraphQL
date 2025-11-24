@@ -49,7 +49,7 @@ const CreateNewProject = () => {
     <div className="createnewproject">
       <hr className="bordered-2 border-slate-200 mt-2 mb-2" />
       <h5>Create a new Ulon project</h5>
-      <div className="relative">
+      <div className="relative mt-4">
         <Input
           typeInput="text"
           data="Project name"

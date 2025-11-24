@@ -62,7 +62,7 @@ const FigmaProjectsList: React.FC<FigmaProjectsListProps> = ({
               disabled={project.id === projectId}
               className={`${
                 project.id === projectId
-                  ? "bg-slate-400"
+                  ? "bg-slate-400 text-[var(--white)]"
                   : "bg-slate-200 hover:bg-slate-300"
               } p-2 rounded pr-6`}
             >

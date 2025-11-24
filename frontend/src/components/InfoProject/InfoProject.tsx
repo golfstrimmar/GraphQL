@@ -110,7 +110,7 @@ const InfoProject: React.FC<InfoProjectProps> = ({
   // ================================
   const infoProject = (node: ProjectData) => {
     return (
-      <div className=" flex flex-col relative rounded border-2 border-[red] p-1 ">
+      <div className=" flex flex-col relative rounded border-2 border-[red] p-1 text-[#000] ">
         {/* <AnimatePresence mode="wait">
           {texts && modalTextsOpen && (
             <motion.div

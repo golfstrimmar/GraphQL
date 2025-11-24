@@ -19,7 +19,7 @@
     height: 40px !important;
     cursor: pointer;
     position: relative;
-    background: rgba(245, 245, 245, 0) !important;
+    background: var(--lightest-navy) !important;
     transition: all 0.2s;
     border: 1px solid rgb(173, 173, 173);
     border-radius: 5px;
@@ -34,11 +34,13 @@
       left: 10px !important;
       transition: all 0.2s;
       font-size: 12px;
+      color: white;
+      z-index: 10 !important;
       // z-index: 1;
       // font-style: italic;
       // font-size: 14px;
       // background: #193756;
-      color: transparent !important;
+      // color: transparent !important;
       // white-space: nowrap;
       // padding: 2px 3px;
       // line-height: 1;
@@ -123,7 +125,7 @@
     input[type="number"],
     input[type="tel"] {
       &+label {
-        color: #193756 !important;
+        // color: #193756 !important;
         font-size: 12px;
       }
 
@@ -134,6 +136,7 @@
         background-color: aliceblue !important;
         padding: 0 3px !important;
         border-radius: 4px;
+        color: #007bff;
       }
     }
   }

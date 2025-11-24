@@ -70,6 +70,12 @@ export const LOGIN_WITH_GOOGLE = gql`
     }
   }
 `;
+// Удаление пользователя
+export const REMOVE_USER = gql`
+  mutation RemoveUser($userId: ID!) {
+    removeUser(userId: $userId)
+  }
+`;
 
 // Создание проекта
 export const CREATE_PROJECT = gql`

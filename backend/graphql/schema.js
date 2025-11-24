@@ -173,6 +173,7 @@ export const typeDefs = gql`
     loginUser(email: String!, password: String!): AuthPayload!
     setPassword(email: String!, password: String!): User!
     loginWithGoogle(idToken: String!): AuthPayload!
+    removeUser(userId: ID!): ID!
     createProject(ownerId: ID!, name: String!, data: JSON!): Project!
     updateProject(projectId: ID!, data: JSON!): Project!
     removeProject(projectId: ID!): ID
@@ -211,6 +212,8 @@ export const typeDefs = gql`
 
   type Subscription {
     userCreated: User!
+    userUpdated: User!
+    userDeleted: ID!
     # figmaProjectCreated: FigmaProject!
   }
 `;
