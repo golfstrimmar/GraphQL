@@ -243,7 +243,7 @@ export default function FigmaPage() {
             Copy All
           </button>
         </div>
-        <div className="space-y-2">
+        <div className="space-y-2 grid grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))] gap-2">
           {colors.map((value, idx) => (
             <div
               key={value}
@@ -255,7 +255,7 @@ export default function FigmaPage() {
                   navigator.clipboard.writeText(`$color-${idx + 1}: ${value};`);
                   setModalMessage("Variable copied!");
                 }}
-                className="px-3 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 rounded-md hover:bg-blue-100 hover:text-blue-600 transition-colors opacity-0 group-hover:opacity-100"
+                className="px-3 py-1.5 text-xs font-medium text-[var(--teal)]  border border-[var(--teal)] bg-slate-100 roundedhover:teal-500  transition-colors opacity-0 group-hover:opacity-100"
               >
                 Copy
               </button>
@@ -465,7 +465,7 @@ export default function FigmaPage() {
               </div>
               <h3 className="text-2xl font-bold text-slate-800">SCSS Mixins</h3>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-3 grid grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))] gap-2">
               {uniqueMixins.map((el) => {
                 const colorVariable = getColorVarByValue(el.color);
                 const scssMixin = `@mixin ${el.mixin} {

@@ -29,17 +29,14 @@ import AdminComponent from "@/components/AdminComponent/AdminComponent";
 import jsonToHtml from "@/utils/plaza/jsonToHtml";
 import Image from "next/image";
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
-type ProjectData = {
+export interface ProjectNode {
+  _key?: string;
   tag: string;
   text: string;
   class: string;
   style: string;
-  children: ProjectData[] | string;
-};
-type OpenInfo = {
-  open: boolean;
-  infoIndex: string;
-};
+  children: (ProjectNode | string)[];
+}
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 export default function Plaza() {
@@ -57,14 +54,14 @@ export default function Plaza() {
   } = useStateContext();
   const pathname = usePathname();
   const [projects, setProjects] = useState<PProject[]>([]);
-  const [project, setProject] = useState<PProject>(null);
+  const [project, setProject] = useState<ProjectNode | null>(null);
   const [projectId, setProjectId] = useState<string>("");
   const [openInfoKey, setOpenInfoKey] = useState<string | null>(null);
   const [projectName, setProjectName] = useState<string>("");
-  const [pId, setpId] = useState(null);
+  const [pId, setpId] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [nodeToDragEl, setNodeToDragEl] = useState<HTMLElement | null>(null);
-  const [nodeToDrag, setNodeToDrag] = useState<any>(null);
+  const [nodeToDrag, setNodeToDrag] = useState<ProjectNode | null>(null);
   const isSyncingRef = useRef(false);
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
   const isFigma = pathname === "/figma";
@@ -124,9 +121,9 @@ export default function Plaza() {
     isSyncingRef.current = true;
 
     const mergeWithExistingKeys = (
-      node: ProjectData | string,
-      existing?: ProjectData | string
-    ): ProjectData | string => {
+      node: ProjectNode | string,
+      existing?: ProjectNode | string
+    ): ProjectNode | string => {
       if (typeof node === "string") return node;
 
       return {
@@ -244,7 +241,7 @@ export default function Plaza() {
     updateHtmlJson([]);
   };
   // ♻️♻️♻️♻️♻️♻️♻️♻️
-  const removeKeys = (node: any): any => {
+  const removeKeys = (node: ProjectNode | string): any => {
     if (!node) return node;
     if (typeof node === "string") return node;
 
@@ -280,7 +277,7 @@ export default function Plaza() {
   };
 
   // ♻️♻️♻️♻️♻️♻️♻️♻️
-  const delProject = async (id) => {
+  const delProject = async (id: string) => {
     if (!id) return;
     await removeProject({ variables: { projectId: id } });
     resetAll();
@@ -288,7 +285,9 @@ export default function Plaza() {
   };
   // ♻️♻️♻️♻️♻️♻️♻️♻️render♻️♻️♻️♻️♻️♻️♻️♻️
   const addRuntimeKeys = (node: ProjectData | string): ProjectData | string => {
-    if (typeof node === "string") return node;
+    if (typeof node === "string") {
+      return node;
+    }
 
     return {
       _key: node._key || crypto.randomUUID(),
