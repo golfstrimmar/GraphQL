@@ -19,6 +19,7 @@ import generateGoogleFontsImport from "@/utils/generateGoogleFontsImport";
 import { AnimatePresence, motion } from "framer-motion";
 import FigmaProjectsList from "@/components/FigmaProjectsList/FigmaProjectsList";
 import Plaza from "@/app/plaza/page";
+import ImageUploader from "@/components/ImageUploader/ImageUploader";
 // --------
 type FigmaProject = {
   id: string;
@@ -58,6 +59,11 @@ type TextNode = {
   fontWeight: number;
   fontSize: string;
 };
+interface ImageFile {
+  file: File;
+  previewUrl: string;
+}
+
 export default function FigmaPage() {
   const router = useRouter();
   const { user, setHtmlJson, setModalMessage } = useStateContext();
@@ -72,6 +78,7 @@ export default function FigmaPage() {
     null
   );
   const [modalOpen, setModalOpen] = useState(false);
+  const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
   // Query
   const {
     data: figmaProjectsByUser,
@@ -156,6 +163,46 @@ export default function FigmaPage() {
       }));
     }
   }, [texts]);
+
+  useEffect(() => {
+    if (imageFiles.length > 0) {
+      const newNodes: HtmlNode[] = imageFiles.map((imgFile) => ({
+        tag: "div",
+        class: "p-2 border border-dashed border-slate-300 ",
+        text: "img container",
+        style:
+          "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;position: relative; ",
+
+        children: [
+          {
+            tag: "div",
+            text: "imgs",
+            class: "imgs",
+            style:
+              "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;overflow: hidden;  position: absolute;  width: 100%;  height: 100%;  top: 0;  left: 0;",
+            children: [
+              {
+                tag: "img",
+                text: "",
+                class: "",
+                style:
+                  "background: #0ea5e9; padding: 2px 4px; border: 1px solid #adadad;",
+                children: [],
+                attributes: {
+                  alt: imgFile.file.name,
+                  src: imgFile.previewUrl,
+                },
+              },
+            ],
+          },
+        ],
+      }));
+      setHtmlJson((prev) => ({
+        ...prev,
+        children: [...(prev?.children || []), ...newNodes],
+      }));
+    }
+  }, [imageFiles, setHtmlJson]);
   //////////////////
   const handleUpload = async () => {
     if (!user) {
@@ -219,14 +266,12 @@ export default function FigmaPage() {
 
   const allVars = colors
     .map((value, idx) => `$color-${idx + 1}: ${value};`)
-    .join("\n");
+    .join("");
 
   const getColorVarByValue = (colorValue: string): string => {
     const found = colorVars.find((v) => v.value === colorValue);
     return found ? found.name : colorValue;
   };
-
-  // Функция для рендеринга цветовой палитры
   const renderColorPalette = () => {
     if (colors.length === 0) return null;
     return (
@@ -273,8 +318,6 @@ export default function FigmaPage() {
       </div>
     );
   };
-
-  // Функция для рендеринга типографики
   const renderTypography = () => {
     if (!fonts || Object.keys(fonts).length === 0) return null;
     return (
@@ -342,8 +385,6 @@ export default function FigmaPage() {
       </div>
     );
   };
-
-  // Функция для рендеринга SCSS миксинов
   const renderScssMixins = () => {
     if (texts.length === 0) return null;
     return (
@@ -388,8 +429,6 @@ export default function FigmaPage() {
       </div>
     );
   };
-
-  // Функция для рендеринга стилей текста
   const renderTextStyles = () => {
     if (texts.length === 0) return null;
     return (
@@ -448,7 +487,6 @@ export default function FigmaPage() {
       </div>
     );
   };
-
   const renderColorVars = () => {
     if (colors.length === 0) return null;
     return (
@@ -574,15 +612,13 @@ export default function FigmaPage() {
             </div>
           </div>
         )}
+        <ImageUploader imageFiles={imageFiles} setImageFiles={setImageFiles} />
         {renderColorPalette()}
         {renderColorVars()}
         {renderTypography()}
         {renderScssMixins()}
         {renderTextStyles()}
-        <div className="">
-          <Plaza />
-        </div>
-
+        <Plaza />
         <AnimatePresence>
           {modalOpen && (
             <motion.div

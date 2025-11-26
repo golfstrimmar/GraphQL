@@ -38,6 +38,7 @@
 
 .card {
   min-width: 50px !important;
+  // max-height: 150px !important;
   background: rgb(236, 236, 236);
   box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px,
     rgba(0, 0, 0, 0.1) 0px -4px 6px,
@@ -45,6 +46,10 @@
     rgba(0, 0, 0, 0.1) -4px 0px 6px !important;
   margin: 4px;
   color: black;
+
+  img {
+    max-height: 150px !important;
+  }
 }
 
 .nextafterButton {
