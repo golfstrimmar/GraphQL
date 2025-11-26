@@ -14,7 +14,7 @@ cloudinary.config({
  * @param {String} fileName - имя файла
  * @returns {Promise<{url: string, public_id: string}>}
  */
-export function uploadToCloudinary(fileBuffer, folder = "ulon", fileName) {
+export function uploadToCloudinary(file, folder = "ulon", fileName) {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
@@ -30,7 +30,11 @@ export function uploadToCloudinary(fileBuffer, folder = "ulon", fileName) {
       }
     );
 
-    stream.end(fileBuffer);
+    if (typeof file.pipe === "function") {
+      file.pipe(stream);
+    } else {
+      stream.end(file);
+    }
   });
 }
 

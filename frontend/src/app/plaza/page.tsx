@@ -39,7 +39,7 @@ export interface ProjectNode {
 }
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
-export default function Plaza() {
+export default function Plaza({ imageFiles }: any) {
   const {
     htmlJson,
     user,
@@ -712,7 +712,7 @@ export default function Plaza() {
               </div>
             )}
 
-            <CreateNewProject />
+            <CreateNewProject imageFiles={imageFiles} />
           </div>
         )}
 

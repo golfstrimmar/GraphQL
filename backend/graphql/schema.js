@@ -137,6 +137,10 @@ export const typeDefs = gql`
     fonts: JSON
     textNodes: [TextNodeWithStyle!]!
   }
+  type ImageUploadResponse {
+    url: String!
+    filename: String!
+  }
   type AuthPayload {
     token: String!
     user: User!
@@ -208,6 +212,7 @@ export const typeDefs = gql`
       name: String!
       jsonContent: JSON!
     ): FigmaProjectExtended!
+    uploadImage(file: Upload!): ImageUploadResponse!
   }
 
   type Subscription {

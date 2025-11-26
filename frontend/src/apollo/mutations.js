@@ -87,6 +87,16 @@ export const CREATE_PROJECT = gql`
   }
 `;
 
+// Загрузка одного изображения для проекта Ulon
+export const UPLOAD_ULON_IMAGE = gql`
+  mutation UploadImage($file: Upload!) {
+    uploadImage(file: $file) {
+      url
+      filename
+    }
+  }
+`;
+
 // Поиск проекта
 export const FIND_PROJECT = gql`
   mutation FindProject($projectId: ID!) {

@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import { EventEmitter } from "events";
 import jwt from "jsonwebtoken";
+import { uploadToCloudinary } from "../utils/cloudinary.js";
 import prisma from "../prisma/client.js";
 import { OAuth2Client } from "google-auth-library";
 import { GraphQLJSON } from "graphql-type-json";
@@ -20,6 +21,9 @@ import { GraphQLUpload } from "graphql-upload";
 // ----
 
 const ee = new EventEmitter();
+// Увеличиваем лимит слушателей, чтобы избежать предупреждений в режиме разработки
+ee.setMaxListeners(20); // Можно поставить и больше, если нужно
+
 const JWT_SECRET = process.env.JWT_SECRET || "your_secret_key";
 const SALT_ROUNDS = 10;
 export const resolvers = {
@@ -206,6 +210,23 @@ export const resolvers = {
       });
       ee.emit("USER_UPDATED", user); // <<< чтобы подписчики обновили пользователя
       return project.id;
+    },
+    uploadImage: async (_, { file }) => {
+      console.log("<====uploadImage====>", file);
+      const { createReadStream, filename } = await file;
+      const stream = createReadStream();
+
+      try {
+        // Используем существующую утилиту, передавая ей поток
+        const result = await uploadToCloudinary(stream, "ulon_projects");
+        return {
+          url: result.secure_url,
+          filename: filename,
+        };
+      } catch (error) {
+        console.error("Failed to upload image to Cloudinary:", error);
+        throw new Error("Image upload failed.");
+      }
     },
     uploadFigmaImagesToCloudinary,
     uploadFigmaSvgsToCloudinary,

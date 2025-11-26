@@ -618,7 +618,7 @@ export default function FigmaPage() {
         {renderTypography()}
         {renderScssMixins()}
         {renderTextStyles()}
-        <Plaza />
+        <Plaza imageFiles={imageFiles} />
         <AnimatePresence>
           {modalOpen && (
             <motion.div
