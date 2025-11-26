@@ -226,13 +226,242 @@ export default function FigmaPage() {
     return found ? found.name : colorValue;
   };
 
-  const renderColorVars = () => {
+  // Функция для рендеринга цветовой палитры
+  const renderColorPalette = () => {
+    if (colors.length === 0) return null;
     return (
-      <div className="mt-6 p-2 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl border border-slate-200">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="text-sm font-semibold text-slate-600 uppercase tracking-wide">
-            SCSS Variables
-          </h4>
+      <div className="bg-navy rounded-2xl shadow-xl p-2 mb-4 border border-slate-200">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-orange-500 rounded-lg flex items-center justify-center">
+            <span className="text-xl">🎨</span>
+          </div>
+          <h3 className="text-2xl font-bold text-slate-800">Color Palette</h3>
+        </div>
+        <div className="grid grid-cols-[repeat(auto-fill,_minmax(150px,_1fr))] gap-2">
+          {colors.map((value, index) => (
+            <div
+              key={index}
+              className="group relative bg-slate-50 rounded-xl p-2 border border-slate-200 hover:shadow-lg hover:scale-105 transition-all cursor-pointer"
+              onClick={() => {
+                navigator.clipboard.writeText(value);
+                setModalMessage(`Color ${value} copied!`);
+              }}
+            >
+              <div
+                style={{ background: value }}
+                className="w-full h-14 rounded-lg shadow-md mb-3 border-2 border-white"
+              />
+              <div className="text-center">
+                <p className="text-xs font-mono text-slate-600 font-medium">
+                  {value}
+                </p>
+                <p className="text-xs text-slate-400 mt-1">Click to copy</p>
+              </div>
+              <div className="absolute top-2 right-2 opacity-0 transition-all duration-200 group-hover:opacity-100 ">
+                <div className="bg-white rounded-full p-1.5 shadow-md">
+                  <Image
+                    src="/svg/copy.svg"
+                    alt="copy"
+                    width={12}
+                    height={12}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  // Функция для рендеринга типографики
+  const renderTypography = () => {
+    if (!fonts || Object.keys(fonts).length === 0) return null;
+    return (
+      <div className="bg-navy rounded-2xl shadow-xl p-2  mb-4 border border-slate-200">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
+            <span className="text-xl">Aa</span>
+          </div>
+          <h3 className="text-2xl font-bold text-slate-800">Typography</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Object.entries(fonts).map(([key, fontObj]) => (
+            <div
+              key={key}
+              className="group bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200 hover:shadow-lg hover:border-blue-300 transition-all"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h4 className="text-lg font-bold text-slate-800">
+                    {fontObj.family || key}
+                  </h4>
+                  <p className="text-xs text-slate-500 font-mono mt-1">{key}</p>
+                </div>
+                <div className="w-8 h-8 bg-navy rounded-lg flex items-center justify-center shadow-sm">
+                  <span className="text-sm font-bold text-slate-600">T</span>
+                </div>
+              </div>
+              {fontObj.sizes && (
+                <div className="mb-3">
+                  <p className="text-xs font-semibold text-slate-600 mb-2">
+                    Sizes
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.values(fontObj.sizes).map((size, idx) => (
+                      <span
+                        key={idx}
+                        className="px-2 py-1 bg-navy rounded-md text-xs font-mono text-slate-700 border border-slate-200"
+                      >
+                        {size}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {fontObj.weights && (
+                <div>
+                  <p className="text-xs font-semibold text-slate-600 mb-2">
+                    Weights
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.values(fontObj.weights).map((weight, idx) => (
+                      <span
+                        key={idx}
+                        className="px-2 py-1 bg-navy rounded-md text-xs font-mono text-slate-700 border border-slate-200"
+                      >
+                        {weight}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  // Функция для рендеринга SCSS миксинов
+  const renderScssMixins = () => {
+    if (texts.length === 0) return null;
+    return (
+      <div className="bg-navy rounded-2xl shadow-xl p-2  border border-slate-200  mb-4">
+        <div className="flex items-center gap-3 mb-6 ">
+          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+            <span className="text-xl">{"{ }"}</span>
+          </div>
+          <h3 className="text-2xl font-bold text-slate-800">SCSS Mixins</h3>
+        </div>
+        <div className="mb-4  grid grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))] gap-2">
+          {uniqueMixins.map((el) => {
+            const colorVariable = getColorVarByValue(el.color);
+            const scssMixin = `@mixin ${el.mixin} {
+  font-family: "${el.fontFamily}", sans-serif;
+  font-weight: ${el.fontWeight};
+  font-size: ${el.fontSize};
+  color: ${colorVariable};
+}`;
+
+            return (
+              <div
+                key={el.mixin}
+                className="group relative bg-slate-900 rounded-xl p-2 border border-slate-700 hover:border-purple-500 transition-all overflow-hidden"
+              >
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(scssMixin);
+                    setModalMessage("Mixin copied!");
+                  }}
+                  className="absolute top-3 right-3 px-3 py-1.5 bg-purple-500 text-white text-xs font-medium rounded-lg hover:bg-purple-600 transition-colors opacity-0 group-hover:opacity-100 z-10"
+                >
+                  Copy
+                </button>
+                <pre className="text-sm font-mono text-slate-100 overflow-x-auto">
+                  <code>{scssMixin}</code>
+                </pre>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  // Функция для рендеринга стилей текста
+  const renderTextStyles = () => {
+    if (texts.length === 0) return null;
+    return (
+      <div className="bg-navy rounded-2xl shadow-xl p-2  border border-slate-200  mb-4">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
+            <span className="text-xl">🧻</span>
+          </div>
+          <h3 className="text-2xl font-bold text-slate-800">Text Styles</h3>
+        </div>
+        <div className="space-y-3">
+          {texts.map((el, idx) => (
+            <div
+              key={idx}
+              className="group bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-2 border border-slate-200 hover:shadow-lg hover:border-green-300 transition-all"
+            >
+              <div className="flex items-start gap-2">
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(`${el.text}`);
+                    setModalMessage("Text copied!");
+                  }}
+                  className="flex-1 text-left p-2 bg-slate-300 rounded-lg border border-slate-200 hover:border-[var(--teal)] transition-colors relative overflow-hidden group"
+                >
+                  <div className="absolute top-[50%] translate-y-[-50%] right-2 opacity-40 group-hover:opacity-100 transition-opacity ">
+                    <div className="bg-green-500 text-white px-2 py-1 rounded-md text-xs font-medium">
+                      Copy Text
+                    </div>
+                  </div>
+                  <p
+                    style={{
+                      fontFamily: toFontFamily(el.fontFamily),
+                      fontWeight: el.fontWeight,
+                      fontSize: el.fontSize,
+                      color: el.color,
+                    }}
+                    className="whitespace-nowrap "
+                  >
+                    {el.text}
+                  </p>
+                </button>
+
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(`@include ${el.mixin};`);
+                    setModalMessage("Mixin copied!");
+                  }}
+                  className="px-4 py-2  rounded-lg border hover:border-[var(--teal)] hover:text-[var(--teal)] transition-colors font-mono text-sm whitespace-nowrap z-50"
+                >
+                  @include {el.mixin};
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const renderColorVars = () => {
+    if (colors.length === 0) return null;
+    return (
+      <div className=" mb-4 p-2  bg-navy  rounded-xl border border-slate-200">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-orange-500 rounded-lg flex items-center justify-center">
+              <span className="text-xl">🎨</span>
+            </div>
+            <h3 className="text-2xl font-bold text-slate-800">
+              SCSS Variables
+            </h3>
+          </div>
           <button
             onClick={() => {
               navigator.clipboard.writeText(allVars);
@@ -243,13 +472,13 @@ export default function FigmaPage() {
             Copy All
           </button>
         </div>
-        <div className="space-y-2 grid grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))] gap-2">
+        <div className=" flex flex-wrap gap-2">
           {colors.map((value, idx) => (
             <div
               key={value}
-              className="group flex items-center gap-3 p-1 bg-navy rounded-lg border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all"
+              className="group flex  items-center gap-3 p-1 bg-navy rounded-lg border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all"
             >
-              <code className="flex-1 font-mono text-sm text-slate-900">{`$color-${idx + 1}: ${value};`}</code>
+              <code className="flex-1 font-mono text-sm text-slate-900 whitespace-nowrap">{`$color-${idx + 1}: ${value};`}</code>
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(`$color-${idx + 1}: ${value};`);
@@ -338,247 +567,19 @@ export default function FigmaPage() {
                 <p className="text-sm text-white/80 font-medium">
                   Current Project
                 </p>
-                <h3 className="text-2xl font-bold">{currentProject.name}</h3>
-              </div>
-            </div>
-          </div>
-        )}
-        {colors.length > 0 && (
-          <div className="bg-navy rounded-2xl shadow-xl p-2 mb-8 border border-slate-200">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-orange-500 rounded-lg flex items-center justify-center">
-                <span className="text-xl">🎨</span>
-              </div>
-              <h3 className="text-2xl font-bold text-slate-800">
-                Color Palette
-              </h3>
-            </div>
-            <div className="grid grid-cols-[repeat(auto-fill,_minmax(150px,_1fr))] gap-2">
-              {colors.map((value, index) => (
-                <div
-                  key={index}
-                  className="group relative bg-slate-50 rounded-xl p-2 border border-slate-200 hover:shadow-lg hover:scale-105 transition-all cursor-pointer"
-                  onClick={() => {
-                    navigator.clipboard.writeText(value);
-                    setModalMessage(`Color ${value} copied!`);
-                  }}
-                >
-                  <div
-                    style={{ background: value }}
-                    className="w-full h-14 rounded-lg shadow-md mb-3 border-2 border-white"
-                  />
-                  <div className="text-center">
-                    <p className="text-xs font-mono text-slate-600 font-medium">
-                      {value}
-                    </p>
-                    <p className="text-xs text-slate-400 mt-1">Click to copy</p>
-                  </div>
-                  <div className="absolute top-2 right-2 opacity-0 transition-all duration-200 group-hover:opacity-100 ">
-                    <div className="bg-white rounded-full p-1.5 shadow-md">
-                      <Image
-                        src="/svg/copy.svg"
-                        alt="copy"
-                        width={12}
-                        height={12}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            {renderColorVars()}
-          </div>
-        )}
-        {fonts && Object.keys(fonts).length > 0 && (
-          <div className="bg-navy rounded-2xl shadow-xl p-2 mb-8 border border-slate-200">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
-                <span className="text-xl">Aa</span>
-              </div>
-              <h3 className="text-2xl font-bold text-slate-800">Typography</h3>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Object.entries(fonts).map(([key, fontObj]) => (
-                <div
-                  key={key}
-                  className="group bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200 hover:shadow-lg hover:border-blue-300 transition-all"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h4 className="text-lg font-bold text-slate-800">
-                        {fontObj.family || key}
-                      </h4>
-                      <p className="text-xs text-slate-500 font-mono mt-1">
-                        {key}
-                      </p>
-                    </div>
-                    <div className="w-8 h-8 bg-navy rounded-lg flex items-center justify-center shadow-sm">
-                      <span className="text-sm font-bold text-slate-600">
-                        T
-                      </span>
-                    </div>
-                  </div>
-                  {fontObj.sizes && (
-                    <div className="mb-3">
-                      <p className="text-xs font-semibold text-slate-600 mb-2">
-                        Sizes
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {Object.values(fontObj.sizes).map((size, idx) => (
-                          <span
-                            key={idx}
-                            className="px-2 py-1 bg-navy rounded-md text-xs font-mono text-slate-700 border border-slate-200"
-                          >
-                            {size}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {fontObj.weights && (
-                    <div>
-                      <p className="text-xs font-semibold text-slate-600 mb-2">
-                        Weights
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {Object.values(fontObj.weights).map((weight, idx) => (
-                          <span
-                            key={idx}
-                            className="px-2 py-1 bg-navy rounded-md text-xs font-mono text-slate-700 border border-slate-200"
-                          >
-                            {weight}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        {texts.length > 0 && (
-          <div className="bg-navy rounded-2xl shadow-xl p-2 mb-8 border border-slate-200">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                <span className="text-xl">{"{ }"}</span>
-              </div>
-              <h3 className="text-2xl font-bold text-slate-800">SCSS Mixins</h3>
-            </div>
-            <div className="space-y-3 grid grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))] gap-2">
-              {uniqueMixins.map((el) => {
-                const colorVariable = getColorVarByValue(el.color);
-                const scssMixin = `@mixin ${el.mixin} {
-  font-family: "${el.fontFamily}", sans-serif;
-  font-weight: ${el.fontWeight};
-  font-size: ${el.fontSize};
-  color: ${colorVariable};
-}`;
-
-                return (
-                  <div
-                    key={el.mixin}
-                    className="group relative bg-slate-900 rounded-xl p-2 border border-slate-700 hover:border-purple-500 transition-all overflow-hidden"
-                  >
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(scssMixin);
-                        setModalMessage("Mixin copied!");
-                      }}
-                      className="absolute top-3 right-3 px-3 py-1.5 bg-purple-500 text-white text-xs font-medium rounded-lg hover:bg-purple-600 transition-colors opacity-0 group-hover:opacity-100 z-10"
-                    >
-                      Copy
-                    </button>
-                    <pre className="text-sm font-mono text-slate-100 overflow-x-auto">
-                      <code>{scssMixin}</code>
-                    </pre>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* <div className="flex flex-col gap-1 my-2">
-              {uniqueMixins.map((el) => (
-                <button
-                  key={el.text}
-                  onClick={() => {
-                    navigator.clipboard.writeText(`@include ${el.mixin};`);
-                    setModalMessage("Mixin copied!");
-                  }}
-                  className="border rounded px-1 relative"
-                >
-                  <div className="absolute top-1 left-1">
-                    <Image
-                      src="/svg/copy.svg"
-                      alt="copy"
-                      width={16}
-                      height={16}
-                    />
-                  </div>
-                  @include {el.mixin}
-                </button>
-              ))}
-            </div> */}
-            <div className="mt-8">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
-                  <span className="text-xl">🧻</span>
-                </div>
-                <h3 className="text-2xl font-bold text-slate-800">
-                  Text Styles
+                <h3 className="font-bold !text-[var(--teal)]">
+                  {currentProject.name}
                 </h3>
               </div>
-              <div className="space-y-3">
-                {texts.map((el, idx) => (
-                  <div
-                    key={idx}
-                    className="group bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-2 border border-slate-200 hover:shadow-lg hover:border-green-300 transition-all"
-                  >
-                    <div className="flex items-start gap-2">
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(`${el.text}`);
-                          setModalMessage("Text copied!");
-                        }}
-                        className="flex-1 text-left p-2 bg-slate-300 rounded-lg border border-slate-200 hover:border-[var(--teal)] transition-colors relative overflow-hidden group"
-                      >
-                        <div className="absolute top-[50%] translate-y-[-50%] right-2 opacity-40 group-hover:opacity-100 transition-opacity ">
-                          <div className="bg-green-500 text-white px-2 py-1 rounded-md text-xs font-medium">
-                            Copy Text
-                          </div>
-                        </div>
-                        <p
-                          style={{
-                            fontFamily: toFontFamily(el.fontFamily),
-                            fontWeight: el.fontWeight,
-                            fontSize: el.fontSize,
-                            color: el.color,
-                          }}
-                          className="whitespace-nowrap "
-                        >
-                          {el.text}
-                        </p>
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(
-                            `@include ${el.mixin};`
-                          );
-                          setModalMessage("Mixin copied!");
-                        }}
-                        className="px-4 py-2  rounded-lg border hover:border-[var(--teal)] hover:text-[var(--teal)] transition-colors font-mono text-sm whitespace-nowrap z-50"
-                      >
-                        @include {el.mixin};
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
         )}
-        <div className="mt-12">
+        {renderColorPalette()}
+        {renderColorVars()}
+        {renderTypography()}
+        {renderScssMixins()}
+        {renderTextStyles()}
+        <div className="">
           <Plaza />
         </div>
 

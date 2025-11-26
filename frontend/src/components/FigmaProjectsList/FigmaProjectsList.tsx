@@ -7,6 +7,7 @@
 //   useMemo,
 // } from "react";
 import "./figmaprojectslist.scss";
+import Image from "next/image";
 
 interface FigmaProjectsListProps {
   allProjects: any[];
@@ -53,7 +54,10 @@ const FigmaProjectsList: React.FC<FigmaProjectsListProps> = ({
     <div className="flex flex-col gap-2 mb-2">
       {allProjects &&
         allProjects.map((project) => (
-          <div key={project.id} className="flex items-center gap-1">
+          <div
+            key={project.id}
+            className="flex justify-between items-center w-full gap-1"
+          >
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -62,14 +66,14 @@ const FigmaProjectsList: React.FC<FigmaProjectsListProps> = ({
               disabled={project.id === projectId}
               className={`${
                 project.id === projectId
-                  ? "bg-slate-400 text-[var(--white)]"
-                  : "bg-slate-200 hover:bg-slate-300"
-              } p-2 rounded pr-6`}
+                  ? " text-slate-800 bg-[var(--teal)]"
+                  : "bg-slate-200 hover:bg-slate-300 hover:border-[var(--teal)] hover:text-[var(--teal)]  text-sm font-medium"
+              } p-1 max-h-8 rounded flex items-center gap-1 cursor-pointer transition-all border border-transparent`}
             >
               {project.name}
             </button>
             <button
-              className="btn btn-allert p-1 "
+              className="btn btn-allert"
               onClick={(e) => {
                 handlerRemoveFigmaProject(project.id);
               }}

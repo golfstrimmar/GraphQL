@@ -63,8 +63,11 @@ export default function Plaza() {
   const [nodeToDragEl, setNodeToDragEl] = useState<HTMLElement | null>(null);
   const [nodeToDrag, setNodeToDrag] = useState<ProjectNode | null>(null);
   const isSyncingRef = useRef(false);
+
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
-  const isFigma = pathname === "/figma";
+  const isPlaza = () => {
+    return pathname === "/plaza" ? true : false;
+  };
   const variables = React.useMemo(() => ({ userId: user?.id }), [user?.id]);
   const { data, loading, error } = useQuery(GET_ALL_PROJECTS_BY_USER, {
     variables,
@@ -357,7 +360,11 @@ export default function Plaza() {
 
   //⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️
   return (
-    <section className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-slate-50 py-[100px]">
+    <section
+      className={`${
+        isPlaza() ? "pt-[100px]" : "pt-12"
+      } min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-slate-50 pb-12`}
+    >
       <div className="container mx-auto px-4 max-w-7xl">
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-3">
