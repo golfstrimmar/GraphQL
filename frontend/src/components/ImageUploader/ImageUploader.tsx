@@ -1,21 +1,52 @@
 "use client";
 
 import React, { useState, ChangeEvent, useEffect } from "react";
+import { useStateContext } from "@/providers/StateProvider";
+import EditModeIcon from "@/components/icons/EditModeIcon";
+import { useMutation } from "@apollo/client";
+import { UPLOAD_ULON_IMAGE } from "@/apollo/mutations";
+// import {
+//   findAndUploadImages,
+//   ProjectNode,
+//   ImageFile,
+// } from "@/utils/imageUploadHelper";
 
+// ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 interface ImageFile {
   file: File;
   previewUrl: string;
 }
-
+type HtmlNode = {
+  tag: string;
+  class?: string;
+  children?: HtmlNode[] | HtmlNode | string;
+  text?: string;
+  style?: string;
+  attributes?: Record<string, string>;
+};
 interface ImageUploaderProps {
   imageFiles: ImageFile[];
   setImageFiles: (files: ImageFile[]) => void;
 }
 
+// ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 const ImageUploader: React.FC<ImageUploaderProps> = ({
   imageFiles,
   setImageFiles,
 }) => {
+  const { setHtmlJson, setModalMessage } = useStateContext();
+
+  // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
+  const [uploadImage, { loading: uploadLoading }] =
+    useMutation(UPLOAD_ULON_IMAGE);
+
+  // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
+  useEffect(() => {
+    return () => {
+      imageFiles.forEach((img) => URL.revokeObjectURL(img.previewUrl));
+    };
+  }, [imageFiles]);
+  // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       const newFiles = Array.from(event.target.files);
@@ -27,7 +58,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       event.target.value = "";
     }
   };
-
   const handleRemoveImage = (indexToRemove: number) => {
     setImageFiles((prev) => {
       const newImages = prev.filter((_, index) => index !== indexToRemove);
@@ -35,20 +65,68 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       return newImages;
     });
   };
-
   const handleClearAllImages = () => {
     imageFiles.forEach((img) => URL.revokeObjectURL(img.previewUrl));
     setImageFiles([]);
   };
+  const saveAllImages = async () => {
+    if (!imageFiles.length) return;
 
-  useEffect(() => {
-    return () => {
-      imageFiles.forEach((img) => URL.revokeObjectURL(img.previewUrl));
-    };
-  }, [imageFiles]);
+    try {
+      const uploadPromises = imageFiles.map((imgFile) =>
+        uploadImage({
+          variables: { file: imgFile.file },
+        })
+      );
 
+      const results = await Promise.all(uploadPromises);
+
+      const urls = results.map((res) => res.data?.uploadImage?.url);
+      console.log("<==== uploaded urls ====>", urls);
+      const newNodes: HtmlNode[] = urls.map((imgFile, index) => ({
+        tag: "div",
+        class: "",
+        text: "img container",
+        style:
+          "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;position: relative; ",
+
+        children: [
+          {
+            tag: "div",
+            text: "imgs",
+            class: "imgs",
+            style:
+              "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;overflow: hidden;  position: absolute;  width: 100%;  height: 100%;  top: 0;  left: 0;",
+            children: [
+              {
+                tag: "img",
+                text: "",
+                class: "",
+                style:
+                  "background: #0ea5e9; padding: 2px 4px; border: 1px solid #adadad;",
+                children: [],
+                attributes: {
+                  alt: index.toString(),
+                  src: imgFile,
+                },
+              },
+            ],
+          },
+        ],
+      }));
+      setHtmlJson((prev) => ({
+        ...prev,
+        children: [...(prev?.children || []), ...newNodes],
+      }));
+    } catch (error) {
+      console.error("Error saving images:", error);
+      setModalMessage?.("Error saving images");
+    }
+  };
+
+  // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
   return (
-    <div className="bg-navy rounded-2xl shadow-xl p-4 border border-slate-200 mb-8">
+    <div className="bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 mb-8">
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-red-500 rounded-lg flex items-center justify-center">
           <span className="text-xl">🖼️</span>
@@ -57,10 +135,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       </div>
 
       <div className="mb-6 flex gap-3 items-center">
-        <label
-          htmlFor="image-upload"
-          className="cursor-pointer inline-block px-6 py-3 bg-blue-500 text-white font-medium rounded-lg hover:bg-blue-600 transition-colors shadow-sm"
-        >
+        <label htmlFor="image-upload" className="btn-teal">
+          <EditModeIcon></EditModeIcon>
           Upload Images
         </label>
         <input
@@ -71,13 +147,21 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
           onChange={handleFileChange}
           className="hidden -z-2 absolute opacity-0"
         />
+
         {imageFiles.length > 0 && (
-          <button
-            onClick={handleClearAllImages}
-            className="px-4 py-2 bg-red-500 text-white text-xs font-medium rounded-lg hover:bg-red-600 transition-colors shadow-sm"
-          >
-            Clear All
-          </button>
+          <div className="flex gap-4">
+            <button
+              className={`btn-teal`}
+              type="button"
+              onClick={() => saveAllImages()}
+            >
+              <EditModeIcon></EditModeIcon>
+              <span className=" font-medium"> Save all Images</span>
+            </button>
+            <button onClick={handleClearAllImages} className="btn btn-allert">
+              Remove all images
+            </button>
+          </div>
         )}
       </div>
 

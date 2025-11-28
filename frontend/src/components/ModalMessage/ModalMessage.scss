@@ -1,23 +1,16 @@
-.modalmessage {
-  position: fixed;
-  top: 60px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  border-radius: 4px;
-}
-
 .modalmessage-inner {
-  background-color: rgb(90, 145, 247);
-  width: 50vw;
+  background-color: var(--teal-navi);
+  border: 1px solid var(--teal);
+  width: 100vw;
   max-width: 400px;
   text-align: center;
   border-radius: 5px;
   padding: 15px;
+  z-index: 2000;
 }
 
 .modalmessage-message {
-  color: #f6f6f7;
+  color: var(--teal);
   font-style: italic;
   font-size: 18px;
   margin: 5px;

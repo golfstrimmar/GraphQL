@@ -29,14 +29,7 @@ type FigmaProject = {
   file?: any | null;
   owner: ProjectOwner;
 };
-type HtmlNode = {
-  tag: string;
-  class?: string;
-  children?: HtmlNode[] | HtmlNode | string;
-  text?: string;
-  style?: string;
-  attributes?: Record<string, string>;
-};
+
 type ProjectOwner = {
   id: string;
   name: string;
@@ -103,7 +96,7 @@ export default function FigmaPage() {
   const [removeFigmaProject, { loading: removeLoading }] =
     useMutation(REMOVE_FIGMA_PROJECT);
 
-  //
+  //////--------------------
 
   useEffect(() => {
     if (figmaProjectsByUser?.figmaProjectsByUser) {
@@ -140,8 +133,6 @@ export default function FigmaPage() {
       }
     }
   }, [fonts]);
-  //////////////////
-
   useEffect(() => {
     if (texts.length > 0) {
       const styleStr =
@@ -164,45 +155,6 @@ export default function FigmaPage() {
     }
   }, [texts]);
 
-  useEffect(() => {
-    if (imageFiles.length > 0) {
-      const newNodes: HtmlNode[] = imageFiles.map((imgFile) => ({
-        tag: "div",
-        class: "p-2 border border-dashed border-slate-300 ",
-        text: "img container",
-        style:
-          "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;position: relative; ",
-
-        children: [
-          {
-            tag: "div",
-            text: "imgs",
-            class: "imgs",
-            style:
-              "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;overflow: hidden;  position: absolute;  width: 100%;  height: 100%;  top: 0;  left: 0;",
-            children: [
-              {
-                tag: "img",
-                text: "",
-                class: "",
-                style:
-                  "background: #0ea5e9; padding: 2px 4px; border: 1px solid #adadad;",
-                children: [],
-                attributes: {
-                  alt: imgFile.file.name,
-                  src: imgFile.previewUrl,
-                },
-              },
-            ],
-          },
-        ],
-      }));
-      setHtmlJson((prev) => ({
-        ...prev,
-        children: [...(prev?.children || []), ...newNodes],
-      }));
-    }
-  }, [imageFiles, setHtmlJson]);
   //////////////////
   const handleUpload = async () => {
     if (!user) {
@@ -551,22 +503,26 @@ export default function FigmaPage() {
         </div>
         <div className="bg-navy rounded-2xl shadow-xl p-2 mb-8 border border-slate-200">
           {allProjects.length === 0 ? (
-            <div className="text-center py-12">
+            <div className="text-center py-6">
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl">📁</span>
               </div>
               <p className="text-slate-600 text-lg mb-6">
-                No Figma projects found
+                {user
+                  ? "No Figma projects found"
+                  : "Please,  login to see Projects"}
               </p>
-              <Button
-                onClick={() => {
-                  setFile(null);
-                  setName("");
-                  setModalOpen(true);
-                }}
-              >
-                Add Your First Project
-              </Button>
+              {user && (
+                <Button
+                  onClick={() => {
+                    setFile(null);
+                    setName("");
+                    setModalOpen(true);
+                  }}
+                >
+                  Add Your First Project
+                </Button>
+              )}
             </div>
           ) : (
             <>
@@ -612,13 +568,19 @@ export default function FigmaPage() {
             </div>
           </div>
         )}
-        <ImageUploader imageFiles={imageFiles} setImageFiles={setImageFiles} />
+        {user && (
+          <ImageUploader
+            imageFiles={imageFiles}
+            setImageFiles={setImageFiles}
+          />
+        )}
+
         {renderColorPalette()}
         {renderColorVars()}
         {renderTypography()}
         {renderScssMixins()}
         {renderTextStyles()}
-        <Plaza imageFiles={imageFiles} />
+        {user && <Plaza />}
         <AnimatePresence>
           {modalOpen && (
             <motion.div

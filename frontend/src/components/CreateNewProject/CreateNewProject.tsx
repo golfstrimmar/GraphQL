@@ -3,16 +3,11 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useStateContext } from "@/providers/StateProvider";
 import "./createnewproject.scss";
 import { useMutation } from "@apollo/client";
-import { CREATE_PROJECT, UPLOAD_ULON_IMAGE } from "@/apollo/mutations";
+import { CREATE_PROJECT } from "@/apollo/mutations";
 import { GET_ALL_PROJECTS_BY_USER } from "@/apollo/queries";
 import Input from "@/components/ui/Input/Input";
-import {
-  findAndUploadImages,
-  ProjectNode,
-  ImageFile,
-} from "@/utils/imageUploadHelper";
 
-const CreateNewProject = ({ imageFiles }) => {
+const CreateNewProject = () => {
   const { htmlJson, user, setModalMessage } = useStateContext();
   const [newProjectName, setNewProjectName] = useState<string>("");
   const variables = useMemo(() => ({ userId: user?.id }), [user?.id]);
@@ -23,10 +18,7 @@ const CreateNewProject = ({ imageFiles }) => {
       awaitRefetchQueries: true,
     }
   );
-  const [uploadImage, { loading: uploadLoading }] =
-    useMutation(UPLOAD_ULON_IMAGE);
 
-  const loading = createLoading || uploadLoading;
   // useEffect(() => {
   //   if (imageFiles.length > 0) {
   //     console.log("<====imageFiles====>", imageFiles);
@@ -37,34 +29,34 @@ const CreateNewProject = ({ imageFiles }) => {
       setModalMessage(" All fields are required.");
       return;
     }
-    if (!htmlJson || !htmlJson.children || htmlJson.children.length === 0) {
-      setModalMessage(" Data fields are required.");
-      return;
-    }
+    // if (!htmlJson || !htmlJson.children || htmlJson.children.length === 0) {
+    //   setModalMessage(" Data fields are required.");
+    //   return;
+    // }
 
-    // Шаг 1: Загружаем изображения и получаем обновленный htmlJson
-    const projectWithCloudinaryUrls = await findAndUploadImages(
-      htmlJson as ProjectNode,
-      imageFiles as ImageFile[],
-      uploadImage,
-      setModalMessage
-    );
+    // // Шаг 1: Загружаем изображения и получаем обновленный htmlJson
+    // const projectWithCloudinaryUrls = await findAndUploadImages(
+    //   htmlJson as ProjectNode,
+    //   imageFiles as ImageFile[],
+    //   uploadImage,
+    //   setModalMessage
+    // );
 
-    try {
-      await createProject({
-        variables: {
-          ownerId: user.id,
-          name: newProjectName,
-          data: projectWithCloudinaryUrls,
-        },
-      });
+    // try {
+    //   await createProject({
+    //     variables: {
+    //       ownerId: user.id,
+    //       name: newProjectName,
+    //       data: projectWithCloudinaryUrls,
+    //     },
+    //   });
 
-      setModalMessage(`Project ${newProjectName} created.`);
-      setNewProjectName("");
-    } catch (error) {
-      setModalMessage("Failed to create project.");
-      console.error(error);
-    }
+    //   setModalMessage(`Project ${newProjectName} created.`);
+    //   setNewProjectName("");
+    // } catch (error) {
+    //   setModalMessage("Failed to create project.");
+    //   console.error(error);
+    // }
   };
 
   return (
@@ -85,9 +77,9 @@ const CreateNewProject = ({ imageFiles }) => {
           type="button"
           className="absolute z-10 top-1/2 right-1.5 -translate-y-1/2 px-5 py-2.5 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors shadow-sm disabled:opacity-50"
           onClick={createNewProject}
-          disabled={loading}
+          disabled={createLoading}
         >
-          {loading ? "Creating..." : "Create Project"}
+          {createLoading ? "Creating..." : "Create Project"}
         </button>
       </div>
     </div>

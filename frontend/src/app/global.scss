@@ -6,15 +6,6 @@
 // @import "@/scss/custom/radio.scss";
 
 :root {
-  --navy: #0a192f;
-  --light-navy: #112240;
-  --lightest-navy: #233554;
-  --slate: #8892b0;
-  --light-slate: #a8b2d1;
-  --lightest-slate: #ccd6f6;
-  --white: #e6f1ff;
-  --teal: #64ffda;
-
   --max-width: 1700px;
 
   --primary: #4d6a92;
@@ -316,6 +307,26 @@ span {
 .btn-empty {
   border: 1px solid var(--primary);
   display: inline-block;
+}
+
+.btn-teal {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  transition: all 150ms ease-in-out;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+  border: 1px solid transparent;
+  background-color: var(--slate-02);
+
+  &:hover {
+    border-color: var(--teal);
+    color: var(--teal);
+    background-color: var(--teal-light);
+  }
 }
 
 button {

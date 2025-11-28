@@ -29,7 +29,7 @@ const ModalMessage: React.FC<ModalMessageProps> = ({ message, open }) => {
             transition: { duration: 0.3 },
           }}
         >
-          <div className="modalmessage">
+          <div className="modalmessage fixed top-0 left-0  flex justify-center  items-center inset-0 bg-black/60 backdrop-blur-sm z-7000  rounded-lg w-[100vw] h-[100vh]">
             <div className="modalmessage-inner">
               <p className="modalmessage-message">{message}</p>
             </div>
