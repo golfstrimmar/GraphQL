@@ -165,6 +165,24 @@ export const UPLOAD_FIGMA_JSON_PROJECT = gql`
     }
   }
 `;
+export const UPDATE_FIGMA_PROJECT = gql`
+  mutation UpdateFigmaProject(
+    $figmaProjectId: ID!
+    $images: [FigmaImageInput!]
+  ) {
+    updateFigmaProject(figmaProjectId: $figmaProjectId, images: $images) {
+      id
+      name
+      fileKey
+      figmaImages {
+        fileName
+        filePath
+        nodeId
+      }
+    }
+  }
+`;
+
 
 // Удалить Figma-проект
 export const REMOVE_FIGMA_PROJECT = gql`
@@ -193,9 +211,15 @@ export const UPLOAD_FIGMA_SVGS_TO_CLOUDINARY = gql`
 `;
 
 export const REMOVE_FIGMA_IMAGE = gql`
-  mutation removeFigmaImage($nodeId: String!, $figmaProjectId: Int!) {
-    removeFigmaImage(nodeId: $nodeId, figmaProjectId: $figmaProjectId) {
-      nodeId
+  mutation RemoveFigmaImage($figmaProjectId: ID!, $nodeId: String!) {
+    removeFigmaImage(figmaProjectId: $figmaProjectId, nodeId: $nodeId) {
+      id
+      figmaImages {
+        nodeId
+        fileName
+        filePath
+      }
+      fileCache
     }
   }
 `;

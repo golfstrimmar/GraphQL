@@ -61,21 +61,20 @@ const CreateNewProject = () => {
 
   return (
     <div className="createnewproject">
-      <hr className="bordered-2 border-slate-200 mt-2 mb-2" />
+      <hr className="bordered-2 border-slate-200 mt-2 mb-4" />
       <h5 className="text-lg font-semibold text-slate-700 mb-3">
         Create a new Ulon project
       </h5>
-      <div className="relative mt-4">
+      <div className="grid grid-cols-[1fr_max-content] gap-2 w-full mt-4">
         <Input
           typeInput="text"
           data="Project name"
           value={newProjectName}
           onChange={(e) => setNewProjectName(e.target.value)}
-          placeholder="Enter new project name..."
         />
         <button
           type="button"
-          className="absolute z-10 top-1/2 right-1.5 -translate-y-1/2 px-5 py-2.5 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors shadow-sm disabled:opacity-50"
+          className=" px-5 py-2 bg-blue-500 text-white text-sm font-medium rounded hover:bg-blue-600 transition-colors shadow-sm disabled:opacity-50"
           onClick={createNewProject}
           disabled={createLoading}
         >

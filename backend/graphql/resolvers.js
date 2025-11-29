@@ -228,6 +228,90 @@ export const resolvers = {
         throw new Error("Image upload failed.");
       }
     },
+    updateFigmaProject: async (_parent, { figmaProjectId, images }) => {
+      const id = Number(figmaProjectId);
+      console.log("↔↔↔ updateFigmaProject where id =", id);
+
+      const exists = await prisma.figmaProject.findUnique({
+        where: { id },
+      });
+      console.log("figmaProject exists?", !!exists);
+
+      if (!exists) {
+        throw new Error(`FigmaProject ${id} not found`);
+      }
+
+      const updated = await prisma.figmaProject.update({
+        where: { id },
+        data: {
+          ...(images && images.length
+            ? {
+                figmaImages: {
+                  // вариант 1: только добавлять новые (если nodeId уникален)
+                  upsert: images.map((img) => ({
+                    where: {
+                      // нужен unique/@@unique по (figmaProjectId, nodeId)
+                      figmaProjectId_nodeId: {
+                        figmaProjectId: id,
+                        nodeId: img.nodeId,
+                      },
+                    },
+                    update: {
+                      fileName: img.fileName,
+                      filePath: img.filePath,
+                      imageRef: img.imageRef,
+                      type: img.type,
+                      fileKey: img.fileKey,
+                    },
+                    create: {
+                      fileName: img.fileName,
+                      filePath: img.filePath,
+                      nodeId: img.nodeId,
+                      imageRef: img.imageRef,
+                      type: img.type,
+                      fileKey: img.fileKey,
+                    },
+                  })),
+                },
+              }
+            : {}),
+        },
+        include: {
+          figmaImages: true,
+          owner: true,
+        },
+      });
+
+      return updated;
+    },
+    removeFigmaImage: async (_parent, { nodeId, figmaProjectId }) => {
+      const projectId = Number(figmaProjectId);
+
+      // Проверяем, что проект есть
+      const project = await prisma.figmaProject.findUnique({
+        where: { id: projectId },
+      });
+      if (!project) {
+        throw new Error(`FigmaProject ${projectId} not found`);
+      }
+      const updated = await prisma.figmaProject.update({
+        where: { id: projectId },
+        data: {
+          figmaImages: {
+            deleteMany: {
+              nodeId,
+            },
+          },
+        },
+        include: {
+          figmaImages: true,
+          owner: true,
+        },
+      });
+      console.log("<====updated====>", updated);
+      return updated;
+    },
+
     uploadFigmaImagesToCloudinary,
     uploadFigmaSvgsToCloudinary,
     transformRasterToSvg,

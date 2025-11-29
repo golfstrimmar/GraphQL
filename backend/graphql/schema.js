@@ -8,6 +8,32 @@ export const typeDefs = gql`
     RASTER
     OTHER
   }
+  enum ColorType {
+    PALETTE
+    TEXT
+    BACKGROUND
+    FILL
+    STROKE
+  }
+
+  input ColorVariableInput {
+    variableName: String!
+    hex: String!
+    type: ColorType!
+  }
+  input JsonDocumentInput {
+    name: String!
+    content: JSON!
+  }
+  input FigmaImageInput {
+    fileName: String!
+    filePath: String!
+    nodeId: String!
+    imageRef: String!
+    type: ImageType
+    fileKey: String!
+  }
+
   type ImageUniversal {
     filename: String!
     ext: String!
@@ -30,24 +56,6 @@ export const typeDefs = gql`
   type TracedSVG {
     filename: String!
     svg: String!
-  }
-
-  enum ColorType {
-    PALETTE
-    TEXT
-    BACKGROUND
-    FILL
-    STROKE
-  }
-
-  input ColorVariableInput {
-    variableName: String!
-    hex: String!
-    type: ColorType!
-  }
-  input JsonDocumentInput {
-    name: String!
-    content: JSON!
   }
 
   type ProjectSummary {
@@ -189,10 +197,15 @@ export const typeDefs = gql`
       token: String!
       type: String!
     ): FigmaProject!
+    updateFigmaProject(
+      figmaProjectId: ID!
+      images: [FigmaImageInput!]
+    ): FigmaProject!
+    removeFigmaImage(nodeId: String!, figmaProjectId: ID!): FigmaProject!
     removeFigmaProject(figmaProjectId: ID!): ID
     uploadFigmaImagesToCloudinary(projectId: ID!): [FigmaImage!]!
     uploadFigmaSvgsToCloudinary(projectId: ID!): [FigmaImage!]!
-    removeFigmaImage(nodeId: String!, figmaProjectId: Int!): FigmaImage!
+
     transformRasterToSvg(nodeId: String!): FigmaImage!
     extractAndSaveColors(
       fileKey: String!

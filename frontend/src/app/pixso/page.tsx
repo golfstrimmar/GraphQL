@@ -104,17 +104,68 @@ export default function FigmaPage() {
     }
   }, [figmaProjectsByUser]);
   useEffect(() => {
-    if (figmaProjectData?.getFigmaProjectData) {
-      console.log(
-        "<==🔥🔥🔥🔥==figmaProjectData ==🔥🔥🔥==>",
-        figmaProjectData.getFigmaProjectData
-      );
-      setcurrentProject(figmaProjectData.getFigmaProjectData.project);
-      setColors(figmaProjectData.getFigmaProjectData.colors);
-      setFonts(figmaProjectData.getFigmaProjectData.fonts);
-      setTexts(figmaProjectData.getFigmaProjectData.textNodes);
+    const data = figmaProjectData?.getFigmaProjectData;
+    if (!data) return;
+
+    console.log("<==🔥🔥🔥🔥==figmaProjectData ==🔥🔥🔥==>", data);
+
+    setcurrentProject(data.project);
+    setColors(data.colors);
+    setFonts(data.fonts);
+    setTexts(data.textNodes);
+
+    const currentImgs = data.project.figmaImages || [];
+    console.log("<====currentImgs====>", currentImgs);
+
+    // 1) восстановить imageFiles для UI
+    const temp = currentImgs.map((img) => ({
+      ...img,
+      name: img.fileName,
+      previewUrl: img.filePath,
+    }));
+    setImageFiles(temp);
+
+    if (data.project.fileCache) {
+      setHtmlJson(data.project.fileCache as HtmlNode);
+    } else {
+      const newNodes: HtmlNode[] = currentImgs.map((img, index) => ({
+        tag: "div",
+        class: "",
+        text: "img container",
+        style:
+          "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;position: relative;",
+        children: [
+          {
+            tag: "div",
+            text: "imgs",
+            class: "imgs",
+            style:
+              "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;overflow: hidden;position: absolute;width: 100%;height: 100%;top: 0;left: 0;",
+            children: [
+              {
+                tag: "img",
+                text: "",
+                class: "",
+                style:
+                  "background: #0ea5e9; padding: 2px 4px; border: 1px solid #adadad;",
+                children: [],
+                attributes: {
+                  alt: img.nodeId ?? index.toString(),
+                  src: img.filePath,
+                },
+              },
+            ],
+          },
+        ],
+      }));
+
+      setHtmlJson((prev) => ({
+        ...(prev || { tag: "div", children: [] }),
+        children: [...((prev && prev.children) || []), ...newNodes],
+      }));
     }
   }, [figmaProjectData]);
+
   useEffect(() => {
     console.log("<====fonts====>", fonts);
     if (Object.keys(fonts).length > 0) {
@@ -154,6 +205,11 @@ export default function FigmaPage() {
       }));
     }
   }, [texts]);
+  useEffect(() => {
+    if (currentProject) {
+      console.log("<==== currentProject====>", currentProject);
+    }
+  }, [currentProject]);
 
   //////////////////
   const handleUpload = async () => {
@@ -501,13 +557,13 @@ export default function FigmaPage() {
             Extract and manage your design system
           </p>
         </div>
-        <div className="bg-navy rounded-2xl shadow-xl p-2 mb-8 border border-slate-200">
+        <div className="bg-navy rounded-2xl shadow-xl p-2 pb-0 mb-8 border border-slate-200">
           {allProjects.length === 0 ? (
-            <div className="text-center py-6">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="text-center  py-4 pb-2">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-2">
                 <span className="text-2xl">📁</span>
               </div>
-              <p className="text-slate-600 text-lg mb-6">
+              <p className="text-slate-600 text-lg py-4 mb-6">
                 {user
                   ? "No Figma projects found"
                   : "Please,  login to see Projects"}
@@ -525,7 +581,7 @@ export default function FigmaPage() {
               )}
             </div>
           ) : (
-            <>
+            <div className="pb-2">
               <h2 className="mb-2">Your Projects</h2>
               <FigmaProjectsList
                 allProjects={allProjects}
@@ -548,7 +604,7 @@ export default function FigmaPage() {
               >
                 + Add Project
               </Button>
-            </>
+            </div>
           )}
         </div>
         {currentProject && (
@@ -568,10 +624,11 @@ export default function FigmaPage() {
             </div>
           </div>
         )}
-        {user && (
+        {user && currentProject && (
           <ImageUploader
             imageFiles={imageFiles}
             setImageFiles={setImageFiles}
+            currentProject={currentProject}
           />
         )}
 

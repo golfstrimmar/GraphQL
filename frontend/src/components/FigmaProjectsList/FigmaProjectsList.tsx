@@ -56,7 +56,7 @@ const FigmaProjectsList: React.FC<FigmaProjectsListProps> = ({
         allProjects.map((project) => (
           <div
             key={project.id}
-            className="flex justify-between items-center w-full gap-1"
+            className="grid grid-cols-[1fr_max-content] w-full gap-1"
           >
             <button
               onClick={(e) => {
@@ -68,7 +68,7 @@ const FigmaProjectsList: React.FC<FigmaProjectsListProps> = ({
                 project.id === projectId
                   ? " text-slate-800 bg-[var(--teal)]"
                   : "bg-slate-200 hover:bg-slate-300 hover:border-[var(--teal)] hover:text-[var(--teal)]  text-sm font-medium"
-              } p-1 max-h-8 rounded flex items-center gap-1 cursor-pointer transition-all border border-transparent`}
+              } p-1 max-h-8 rounded  gap-1 cursor-pointer transition-all border border-transparent text-center`}
             >
               {project.name}
             </button>

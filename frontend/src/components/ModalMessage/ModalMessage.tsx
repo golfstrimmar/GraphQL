@@ -17,15 +17,13 @@ const ModalMessage: React.FC<ModalMessageProps> = ({ message, open }) => {
           key="modal-message"
           initial={{
             opacity: 0,
-            scale: 0.8,
-            y: -100,
+            scale: 0.1,
           }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.3 }}
           exit={{
             opacity: 0,
-            scale: 0.8,
-            y: -100,
+            scale: 0.1,
             transition: { duration: 0.3 },
           }}
         >

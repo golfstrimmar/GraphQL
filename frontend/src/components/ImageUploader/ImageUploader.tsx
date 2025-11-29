@@ -3,8 +3,14 @@
 import React, { useState, ChangeEvent, useEffect } from "react";
 import { useStateContext } from "@/providers/StateProvider";
 import EditModeIcon from "@/components/icons/EditModeIcon";
-import { useMutation } from "@apollo/client";
-import { UPLOAD_ULON_IMAGE } from "@/apollo/mutations";
+import { useMutation, useQuery } from "@apollo/client";
+import {
+  UPLOAD_ULON_IMAGE,
+  UPDATE_FIGMA_PROJECT,
+  REMOVE_FIGMA_IMAGE,
+} from "@/apollo/mutations";
+import { GET_FIGMA_PROJECT_DATA } from "@/apollo/queries";
+import Image from "next/image";
 // import {
 //   findAndUploadImages,
 //   ProjectNode,
@@ -33,20 +39,53 @@ interface ImageUploaderProps {
 const ImageUploader: React.FC<ImageUploaderProps> = ({
   imageFiles,
   setImageFiles,
+  currentProject,
 }) => {
-  const { setHtmlJson, setModalMessage } = useStateContext();
+  const { htmlJson, setHtmlJson, setModalMessage } = useStateContext();
 
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
   const [uploadImage, { loading: uploadLoading }] =
     useMutation(UPLOAD_ULON_IMAGE);
+  const [updateFigmaProject] = useMutation(UPDATE_FIGMA_PROJECT);
+  const [removeFigmaImage] = useMutation(REMOVE_FIGMA_IMAGE, {
+    update(cache, { data }) {
+      const updatedProject = data?.removeFigmaImage;
+      if (!updatedProject) return;
 
-  // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
+      // читаем из кеша текущие данные проекта
+      const existing = cache.readQuery({
+        query: GET_FIGMA_PROJECT_DATA,
+        variables: { projectId: String(updatedProject.id) },
+      }) as any;
+
+      if (!existing?.getFigmaProjectData) return;
+
+      cache.writeQuery({
+        query: GET_FIGMA_PROJECT_DATA,
+        variables: { projectId: String(updatedProject.id) },
+        data: {
+          getFigmaProjectData: {
+            ...existing.getFigmaProjectData,
+            project: {
+              ...existing.getFigmaProjectData.project,
+              figmaImages: updatedProject.figmaImages,
+              fileCache: updatedProject.fileCache,
+            },
+          },
+        },
+      });
+    },
+  });
+
+  // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨э
+
   useEffect(() => {
+    console.log("<====imageFiles====>", imageFiles);
     return () => {
       imageFiles.forEach((img) => URL.revokeObjectURL(img.previewUrl));
     };
   }, [imageFiles]);
-  // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
+
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       const newFiles = Array.from(event.target.files);
@@ -58,17 +97,26 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       event.target.value = "";
     }
   };
-  const handleRemoveImage = (indexToRemove: number) => {
-    setImageFiles((prev) => {
-      const newImages = prev.filter((_, index) => index !== indexToRemove);
-      URL.revokeObjectURL(prev[indexToRemove].previewUrl);
-      return newImages;
-    });
+  const handleRemoveImage = async (img) => {
+    if (currentProject && img.nodeId) {
+      setImageFiles((prev) => prev.filter((f) => f.nodeId !== img.nodeId));
+      await removeFigmaImage({
+        variables: {
+          figmaProjectId: currentProject.id,
+          nodeId: img.nodeId,
+        },
+      });
+    } else {
+      setImageFiles((prev) =>
+        prev.filter((f) => f.file.name !== img.file.name)
+      );
+    }
   };
-  const handleClearAllImages = () => {
-    imageFiles.forEach((img) => URL.revokeObjectURL(img.previewUrl));
-    setImageFiles([]);
-  };
+
+  // const handleClearAllImages = () => {
+  //   imageFiles.forEach((img) => URL.revokeObjectURL(img.previewUrl));
+  //   setImageFiles([]);
+  // };
   const saveAllImages = async () => {
     if (!imageFiles.length) return;
 
@@ -80,7 +128,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       );
 
       const results = await Promise.all(uploadPromises);
-
       const urls = results.map((res) => res.data?.uploadImage?.url);
       console.log("<==== uploaded urls ====>", urls);
       const newNodes: HtmlNode[] = urls.map((imgFile, index) => ({
@@ -114,16 +161,47 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
           },
         ],
       }));
-      setHtmlJson((prev) => ({
-        ...prev,
-        children: [...(prev?.children || []), ...newNodes],
+      const newHtmlJson = {
+        ...htmlJson,
+        children: [...(htmlJson.children || []), ...newNodes],
+      };
+      setHtmlJson(newHtmlJson);
+      const images = urls.map((url, index) => ({
+        fileName: imageFiles[index].file.name,
+        filePath: url,
+        nodeId: String(index),
+        imageRef: url,
+        type: "RASTER",
+        fileKey: currentProject.fileKey,
       }));
+
+      return { images };
     } catch (error) {
       console.error("Error saving images:", error);
       setModalMessage?.("Error saving images");
     }
   };
+  const handleSaveProjectWithImages = async () => {
+    const projectId = currentProject.id;
+    if (!projectId) {
+      setModalMessage?.("No projectId");
+      return;
+    }
 
+    const result = await saveAllImages();
+    if (!result) return;
+
+    const { images } = result;
+    console.log("<========>", projectId, images);
+    await updateFigmaProject({
+      variables: {
+        figmaProjectId: projectId,
+        images: images,
+      },
+    });
+
+    setModalMessage?.("Project updated with images");
+  };
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
   return (
     <div className="bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 mb-8">
@@ -134,7 +212,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         <h3 className="text-2xl font-bold text-slate-800">Images</h3>
       </div>
 
-      <div className="mb-6 flex gap-3 items-center">
+      <div className=" flex gap-3 items-center">
         <label htmlFor="image-upload" className="btn-teal">
           <EditModeIcon></EditModeIcon>
           Upload Images
@@ -153,20 +231,26 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             <button
               className={`btn-teal`}
               type="button"
-              onClick={() => saveAllImages()}
+              onClick={() => handleSaveProjectWithImages()}
             >
               <EditModeIcon></EditModeIcon>
-              <span className=" font-medium"> Save all Images</span>
+              <span className=" font-medium">
+                Updete Figmaproject
+                <h3 className="inline-block mx-2 font-bold !text-[var(--teal)]">
+                  {currentProject.name}
+                </h3>
+                with images
+              </span>
             </button>
-            <button onClick={handleClearAllImages} className="btn btn-allert">
+            {/* <button onClick={handleClearAllImages} className="btn btn-allert">
               Remove all images
-            </button>
+            </button> */}
           </div>
         )}
       </div>
 
       {imageFiles.length > 0 && (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-4">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] mt-2 gap-4">
           {imageFiles.map((img, index) => (
             <div
               key={img.previewUrl}
@@ -174,18 +258,18 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             >
               <img
                 src={img.previewUrl}
-                alt={img.file.name}
+                alt={img.name || img.file.name || "img"}
                 className="max-w-full h-auto max-h-24 object-contain rounded-md mb-2"
               />
-              <p className="text-xs text-slate-600 break-all w-full truncate px-1">
-                {img.file.name}
+              <p className="text-xs text-slate-600 break-all w-full mt-auto px-1">
+                {img.name || img.file.name}
               </p>
               <button
-                onClick={() => handleRemoveImage(index)}
-                className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={() => handleRemoveImage(img)}
+                className="absolute top-1 right-1 bg-red-200 text-white rounded-full hover:bg-red-400  p-1 w-5 h-5 flex items-center justify-center text-lg opacity-0 group-hover:opacity-100 transition-opacity"
                 title="Remove image"
               >
-                &times;
+                <Image src="/svg/cross.svg" alt="copy" width={16} height={16} />
               </button>
             </div>
           ))}

@@ -110,8 +110,14 @@ export const GET_FIGMA_PROJECT_DATA = gql`
           id
           name
         }
+        figmaImages {
+          fileName
+          filePath
+          nodeId
+        }
         fileCache
       }
+
       colors
       fonts
       textNodes {
