@@ -32,7 +32,7 @@ import EditModeIcon from "@/components/icons/EditModeIcon";
 import ClearIcon from "@/components/icons/ClearIcon";
 import СhevronLeft from "@/components/icons/СhevronLeft";
 import СhevronRight from "@/components/icons/СhevronRight";
-
+import Update from "@/components/icons/Update";
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 export interface ProjectNode {
   _key?: string;
@@ -478,21 +478,18 @@ export default function Plaza() {
               {projectId && projectId !== "" && (
                 <div className="flex items-center gap-3">
                   <button
-                    className="px-4 py-2.5 bg-navy/20 backdrop-blur hover:bg-navy/30 text-white rounded-lg transition-all flex items-center gap-2"
+                    className="btn-teal"
                     type="button"
                     onClick={() => updateTempProject()}
                   >
-                    <Image
-                      src="/svg/update.svg"
-                      alt="icon"
-                      width={16}
-                      height={16}
-                      className="brightness-0 invert"
-                    />
+                    <div className="w-4 h-4 overflow-hidden">
+                      <Update />
+                    </div>
                     <span className="text-sm font-medium">Update</span>
                   </button>
+
                   <button
-                    className="px-4 py-2.5 bg-red-500/80 hover:bg-red-600 text-white rounded-lg transition-all flex items-center gap-2"
+                    className=" btn btn-allert flex items-center gap-2"
                     type="button"
                     onClick={() => delProject(projectId)}
                   >

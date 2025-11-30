@@ -7,6 +7,23 @@ import { CREATE_PROJECT } from "@/apollo/mutations";
 import { GET_ALL_PROJECTS_BY_USER } from "@/apollo/queries";
 import Input from "@/components/ui/Input/Input";
 
+type HtmlNode = {
+  tag: string;
+  class?: string;
+  text?: string;
+  style?: string;
+  children?: HtmlNode[];
+  attributes?: Record<string, any>;
+};
+
+type FigmaImageInput = {
+  fileName: string;
+  filePath: string;
+  nodeId: string;
+  imageRef: string;
+  type: "RASTER";
+  fileKey: string;
+};
 const CreateNewProject = () => {
   const { htmlJson, user, setModalMessage } = useStateContext();
   const [newProjectName, setNewProjectName] = useState<string>("");
@@ -19,44 +36,31 @@ const CreateNewProject = () => {
     }
   );
 
-  // useEffect(() => {
-  //   if (imageFiles.length > 0) {
-  //     console.log("<====imageFiles====>", imageFiles);
-  //   }
-  // }, [imageFiles]);
   const createNewProject = async () => {
     if (!newProjectName || !user) {
       setModalMessage(" All fields are required.");
       return;
     }
-    // if (!htmlJson || !htmlJson.children || htmlJson.children.length === 0) {
-    //   setModalMessage(" Data fields are required.");
-    //   return;
-    // }
+    if (!htmlJson || !htmlJson.children || htmlJson.children.length === 0) {
+      setModalMessage(" Data fields are required.");
+      return;
+    }
 
-    // // Шаг 1: Загружаем изображения и получаем обновленный htmlJson
-    // const projectWithCloudinaryUrls = await findAndUploadImages(
-    //   htmlJson as ProjectNode,
-    //   imageFiles as ImageFile[],
-    //   uploadImage,
-    //   setModalMessage
-    // );
+    try {
+      await createProject({
+        variables: {
+          ownerId: user.id,
+          name: newProjectName,
+          data: htmlJson,
+        },
+      });
 
-    // try {
-    //   await createProject({
-    //     variables: {
-    //       ownerId: user.id,
-    //       name: newProjectName,
-    //       data: projectWithCloudinaryUrls,
-    //     },
-    //   });
-
-    //   setModalMessage(`Project ${newProjectName} created.`);
-    //   setNewProjectName("");
-    // } catch (error) {
-    //   setModalMessage("Failed to create project.");
-    //   console.error(error);
-    // }
+      setModalMessage(`Project ${newProjectName} created.`);
+      setNewProjectName("");
+    } catch (error) {
+      setModalMessage("Failed to create project.");
+      console.error(error);
+    }
   };
 
   return (
