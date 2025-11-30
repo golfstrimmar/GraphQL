@@ -15,7 +15,6 @@ cloudinary.config({
  * @returns {Promise<{url: string, public_id: string}>}
  */
 export function uploadToCloudinary(file, folder = "ulon", fileName) {
-  console.log("<====fileName====>", fileName);
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {

@@ -103,6 +103,7 @@ export default function FigmaPage() {
       setAllProjects(figmaProjectsByUser.figmaProjectsByUser);
     }
   }, [figmaProjectsByUser]);
+
   useEffect(() => {
     const data = figmaProjectData?.getFigmaProjectData;
     if (!data) return;
@@ -117,7 +118,7 @@ export default function FigmaPage() {
     const currentImgs = data.project.figmaImages || [];
     console.log("<====currentImgs====>", currentImgs);
 
-    // 1) восстановить imageFiles для UI
+    // imageFiles для UI
     const temp = currentImgs.map((img) => ({
       ...img,
       name: img.fileName,
@@ -125,12 +126,13 @@ export default function FigmaPage() {
     }));
     setImageFiles(temp);
 
-    const newNodes: HtmlNode[] = currentImgs.map((img, index) => ({
+    // htmlJson строим С НУЛЯ, без prev
+    const imageNodes: HtmlNode[] = currentImgs.map((img, index) => ({
       tag: "div",
       class: "",
-      text: "img container",
+      text: "img-container",
       style:
-        "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;position: relative;",
+        "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;position: relative; min-height: 100px;",
       children: [
         {
           tag: "div",
@@ -156,10 +158,28 @@ export default function FigmaPage() {
       ],
     }));
 
-    setHtmlJson((prev) => ({
-      ...(prev || { tag: "div", children: [] }),
-      children: [...((prev && prev.children) || []), ...newNodes],
-    }));
+    setHtmlJson((prev) => {
+      const base: HtmlNode =
+        prev && prev.tag // если уже есть базовый Figma‑json
+          ? {
+              ...prev,
+              children: [
+                ...(prev.children || []).filter(
+                  (ch) => ch.tag !== "div" || ch.text !== "img-container"
+                ),
+                ...imageNodes,
+              ],
+            }
+          : {
+              tag: "div",
+              class: "",
+              text: "",
+              style: "",
+              children: imageNodes,
+            };
+
+      return base;
+    });
   }, [figmaProjectData]);
 
   useEffect(() => {

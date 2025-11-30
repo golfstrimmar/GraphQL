@@ -133,77 +133,126 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   // };
   const saveAllImages = async () => {
     if (!imageFiles.length) return;
-    console.log("<===Uploader imageFiles=====>", imageFiles);
-    const imageFilesToUpload = imageFiles.filter((img) => {
-      return img.file !== undefined;
-    });
-    console.log("<====imageFilesToUpload====>", imageFilesToUpload);
-    try {
-      const uploadPromises = imageFilesToUpload.map((imgFile) =>
-        uploadImage({
-          variables: { file: imgFile.file },
-        })
-      );
-      const results = await Promise.all(uploadPromises);
-      console.log("<====results====>", results);
-      const urls = results.map((res) => res.data?.uploadImage?.url);
-      // console.log("<==== uploaded urls ====>", urls);
-      const newNodes: HtmlNode[] = urls.map((imgFile, index) => ({
-        tag: "div",
-        class: "",
-        text: "img container",
-        style:
-          "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;position: relative; ",
-        children: [
-          {
-            tag: "div",
-            text: "imgs",
-            class: "imgs",
-            style:
-              "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;overflow: hidden;  position: absolute;  width: 100%;  height: 100%;  top: 0;  left: 0;",
-            children: [
-              {
-                tag: "img",
-                text: "",
-                class: "",
-                style:
-                  "background: #0ea5e9; padding: 2px 4px; border: 1px solid #adadad;",
-                children: [],
-                attributes: {
-                  alt: index.toString(),
-                  src: imgFile,
-                },
-              },
-            ],
-          },
-        ],
-      }));
-      const newHtmlJson = {
-        ...htmlJson,
-        children: [...(htmlJson.children || []), ...newNodes],
+
+    const imageFilesToUpload = imageFiles.filter(
+      (img) => img.file !== undefined
+    );
+    const uploadPromises = imageFilesToUpload.map((imgFile) =>
+      uploadImage({ variables: { file: imgFile.file } })
+    );
+    const results = await Promise.all(uploadPromises);
+    const urls = results.map((res) => res.data?.uploadImage?.url);
+
+    // 1. Собираем уже существующие nodeId
+    const existingImages = currentProject.figmaImages || [];
+    const existingNodeIds = existingImages
+      .map((img) => Number(img.nodeId))
+      .filter((n) => !isNaN(n));
+
+    const maxNodeId = existingNodeIds.length
+      ? Math.max(...existingNodeIds)
+      : -1;
+
+    // 2. Для новых картинок продолжаем нумерацию
+    const images = urls.map((url, index) => {
+      const srcImg = imageFilesToUpload[index];
+      const fileName = srcImg?.file?.name ?? srcImg?.fileName ?? "";
+
+      return {
+        fileName,
+        filePath: url,
+        nodeId: String(maxNodeId + 1 + index),
+        imageRef: url,
+        type: "RASTER",
+        fileKey: currentProject.fileKey,
       };
-      setHtmlJson(newHtmlJson);
-      const images = urls.map((url, index) => {
-        const fileName = imageFiles[index]?.file?.name
-          ? imageFiles[index]?.fileName
-          : "";
+    });
 
-        return {
-          fileName,
-          filePath: url,
-          nodeId: String(index),
-          imageRef: url,
-          type: "RASTER",
-          fileKey: currentProject.fileKey,
-        };
-      });
-
-      return { images };
-    } catch (error) {
-      console.error("Error saving images:", error);
-      setModalMessage("Error saving images", error);
-    }
+    return { images };
   };
+
+  // const saveAllImages = async () => {
+  //   if (!imageFiles.length) return;
+  //   console.log("<===Uploader imageFiles=====>", imageFiles);
+
+  //   const imageFilesToUpload = imageFiles.filter(
+  //     (img) => img.file !== undefined
+  //   );
+  //   console.log("<====imageFilesToUpload====>", imageFilesToUpload);
+
+  //   try {
+  //     const uploadPromises = imageFilesToUpload.map((imgFile) =>
+  //       uploadImage({
+  //         variables: { file: imgFile.file },
+  //       })
+  //     );
+
+  //     const results = await Promise.all(uploadPromises);
+  //     console.log("<====results====>", results);
+
+  //     // const urls = results.map((res) => res.data?.uploadImage?.url);
+
+  //     // const newNodes: HtmlNode[] = urls.map((url, index) => ({
+  //     //   tag: "div",
+  //     //   class: "",
+  //     //   text: "img container",
+  //     //   style:
+  //     //     "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;position: relative; ",
+  //     //   children: [
+  //     //     {
+  //     //       tag: "div",
+  //     //       text: "imgs",
+  //     //       class: "imgs",
+  //     //       style:
+  //     //         "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;overflow: hidden;position: absolute;width: 100%;height: 100%;top: 0;left: 0;",
+  //     //       children: [
+  //     //         {
+  //     //           tag: "img",
+  //     //           text: "",
+  //     //           class: "",
+  //     //           style:
+  //     //             "background: #0ea5e9; padding: 2px 4px; border: 1px solid #adadad;",
+  //     //           children: [],
+  //     //           attributes: {
+  //     //             alt: index.toString(),
+  //     //             src: url,
+  //     //           },
+  //     //         },
+  //     //       ],
+  //     //     },
+  //     //   ],
+  //     // }));
+
+  //     // const newHtmlJson = {
+  //     //   ...htmlJson,
+  //     //   children: [...(htmlJson.children || []), ...newNodes],
+  //     // };
+  //     // setHtmlJson(newHtmlJson);
+
+  //     // ВАЖНО: используем тот же imageFilesToUpload
+  //     // const images = urls.map((url, index) => {
+  //     // const srcImg = imageFilesToUpload[index];
+  //     // const fileName = srcImg?.file?.name ?? srcImg?.fileName ?? "";
+  //     const images = results.map((res, index) => {
+  //       const url = res.data?.uploadImage?.url;
+  //       const fileName = res.data?.uploadImage?.filename;
+  //       console.log("<====url====>", url, fileName);
+  //       return {
+  //         fileName,
+  //         filePath: url,
+  //         nodeId: String(index),
+  //         imageRef: url,
+  //         type: "RASTER",
+  //         fileKey: currentProject.fileKey,
+  //       };
+  //     });
+  //     return { images };
+  //   } catch (error) {
+  //     console.error("Error saving images:", error);
+  //     setModalMessage("Error saving images", error);
+  //   }
+  // };
+
   const handleSaveProjectWithImages = async () => {
     const projectId = currentProject.id;
     if (!projectId) {
@@ -215,7 +264,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     if (!result) return;
 
     const { images } = result;
-    console.log("<========>", projectId, images);
     await updateFigmaProject({
       variables: {
         figmaProjectId: projectId,
@@ -281,7 +329,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             >
               <img
                 src={img.previewUrl}
-                alt={img.name || img.file.name || "img"}
+                alt={img?.name ? img?.name : img?.file?.name}
                 className="max-w-full h-auto max-h-24 object-contain rounded-md mb-2"
               />
               <p className="text-xs text-slate-600 break-all w-full mt-auto px-1">

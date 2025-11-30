@@ -212,7 +212,6 @@ export const resolvers = {
       return project.id;
     },
     uploadImage: async (_, { file }) => {
-      console.log("<====uploadImage====>", file);
       const { createReadStream, filename } = await file;
       const stream = createReadStream();
       console.log("<==!!== filename ====>", filename);
@@ -244,40 +243,27 @@ export const resolvers = {
         throw new Error(`FigmaProject ${id} not found`);
       }
 
+      // если нет новых картинок — просто вернуть проект как есть
+      if (!images || !images.length) {
+        return await prisma.figmaProject.findUnique({
+          where: { id },
+          include: { figmaImages: true, owner: true },
+        });
+      }
+
       const updated = await prisma.figmaProject.update({
         where: { id },
         data: {
-          ...(images && images.length
-            ? {
-                figmaImages: {
-                  // вариант 1: только добавлять новые (если nodeId уникален)
-                  upsert: images.map((img) => ({
-                    where: {
-                      // нужен unique/@@unique по (figmaProjectId, nodeId)
-                      figmaProjectId_nodeId: {
-                        figmaProjectId: id,
-                        nodeId: img.nodeId,
-                      },
-                    },
-                    update: {
-                      fileName: img.fileName,
-                      filePath: img.filePath,
-                      imageRef: img.imageRef,
-                      type: img.type,
-                      fileKey: img.fileKey,
-                    },
-                    create: {
-                      fileName: img.fileName,
-                      filePath: img.filePath,
-                      nodeId: img.nodeId,
-                      imageRef: img.imageRef,
-                      type: img.type,
-                      fileKey: img.fileKey,
-                    },
-                  })),
-                },
-              }
-            : {}),
+          figmaImages: {
+            create: images.map((img) => ({
+              fileName: img.fileName,
+              filePath: img.filePath,
+              nodeId: img.nodeId,
+              imageRef: img.imageRef,
+              type: img.type,
+              fileKey: img.fileKey,
+            })),
+          },
         },
         include: {
           figmaImages: true,
@@ -287,6 +273,7 @@ export const resolvers = {
 
       return updated;
     },
+
     removeFigmaImage: async (_parent, { nodeId, figmaProjectId }) => {
       const projectId = Number(figmaProjectId);
 
