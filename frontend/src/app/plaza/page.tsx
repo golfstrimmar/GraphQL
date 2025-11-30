@@ -435,10 +435,10 @@ export default function Plaza() {
                 : renderNode(project))}
           </div>
         </div>
-        {/* <motion.div
+        <motion.div
           id="plaza-container"
           className={`grid transition-all duration-300  gap-2 mt-2 ${editMode ? "bg-slate-400 rounded" : ""}
-             overflow-hidden
+            
            `}
         >
           <AnimatePresence mode="wait">
@@ -460,7 +460,7 @@ export default function Plaza() {
               </motion.div>
             )}
           </AnimatePresence>
-        </motion.div> */}
+        </motion.div>
         {projectName && (
           <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl shadow-xl p-2 mb-8 text-white">
             <div className="flex items-center justify-between">

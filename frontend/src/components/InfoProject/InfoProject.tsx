@@ -12,6 +12,7 @@ import removeNodeByKey from "@/utils/plaza/removeNodeByKey";
 import findNodeByKey from "@/utils/plaza/findNodeByKey";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import СhevronLeft from "@/components/icons/СhevronLeft";
 type ProjectData = {
   tag: string;
   text: string;
@@ -335,14 +336,11 @@ const InfoProject: React.FC<InfoProjectProps> = ({
         )}
         <button
           onClick={() => setOpenInfoKey(null)}
-          className="absolute left-[50%] -top-3 border rounded bg-slate-200 p-1 hover:bg-slate-300 transition-all duration-200 rotate-90"
+          className="absolute left-[50%] -top-3 border rounded bg-slate-200 hover:bg-slate-300 transition-all duration-200 rotate-90  btn-teal !p-0.5"
         >
-          <Image
-            src="/svg/chevron-left.svg"
-            alt="placeholder"
-            width={10}
-            height={10}
-          />
+          <div className="max-h-6 ">
+            <СhevronLeft />
+          </div>
         </button>
       </div>
     );
