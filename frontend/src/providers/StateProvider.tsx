@@ -194,7 +194,6 @@ export function StateProvider({ children }: { children: ReactNode }) {
     }, duration);
   };
   useEffect(() => {
-    console.log("<====modalMessage====>", modalMessage);
     if (modalMessage) showModal(modalMessage);
   }, [modalMessage]);
   // ==================== INIT HTML JSON ====================

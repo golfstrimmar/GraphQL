@@ -125,45 +125,41 @@ export default function FigmaPage() {
     }));
     setImageFiles(temp);
 
-    if (data.project.fileCache) {
-      setHtmlJson(data.project.fileCache as HtmlNode);
-    } else {
-      const newNodes: HtmlNode[] = currentImgs.map((img, index) => ({
-        tag: "div",
-        class: "",
-        text: "img container",
-        style:
-          "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;position: relative;",
-        children: [
-          {
-            tag: "div",
-            text: "imgs",
-            class: "imgs",
-            style:
-              "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;overflow: hidden;position: absolute;width: 100%;height: 100%;top: 0;left: 0;",
-            children: [
-              {
-                tag: "img",
-                text: "",
-                class: "",
-                style:
-                  "background: #0ea5e9; padding: 2px 4px; border: 1px solid #adadad;",
-                children: [],
-                attributes: {
-                  alt: img.nodeId ?? index.toString(),
-                  src: img.filePath,
-                },
+    const newNodes: HtmlNode[] = currentImgs.map((img, index) => ({
+      tag: "div",
+      class: "",
+      text: "img container",
+      style:
+        "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;position: relative;",
+      children: [
+        {
+          tag: "div",
+          text: "imgs",
+          class: "imgs",
+          style:
+            "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;overflow: hidden;position: absolute;width: 100%;height: 100%;top: 0;left: 0;",
+          children: [
+            {
+              tag: "img",
+              text: "",
+              class: "",
+              style:
+                "background: #0ea5e9; padding: 2px 4px; border: 1px solid #adadad;",
+              children: [],
+              attributes: {
+                alt: img.nodeId ?? index.toString(),
+                src: img.filePath,
               },
-            ],
-          },
-        ],
-      }));
+            },
+          ],
+        },
+      ],
+    }));
 
-      setHtmlJson((prev) => ({
-        ...(prev || { tag: "div", children: [] }),
-        children: [...((prev && prev.children) || []), ...newNodes],
-      }));
-    }
+    setHtmlJson((prev) => ({
+      ...(prev || { tag: "div", children: [] }),
+      children: [...((prev && prev.children) || []), ...newNodes],
+    }));
   }, [figmaProjectData]);
 
   useEffect(() => {
@@ -252,7 +248,6 @@ export default function FigmaPage() {
       });
     };
 
-    // file — это instance of File
     reader.readAsText(file);
   };
   //////////////////

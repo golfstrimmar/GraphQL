@@ -11,6 +11,7 @@ import {
 } from "@/apollo/mutations";
 import { GET_FIGMA_PROJECT_DATA } from "@/apollo/queries";
 import Image from "next/image";
+import Loading from "@/components/ui/Loading/Loading";
 // import {
 //   findAndUploadImages,
 //   ProjectNode,
@@ -33,6 +34,7 @@ type HtmlNode = {
 interface ImageUploaderProps {
   imageFiles: ImageFile[];
   setImageFiles: (files: ImageFile[]) => void;
+  currentProject: any;
 }
 
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
@@ -42,11 +44,12 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   currentProject,
 }) => {
   const { htmlJson, setHtmlJson, setModalMessage } = useStateContext();
-
+  const [isNewImages, setIsNewImages] = useState<boolean>(false);
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
   const [uploadImage, { loading: uploadLoading }] =
     useMutation(UPLOAD_ULON_IMAGE);
-  const [updateFigmaProject] = useMutation(UPDATE_FIGMA_PROJECT);
+  const [updateFigmaProject, { loading: updateLoading }] =
+    useMutation(UPDATE_FIGMA_PROJECT);
   const [removeFigmaImage] = useMutation(REMOVE_FIGMA_IMAGE, {
     update(cache, { data }) {
       const updatedProject = data?.removeFigmaImage;
@@ -78,7 +81,18 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   });
 
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨э
-
+  useEffect(() => {
+    imageFiles.forEach((img) => {
+      console.log("<==!!!==img====>", img);
+      if (img.file) {
+        setIsNewImages(true);
+        return;
+      }
+    });
+  }, [imageFiles]);
+  useEffect(() => {
+    console.log("<==== isNewImages====>", isNewImages);
+  }, [isNewImages]);
   useEffect(() => {
     console.log("<====imageFiles====>", imageFiles);
     return () => {
@@ -119,24 +133,27 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   // };
   const saveAllImages = async () => {
     if (!imageFiles.length) return;
-
+    console.log("<===Uploader imageFiles=====>", imageFiles);
+    const imageFilesToUpload = imageFiles.filter((img) => {
+      return img.file !== undefined;
+    });
+    console.log("<====imageFilesToUpload====>", imageFilesToUpload);
     try {
-      const uploadPromises = imageFiles.map((imgFile) =>
+      const uploadPromises = imageFilesToUpload.map((imgFile) =>
         uploadImage({
           variables: { file: imgFile.file },
         })
       );
-
       const results = await Promise.all(uploadPromises);
+      console.log("<====results====>", results);
       const urls = results.map((res) => res.data?.uploadImage?.url);
-      console.log("<==== uploaded urls ====>", urls);
+      // console.log("<==== uploaded urls ====>", urls);
       const newNodes: HtmlNode[] = urls.map((imgFile, index) => ({
         tag: "div",
         class: "",
         text: "img container",
         style:
           "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;position: relative; ",
-
         children: [
           {
             tag: "div",
@@ -166,19 +183,25 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         children: [...(htmlJson.children || []), ...newNodes],
       };
       setHtmlJson(newHtmlJson);
-      const images = urls.map((url, index) => ({
-        fileName: imageFiles[index].file.name,
-        filePath: url,
-        nodeId: String(index),
-        imageRef: url,
-        type: "RASTER",
-        fileKey: currentProject.fileKey,
-      }));
+      const images = urls.map((url, index) => {
+        const fileName = imageFiles[index]?.file?.name
+          ? imageFiles[index]?.fileName
+          : "";
+
+        return {
+          fileName,
+          filePath: url,
+          nodeId: String(index),
+          imageRef: url,
+          type: "RASTER",
+          fileKey: currentProject.fileKey,
+        };
+      });
 
       return { images };
     } catch (error) {
       console.error("Error saving images:", error);
-      setModalMessage?.("Error saving images");
+      setModalMessage("Error saving images", error);
     }
   };
   const handleSaveProjectWithImages = async () => {
@@ -199,7 +222,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         images: images,
       },
     });
-
+    setIsNewImages(false);
     setModalMessage?.("Project updated with images");
   };
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
@@ -226,26 +249,26 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
           className="hidden -z-2 absolute opacity-0"
         />
 
-        {imageFiles.length > 0 && (
-          <div className="flex gap-4">
-            <button
-              className={`btn-teal`}
-              type="button"
-              onClick={() => handleSaveProjectWithImages()}
-            >
-              <EditModeIcon></EditModeIcon>
-              <span className=" font-medium">
-                Updete Figmaproject
-                <h3 className="inline-block mx-2 font-bold !text-[var(--teal)]">
-                  {currentProject.name}
-                </h3>
-                with images
-              </span>
-            </button>
-            {/* <button onClick={handleClearAllImages} className="btn btn-allert">
-              Remove all images
-            </button> */}
-          </div>
+        {imageFiles.length > 0 && isNewImages && (
+          <button
+            className={`btn-teal`}
+            type="button"
+            onClick={() => handleSaveProjectWithImages()}
+          >
+            {uploadLoading && <p>Loading ...</p>}
+            {!uploadLoading && (
+              <>
+                <EditModeIcon></EditModeIcon>
+                <span className=" font-medium">
+                  Updete Figmaproject
+                  <h3 className="inline-block mx-2 font-bold !text-[var(--teal)]">
+                    {currentProject.name}
+                  </h3>
+                  with new images
+                </span>
+              </>
+            )}
+          </button>
         )}
       </div>
 
@@ -254,7 +277,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
           {imageFiles.map((img, index) => (
             <div
               key={img.previewUrl}
-              className="relative bg-slate-100 rounded-lg p-2 border border-slate-200 text-center flex flex-col items-center justify-center group"
+              className={`${img.file ? "border-[var(--teal)] bg-[var(--teal-navi)]" : "border-slate-200 bg-slate-100"} relative  rounded-lg p-2 border  text-center flex flex-col items-center justify-center group`}
             >
               <img
                 src={img.previewUrl}
@@ -262,7 +285,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
                 className="max-w-full h-auto max-h-24 object-contain rounded-md mb-2"
               />
               <p className="text-xs text-slate-600 break-all w-full mt-auto px-1">
-                {img.name || img.file.name}
+                {img?.name ? img?.name : img?.file?.name}
               </p>
               <button
                 onClick={() => handleRemoveImage(img)}

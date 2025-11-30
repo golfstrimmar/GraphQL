@@ -8,8 +8,8 @@ import { GraphQLJSON } from "graphql-type-json";
 // ----queries
 import getFigmaProjectData from "../queries/getFigmaProjectData.js";
 // ----mutations
-import uploadFigmaImagesToCloudinary from "../mutations/FigmaImages.js";
-import uploadFigmaSvgsToCloudinary from "../mutations/FigmaSVG.js";
+// import uploadFigmaImagesToCloudinary from "../mutations/FigmaImages.js";
+// import uploadFigmaSvgsToCloudinary from "../mutations/FigmaSVG.js";
 import removeFigmaImage from "../mutations/removeFigmaImage.js";
 import transformRasterToSvg from "../mutations/transformRasterToSvg.js";
 import removeFigmaProject from "../mutations/removeFigmaProject.js";
@@ -215,10 +215,13 @@ export const resolvers = {
       console.log("<====uploadImage====>", file);
       const { createReadStream, filename } = await file;
       const stream = createReadStream();
-
+      console.log("<==!!== filename ====>", filename);
       try {
-        // Используем существующую утилиту, передавая ей поток
-        const result = await uploadToCloudinary(stream, "ulon_projects");
+        const result = await uploadToCloudinary(
+          stream,
+          "ulon_projects",
+          filename
+        );
         return {
           url: result.secure_url,
           filename: filename,
@@ -312,8 +315,8 @@ export const resolvers = {
       return updated;
     },
 
-    uploadFigmaImagesToCloudinary,
-    uploadFigmaSvgsToCloudinary,
+    // uploadFigmaImagesToCloudinary,
+    // uploadFigmaSvgsToCloudinary,
     transformRasterToSvg,
     removeFigmaImage,
     removeFigmaProject,
