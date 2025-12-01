@@ -458,8 +458,12 @@ const createRenderNode = ({
               ...parseInlineStyle(node.style),
               border:
                 openInfoKey === node._key
-                  ? "2px solid red"
+                  ? "1px solid var(--teal)"
                   : getStyleProperty(node.style, "border"),
+              background:
+                openInfoKey === node._key
+                  ? "var(--teal-light)"
+                  : getStyleProperty(node.style, "background"),
             };
             const baseStyle = editMode
               ? Object.fromEntries(
@@ -479,7 +483,13 @@ const createRenderNode = ({
               transition: "opacity 0.2s ease, border 0.2s ease",
               overflow: "hidden",
               border:
-                openInfoKey === node._key ? "2px solid red" : "1px solid #aaa",
+                openInfoKey === node._key
+                  ? "1px solid  var(--teal)"
+                  : "1px solid #aaa",
+              background:
+                openInfoKey === node._key
+                  ? "var(--teal-light)"
+                  : getStyleProperty(node.style, "background"),
             };
 
             return { ...baseStyle, ...editorStyle };

@@ -13,6 +13,7 @@ import findNodeByKey from "@/utils/plaza/findNodeByKey";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import СhevronLeft from "@/components/icons/СhevronLeft";
+
 type ProjectData = {
   tag: string;
   text: string;
@@ -31,16 +32,19 @@ interface InfoProjectProps {
 }
 
 const InfoProject: React.FC<InfoProjectProps> = ({
+  project,
   setProject,
   setHtmlJson,
-  project,
+  updateHtmlJson,
   setOpenInfoKey,
   openInfoKey,
+  setModalTextsOpen,
+  setNNode,
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const textareaRefText = useRef<HTMLTextAreaElement | null>(null);
   const { texts, setTexts } = useStateContext();
-  // const [modalTextsOpen, setModalTextsOpen] = useState<boolean>(false);
+
   // ================================
 
   const updateNodeByKey = (
@@ -110,57 +114,11 @@ const InfoProject: React.FC<InfoProjectProps> = ({
   };
   // ================================
   const infoProject = (node: ProjectData) => {
+    if (!node) return;
+    setNNode(node);
+
     return (
-      <div className=" flex flex-col relative rounded border-2 border-[red] p-1 text-[#000] ">
-        {/* <AnimatePresence mode="wait">
-          {texts && modalTextsOpen && (
-            <motion.div
-              key="info-project"
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ duration: 0.3, ease: [0.25, 0.8, 0.5, 1] }}
-              className="flex flex-col justify-center items-center  gap-1  fixed top-0 left-0 w-[100vw] h-[100vh] z-5000  bg-slate-900"
-            >
-              <button
-                className="absolute top-2 right-6"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setModalTextsOpen(false);
-                }}
-              >
-                <Image
-                  src="/svg/cross.svg"
-                  alt="close"
-                  width={20}
-                  height={20}
-                />
-              </button>
-              {texts.map((text, index) => (
-                <button
-                  key={index}
-                  // onDoubleClick={() => {
-                  //   setTexts(texts.filter((t) => t !== text));
-                  // }}
-                  className="btn btn-empty px-2 bg-slate-50"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const updatedProject = updateNodeByKey(project, node._key, {
-                      text: text,
-                    });
-                    setProject(updatedProject as ProjectData);
-                    // setTexts(texts.filter((t) => t !== text));
-                    setModalTextsOpen(false);
-                  }}
-                >
-                  {text}
-                </button>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence> */}
+      <div className=" flex flex-col relative rounded border-2 border-[var(--teal)] p-1 text-[#000] ">
         <p className="bg-white !font-bold  inline-block z-30 py-1 rounded mt-2 -mb-3 w-[max-content]">
           Tag:
         </p>
@@ -179,15 +137,17 @@ const InfoProject: React.FC<InfoProjectProps> = ({
           }}
           className="textarea-styles"
         />
-        <p className="bg-white !font-bold  inline-block z-30 py-1 rounded mt-2 -mb-3 w-[max-content]">
-          Text:
-        </p>
-        {/* <button
-          className="btn btn-empty w-[max-content] mt-4 mb-1 px-2"
-          onClick={() => setModalTextsOpen(true)}
-        >
-          Show all texts
-        </button> */}
+        <div className="flex mt-2 -mb-3 w-[max-content] bg-white rounded  z-30 !font-bold ">
+          <span className=" py-1 rounded inline-block">Text:</span>
+          {texts && texts.length > 0 && (
+            <button
+              className="btn btn-empty w-[max-content] ml-4 my-[2px] mr-1 px-2"
+              onClick={() => setModalTextsOpen(true)}
+            >
+              Show all texts
+            </button>
+          )}
+        </div>
         <textarea
           ref={(el) => {
             if (!el) return;

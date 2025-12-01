@@ -83,18 +83,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨э
   useEffect(() => {
     imageFiles.forEach((img) => {
-      console.log("<==!!!==img====>", img);
       if (img.file) {
         setIsNewImages(true);
         return;
       }
     });
   }, [imageFiles]);
+  useEffect(() => {}, [isNewImages]);
   useEffect(() => {
-    console.log("<==== isNewImages====>", isNewImages);
-  }, [isNewImages]);
-  useEffect(() => {
-    console.log("<====imageFiles====>", imageFiles);
     return () => {
       imageFiles.forEach((img) => URL.revokeObjectURL(img.previewUrl));
     };

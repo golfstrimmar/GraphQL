@@ -33,6 +33,7 @@ import ClearIcon from "@/components/icons/ClearIcon";
 import СhevronLeft from "@/components/icons/СhevronLeft";
 import СhevronRight from "@/components/icons/СhevronRight";
 import Update from "@/components/icons/Update";
+import ModalTexts from "@/components/ModalTexts/ModalTexts";
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 export interface ProjectNode {
   _key?: string;
@@ -54,6 +55,8 @@ export default function Plaza() {
     redo,
     undoStack,
     redoStack,
+    texts,
+    setTexts,
   } = useStateContext();
   const pathname = usePathname();
   const [projects, setProjects] = useState<PProject[]>([]);
@@ -66,7 +69,8 @@ export default function Plaza() {
   const [nodeToDragEl, setNodeToDragEl] = useState<HTMLElement | null>(null);
   const [nodeToDrag, setNodeToDrag] = useState<ProjectNode | null>(null);
   const isSyncingRef = useRef(false);
-
+  const [modalTextsOpen, setModalTextsOpen] = useState<boolean>(false);
+  const [NNode, setNNode] = useState<ProjectNode>(null);
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
   const isPlaza = () => {
     return pathname === "/plaza" ? true : false;
@@ -364,6 +368,7 @@ export default function Plaza() {
                 : renderNode(project))}
           </div>
         </div>
+
         <motion.div
           id="plaza-container"
           className={`grid transition-all duration-300  gap-2 mt-2 ${editMode ? "bg-slate-400 rounded" : ""}
@@ -374,22 +379,26 @@ export default function Plaza() {
             {openInfoKey != null && project && (
               <motion.div
                 key="info-project"
-                initial={{ y: -50, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: -50, opacity: 0 }}
+                initial={{ x: 100, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: 100, opacity: 0 }}
                 transition={{ duration: 0.3, ease: [0.25, 0.8, 0.5, 1] }}
+                className="bg-navy rounded-2xl shadow-xl p-1 mb-8 border border-slate-200 fixed top-1/2 right-0 transform min-w-[300px]  -translate-y-1/2 z-50"
               >
                 <InfoProject
+                  project={project}
                   setProject={setProject}
                   updateHtmlJson={updateHtmlJson}
-                  project={project}
                   setOpenInfoKey={setOpenInfoKey}
                   openInfoKey={openInfoKey}
+                  setModalTextsOpen={setModalTextsOpen}
+                  setNNode={setNNode}
                 />
               </motion.div>
             )}
           </AnimatePresence>
         </motion.div>
+
         {/* ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ */}
         <div className="grid grid-cols-[140px_1fr] gap-2">
           <div className="bg-navy rounded-2xl shadow-xl p-1 mb-8 border border-slate-200">
@@ -476,7 +485,6 @@ export default function Plaza() {
                 <p className="text-sm text-slate-600">{user?.name}</p>
               </div>
             </div>
-
             {loading ? (
               <Loading />
             ) : projects?.length === 0 ? (
@@ -559,7 +567,13 @@ export default function Plaza() {
                 ))}
               </div>
             )}
-
+            <ModalTexts
+              project={project}
+              modalTextsOpen={modalTextsOpen}
+              setModalTextsOpen={setModalTextsOpen}
+              setProject={setProject}
+              node={NNode}
+            />
             <CreateNewProject />
           </div>
         )}

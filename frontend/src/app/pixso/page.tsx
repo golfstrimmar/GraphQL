@@ -59,12 +59,12 @@ interface ImageFile {
 
 export default function FigmaPage() {
   const router = useRouter();
-  const { user, setHtmlJson, setModalMessage } = useStateContext();
+  const { user, setHtmlJson, setModalMessage, texts, setTexts } =
+    useStateContext();
   const [file, setFile] = useState<File | null>(null);
   const [name, setName] = useState<string>("");
   const [colors, setColors] = useState<string[]>([]);
   const [fonts, setFonts] = useState<FontsData>({});
-  const [texts, setTexts] = useState<TextNode[]>([]);
   const [allProjects, setAllProjects] = useState<Project[]>([]);
   const [projectId, setProjectId] = useState<string>("");
   const [currentProject, setcurrentProject] = useState<FigmaProject | null>(
@@ -116,9 +116,6 @@ export default function FigmaPage() {
     setTexts(data.textNodes);
 
     const currentImgs = data.project.figmaImages || [];
-    console.log("<====currentImgs====>", currentImgs);
-
-    // imageFiles для UI
     const temp = currentImgs.map((img) => ({
       ...img,
       name: img.fileName,
@@ -183,15 +180,11 @@ export default function FigmaPage() {
   }, [figmaProjectData]);
 
   useEffect(() => {
-    console.log("<====fonts====>", fonts);
     if (Object.keys(fonts).length > 0) {
       const links = Object.entries(fonts).map(([key, fontObj]) => ({
         fontFamily: key,
       }));
-      console.log("<====links====>", links);
       const link = generateGoogleFontsImport(links);
-      console.log("<====link====>", link);
-      //   console.log("<====link====>", link);
       if (link) {
         const l = document.createElement("link");
         l.rel = "stylesheet";
@@ -202,30 +195,30 @@ export default function FigmaPage() {
   }, [fonts]);
   useEffect(() => {
     if (texts.length > 0) {
-      const styleStr =
-        "background: rgb(226, 232, 240); padding: 2px 4px; border: 1px solid #adadad;";
-
-      const newNodes: HtmlNode[] = texts.map((el, i) => ({
-        tag: "div",
-        text: el.text,
-        class: "",
-        style: styleStr,
-        children: [],
-      }));
-      setHtmlJson((prev) => ({
-        ...prev,
-        children: [
-          ...(Array.isArray(prev.children) ? prev.children : []),
-          ...newNodes,
-        ],
-      }));
+      console.log("<====texts====>", texts);
+      // const styleStr =
+      //   "background: rgb(226, 232, 240); padding: 2px 4px; border: 1px solid #adadad;";
+      // const newNodes: HtmlNode[] = texts.map((el, i) => ({
+      //   tag: "div",
+      //   text: el.text,
+      //   class: "",
+      //   style: styleStr,
+      //   children: [],
+      // }));
+      // setHtmlJson((prev) => ({
+      //   ...prev,
+      //   children: [
+      //     ...(Array.isArray(prev.children) ? prev.children : []),
+      //     ...newNodes,
+      //   ],
+      // }));
     }
   }, [texts]);
-  useEffect(() => {
-    if (currentProject) {
-      console.log("<==== currentProject====>", currentProject);
-    }
-  }, [currentProject]);
+  // useEffect(() => {
+  //   if (currentProject) {
+  //     console.log("<==== currentProject====>", currentProject);
+  //   }
+  // }, [currentProject]);
 
   //////////////////
   const handleUpload = async () => {
