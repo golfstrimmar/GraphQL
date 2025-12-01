@@ -13,20 +13,21 @@ const TagsNamen1 = [
   { tag: "section", color: "rgb(220, 230, 220)" }, // slate
   { tag: "container", color: "dodgerblue" }, // slate
   { tag: "div", color: "rgb(226, 232, 240)" }, // slate
+  { tag: "p", color: "#22c55e" }, // green
+  { tag: "span", color: "#8b5cf6" }, // violet
+  { tag: "ul", color: "#f97316" }, // orange
+  { tag: "li", color: "#eab308" }, // yellow
+  { tag: "imgs", color: "#0ea5e9" },
+  { tag: "img", color: "#0ea5e9" }, // sky
+  { tag: "svg", color: "#06b6d4" }, // cyan
+  { tag: "nav", color: "#14b8a6" }, // teal
+
   { tag: "h1", color: "#ef4444" }, // red
   { tag: "h2", color: "#f97316" }, // orange
   { tag: "h3", color: "#f59e0b" }, // amber
   { tag: "h4", color: "#eab308" }, // yellow
   { tag: "h5", color: "#84cc16" }, // lime
   { tag: "h6", color: "#22c55e" }, // green
-  { tag: "img", color: "#0ea5e9" }, // sky
-  { tag: "svg", color: "#06b6d4" }, // cyan
-  { tag: "nav", color: "#14b8a6" }, // teal
-  { tag: "p", color: "#22c55e" }, // green
-  { tag: "span", color: "#8b5cf6" }, // violet
-  { tag: "ul", color: "#f97316" }, // orange
-  { tag: "li", color: "#eab308" }, // yellow
-  { tag: "imgs", color: "#0ea5e9" },
 ];
 const TagsNamen2 = [
   { tag: "input", color: "#3b82f6" }, // blue
@@ -62,12 +63,9 @@ const TagsNamen5 = [
 // =====================================
 
 const AdminComponent = () => {
-  const { htmlJson, setHtmlJson, setModalMessage, updateHtmlJson } =
-    useStateContext();
-  const [nodeToFetch, setNodeToFetch] = useState<string>("");
-  const [loadKey, setLoadKey] = useState(0);
-  const { data: jsonData, refetch: refetchJson } = useQuery(GET_JSON_DOCUMENT, {
-    variables: { name: nodeToFetch },
+  const { updateHtmlJson } = useStateContext();
+  const { refetch: refetchJson } = useQuery(GET_JSON_DOCUMENT, {
+    variables: { name: name },
     fetchPolicy: "no-cache",
   });
   // =============================
@@ -84,76 +82,33 @@ const AdminComponent = () => {
       ],
     }));
   };
+  const renderTags = (TagsNamen) => {
+    return (
+      <div className="flex flex-wrap gap-1 bg-slate-200  p-2">
+        {TagsNamen.map((el, i) => (
+          <button
+            key={i}
+            className={"btn  px-1.5! border-1 border-[#aaa] text-black"}
+            style={{ background: el.color }}
+            type="button"
+            onClick={() => handleLoad(el.tag)}
+          >
+            {el.tag}
+          </button>
+        ))}
+      </div>
+    );
+  };
   // =============================
   return (
     <div className="admincomponent">
-      <div className="flex flex-wrap gap-2 bg-slate-200  p-2">
-        {TagsNamen1.map((el, i) => (
-          <button
-            key={i}
-            className={"btn  px-2! border-1 border-[#aaa] text-black"}
-            style={{ background: el.color }}
-            type="button"
-            onClick={() => handleLoad(el.tag)}
-          >
-            {el.tag}
-          </button>
-        ))}
-      </div>
-      <div className="flex flex-wrap gap-2 bg-slate-200  p-2">
-        {TagsNamen2.map((el, i) => (
-          <button
-            key={i}
-            className={"btn  px-2!  bordered text-black"}
-            style={{ background: el.color }}
-            type="button"
-            onClick={() => handleLoad(el.tag)}
-          >
-            {el.tag}
-          </button>
-        ))}
-      </div>
-      <div className="flex flex-wrap gap-2 bg-slate-200  p-2">
-        {TagsNamen3.map((el, i) => (
-          <button
-            key={i}
-            className={"btn  px-2!  bordered text-black"}
-            style={{ background: el.color }}
-            type="button"
-            onClick={() => handleLoad(el.tag)}
-          >
-            {el.tag}
-          </button>
-        ))}
-      </div>
+      {renderTags(TagsNamen1)}
+      {renderTags(TagsNamen2)}
+      {renderTags(TagsNamen3)}
       <hr className="bordered border-slate-200 my-1 " />
-      <div className="flex flex-wrap gap-2 bg-slate-200  p-2">
-        {TagsNamen4.map((el, i) => (
-          <button
-            key={i}
-            className={"btn  px-2!  bordered text-black"}
-            style={{ background: el.color }}
-            type="button"
-            onClick={() => handleLoad(el.tag)}
-          >
-            {el.tag}
-          </button>
-        ))}
-      </div>
+      {renderTags(TagsNamen4)}
       <hr className="bordered border-slate-200 my-1 " />
-      <div className="flex flex-wrap gap-2 bg-slate-200  p-2">
-        {TagsNamen5.map((el, i) => (
-          <button
-            key={i}
-            className={"btn  px-2!  bordered text-black"}
-            style={{ background: el.color }}
-            type="button"
-            onClick={() => handleLoad(el.tag)}
-          >
-            {el.tag}
-          </button>
-        ))}
-      </div>
+      {renderTags(TagsNamen5)}
     </div>
   );
 };

@@ -2,11 +2,14 @@
 
 import React from "react";
 
-const СhevronLeft: React.FC<React.SVGProps<SVGSVGElement>> = () => (
+const СhevronLeft: React.FC<React.SVGProps<SVGSVGElement>> = ({
+  width,
+  height,
+}) => (
   <svg
     fill="currentColor"
-    height="18px"
-    width="18px"
+    height={`${height}px`}
+    width={`${width}px`}
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 320 512"
   >

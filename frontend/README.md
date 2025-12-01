@@ -2,17 +2,23 @@
 StateProvider.tsx --> orderIndexes --> jsonToHtml --> formatHtml --> monaco
 --> document.getElementById("preview") визуализация
 
--->плагины фигмы для снятия данных
+--> плагины фигмы для снятия данных
 Figma to JSON Exporter
 Bulk image
 
+--> Image
 import Image from "next/image";
 <Image src="/svg/cross.svg" alt="copy" width={16} height={16} />
 
+--> StateContext
 import { useStateContext } from "@/providers/StateProvider";
 const { htmlJson, setHtmlJson, setModalMessage } = useStateContext();
 
--->пример мутации с обьновлением кэша
+--> мутации
+import { useMutation } from "@apollo/client";
+
+import { REMOVE_FIGMA_IMAGE } from "@/apollo/mutations";
+
 const [removeFigmaImage] = useMutation(REMOVE_FIGMA_IMAGE, {
 update(cache, { data }) {
 const updatedProject = data?.removeFigmaImage;
@@ -43,5 +49,20 @@ if (!updatedProject) return;
     },
 
 });
+
+--> pathname
+import { usePathname } from "next/navigation";
+const pathname = usePathname();
+const isPlaza = () => {
+return pathname === "/plaza" ? true : false;
+};
+
+--> Router
+import { useRouter } from "next/navigation";
+const router = useRouter();
+setTimeout(() => {
+router.push("/login");
+return;
+}, 2000);
 
 https://console.cloudinary.com/app/c-9988edc34f8836c410ad1695096399/assets/media_library/search?q=&view_mode=mosaic

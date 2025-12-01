@@ -339,7 +339,7 @@ const InfoProject: React.FC<InfoProjectProps> = ({
           className="absolute left-[50%] -top-3 border rounded bg-slate-200 hover:bg-slate-300 transition-all duration-200 rotate-90  btn-teal !p-0.5"
         >
           <div className="max-h-6 ">
-            <СhevronLeft />
+            <СhevronLeft width={16} height={16} />
           </div>
         </button>
       </div>

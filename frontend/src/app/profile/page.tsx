@@ -3,9 +3,9 @@ import React, { useEffect } from "react";
 import transformData from "@/hooks/useTransformData";
 import Image from "next/image";
 import { useStateContext } from "@/providers/StateProvider";
+import ButtonRemoveUser from "@/components/ButtonRemoveUser/ButtonRemoveUser";
 export default function Login() {
-  const { user } = useStateContext();
-
+  const { user, setUser, setModalMessage } = useStateContext();
   return (
     <div>
       {user && (
@@ -54,6 +54,7 @@ export default function Login() {
               ) : (
                 <p>No projects yet</p>
               )}
+              <ButtonRemoveUser />
             </div>
           </div>
         </div>

@@ -132,7 +132,7 @@ export default function FigmaPage() {
       class: "",
       text: "img-container",
       style:
-        "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;position: relative; min-height: 100px;",
+        "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;position: relative; min-height: 50px;",
       children: [
         {
           tag: "div",

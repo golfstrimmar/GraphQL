@@ -1,9 +1,8 @@
 "use client";
-import { useMutation } from "@apollo/client";
 import { useState, useEffect } from "react";
 import transformData from "@/hooks/useTransformData";
 import { useStateContext } from "@/providers/StateProvider";
-import { REMOVE_USER } from "@/apollo/mutations";
+import ButtonRemoveUser from "@/components/ButtonRemoveUser/ButtonRemoveUser";
 type Project = {
   id: string;
   name: string;
@@ -18,10 +17,9 @@ type User = {
 };
 
 export default function UsersList({ initialUsers }: { initialUsers: User[] }) {
-  const { users, setModalMessage, setUser } = useStateContext();
+  const { users } = useStateContext();
   const [usersToShow, setUsersToShow] = useState<User[]>(initialUsers);
   //////////////
-  const [removeUser] = useMutation(REMOVE_USER);
   ////////////////
   useEffect(() => {
     console.log("<====users====>", users);
@@ -55,18 +53,7 @@ export default function UsersList({ initialUsers }: { initialUsers: User[] }) {
                   </li>
                 ))}
               </ul>
-              <button
-                onClick={() => {
-                  removeUser({ variables: { userId: u.id } });
-                  setUser(null);
-                  localStorage.removeItem("token");
-                  localStorage.removeItem("user");
-                  setModalMessage("User removed");
-                }}
-                className="mt-2 btn btn-allert"
-              >
-                Remove user
-              </button>
+              <ButtonRemoveUser />
             </li>
           ))}
       </ul>

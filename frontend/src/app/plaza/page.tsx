@@ -345,78 +345,7 @@ export default function Plaza() {
             Build and manage your HTML/CSS projects
           </p>
         </div>
-        <div className="mb-8">
-          <AdminComponent />
-        </div>
-        <div className="bg-navy rounded-2xl shadow-xl p-2 mb-8 border border-slate-200">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-              <span className="text-xl text-white">🛠️</span>
-            </div>
-            <h3 className="text-xl font-bold text-slate-800">Editor Tools</h3>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              className="btn-teal"
-              type="button"
-              onClick={() => resetAll()}
-            >
-              <ClearIcon />
-              <span className="text-sm font-medium">Clear</span>
-            </button>
-            <button
-              className={`btn-teal ${editMode ? "teal-500 " : " "}`}
-              type="button"
-              onClick={() => setEditMode((prev) => !prev)}
-            >
-              <EditModeIcon></EditModeIcon>
-              <span className="text-sm font-medium">Edit Mode</span>
-            </button>
-            <button
-              className="btn-teal disabled:opacity-50"
-              type="button"
-              onClick={undo}
-              disabled={undoStack.length === 0}
-            >
-              <СhevronLeft />
-              <span className="text-sm font-medium">UNDO</span>
-            </button>
-            <button
-              className="btn-teal disabled:opacity-50 "
-              type="button"
-              onClick={redo}
-              disabled={redoStack.length === 0}
-            >
-              <span className="text-sm font-medium">REDO</span> <СhevronRight />
-            </button>
-            <div className="h-8 w-px bg-slate-300"></div>
-            <button
-              className="btn-teal"
-              type="button"
-              onClick={() => createHtml()}
-            >
-              <Image src="/svg/html.svg" alt="copy" width={16} height={16} />
 
-              <span className="text-sm font-medium">HTML</span>
-            </button>
-            <button
-              className="btn-teal"
-              type="button"
-              onClick={() => createSCSS()}
-            >
-              <Image src="/svg/scss.svg" alt="copy" width={16} height={16} />
-              <span className="text-sm font-medium">SCSS</span>
-            </button>
-            <button
-              className="btn-teal"
-              type="button"
-              onClick={() => createPug()}
-            >
-              <Image src="/svg/pug.svg" alt="copy" width={16} height={16} />
-              <span className="text-sm font-medium">Pug</span>
-            </button>
-          </div>
-        </div>
         {/* // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ Canvas */}
         <div className="bg-navy rounded-2xl shadow-xl p-2 mb-8 border border-slate-200 text-[#000]">
           <div className="flex items-center gap-3 mb-6">
@@ -461,52 +390,79 @@ export default function Plaza() {
             )}
           </AnimatePresence>
         </motion.div>
-        {projectName && (
-          <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl shadow-xl p-2 mb-8 text-white">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-navy/20 backdrop-blur rounded-xl flex items-center justify-center">
-                  <span className="text-2xl">📁</span>
-                </div>
-                <div>
-                  <p className="text-sm text-white/80 font-medium">
-                    Current Project
-                  </p>
-                  <h3 className="text-2xl font-bold">{projectName}</h3>
-                </div>
+        {/* ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ */}
+        <div className="grid grid-cols-[140px_1fr] gap-2">
+          <div className="bg-navy rounded-2xl shadow-xl p-1 mb-8 border border-slate-200">
+            <div className="flex flex-col items-center gap-2">
+              <button
+                className="btn-teal w-full"
+                type="button"
+                onClick={() => resetAll()}
+              >
+                <ClearIcon />
+                <span className="text-sm font-medium">Clear</span>
+              </button>
+              <button
+                className={`btn-teal  w-full ${editMode ? "teal-500 " : " "}`}
+                type="button"
+                onClick={() => setEditMode((prev) => !prev)}
+              >
+                <EditModeIcon></EditModeIcon>
+                <span className="text-sm font-medium">Edit Mode</span>
+              </button>
+              <div className="grid grid-cols-2 gap-1">
+                <button
+                  className="btn-teal   disabled:opacity-50"
+                  type="button"
+                  onClick={undo}
+                  disabled={undoStack.length === 0}
+                >
+                  <СhevronLeft width={12} height={14} />
+                  <span className="text-[10px]">UNDO</span>
+                </button>
+                <button
+                  className="btn-teal    disabled:opacity-50 "
+                  type="button"
+                  onClick={redo}
+                  disabled={redoStack.length === 0}
+                >
+                  <span className="text-[10px]">REDO</span>{" "}
+                  <СhevronRight width={12} height={14} />
+                </button>
               </div>
-              {projectId && projectId !== "" && (
-                <div className="flex items-center gap-3">
-                  <button
-                    className="btn-teal"
-                    type="button"
-                    onClick={() => updateTempProject()}
-                  >
-                    <div className="w-4 h-4 overflow-hidden">
-                      <Update />
-                    </div>
-                    <span className="text-sm font-medium">Update</span>
-                  </button>
+              <div className="h-px w-full bg-slate-300"></div>
+              <button
+                className="btn-teal  w-full"
+                type="button"
+                onClick={() => createHtml()}
+              >
+                <Image src="/svg/html.svg" alt="copy" width={16} height={16} />
 
-                  <button
-                    className=" btn btn-allert flex items-center gap-2"
-                    type="button"
-                    onClick={() => delProject(projectId)}
-                  >
-                    <Image
-                      src="/svg/cross.svg"
-                      alt="icon"
-                      width={16}
-                      height={16}
-                      className="brightness-0 invert"
-                    />
-                    <span className="text-sm font-medium">Delete</span>
-                  </button>
-                </div>
-              )}
+                <span className="text-sm font-medium">HTML</span>
+              </button>
+              <button
+                className="btn-teal  w-full"
+                type="button"
+                onClick={() => createSCSS()}
+              >
+                <Image src="/svg/scss.svg" alt="copy" width={16} height={16} />
+                <span className="text-sm font-medium">SCSS</span>
+              </button>
+              <button
+                className="btn-teal  w-full"
+                type="button"
+                onClick={() => createPug()}
+              >
+                <Image src="/svg/pug.svg" alt="copy" width={16} height={16} />
+                <span className="text-sm font-medium">Pug</span>
+              </button>
             </div>
           </div>
-        )}
+          <div className="mb-8">
+            <AdminComponent />
+          </div>
+        </div>
+        {/* ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ */}
         {user && (
           <div className="bg-navy rounded-2xl shadow-xl p-2 mb-8 border border-slate-200">
             <div className="flex items-center gap-3 mb-6">
@@ -535,24 +491,27 @@ export default function Plaza() {
                 {projects?.map((p) => (
                   <div
                     key={p.id}
-                    className={`group relative bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-2 border-2 transition-all hover:shadow-lg ${
+                    className={` group relative p-2 ${
                       projectId === p.id
-                        ? "border-purple-500 shadow-lg"
-                        : "border-slate-200 hover:border-purple-300"
+                        ? "border border-[var(--teal)] flex items-center"
+                        : "btn-teal"
                     }`}
                   >
-                    <button
-                      className="absolute top-3 right-3 w-4 h-4 bg-red-500 hover:bg-red-600 text-white rounded-lg flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 z-10"
-                      onClick={() => delProject(p?.id)}
-                    >
-                      <Image
-                        src="/svg/cross-com.svg"
-                        alt="icon"
-                        width={12}
-                        height={12}
-                        className="brightness-0 invert"
-                      />
-                    </button>
+                    {projectId !== p.id && (
+                      <button
+                        className="absolute top-[50%] right-1 w-4 h-4 bg-red-500 hover:bg-red-600 text-white rounded-lg flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 z-10 transform translate-y-[-50%]"
+                        onClick={() => delProject(p?.id)}
+                      >
+                        <Image
+                          src="/svg/cross-com.svg"
+                          alt="icon"
+                          width={12}
+                          height={12}
+                          className="brightness-0 invert"
+                        />
+                      </button>
+                    )}
+
                     <button
                       className="w-full text-left"
                       onClick={async () => setpId(p.id)}
@@ -566,12 +525,36 @@ export default function Plaza() {
                           {p?.name}
                         </h5>
                       </div>
-                      {projectId === p.id && (
-                        <div className="mt-3 px-3 py-1.5 bg-purple-100 text-purple-700 rounded-lg text-xs font-medium inline-block">
-                          Active
-                        </div>
-                      )}
                     </button>
+                    {projectId && projectId !== "" && (
+                      <div className="flex items-center gap-3">
+                        <button
+                          className="btn-teal"
+                          type="button"
+                          onClick={() => updateTempProject()}
+                        >
+                          <div className="w-4 h-4 overflow-hidden">
+                            <Update />
+                          </div>
+                          <span className="text-sm font-medium">Update</span>
+                        </button>
+
+                        <button
+                          className=" btn px-2 btn-allert min-w-[max-content]  gap-2"
+                          type="button"
+                          onClick={() => delProject(projectId)}
+                        >
+                          <Image
+                            src="/svg/cross.svg"
+                            alt="icon"
+                            width={16}
+                            height={16}
+                            className="brightness-0 invert"
+                          />
+                          <span className="text-sm font-medium">Delete</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
