@@ -35,6 +35,8 @@ interface ImageUploaderProps {
   imageFiles: ImageFile[];
   setImageFiles: (files: ImageFile[]) => void;
   currentProject: any;
+  preview: any;
+  setPreview: any;
 }
 
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
@@ -42,9 +44,12 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   imageFiles,
   setImageFiles,
   currentProject,
+  preview,
+  setPreview,
 }) => {
   const { htmlJson, setHtmlJson, setModalMessage } = useStateContext();
   const [isNewImages, setIsNewImages] = useState<boolean>(false);
+  const [isPrev, setIsPrev] = useState<boolean>(false);
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
   const [uploadImage, { loading: uploadLoading }] =
     useMutation(UPLOAD_ULON_IMAGE);
@@ -81,6 +86,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   });
 
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨э
+
   useEffect(() => {
     imageFiles.forEach((img) => {
       if (img.file) {
@@ -89,44 +95,75 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       }
     });
   }, [imageFiles]);
-  useEffect(() => {}, [isNewImages]);
   useEffect(() => {
+    console.log("<====isNewImages====>", isNewImages);
+  }, [isNewImages]);
+  useEffect(() => {
+    console.log("<====imageFiles====>", imageFiles);
     return () => {
       imageFiles.forEach((img) => URL.revokeObjectURL(img.previewUrl));
     };
   }, [imageFiles]);
 
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (
+    event: ChangeEvent<HTMLInputElement>,
+    isPrev: boolean
+  ) => {
     if (event.target.files) {
       const newFiles = Array.from(event.target.files);
-      const newImageFiles: ImageFile[] = newFiles.map((file) => ({
-        file,
-        previewUrl: URL.createObjectURL(file),
-      }));
+      console.log("<====newFiles====>", newFiles);
+      console.log("<====isPrev====>", isPrev);
+      if (isPrev) setIsPrev(true);
+      const newImageFiles: ImageFile[] = newFiles.map((file) => {
+        const targetFile = isPrev
+          ? new File([file], "preview.png", { type: file.type })
+          : file;
+
+        console.log("<====targetFile====>", targetFile.name);
+
+        return {
+          file: targetFile,
+          previewUrl: URL.createObjectURL(targetFile),
+        };
+      });
+
       setImageFiles([...imageFiles, ...newImageFiles]);
       event.target.value = "";
     }
   };
+
   const handleRemoveImage = async (img) => {
+    console.log("<====img====>", img);
+    if (
+      img?.name === "preview.png" ||
+      img?.fileName === "preview.png" ||
+      img?.file?.name === "preview.png"
+    ) {
+      setIsPrev(false);
+      setIsNewImages(false);
+      setPreview(null);
+      setImageFiles((prev) =>
+        prev.filter(
+          (f) =>
+            f?.fileName !== "preview.png" &&
+            f?.name !== "preview.png" &&
+            f?.file?.name !== "preview.png"
+        )
+      );
+    }
     if (currentProject && img.nodeId) {
-      setImageFiles((prev) => prev.filter((f) => f.nodeId !== img.nodeId));
+      setImageFiles((prev) => {
+        return prev.filter((f) => f.nodeId !== img.nodeId);
+      });
       await removeFigmaImage({
         variables: {
           figmaProjectId: currentProject.id,
           nodeId: img.nodeId,
         },
       });
-    } else {
-      setImageFiles((prev) =>
-        prev.filter((f) => f.file.name !== img.file.name)
-      );
     }
   };
 
-  // const handleClearAllImages = () => {
-  //   imageFiles.forEach((img) => URL.revokeObjectURL(img.previewUrl));
-  //   setImageFiles([]);
-  // };
   const saveAllImages = async () => {
     if (!imageFiles.length) return;
 
@@ -163,7 +200,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         fileKey: currentProject.fileKey,
       };
     });
-
+    setIsPrev(false);
     return { images };
   };
 
@@ -258,7 +295,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
 
     const result = await saveAllImages();
     if (!result) return;
-
+    setModalMessage?.("Project updated with images");
+    setIsNewImages(false);
     const { images } = result;
     await updateFigmaProject({
       variables: {
@@ -266,8 +304,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         images: images,
       },
     });
-    setIsNewImages(false);
-    setModalMessage?.("Project updated with images");
   };
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
   return (
@@ -279,7 +315,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         <h3 className="text-2xl font-bold text-slate-800">Images</h3>
       </div>
 
-      <div className=" flex gap-3 items-center">
+      <div className="flex items-center gap-2">
         <label htmlFor="image-upload" className="btn-teal">
           <EditModeIcon></EditModeIcon>
           Upload Images
@@ -289,38 +325,97 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
           type="file"
           multiple
           accept="image/*, .svg"
-          onChange={handleFileChange}
+          onChange={(e) => {
+            handleFileChange(e, false);
+          }}
           className="hidden -z-2 absolute opacity-0"
         />
-
-        {imageFiles.length > 0 && isNewImages && (
-          <button
-            className={`btn-teal`}
-            type="button"
-            onClick={() => handleSaveProjectWithImages()}
-          >
-            {uploadLoading && <p>Loading ...</p>}
-            {!uploadLoading && (
-              <>
-                <EditModeIcon></EditModeIcon>
-                <span className=" font-medium">
-                  Updete Figmaproject
-                  <h3 className="inline-block mx-2 font-bold !text-[var(--teal)]">
-                    {currentProject.name}
-                  </h3>
-                  with new images
-                </span>
-              </>
-            )}
-          </button>
+        {!preview && (
+          <>
+            <label htmlFor="image-Preview-upload" className="btn-teal">
+              <EditModeIcon></EditModeIcon>
+              Upload Preview
+            </label>
+            <input
+              id="image-Preview-upload"
+              type="file"
+              multiple
+              accept="image/*, .svg"
+              onChange={(e) => {
+                handleFileChange(e, true);
+              }}
+              className="hidden -z-2 absolute opacity-0"
+            />
+          </>
         )}
       </div>
+      {preview && (
+        <div className="border-slate-400 mt-2 w-[max-content] bg-slate-200 relative  rounded-lg p-2 border  text-center  group">
+          <img
+            src={preview.filePath}
+            alt="preview"
+            className="max-w-full h-auto max-h-34 object-contain rounded-md mb-2"
+          />
+          <p className="text-xs text-slate-600 break-all w-full mt-auto px-1">
+            Preview
+          </p>
+          <button
+            onClick={() => handleRemoveImage(preview)}
+            className="absolute top-1 right-1 bg-red-200 text-white rounded-full hover:bg-red-400  p-1 w-5 h-5 flex items-center justify-center text-lg opacity-0 group-hover:opacity-100 transition-opacity"
+            title="Remove image"
+          >
+            <Image src="/svg/cross.svg" alt="copy" width={16} height={16} />
+          </button>
+        </div>
+      )}
 
+      {imageFiles.length > 0 && isNewImages && isPrev && (
+        <button
+          className="btn-teal mt-2"
+          type="button"
+          onClick={() => handleSaveProjectWithImages()}
+        >
+          {uploadLoading && <p>Loading ...</p>}
+          {!uploadLoading && (
+            <>
+              <EditModeIcon></EditModeIcon>
+              <span className=" font-medium">
+                Updete Figmaproject
+                <h3 className="inline-block mx-2 font-bold !text-[var(--teal)]">
+                  {currentProject.name}
+                </h3>
+                Preview
+              </span>
+            </>
+          )}
+        </button>
+      )}
+      {imageFiles.length > 0 && isNewImages && !isPrev && (
+        <button
+          className="btn-teal mt-2"
+          type="button"
+          onClick={() => handleSaveProjectWithImages()}
+        >
+          {uploadLoading && <p>Loading ...</p>}
+          {!uploadLoading && (
+            <>
+              <EditModeIcon></EditModeIcon>
+              <span className=" font-medium">
+                Updete Figmaproject
+                <h3 className="inline-block mx-2 font-bold !text-[var(--teal)]">
+                  {currentProject.name}
+                </h3>
+                with new images
+              </span>
+            </>
+          )}
+        </button>
+      )}
       {imageFiles.length > 0 && (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] mt-2 gap-4">
           {imageFiles.map((img, index) => (
             <div
-              key={img.previewUrl}
+              key={index}
               className={`${img.file ? "border-[var(--teal)] bg-[var(--teal-navi)]" : "border-slate-200 bg-slate-100"} relative  rounded-lg p-2 border  text-center flex flex-col items-center justify-center group`}
             >
               <img

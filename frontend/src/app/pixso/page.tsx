@@ -72,6 +72,7 @@ export default function FigmaPage() {
   );
   const [modalOpen, setModalOpen] = useState(false);
   const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
+  const [preview, setPreview] = useState<ImageFile>(null);
   // Query
   const {
     data: figmaProjectsByUser,
@@ -116,44 +117,50 @@ export default function FigmaPage() {
     setTexts(data.textNodes);
 
     const currentImgs = data.project.figmaImages || [];
-    const temp = currentImgs.map((img) => ({
-      ...img,
-      name: img.fileName,
-      previewUrl: img.filePath,
-    }));
+    const tempPrev = currentImgs.find((img) => img.fileName === "preview.png");
+    setPreview(tempPrev);
+    const temp = currentImgs
+      .filter((img) => img.fileName !== "preview.png")
+      .map((img) => ({
+        ...img,
+        name: img.fileName,
+        previewUrl: img.filePath,
+      }));
     setImageFiles(temp);
 
     // htmlJson строим С НУЛЯ, без prev
-    const imageNodes: HtmlNode[] = currentImgs.map((img, index) => ({
-      tag: "div",
-      class: "",
-      text: "img-container",
-      style:
-        "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;position: relative; min-height: 50px;",
-      children: [
-        {
-          tag: "div",
-          text: "imgs",
-          class: "imgs",
-          style:
-            "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;overflow: hidden;position: absolute;width: 100%;height: 100%;top: 0;left: 0;",
-          children: [
-            {
-              tag: "img",
-              text: "",
-              class: "",
-              style:
-                "background: #0ea5e9; padding: 2px 4px; border: 1px solid #adadad;",
-              children: [],
-              attributes: {
-                alt: img.nodeId ?? index.toString(),
-                src: img.filePath,
+    const imageNodes: HtmlNode[] = currentImgs
+      .filter((img) => img.fileName !== "preview.png")
+      .map((img, index) => ({
+        tag: "div",
+        class: "",
+        text: "img-container",
+        style:
+          "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;position: relative; min-height: 50px;",
+        children: [
+          {
+            tag: "div",
+            text: "imgs",
+            class: "imgs",
+            style:
+              "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;overflow: hidden;position: absolute;width: 100%;height: 100%;top: 0;left: 0;",
+            children: [
+              {
+                tag: "img",
+                text: "",
+                class: "",
+                style:
+                  "background: #0ea5e9; padding: 2px 4px; border: 1px solid #adadad;",
+                children: [],
+                attributes: {
+                  alt: img.nodeId ?? index.toString(),
+                  src: img.filePath,
+                },
               },
-            },
-          ],
-        },
-      ],
-    }));
+            ],
+          },
+        ],
+      }));
 
     setHtmlJson((prev) => {
       const base: HtmlNode =
@@ -615,28 +622,14 @@ export default function FigmaPage() {
             </div>
           )}
         </div>
-        {currentProject && (
-          <div className=" rounded-2xl shadow-xl  mb-8 ">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-navy/20 backdrop-blur rounded-xl flex items-center justify-center">
-                <span className="text-2xl">📝</span>
-              </div>
-              <div>
-                <p className="text-sm text-white/80 font-medium">
-                  Current Project
-                </p>
-                <h3 className="font-bold !text-[var(--teal)]">
-                  {currentProject.name}
-                </h3>
-              </div>
-            </div>
-          </div>
-        )}
+
         {user && currentProject && (
           <ImageUploader
             imageFiles={imageFiles}
             setImageFiles={setImageFiles}
             currentProject={currentProject}
+            preview={preview}
+            setPreview={setPreview}
           />
         )}
 
@@ -645,7 +638,7 @@ export default function FigmaPage() {
         {renderTypography()}
         {renderScssMixins()}
         {renderTextStyles()}
-        {user && <Plaza />}
+        {user && <Plaza preview={preview} />}
         <AnimatePresence>
           {modalOpen && (
             <motion.div

@@ -45,7 +45,8 @@ export interface ProjectNode {
 }
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
-export default function Plaza() {
+
+export default function Plaza({ preview }) {
   const {
     htmlJson,
     user,
@@ -72,6 +73,10 @@ export default function Plaza() {
   const [modalTextsOpen, setModalTextsOpen] = useState<boolean>(false);
   const [NNode, setNNode] = useState<ProjectNode>(null);
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
+
+  useEffect(() => {
+    console.log("<====preview====>", preview);
+  }, [preview]);
   const isPlaza = () => {
     return pathname === "/plaza" ? true : false;
   };
@@ -400,8 +405,12 @@ export default function Plaza() {
         </motion.div>
 
         {/* ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ */}
-        <div className="grid grid-cols-[140px_1fr] gap-2">
-          <div className="bg-navy rounded-2xl shadow-xl p-1 mb-8 border border-slate-200">
+
+        <div
+          className={`${preview ? "grid-cols-[1fr_140px_300px]" : "grid-cols-[140px_1fr]"}  grid  gap-2`}
+        >
+          {preview && <img src={preview?.filePath} alt="preview" />}
+          <div className="bg-navy rounded-2xl shadow-xl p-1 mb-8 border border-slate-200 max-h-[max-content]">
             <div className="flex flex-col items-center gap-2">
               <button
                 className="btn-teal w-full"
