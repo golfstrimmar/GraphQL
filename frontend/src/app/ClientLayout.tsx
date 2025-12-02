@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar/Navbar";
 import { StateProvider } from "@/providers/StateProvider";
 import { ApolloProv } from "@/providers/ApoloProvider";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import ColorsButton from "@/components/ColorsButton/ColorsButton";
+
 export default function ClientLayout({
   children,
 }: {

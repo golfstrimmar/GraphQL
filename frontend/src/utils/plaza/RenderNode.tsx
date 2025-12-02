@@ -377,7 +377,7 @@ const createRenderNode = ({
           onDragOver={editMode ? (e) => handleDragOver(e, node) : undefined}
           onDragLeave={editMode ? handleDragLeave : undefined}
           onDrop={editMode ? (e) => handleDrop(e, node, true) : undefined}
-          className={`${editMode ? "card" : node.class} render-tag relative cursor-${editMode ? "grab" : "default"}`}
+          className={`${editMode ? "card" : node.class} render-tag relative `}
           style={{
             ...parseInlineStyle(node.style),
             border:
@@ -448,7 +448,7 @@ const createRenderNode = ({
           onDragOver={editMode ? (e) => handleDragOver(e, node) : undefined}
           onDragLeave={editMode ? handleDragLeave : undefined}
           onDrop={editMode ? (e) => handleDrop(e, node, true) : undefined}
-          className={`${editMode ? "card" : node.class} render-tag relative cursor-${editMode ? "grab" : "default"}`}
+          className={`${editMode ? "card" : node.class} render-tag relative }`}
           id={node.attributes?.id}
           htmlFor={node.attributes?.for}
           href={node.attributes?.href}
@@ -478,7 +478,7 @@ const createRenderNode = ({
             const editorStyle: React.CSSProperties = {
               padding: "0 18px",
               fontSize: "12px",
-              cursor: "grab",
+
               position: "relative",
               transition: "opacity 0.2s ease, border 0.2s ease",
               overflow: "hidden",
