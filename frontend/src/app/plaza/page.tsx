@@ -4,22 +4,19 @@ import React, {
   useEffect,
   useMemo,
   useLayoutEffect,
-  useCallback,
   useRef,
 } from "react";
 import { usePathname } from "next/navigation";
 import { useStateContext } from "@/providers/StateProvider";
-import { useMutation, useQuery, useLazyQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { UPDATE_PROJECT, REMOVE_PROJECT } from "@/apollo/mutations";
 import {
-  GET_JSON_DOCUMENT,
   GET_ALL_PROJECTS_BY_USER,
   FIND_PROJECT,
 } from "@/apollo/queries";
 
 import Loading from "@/components/ui/Loading/Loading";
 import PProject from "@/types/PProject";
-import PProjectDataElement from "@/types/PProject";
 import InfoProject from "@/components/InfoProject/InfoProject";
 import CreateNewProject from "@/components/CreateNewProject/CreateNewProject";
 import createRenderNode from "@/utils/plaza/RenderNode.tsx";
@@ -46,6 +43,7 @@ export interface ProjectNode {
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 
+// @ts-ignore
 export default function Plaza({ preview }) {
   const {
     htmlJson,
@@ -56,8 +54,6 @@ export default function Plaza({ preview }) {
     redo,
     undoStack,
     redoStack,
-    texts,
-    setTexts,
   } = useStateContext();
   const pathname = usePathname();
   const [projects, setProjects] = useState<PProject[]>([]);
@@ -405,7 +401,6 @@ export default function Plaza({ preview }) {
         </motion.div>
 
         {/* ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ */}
-
         <div
           className={`${preview ? "grid-cols-[1fr_140px_300px]" : "grid-cols-[140px_1fr]"}  grid  gap-2`}
         >
