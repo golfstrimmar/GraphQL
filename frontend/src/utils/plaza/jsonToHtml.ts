@@ -14,7 +14,68 @@ const selfClosingTags = new Set([
   "track",
   "wbr",
 ]);
+const SERVICE_TEXTS = [
+  "section",
+  "container",
+  "flex row",
+  "flex col",
+  "link",
+  "span",
+  "div",
+  "div__wrap",
+  "a",
+  "button",
+  "ul",
+  "flex",
+  "ul flex row",
+  "ul flex col",
 
+  "li",
+  "nav",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "p",
+  "legend",
+  "article",
+  "aside",
+  "fieldset",
+  "form",
+  "header",
+  "ol",
+  "option",
+  "optgroup",
+  "select",
+  "imgs",
+  "img",
+  "hero__wrap",
+  "hero__title",
+  "hero__content",
+  "hero img",
+  "hero__img",
+  "hero__info",
+  "hero__items",
+  "slotes",
+  "slotes__wrap",
+  "slotes__title",
+  "slotes__title title",
+  "slotes__cards",
+  "slotes__cards cards",
+  "cards__card",
+  "cards__card card",
+  "card__title",
+  "card__button",
+];
+function normalizeClasses(cls?: string): string[] {
+  if (!cls) return [];
+  return cls
+    .split(/\s+/)
+    .map((c) => c.trim())
+    .filter(Boolean);
+}
 function buildAttrs(node) {
   const attrs = [];
   if (node.class && node.class.trim())
@@ -26,19 +87,47 @@ function buildAttrs(node) {
   }
   return attrs.length ? " " + attrs.join(" ") : "";
 }
-
 // BEM-селектор
-function getScssSelector(node, parentClass = "") {
-  if (node.class && node.class.trim()) {
-    const cls = node.class.trim();
-    if (parentClass && cls.startsWith(parentClass + "__")) {
-      return `&__${cls.slice(parentClass.length + 2)}`;
+// BEM-селектор + поддержка нескольких классов
+function getScssSelector(node, parentClasses: string[] = []) {
+  const nodeClasses = normalizeClasses(node.class);
+  const parentMain = parentClasses[0] || ""; // основной BEM-блок, если есть
+
+  // если есть классы у узла
+  if (nodeClasses.length) {
+    // BEM: .block + элемент .block__elem
+    if (
+      parentMain &&
+      nodeClasses.length === 1 &&
+      nodeClasses[0].startsWith(parentMain + "__")
+    ) {
+      const elem = nodeClasses[0].slice(parentMain.length + 2);
+      return `&__${elem}`;
     }
-    return `.${cls}`;
+
+    // обычные классы: .class1.class2
+    return "." + nodeClasses.join(".");
   }
-  return node.tag;
+
+  // нет классов → просто тег
+  return node.tag || "div";
 }
 
+function cleanServiceText(raw: string): string {
+  let text = raw;
+  // длинные сначала
+  const sorted = [...SERVICE_TEXTS].sort((a, b) => b.length - a.length);
+
+  sorted.forEach((word) => {
+    const pattern = word.replace(/\s+/g, "\\s+");
+    const re = new RegExp(`^\\s*${pattern}\\s*$`, "i");
+    if (re.test(text)) {
+      text = ""; // если весь текст — служебка, убираем полностью
+    }
+  });
+
+  return text;
+}
 // --- Pug генератор ---
 function attrsToPug(node) {
   const parts = [];
@@ -57,23 +146,34 @@ function toPug(nodes, indent = "") {
   return nodes
     .map((node) => {
       const { tag, text = "", class: cls = "", children = [] } = node;
+
       let pugLine = indent + tag;
-      if (cls && cls.trim()) pugLine += "." + cls.trim().split(/\s+/).join(".");
+
+      if (cls && cls.trim()) {
+        pugLine += "." + cls.trim().split(/\s+/).join(".");
+      }
+
       const attrString = attrsToPug(node);
       if (attrString) pugLine += attrString;
-      // текст:
-      if (text.trim()) pugLine += ` ${text.trim()}`;
+
+      // текст: чистим служебные
+      const cleanedText = cleanServiceText(text);
+      if (cleanedText.trim()) {
+        pugLine += ` ${cleanedText.trim()}`;
+      }
+
       let result = pugLine;
+
       if (children.length > 0) {
         result += "\n" + toPug(children, indent + "  ");
       }
+
       return result;
     })
     .join("\n");
 }
 
-// --- Основной рендер для html/scss/pug ---
-function renderNodesAndCollectScss(nodes, parentClass = "") {
+function renderNodesAndCollectScss(nodes, parentClasses: string[] = []) {
   let html = "";
   let scssBlocks = [];
   let pug = "";
@@ -86,16 +186,19 @@ function renderNodesAndCollectScss(nodes, parentClass = "") {
       style = "",
       children = [],
     } = node;
-    const selector = getScssSelector(node, parentClass);
-    const nextParentClass =
-      nodeClass && nodeClass.trim() ? nodeClass.trim() : parentClass;
 
-    // SCSS
+    const nodeClasses = normalizeClasses(nodeClass);
+
+    // все актуальные классы этого уровня
+    const currentClasses = nodeClasses.length > 0 ? nodeClasses : parentClasses;
+
+    const selector = getScssSelector(node, currentClasses);
+
     let childScssBlocks = [];
     if (children.length > 0) {
       childScssBlocks = renderNodesAndCollectScss(
         children,
-        nextParentClass
+        currentClasses
       ).scssBlocks;
     }
 
@@ -113,17 +216,39 @@ function renderNodesAndCollectScss(nodes, parentClass = "") {
       });
     }
 
-    // HTML:
     const attrsStr = buildAttrs(node);
     let htmlItem;
     if (selfClosingTags.has(tag.toLowerCase())) {
       htmlItem = `<${tag}${attrsStr}/>${text}`;
     } else {
-      htmlItem = `<${tag}${attrsStr}>${text}${renderNodesAndCollectScss(children, nextParentClass).html}</${tag}>`;
+      htmlItem = `<${tag}${attrsStr}>${text}${
+        renderNodesAndCollectScss(children, currentClasses).html
+      }</${tag}>`;
     }
     html += htmlItem;
 
-    // Pug:
+    function stripServiceTexts(html: string): string {
+      let out = html;
+
+      // длинные строки сначала (flex row, hero img и т.п.)
+      const sorted = [...SERVICE_TEXTS].sort((a, b) => b.length - a.length);
+
+      sorted.forEach((text) => {
+        const pattern = text.replace(/\s+/g, "\\s+");
+
+        // только текстовый узел между > и <, теги не трогаем
+        const re = new RegExp(`>(\\s*)${pattern}(\\s*)<`, "g");
+        out = out.replace(re, ">$1$2<"); // оставляем только пробелы (если были)
+      });
+
+      // подчистить лишние пробелы между тегами
+      out = out.replace(/>\s+</g, "><").trim();
+
+      return out;
+    }
+    const output = stripServiceTexts(html);
+    html = output;
+
     pug += "\n" + toPug([node]);
   });
 

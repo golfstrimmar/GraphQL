@@ -167,6 +167,7 @@ export default function Plaza({ preview }) {
   }, [project]);
   useEffect(() => {
     resetAll();
+    
   }, []);
   useEffect(() => {
     if (!user) resetAll();
