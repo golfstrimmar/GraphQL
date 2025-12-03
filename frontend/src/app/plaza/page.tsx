@@ -57,6 +57,10 @@ export default function Plaza({ preview }) {
     redoStack,
     texts,
     setTexts,
+    HTML,
+    setHTML,
+    SCSS,
+    setSCSS,
   } = useStateContext();
   const pathname = usePathname();
   const [projects, setProjects] = useState<PProject[]>([]);
@@ -311,9 +315,10 @@ export default function Plaza({ preview }) {
     if (htmlJson) {
       const { html } = jsonToHtml(htmlJson);
       console.log("<==== html ====>", html);
+      setHTML(html);
       try {
         await navigator.clipboard.writeText(html);
-        setModalMessage("Html copied!");
+        // setModalMessage("Html copied!");
       } catch {
         setModalMessage("Failed to copy");
       }
@@ -323,9 +328,10 @@ export default function Plaza({ preview }) {
     if (htmlJson) {
       const { scss } = jsonToHtml(htmlJson);
       console.log("<==== scss ====>", scss);
+      setSCSS(scss);
       try {
         await navigator.clipboard.writeText(scss);
-        setModalMessage("Scss copied!");
+        // setModalMessage("Scss copied!");
       } catch {
         setModalMessage("Failed to copy");
       }

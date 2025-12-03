@@ -82,7 +82,8 @@ export function StateProvider({ children }: { children: ReactNode }) {
   });
   const [undoStack, setUndoStack] = useState<HtmlNode[][]>([]);
   const [redoStack, setRedoStack] = useState<HtmlNode[][]>([]);
-
+  const [HTML, setHTML] = useState<string>("");
+  const [SCSS, setSCSS] = useState<string>("");
   // ===================================
   const updateHtmlJson = (
     nextHtmlJson: HtmlNode[] | ((prev: HtmlNode[]) => HtmlNode[])
@@ -264,6 +265,10 @@ export function StateProvider({ children }: { children: ReactNode }) {
         redoStack,
         texts,
         setTexts,
+        HTML,
+        setHTML,
+        SCSS,
+        setSCSS,
       }}
     >
       {isModalOpen && (

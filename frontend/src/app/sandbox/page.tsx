@@ -3,18 +3,62 @@ import React, { useState, useEffect, useRef } from "react";
 import "./sandbox.scss";
 import Editor, { useMonaco } from "@monaco-editor/react";
 import Image from "next/image";
+import { useStateContext } from "@/providers/StateProvider";
 const Sandbox: React.FC = () => {
+  const {
+    htmlJson,
+    user,
+    setModalMessage,
+    updateHtmlJson,
+    undo,
+    redo,
+    undoStack,
+    redoStack,
+    texts,
+    setTexts,
+    HTML,
+    SCSS,
+  } = useStateContext();
+  const startScSS = `
+  body {
+  background: white;
+  font-family: 'PT Sans', sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  color: rgb(37, 37, 37);
+}
+  .imgs {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.imgs img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  object-position: top;
+  position: absolute;
+  top: 0;
+  left: 0;
+}`;
+
   const monaco = useMonaco();
   const [editorInstance, setEditorInstance] = useState<any>(null);
   const editorRef = useRef<any>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [html, setHtml] = useState<string>(
-    '<!doctype html lang="en">\n<head>\n<meta charset="UTF-8" />\n<link rel="icon" type="image/svg+xml" href="assets/svg/check.svg" />\n<meta name="viewport" content="width=device-width, initial-scale=1.0" />\n<title>Starter</title>\n</head>\n<body>\n</body>\n</html>'
-  );
-  const [scss, setScss] = useState<string>("body {\n  margin: 0;\n}");
+
+  // html — содержимое body, не весь документ
+  const [html, setHtml] = useState<string>(HTML);
+  const [scss, setScss] = useState<string>(startScSS);
   const [active, setActive] = useState<"html" | "scss">("html");
   const [editorHeight, setEditorHeight] = useState<number>(200);
-  // -----🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹--monaco
+  const [previewHtml, setPreviewHtml] = useState<string>("");
+
+  // ----- monaco
   useEffect(() => {
     if (monaco) {
       monaco.editor.defineTheme("myCustomTheme", {
@@ -31,8 +75,6 @@ const Sandbox: React.FC = () => {
         },
       });
       monaco.editor.setTheme("myCustomTheme");
-      monaco.languages.register({ id: "scss" });
-      monaco.languages.register({ id: "javascript" });
     }
   }, [monaco]);
 
@@ -43,7 +85,6 @@ const Sandbox: React.FC = () => {
     setEditorInstance(editor);
     editorRef.current = editor;
 
-    // 🔹 включаем авто‑высоту
     editor.onDidContentSizeChange(() => {
       const contentHeight = editor.getContentHeight();
       setEditorHeight(contentHeight);
@@ -53,24 +94,52 @@ const Sandbox: React.FC = () => {
       });
     });
   };
+
   useEffect(() => {
     return () => {
       if (editorInstance) editorInstance.dispose();
     };
   }, [editorInstance]);
-  // -----🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹
-  const isHtml = active === "html";
+  // ----
 
+  useEffect(() => {
+    const base = startScSS.trim();
+    const extra = (SCSS || "").trim();
+    const combined = extra ? base + "\n\n" + extra : base;
+    setScss(combined);
+  }, [SCSS]);
+
+  // ----- сборка превью из html + scss
+  useEffect(() => {
+    const fullDoc = `
+      <!doctype html>
+      <html lang="en">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <style>
+${scss}
+          </style>
+          <title>Sandbox</title>
+        </head>
+        <body>
+${html}
+        </body>
+      </html>
+    `;
+    setPreviewHtml(fullDoc);
+  }, [html, scss]);
+
+  const isHtml = active === "html";
   const value = isHtml ? html : scss;
-  const handleChange = (v: string) => {
-    if (isHtml) setHtml(v);
-    else setScss(v);
-  };
+  const language = isHtml ? "html" : "scss";
+
   const handleCodeChange = (value: string | undefined) => {
     if (value === undefined) return;
     if (isHtml) setHtml(value);
     else setScss(value);
   };
+
   return (
     <div className="sandbox">
       <div className="container">
@@ -84,7 +153,19 @@ const Sandbox: React.FC = () => {
             </p>
           </div>
         </header>
-        <div className="flex ">
+
+        {/* Превью */}
+        <section className="w-full mb-4 bg-navy">
+          <iframe
+            ref={iframeRef}
+            title="Sandbox preview"
+            className="w-full h-[800px]"
+            srcDoc={previewHtml}
+            sandbox="allow-scripts allow-same-origin"
+          />
+        </section>
+
+        <div className="flex">
           <aside className="flex-[1_0_20%] bg-navy border">
             <ul className="p-1">
               <li
@@ -108,34 +189,11 @@ const Sandbox: React.FC = () => {
             </ul>
           </aside>
 
-          <main className="flex-[1_1_100%] bg-slate-200 h-[max-content]">
-            <section className="w-full h-full">
-              {/* <textarea
-                className="w-full"
-                value={value}
-                onChange={(e) => handleChange(e.target.value)}
-                spellCheck={false}
-              /> */}
+          <main className="flex-[1_1_100%] bg-slate-200">
+            <section className="w-full">
               <Editor
-                height="100%"
-                // defaultLanguage={
-                //   selectedFile.endsWith(".scss")
-                //     ? "scss"
-                //     : selectedFile.endsWith(".css")
-                //       ? "css"
-                //       : selectedFile.endsWith(".js")
-                //         ? "javascript"
-                //         : "html"
-                // }
-                // language={
-                //   selectedFile.endsWith(".scss")
-                //     ? "scss"
-                //     : selectedFile.endsWith(".css")
-                //       ? "css"
-                //       : selectedFile.endsWith(".js")
-                //         ? "javascript"
-                //         : "html"
-                // }
+                height={editorHeight}
+                language={language}
                 value={value}
                 onChange={handleCodeChange}
                 onMount={handleEditorMount}
@@ -148,6 +206,7 @@ const Sandbox: React.FC = () => {
                     verticalScrollbarSize: 14,
                     horizontalScrollbarSize: 14,
                   },
+                  automaticLayout: true,
                 }}
               />
             </section>
