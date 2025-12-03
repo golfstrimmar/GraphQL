@@ -68,14 +68,6 @@ body {
   border-color: var(--lightest-navy) !important;
 }
 
-/* Buttons */
-.bg-blue-500,
-.bg-purple-500,
-.bg-pink-500 {
-  background-color: transparent !important;
-  border: 1px solid var(--teal) !important;
-  color: var(--teal) !important;
-}
 .teal-500 {
   border: 1px solid var(--teal) !important;
   color: var(--teal) !important;
@@ -86,20 +78,6 @@ body {
   background-color: rgba(100, 255, 218, 0.1) !important;
 }
 
-/* Remove shadows */
-.shadow-xl,
-.shadow-lg,
-.shadow-md,
-.shadow-sm {
-  box-shadow: none !important;
-}
-
-/* Remove rounded corners for professional look */
-.rounded-2xl,
-.rounded-xl,
-.rounded-lg {
-  border-radius: 0 !important;
-}
 :root {
   --background: #ffffff;
   --foreground: #171717;

@@ -51,6 +51,8 @@ const SERVICE_TEXTS = [
   "select",
   "imgs",
   "img",
+  "img-container",
+  "img container",
   "hero__wrap",
   "hero__title",
   "hero__content",

@@ -16,7 +16,6 @@ import {
   GET_ALL_PROJECTS_BY_USER,
   FIND_PROJECT,
 } from "@/apollo/queries";
-
 import Loading from "@/components/ui/Loading/Loading";
 import PProject from "@/types/PProject";
 import PProjectDataElement from "@/types/PProject";
@@ -72,8 +71,14 @@ export default function Plaza({ preview }) {
   const isSyncingRef = useRef(false);
   const [modalTextsOpen, setModalTextsOpen] = useState<boolean>(false);
   const [NNode, setNNode] = useState<ProjectNode>(null);
+  const [openAdmin, setOpenAdmin] = useState<boolean>(false);
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 
+  useEffect(() => {
+    if (openAdmin) {
+      console.log("<==== openAdmin====>", openAdmin);
+    }
+  }, [openAdmin]);
   useEffect(() => {
     console.log("<====preview====>", preview);
   }, [preview]);
@@ -167,7 +172,6 @@ export default function Plaza({ preview }) {
   }, [project]);
   useEffect(() => {
     resetAll();
-    
   }, []);
   useEffect(() => {
     if (!user) resetAll();
@@ -344,7 +348,7 @@ export default function Plaza({ preview }) {
     <section
       className={`${
         isPlaza() ? "pt-[100px]" : "pt-12"
-      } min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-slate-50 pb-12`}
+      } min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-slate-50 pb-[200px]`}
     >
       <div className={`${isPlaza() ? "container" : ""}`}>
         <div className="text-center mb-12">
@@ -406,12 +410,24 @@ export default function Plaza({ preview }) {
         </motion.div>
 
         {/* ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ */}
-
+        {preview && <img src={preview?.filePath} alt="preview" />}
         <div
-          className={`${preview ? "grid-cols-[1fr_140px_300px]" : "grid-cols-[140px_1fr]"}  grid  gap-2`}
+          className={`${openAdmin ? "translate-x-0" : "translate-x-[calc(-100%+20px)]"} left-0 fixed bottom-0  z-5000 grid-cols-[140px_1fr] w-full  grid  gap-2 bg-slate-200 rounded transition-all duration-300 ease-in-out`}
         >
-          {preview && <img src={preview?.filePath} alt="preview" />}
-          <div className="bg-navy rounded-2xl shadow-xl p-1 mb-8 border border-slate-200 max-h-[max-content]">
+          <button
+            onClick={() => {
+              setOpenAdmin((prev) => {
+                console.log("Current:", prev, "-> New:", !prev); // для дебага
+                return !prev;
+              });
+            }}
+            className={` absolute top-0.5 translateY-[-50%] right-0 bg-[var(--light-navy)] px-1 font-bold border h-full    border-[var(--white)] transition-all duration-300 ease-in-out  hover:bg-[var(--teal)] hover:text-white hover:border-[var(--teal)] `}
+          >
+            <div className={`${openAdmin ? "rotate-180" : "rotate-0"}   w-3`}>
+              <СhevronRight />
+            </div>
+          </button>
+          <div className="bg-navy rounded shadow-xl p-1  border border-slate-200 max-h-[max-content]">
             <div className="flex flex-col items-center gap-2">
               <button
                 className="btn-teal w-full"
@@ -477,9 +493,7 @@ export default function Plaza({ preview }) {
               </button>
             </div>
           </div>
-          <div className="mb-8">
-            <AdminComponent />
-          </div>
+          <AdminComponent />
         </div>
         {/* ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ */}
         {user && (
