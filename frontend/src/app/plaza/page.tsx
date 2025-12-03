@@ -379,45 +379,14 @@ export default function Plaza({ preview }) {
           </div>
         </div>
 
-        <motion.div
-          id="plaza-container"
-          className={`grid transition-all duration-300  gap-2 mt-2 ${editMode ? "bg-slate-400 rounded" : ""}
-            
-           `}
-        >
-          <AnimatePresence mode="wait">
-            {openInfoKey != null && project && (
-              <motion.div
-                key="info-project"
-                initial={{ x: 100, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: 100, opacity: 0 }}
-                transition={{ duration: 0.3, ease: [0.25, 0.8, 0.5, 1] }}
-                className="bg-navy rounded-2xl shadow-xl p-1 mb-8 border border-slate-200 fixed top-1/2 right-0 transform min-w-[300px]  -translate-y-1/2 z-50"
-              >
-                <InfoProject
-                  project={project}
-                  setProject={setProject}
-                  updateHtmlJson={updateHtmlJson}
-                  setOpenInfoKey={setOpenInfoKey}
-                  openInfoKey={openInfoKey}
-                  setModalTextsOpen={setModalTextsOpen}
-                  setNNode={setNNode}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
-
         {/* ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ */}
         {preview && <img src={preview?.filePath} alt="preview" />}
         <div
-          className={`${openAdmin ? "translate-x-0" : "translate-x-[calc(-100%+20px)]"} left-0 fixed bottom-0  z-5000 grid-cols-[140px_1fr] w-full  grid  gap-2 bg-slate-200 rounded transition-all duration-300 ease-in-out`}
+          className={`${openAdmin ? "translate-x-0" : "translate-x-[calc(-100%+20px)]"} left-0 fixed bottom-0  z-5000 grid-cols-[140px_1fr] w-full h-[max-content] pt-1 grid  gap-2 bg-slate-200 rounded transition-all duration-100 ease-in-out`}
         >
           <button
             onClick={() => {
               setOpenAdmin((prev) => {
-                console.log("Current:", prev, "-> New:", !prev); // для дебага
                 return !prev;
               });
             }}
@@ -494,6 +463,35 @@ export default function Plaza({ preview }) {
             </div>
           </div>
           <AdminComponent />
+          <motion.div
+            id="plaza-container"
+            className={`grid transition-all duration-300  gap-2  ${editMode ? "bg-slate-400 rounded" : ""}
+            
+           `}
+          >
+            <AnimatePresence mode="wait">
+              {openInfoKey != null && project && (
+                <motion.div
+                  key="info-project"
+                  initial={{ x: 100, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: 100, opacity: 0 }}
+                  transition={{ duration: 0.1, ease: [0.25, 0.8, 0.5, 1] }}
+                  className="bg-navy rounded-2xl shadow-xl p-1  border border-slate-200 fixed bottom-0 right-0 transform min-w-[300px]   z-50"
+                >
+                  <InfoProject
+                    project={project}
+                    setProject={setProject}
+                    updateHtmlJson={updateHtmlJson}
+                    setOpenInfoKey={setOpenInfoKey}
+                    openInfoKey={openInfoKey}
+                    setModalTextsOpen={setModalTextsOpen}
+                    setNNode={setNNode}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
         </div>
         {/* ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ */}
         {user && (

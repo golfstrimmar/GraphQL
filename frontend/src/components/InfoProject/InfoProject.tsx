@@ -12,7 +12,7 @@ import removeNodeByKey from "@/utils/plaza/removeNodeByKey";
 import findNodeByKey from "@/utils/plaza/findNodeByKey";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import СhevronLeft from "@/components/icons/СhevronLeft";
+import СhevronRight from "@/components/icons/СhevronRight";
 
 type ProjectData = {
   tag: string;
@@ -119,7 +119,7 @@ const InfoProject: React.FC<InfoProjectProps> = ({
 
     return (
       <div className=" flex flex-col relative rounded border-2 border-[var(--teal)] p-1 text-[#000] ">
-        <p className="bg-white !font-bold  inline-block z-30 py-1 rounded mt-2 -mb-3 w-[max-content]">
+        <p className="bg-white !font-bold px-2 inline-block z-30 py-0.5 rounded mt-2 ml-auto -mb-4.5 w-[max-content]">
           Tag:
         </p>
         <input
@@ -137,11 +137,11 @@ const InfoProject: React.FC<InfoProjectProps> = ({
           }}
           className="textarea-styles"
         />
-        <div className="flex mt-2 -mb-3 w-[max-content] bg-white rounded  z-30 !font-bold ">
-          <span className=" py-1 rounded inline-block">Text:</span>
+        <div className="flex py-0.5 mt-2 ml-auto -mb-3 w-[max-content] bg-white rounded  z-30 !font-bold ">
+          <span className="  rounded inline-block px-2">Text:</span>
           {texts && texts.length > 0 && (
             <button
-              className="btn btn-empty w-[max-content] ml-4 my-[2px] mr-1 px-2"
+              className="btn btn-empty w-[max-content] ml-4  mr-1 px-2"
               onClick={() => setModalTextsOpen(true)}
             >
               Show all texts
@@ -163,7 +163,7 @@ const InfoProject: React.FC<InfoProjectProps> = ({
           }}
           className="textarea-styles"
         />
-        <p className="bg-white !font-bold inline-block z-30 py-1 rounded  -mb-3 w-[max-content]">
+        <p className="bg-white !font-bold inline-block z-30  rounded  py-0.5 mt-2 ml-auto -mb-4.5 w-[max-content]">
           Class:
         </p>
         <input
@@ -181,7 +181,7 @@ const InfoProject: React.FC<InfoProjectProps> = ({
           }}
           className="textarea-styles"
         />
-        <p className="bg-white !font-bold inline-block z-30 py-1 rounded -mb-3 w-[max-content]">
+        <p className="bg-white !font-bold inline-block z-30  rounded  py-0.5 mt-2 ml-auto -mb-4.5 w-[max-content]">
           Style:
         </p>
         <textarea
@@ -296,10 +296,10 @@ const InfoProject: React.FC<InfoProjectProps> = ({
         )}
         <button
           onClick={() => setOpenInfoKey(null)}
-          className="absolute left-[50%] -top-3 border rounded bg-slate-200 hover:bg-slate-300 transition-all duration-200 rotate-90  btn-teal !p-0.5"
+          className="absolute left-[50%] -top-3 border rounded bg-slate-200 hover:bg-slate-300 transition-all duration-200   btn-teal !p-0.5"
         >
           <div className="max-h-6 ">
-            <СhevronLeft width={16} height={16} />
+            <СhevronRight width={16} height={16} />
           </div>
         </button>
       </div>
