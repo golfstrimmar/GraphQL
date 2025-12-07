@@ -4,6 +4,7 @@ import "./sandbox.scss";
 import Editor, { useMonaco } from "@monaco-editor/react";
 import Image from "next/image";
 import { useStateContext } from "@/providers/StateProvider";
+import startScssContent from "./startScssContent";
 const Sandbox: React.FC = () => {
   const {
     htmlJson,
@@ -19,32 +20,32 @@ const Sandbox: React.FC = () => {
     HTML,
     SCSS,
   } = useStateContext();
-  const startScSS = `
-  body {
-  background: white;
-  font-family: 'PT Sans', sans-serif;
-  font-size: 18px;
-  font-weight: 400;
-  color: rgb(37, 37, 37);
-}
-  .imgs {
-  overflow: hidden;
-  position: relative;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-}
+  //   const startScSS = `
+  //   body {
+  //   background: white;
+  //   font-family: 'PT Sans', sans-serif;
+  //   font-size: 18px;
+  //   font-weight: 400;
+  //   color: rgb(37, 37, 37);
+  // }
+  //   .imgs {
+  //   overflow: hidden;
+  //   position: relative;
+  //   width: 100%;
+  //   height: 100%;
+  //   top: 0;
+  //   left: 0;
+  // }
 
-.imgs img {
-  height: 100%;
-  width: 100%;
-  object-fit: cover;
-  object-position: top;
-  position: absolute;
-  top: 0;
-  left: 0;
-}`;
+  // .imgs img {
+  //   height: 100%;
+  //   width: 100%;
+  //   object-fit: cover;
+  //   object-position: top;
+  //   position: absolute;
+  //   top: 0;
+  //   left: 0;
+  // }`;
 
   const monaco = useMonaco();
   const [editorInstance, setEditorInstance] = useState<any>(null);
@@ -53,8 +54,9 @@ const Sandbox: React.FC = () => {
 
   // html — содержимое body, не весь документ
   const [html, setHtml] = useState<string>(HTML);
-  const [scss, setScss] = useState<string>(startScSS);
-  const [active, setActive] = useState<"html" | "scss">("html");
+  const [startScss, setStartScss] = useState<string>("");
+  const [scss, setScss] = useState<string>("");
+  const [active, setActive] = useState<"html" | "scss" | "startScss">("html");
   const [editorHeight, setEditorHeight] = useState<number>(200);
   const [previewHtml, setPreviewHtml] = useState<string>("");
 
@@ -103,41 +105,50 @@ const Sandbox: React.FC = () => {
   // ----
 
   useEffect(() => {
-    const base = startScSS.trim();
-    const extra = (SCSS || "").trim();
-    const combined = extra ? base + "\n\n" + extra : base;
-    setScss(combined);
+    // const styleScssContent = `${startScssContent}\n\n${SCSS}`;
+    setStartScss(startScssContent);
+    setScss(SCSS || "");
   }, [SCSS]);
 
   // ----- сборка превью из html + scss
   useEffect(() => {
     const fullDoc = `
-      <!doctype html>
-      <html lang="en">
-        <head>
-          <meta charset="UTF-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <style>
-${scss}
-          </style>
-          <title>Sandbox</title>
-        </head>
-        <body>
-${html}
-        </body>
-      </html>
-    `;
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    ${startScss}
+    ${scss}
+  </style>
+  <title>Sandbox</title>
+</head>
+<body>
+${html} 
+</body>
+</html>`;
+
     setPreviewHtml(fullDoc);
-  }, [html, scss]);
+  }, [html, scss, startScss]);
 
   const isHtml = active === "html";
-  const value = isHtml ? html : scss;
+  const value =
+    active === "html"
+      ? html
+      : active === "scss"
+        ? scss
+        : active === "startScss"
+          ? startScss
+          : undefined;
+
   const language = isHtml ? "html" : "scss";
 
   const handleCodeChange = (value: string | undefined) => {
     if (value === undefined) return;
-    if (isHtml) setHtml(value);
-    else setScss(value);
+    if (active === "html") setHtml(value);
+    else if (active === "scss") setScss(value);
+    else if (active === "startScss") setStartScss(value);
   };
 
   return (
@@ -171,7 +182,7 @@ ${html}
               <li
                 className={
                   "hover:bg-slate-600 cursor-pointer px-1" +
-                  (isHtml ? " sandbox__file-item--active" : "")
+                  (active === "html" ? " teal-500" : "")
                 }
                 onClick={() => setActive("html")}
               >
@@ -180,11 +191,20 @@ ${html}
               <li
                 className={
                   "hover:bg-slate-600 cursor-pointer px-1" +
-                  (!isHtml ? " sandbox__file-item--active" : "")
+                  (active === "scss" ? " teal-500" : "")
                 }
                 onClick={() => setActive("scss")}
               >
                 <span className="sandbox__file-name">styles.scss</span>
+              </li>
+              <li
+                className={
+                  "hover:bg-slate-600 cursor-pointer px-1" +
+                  (active === "startScss" ? " teal-500" : "")
+                }
+                onClick={() => setActive("startScss")}
+              >
+                <span className="sandbox__file-name">start.scss</span>
               </li>
             </ul>
           </aside>

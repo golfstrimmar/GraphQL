@@ -200,32 +200,6 @@ export default function FigmaPage() {
       }
     }
   }, [fonts]);
-  useEffect(() => {
-    if (texts.length > 0) {
-      console.log("<====texts====>", texts);
-      // const styleStr =
-      //   "background: rgb(226, 232, 240); padding: 2px 4px; border: 1px solid #adadad;";
-      // const newNodes: HtmlNode[] = texts.map((el, i) => ({
-      //   tag: "div",
-      //   text: el.text,
-      //   class: "",
-      //   style: styleStr,
-      //   children: [],
-      // }));
-      // setHtmlJson((prev) => ({
-      //   ...prev,
-      //   children: [
-      //     ...(Array.isArray(prev.children) ? prev.children : []),
-      //     ...newNodes,
-      //   ],
-      // }));
-    }
-  }, [texts]);
-  // useEffect(() => {
-  //   if (currentProject) {
-  //     console.log("<==== currentProject====>", currentProject);
-  //   }
-  // }, [currentProject]);
 
   //////////////////
   const handleUpload = async () => {
@@ -638,7 +612,7 @@ export default function FigmaPage() {
         {renderTypography()}
         {renderScssMixins()}
         {renderTextStyles()}
-        {user && <Plaza preview={preview} />}
+        {user && <Plaza preview={preview} uniqueMixins={uniqueMixins} />}
         <AnimatePresence>
           {modalOpen && (
             <motion.div

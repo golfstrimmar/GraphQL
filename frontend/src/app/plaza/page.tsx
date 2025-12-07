@@ -45,7 +45,7 @@ export interface ProjectNode {
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 
-export default function Plaza({ preview }) {
+export default function Plaza({ preview, uniqueMixins }) {
   const {
     htmlJson,
     user,
@@ -78,14 +78,6 @@ export default function Plaza({ preview }) {
   const [openAdmin, setOpenAdmin] = useState<boolean>(false);
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 
-  useEffect(() => {
-    if (openAdmin) {
-      console.log("<==== openAdmin====>", openAdmin);
-    }
-  }, [openAdmin]);
-  useEffect(() => {
-    console.log("<====preview====>", preview);
-  }, [preview]);
   const isPlaza = () => {
     return pathname === "/plaza" ? true : false;
   };
@@ -195,6 +187,32 @@ export default function Plaza({ preview }) {
     }
   }, [project, editMode, openInfoKey]);
   // 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹
+  const buildGoogleFontsImport = () => {
+    const uniqueFonts = Array.from(
+      new Set(uniqueMixins.map((f) => f.fontFamily))
+    );
+    if (uniqueFonts.length === 0) return "";
+    return `@import url('https://fonts.googleapis.com/css2?${uniqueFonts
+      .map(
+        (name) =>
+          `family=${encodeURIComponent(name)}:ital,wght@0,100..900;1,100..900`
+      )
+      .join("&")}&display=swap');`;
+  };
+  const createMixins = () => {
+    if (!uniqueMixins || !uniqueMixins.length) return;
+
+    const mixins = uniqueMixins.map((el) => {
+      return `@mixin ${el.mixin} {
+  font-family: "${el.fontFamily}", sans-serif;
+  font-weight: ${el.fontWeight};
+  font-size: ${el.fontSize};
+  color: ${el.color};
+}`;
+    });
+
+    return mixins.join("\n\n");
+  };
   const shiftNeighbors = () => {
     const container = document.getElementById("plaza-render-area");
     if (!container) return;
@@ -324,13 +342,15 @@ export default function Plaza({ preview }) {
       }
     }
   };
+
   const createSCSS = async () => {
     if (htmlJson) {
       const { scss } = jsonToHtml(htmlJson);
-      console.log("<==== scss ====>", scss);
-      setSCSS(scss);
+      const mixins = createMixins();
+      const googleFonts = buildGoogleFontsImport();
+      setSCSS(googleFonts + mixins + scss);
       try {
-        await navigator.clipboard.writeText(scss);
+        await navigator.clipboard.writeText(googleFonts + mixins + scss);
         // setModalMessage("Scss copied!");
       } catch {
         setModalMessage("Failed to copy");
