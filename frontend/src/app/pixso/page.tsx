@@ -68,7 +68,7 @@ export default function FigmaPage() {
   const [allProjects, setAllProjects] = useState<Project[]>([]);
   const [projectId, setProjectId] = useState<string>("");
   const [currentProject, setcurrentProject] = useState<FigmaProject | null>(
-    null
+    null,
   );
   const [modalOpen, setModalOpen] = useState(false);
   const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
@@ -92,7 +92,7 @@ export default function FigmaPage() {
 
   //Mutation
   const [uploadFigmaJsonProject, { loading }] = useMutation(
-    UPLOAD_FIGMA_JSON_PROJECT
+    UPLOAD_FIGMA_JSON_PROJECT,
   );
   const [removeFigmaProject, { loading: removeLoading }] =
     useMutation(REMOVE_FIGMA_PROJECT);
@@ -127,8 +127,6 @@ export default function FigmaPage() {
         previewUrl: img.filePath,
       }));
     setImageFiles(temp);
-
-    // htmlJson строим С НУЛЯ, без prev
     const imageNodes: HtmlNode[] = currentImgs
       .filter((img) => img.fileName !== "preview.png")
       .map((img, index) => ({
@@ -169,7 +167,7 @@ export default function FigmaPage() {
               ...prev,
               children: [
                 ...(prev.children || []).filter(
-                  (ch) => ch.tag !== "div" || ch.text !== "img-container"
+                  (ch) => ch.tag !== "div" || ch.text !== "img-container",
                 ),
                 ...imageNodes,
               ],
@@ -252,7 +250,7 @@ export default function FigmaPage() {
         acc[key] = el;
       }
       return acc;
-    }, {})
+    }, {}),
   );
   const toFontFamily = (fam: string): string => `"${fam}", sans-serif`;
   //
@@ -680,7 +678,6 @@ export default function FigmaPage() {
 
                   <button
                     type="button"
-                    // disabled={!file || !name || loading}
                     onClick={(e) => {
                       handleUpload();
                       e.preventDefault();
