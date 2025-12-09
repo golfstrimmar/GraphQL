@@ -68,11 +68,12 @@ export default function FigmaPage() {
   const [allProjects, setAllProjects] = useState<Project[]>([]);
   const [projectId, setProjectId] = useState<string>("");
   const [currentProject, setcurrentProject] = useState<FigmaProject | null>(
-    null,
+    null
   );
   const [modalOpen, setModalOpen] = useState(false);
   const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
   const [preview, setPreview] = useState<ImageFile>(null);
+  const [colorsTo, setColorsTo] = useState<string[]>([]);
   // Query
   const {
     data: figmaProjectsByUser,
@@ -92,13 +93,30 @@ export default function FigmaPage() {
 
   //Mutation
   const [uploadFigmaJsonProject, { loading }] = useMutation(
-    UPLOAD_FIGMA_JSON_PROJECT,
+    UPLOAD_FIGMA_JSON_PROJECT
   );
   const [removeFigmaProject, { loading: removeLoading }] =
     useMutation(REMOVE_FIGMA_PROJECT);
 
   //////--------------------
+  useEffect(() => {
+    if (colors.length > 0) {
+      console.log("<==== colors====>", colors);
+      setColorsTo((prev) => {
+        let newColors = [];
+        colors.forEach((foo, index) => {
+          newColors.push(`$color-${index + 1}: ${foo};`);
+        });
 
+        return newColors;
+      });
+    }
+  }, [colors]);
+  useEffect(() => {
+    if (colorsTo) {
+      console.log("<==== colorsTo====>", colorsTo);
+    }
+  }, [colorsTo]);
   useEffect(() => {
     if (figmaProjectsByUser?.figmaProjectsByUser) {
       setAllProjects(figmaProjectsByUser.figmaProjectsByUser);
@@ -167,7 +185,7 @@ export default function FigmaPage() {
               ...prev,
               children: [
                 ...(prev.children || []).filter(
-                  (ch) => ch.tag !== "div" || ch.text !== "img-container",
+                  (ch) => ch.tag !== "div" || ch.text !== "img-container"
                 ),
                 ...imageNodes,
               ],
@@ -250,7 +268,7 @@ export default function FigmaPage() {
         acc[key] = el;
       }
       return acc;
-    }, {}),
+    }, {})
   );
   const toFontFamily = (fam: string): string => `"${fam}", sans-serif`;
   //
@@ -265,6 +283,7 @@ export default function FigmaPage() {
 
   const getColorVarByValue = (colorValue: string): string => {
     const found = colorVars.find((v) => v.value === colorValue);
+
     return found ? found.name : colorValue;
   };
   const renderColorPalette = () => {
@@ -393,6 +412,7 @@ export default function FigmaPage() {
         <div className="mb-4  grid grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))] gap-2">
           {uniqueMixins.map((el) => {
             const colorVariable = getColorVarByValue(el.color);
+
             const scssMixin = `@mixin ${el.mixin} {
   font-family: "${el.fontFamily}", sans-serif;
   font-weight: ${el.fontWeight};
@@ -405,6 +425,7 @@ export default function FigmaPage() {
                 key={el.mixin}
                 className="group relative bg-slate-900 rounded-xl p-2 border border-slate-700 hover:border-purple-500 transition-all overflow-hidden"
               >
+                <p>{colorVariable}</p>
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(scssMixin);
@@ -506,23 +527,25 @@ export default function FigmaPage() {
           </button>
         </div>
         <div className=" flex flex-wrap gap-2">
-          {colors.map((value, idx) => (
-            <div
-              key={value}
-              className="group flex  items-center gap-3 p-1 bg-navy rounded-lg border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all"
-            >
-              <code className="flex-1 font-mono text-sm text-slate-900 whitespace-nowrap">{`$color-${idx + 1}: ${value};`}</code>
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(`$color-${idx + 1}: ${value};`);
-                  setModalMessage("Variable copied!");
-                }}
-                className="px-3 py-1.5 text-xs font-medium text-[var(--teal)]  border border-[var(--teal)] bg-slate-100 roundedhover:teal-500  transition-colors opacity-0 group-hover:opacity-100"
-              >
-                Copy
-              </button>
-            </div>
-          ))}
+          {colorsTo.length > 0 &&
+            colorsTo.map((color, inx) => {
+              return (
+                <div
+                  key={inx}
+                  className="group flex  items-center gap-3 px-3 p-1 bg-navy rounded-lg border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all cursor-pointer"
+                >
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(color);
+                      setModalMessage("Variable copied!");
+                    }}
+                    className="px-3 py-1.5 text-xs font-medium hover:text-[var(--teal)]  border border-[var(--teal)] bg-slate-700 rounded hover:teal-500  transition-colors opacity-0 group-hover:opacity-100"
+                  >
+                    Copy
+                  </button>
+                </div>
+              );
+            })}
         </div>
       </div>
     );
@@ -610,7 +633,13 @@ export default function FigmaPage() {
         {renderTypography()}
         {renderScssMixins()}
         {renderTextStyles()}
-        {user && <Plaza preview={preview} uniqueMixins={uniqueMixins} />}
+        {user && (
+          <Plaza
+            preview={preview}
+            uniqueMixins={uniqueMixins}
+            colorsTo={colorsTo}
+          />
+        )}
         <AnimatePresence>
           {modalOpen && (
             <motion.div

@@ -45,7 +45,7 @@ export interface ProjectNode {
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 
-export default function Plaza({ preview, uniqueMixins }) {
+export default function Plaza({ preview, uniqueMixins, colorsTo }) {
   const {
     htmlJson,
     user,
@@ -76,6 +76,7 @@ export default function Plaza({ preview, uniqueMixins }) {
   const [modalTextsOpen, setModalTextsOpen] = useState<boolean>(false);
   const [NNode, setNNode] = useState<ProjectNode>(null);
   const [openAdmin, setOpenAdmin] = useState<boolean>(false);
+
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 
   const isPlaza = () => {
@@ -106,11 +107,12 @@ export default function Plaza({ preview, uniqueMixins }) {
     awaitRefetchQueries: true,
   });
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
+
   useEffect(() => {
     if (!dataProject) return;
 
     const proj = dataProject?.findProject;
-    console.log("<==== proj from bd====>", proj);
+    console.log("<====🔥🔥🔥🔥 proj from bd 🔥🔥🔥🔥====>", proj);
     setProjectId(proj.id);
     setProjectName(proj.name);
     updateHtmlJson((prev) => {
@@ -348,9 +350,11 @@ export default function Plaza({ preview, uniqueMixins }) {
       const { scss } = jsonToHtml(htmlJson);
       const mixins = createMixins();
       const googleFonts = buildGoogleFontsImport();
-      setSCSS(googleFonts + mixins + scss);
+      setSCSS(googleFonts + colorsTo + mixins + scss);
       try {
-        await navigator.clipboard.writeText(googleFonts + mixins + scss);
+        await navigator.clipboard.writeText(
+          googleFonts + colorsTo + mixins + scss
+        );
         // setModalMessage("Scss copied!");
       } catch {
         setModalMessage("Failed to copy");
@@ -369,6 +373,7 @@ export default function Plaza({ preview, uniqueMixins }) {
       }
     }
   };
+
   //
   return (
     <section
