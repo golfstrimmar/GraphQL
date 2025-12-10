@@ -180,6 +180,11 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
     }
   }, [data]);
 
+  useEffect(() => {
+    if (colorsTo) {
+      console.log("<==== colorsTo====>", colorsTo);
+    }
+  }, [colorsTo]);
   // 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹Project
   useLayoutEffect(() => {
     if (!project) return;
@@ -350,10 +355,10 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
       const { scss } = jsonToHtml(htmlJson);
       const mixins = createMixins();
       const googleFonts = buildGoogleFontsImport();
-      setSCSS(googleFonts + colorsTo + mixins + scss);
+      setSCSS(googleFonts + [...colorsTo].join("\n") + mixins + scss);
       try {
         await navigator.clipboard.writeText(
-          googleFonts + colorsTo + mixins + scss
+          googleFonts + [...colorsTo].join("\n") + mixins + scss
         );
         // setModalMessage("Scss copied!");
       } catch {

@@ -26,7 +26,7 @@ const generateGoogleFontsImport = (fonts: any[]) => {
       .filter((weight, index, arr) => arr.indexOf(weight) === index)
       .sort((a, b) => a - b);
 
-    console.log(`🔤 ${family} weights:`, weights);
+    // console.log(`🔤 ${family} weights:`, weights);
 
     // Формируем параметры для Google Fonts
     const familyName = family.replace(/ /g, "+");
@@ -41,7 +41,7 @@ const generateGoogleFontsImport = (fonts: any[]) => {
   });
 
   const importString = `@import url('https://fonts.googleapis.com/css2?${fontParams.join("&")}&display=swap');`;
-  console.log("📦 Final import string:", importString);
+  // console.log("📦 Final import string:", importString);
 
   return importString;
 };

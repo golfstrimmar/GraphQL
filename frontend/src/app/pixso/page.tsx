@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import {
   UPLOAD_FIGMA_JSON_PROJECT,
@@ -20,6 +20,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import FigmaProjectsList from "@/components/FigmaProjectsList/FigmaProjectsList";
 import Plaza from "@/app/plaza/page";
 import ImageUploader from "@/components/ImageUploader/ImageUploader";
+import RenderColorVars from "@/components/RenderColorVars/RenderColorVars";
 // --------
 type FigmaProject = {
   id: string;
@@ -73,7 +74,6 @@ export default function FigmaPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
   const [preview, setPreview] = useState<ImageFile>(null);
-  const [colorsTo, setColorsTo] = useState<string[]>([]);
   // Query
   const {
     data: figmaProjectsByUser,
@@ -99,24 +99,7 @@ export default function FigmaPage() {
     useMutation(REMOVE_FIGMA_PROJECT);
 
   //////--------------------
-  useEffect(() => {
-    if (colors.length > 0) {
-      console.log("<==== colors====>", colors);
-      setColorsTo((prev) => {
-        let newColors = [];
-        colors.forEach((foo, index) => {
-          newColors.push(`$color-${index + 1}: ${foo};`);
-        });
 
-        return newColors;
-      });
-    }
-  }, [colors]);
-  useEffect(() => {
-    if (colorsTo) {
-      console.log("<==== colorsTo====>", colorsTo);
-    }
-  }, [colorsTo]);
   useEffect(() => {
     if (figmaProjectsByUser?.figmaProjectsByUser) {
       setAllProjects(figmaProjectsByUser.figmaProjectsByUser);
@@ -261,6 +244,13 @@ export default function FigmaPage() {
     reader.readAsText(file);
   };
   //////////////////
+
+  const colorsTo = useMemo(() => {
+    if (colors.length > 0) {
+      return colors.map((color, index) => `$color-${index + 1}: ${color};`);
+    }
+    return [];
+  }, [colors]);
   const uniqueMixins = Object.values(
     texts.reduce<Record<string, TextNode>>((acc, el) => {
       const key = `${el.mixin}`;
@@ -276,11 +266,6 @@ export default function FigmaPage() {
     name: `$color-${idx + 1}`,
     value,
   }));
-
-  const allVars = colors
-    .map((value, idx) => `$color-${idx + 1}: ${value};`)
-    .join("");
-
   const getColorVarByValue = (colorValue: string): string => {
     const found = colorVars.find((v) => v.value === colorValue);
 
@@ -425,13 +410,12 @@ export default function FigmaPage() {
                 key={el.mixin}
                 className="group relative bg-slate-900 rounded-xl p-2 border border-slate-700 hover:border-purple-500 transition-all overflow-hidden"
               >
-                <p>{colorVariable}</p>
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(scssMixin);
                     setModalMessage("Mixin copied!");
                   }}
-                  className="absolute top-3 right-3 px-3 py-1.5 bg-purple-500 text-white text-xs font-medium rounded-lg hover:bg-purple-600 transition-colors opacity-0 group-hover:opacity-100 z-10"
+                  className="absolute top-3 right-3 px-3 py-1.5 bg-purple-500 text-white text-xs font-medium rounded-lg hover:bg-purple-600 transition-colors opacity-20  group-hover:opacity-100 z-10"
                 >
                   Copy
                 </button>
@@ -503,53 +487,6 @@ export default function FigmaPage() {
       </div>
     );
   };
-  const renderColorVars = () => {
-    if (colors.length === 0) return null;
-    return (
-      <div className=" mb-4 p-2  bg-navy  rounded-xl border border-slate-200">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-orange-500 rounded-lg flex items-center justify-center">
-              <span className="text-xl">🎨</span>
-            </div>
-            <h3 className="text-2xl font-bold text-slate-800">
-              SCSS Variables
-            </h3>
-          </div>
-          <button
-            onClick={() => {
-              navigator.clipboard.writeText(allVars);
-              setModalMessage("All variables copied!");
-            }}
-            className="px-4 py-2 bg-blue-500 text-white text-xs font-medium rounded-lg hover:bg-blue-600 transition-colors shadow-sm"
-          >
-            Copy All
-          </button>
-        </div>
-        <div className=" flex flex-wrap gap-2">
-          {colorsTo.length > 0 &&
-            colorsTo.map((color, inx) => {
-              return (
-                <div
-                  key={inx}
-                  className="group flex  items-center gap-3 px-3 p-1 bg-navy rounded-lg border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all cursor-pointer"
-                >
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(color);
-                      setModalMessage("Variable copied!");
-                    }}
-                    className="px-3 py-1.5 text-xs font-medium hover:text-[var(--teal)]  border border-[var(--teal)] bg-slate-700 rounded hover:teal-500  transition-colors opacity-0 group-hover:opacity-100"
-                  >
-                    Copy
-                  </button>
-                </div>
-              );
-            })}
-        </div>
-      </div>
-    );
-  };
 
   //
   return (
@@ -617,7 +554,6 @@ export default function FigmaPage() {
             </div>
           )}
         </div>
-
         {user && currentProject && (
           <ImageUploader
             imageFiles={imageFiles}
@@ -627,11 +563,11 @@ export default function FigmaPage() {
             setPreview={setPreview}
           />
         )}
-
         {renderColorPalette()}
-        {renderColorVars()}
+        <RenderColorVars colorsTo={colorsTo} />
         {renderTypography()}
         {renderScssMixins()}
+
         {renderTextStyles()}
         {user && (
           <Plaza

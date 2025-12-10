@@ -95,11 +95,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       }
     });
   }, [imageFiles]);
+
   useEffect(() => {
-    console.log("<====isNewImages====>", isNewImages);
-  }, [isNewImages]);
-  useEffect(() => {
-    console.log("<====imageFiles====>", imageFiles);
     return () => {
       imageFiles.forEach((img) => URL.revokeObjectURL(img.previewUrl));
     };
@@ -111,8 +108,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   ) => {
     if (event.target.files) {
       const newFiles = Array.from(event.target.files);
-      console.log("<====newFiles====>", newFiles);
-      console.log("<====isPrev====>", isPrev);
       if (isPrev) setIsPrev(true);
       const newImageFiles: ImageFile[] = newFiles.map((file) => {
         const targetFile = isPrev
@@ -133,7 +128,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   };
 
   const handleRemoveImage = async (img) => {
-    console.log("<====img====>", img);
     if (
       img?.name === "preview.png" ||
       img?.fileName === "preview.png" ||
