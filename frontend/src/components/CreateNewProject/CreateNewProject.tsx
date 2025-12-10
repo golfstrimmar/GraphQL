@@ -24,7 +24,7 @@ type FigmaImageInput = {
   type: "RASTER";
   fileKey: string;
 };
-const CreateNewProject = () => {
+const CreateNewProject = ({ ScssMixVar }) => {
   const { htmlJson, user, setModalMessage } = useStateContext();
   const [newProjectName, setNewProjectName] = useState<string>("");
   const variables = useMemo(() => ({ userId: user?.id }), [user?.id]);
@@ -36,6 +36,14 @@ const CreateNewProject = () => {
     }
   );
 
+  useEffect(() => {
+    if (ScssMixVar) {
+      console.log(
+        "<==💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥== ScssMixVar====>",
+        ScssMixVar
+      );
+    }
+  }, [ScssMixVar]);
   const createNewProject = async () => {
     if (!newProjectName || !user) {
       setModalMessage(" All fields are required.");

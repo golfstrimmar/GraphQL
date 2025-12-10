@@ -567,7 +567,6 @@ export default function FigmaPage() {
         <RenderColorVars colorsTo={colorsTo} />
         {renderTypography()}
         {renderScssMixins()}
-
         {renderTextStyles()}
         {user && (
           <Plaza

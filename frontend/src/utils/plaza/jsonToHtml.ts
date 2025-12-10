@@ -267,7 +267,6 @@ function scssBlocksToString(blocks, indent = "") {
     }
     out += " }\n";
   });
-  console.log("<====out;====>", out);
   const cleaned = out
     .replace(/background:\s*rgb\(220,\s*230,\s*220\);?/g, "")
     .replace(/background:\s*rgb\(226,\s*232,\s*240\);?/g, "")
@@ -301,7 +300,7 @@ function scssBlocksToString(blocks, indent = "") {
     .replace(/\s*}\s*/g, " } ") // и вокруг }
     .replace(/\s*;\s*/g, ";") // убрать пробелы вокруг ;
     .trim();
-  console.log("<====cleaned====>", cleaned);
+  // console.log("<==💥💥💥💥==cleaned==💥💥💥💥==>", cleaned);
   return cleaned;
 }
 

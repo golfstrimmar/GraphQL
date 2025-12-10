@@ -76,7 +76,7 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
   const [modalTextsOpen, setModalTextsOpen] = useState<boolean>(false);
   const [NNode, setNNode] = useState<ProjectNode>(null);
   const [openAdmin, setOpenAdmin] = useState<boolean>(false);
-
+  const [ScssMixVar, setScssMixVar] = useState<string>("");
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 
   const isPlaza = () => {
@@ -181,6 +181,12 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
   }, [data]);
 
   useEffect(() => {
+    if (uniqueMixins) {
+      console.log("<==== uniqueMixins====>", uniqueMixins);
+    }
+  }, [uniqueMixins]);
+
+  useEffect(() => {
     if (colorsTo) {
       console.log("<==== colorsTo====>", colorsTo);
     }
@@ -215,7 +221,7 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
   font-weight: ${el.fontWeight};
   font-size: ${el.fontSize};
   color: ${el.color};
-}`;
+};`;
     });
 
     return mixins.join("\n\n");
@@ -350,16 +356,31 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
     }
   };
 
+  useEffect(() => {
+    if (!uniqueMixins || !colorsTo) return;
+    const mixins = createMixins();
+    const googleFonts = buildGoogleFontsImport();
+    setScssMixVar(googleFonts + mixins + colorsTo.join("\n"));
+  }, [uniqueMixins, colorsTo]);
   const createSCSS = async () => {
     if (htmlJson) {
       const { scss } = jsonToHtml(htmlJson);
       const mixins = createMixins();
       const googleFonts = buildGoogleFontsImport();
-      setSCSS(googleFonts + [...colorsTo].join("\n") + mixins + scss);
+      const res = [
+        googleFonts !== undefined ? googleFonts : "",
+        colorsTo !== undefined && colorsTo.length > 0
+          ? colorsTo.join("\n")
+          : "",
+        mixins ?? "",
+        scss ?? "",
+      ]
+        .filter((part) => part)
+        .join("\n");
+      // console.log("<==💥💥💥💥==res==💥💥💥💥==>", res);
+      setSCSS(res);
       try {
-        await navigator.clipboard.writeText(
-          googleFonts + [...colorsTo].join("\n") + mixins + scss
-        );
+        await navigator.clipboard.writeText(res);
         // setModalMessage("Scss copied!");
       } catch {
         setModalMessage("Failed to copy");
@@ -632,7 +653,7 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
               setProject={setProject}
               node={NNode}
             />
-            <CreateNewProject />
+            <CreateNewProject ScssMixVar={ScssMixVar} />
           </div>
         )}
       </div>
