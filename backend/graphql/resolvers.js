@@ -183,9 +183,9 @@ export const resolvers = {
       return deletedUser.id;
     },
 
-    createProject: async (_, { ownerId, name, data }) => {
+    createProject: async (_, { ownerId, name, data, scssMixVar }) => {
       const project = await prisma.project.create({
-        data: { name, data, ownerId: Number(ownerId) },
+        data: { name, data, ownerId: Number(ownerId), scssMixVar },
       });
       const user = await prisma.user.findUnique({
         where: { id: Number(ownerId) },

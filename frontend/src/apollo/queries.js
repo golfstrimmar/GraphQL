@@ -41,6 +41,7 @@ export const FIND_PROJECT = gql`
       id
       name
       data
+      scssMixVar
     }
   }
 `;

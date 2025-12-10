@@ -107,7 +107,64 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
     awaitRefetchQueries: true,
   });
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
+  useEffect(() => {
+    const mixins = createMixins();
+    const googleFonts = buildGoogleFontsImport();
+    if (mixins === undefined || googleFonts === undefined) return;
 
+    const newContent =
+      googleFonts + "\n\n" + mixins + "\n\n" + colorsTo.join("\n");
+
+    setScssMixVar((prev) => {
+      // 1. Извлекаем имена миксинов из prev
+      const existingMixinNames = new Set();
+      if (prev) {
+        const matches = prev.match(/@mixin\s+(\S+)/g);
+        matches?.forEach((match) => {
+          const name = match.match(/@mixin\s+(\S+)/)?.[1];
+          if (name) existingMixinNames.add(name);
+        });
+      }
+
+      // 2. Разбиваем newContent на БЛОКИ миксинов
+      const blocks = newContent
+        .split(/(@mixin\s+\S+\s*{[\s\S]*?};)/)
+        .filter(Boolean);
+      const filteredBlocks: string[] = [];
+
+      blocks.forEach((block) => {
+        // Если это миксин-блок и имя уже есть — пропускаем ВЕСЬ блок
+        if (block.match(/@mixin\s+(\S+)/)) {
+          const name = block.match(/@mixin\s+(\S+)/)?.[1];
+          if (name && existingMixinNames.has(name)) return;
+        }
+
+        // Цвета тоже проверяем
+        if (block.match(/\$color-\d+:/)) {
+          const colorNum = block.match(/\$color-(\d+)/)?.[1];
+          if (colorNum && prev?.includes(`$color-${colorNum}:`)) return;
+        }
+
+        filteredBlocks.push(block);
+      });
+
+      // 3. Собираем результат БЕЗ пустых строк
+      const result = [prev, filteredBlocks.join("\n\n")]
+        .filter(Boolean)
+        .join("\n\n");
+
+      return result
+        .split("\n")
+        .filter((line) => line.trim()) // убираем пустые строки
+        .join("\n");
+    });
+  }, [uniqueMixins, colorsTo]);
+
+  useEffect(() => {
+    if (ScssMixVar) {
+      console.log("<==💥💥💥💥💥💥💥💥💥💥💥== ScssMixVar====>", ScssMixVar);
+    }
+  }, [ScssMixVar]);
   useEffect(() => {
     if (!dataProject) return;
 
@@ -115,6 +172,9 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
     console.log("<====🔥🔥🔥🔥 proj from bd 🔥🔥🔥🔥====>", proj);
     setProjectId(proj.id);
     setProjectName(proj.name);
+    setScssMixVar((prev) => {
+      return prev + proj.scssMixVar;
+    });
     updateHtmlJson((prev) => {
       if (!prev) return prev;
       const newHtmlJson = { ...prev };
@@ -180,17 +240,17 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
     }
   }, [data]);
 
-  useEffect(() => {
-    if (uniqueMixins) {
-      console.log("<==== uniqueMixins====>", uniqueMixins);
-    }
-  }, [uniqueMixins]);
+  // useEffect(() => {
+  //   if (uniqueMixins) {
+  //     console.log("<==== uniqueMixins====>", uniqueMixins);
+  //   }
+  // }, [uniqueMixins]);
 
-  useEffect(() => {
-    if (colorsTo) {
-      console.log("<==== colorsTo====>", colorsTo);
-    }
-  }, [colorsTo]);
+  // useEffect(() => {
+  //   if (colorsTo) {
+  //     console.log("<==== colorsTo====>", colorsTo);
+  //   }
+  // }, [colorsTo]);
   // 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹Project
   useLayoutEffect(() => {
     if (!project) return;
@@ -213,7 +273,7 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
       .join("&")}&display=swap');`;
   };
   const createMixins = () => {
-    if (!uniqueMixins || !uniqueMixins.length) return;
+    if (!uniqueMixins?.length) return undefined;
 
     const mixins = uniqueMixins.map((el) => {
       return `@mixin ${el.mixin} {
@@ -226,6 +286,7 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
 
     return mixins.join("\n\n");
   };
+
   const shiftNeighbors = () => {
     const container = document.getElementById("plaza-render-area");
     if (!container) return;
@@ -356,28 +417,23 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
     }
   };
 
-  useEffect(() => {
-    if (!uniqueMixins || !colorsTo) return;
-    const mixins = createMixins();
-    const googleFonts = buildGoogleFontsImport();
-    setScssMixVar(googleFonts + mixins + colorsTo.join("\n"));
-  }, [uniqueMixins, colorsTo]);
   const createSCSS = async () => {
     if (htmlJson) {
       const { scss } = jsonToHtml(htmlJson);
-      const mixins = createMixins();
-      const googleFonts = buildGoogleFontsImport();
+      // const mixins = createMixins();
+      // const googleFonts = buildGoogleFontsImport();
       const res = [
-        googleFonts !== undefined ? googleFonts : "",
-        colorsTo !== undefined && colorsTo.length > 0
-          ? colorsTo.join("\n")
-          : "",
-        mixins ?? "",
+        // googleFonts !== undefined ? googleFonts : "",
+        // colorsTo !== undefined && colorsTo.length > 0
+        //   ? colorsTo.join("\n")
+        //   : "",
+        // mixins ?? "",
         scss ?? "",
+        ScssMixVar !== undefined ? ScssMixVar : "",
       ]
         .filter((part) => part)
         .join("\n");
-      // console.log("<==💥💥💥💥==res==💥💥💥💥==>", res);
+      console.log("<==💥💥💥💥==res==💥💥💥💥==>", res);
       setSCSS(res);
       try {
         await navigator.clipboard.writeText(res);
@@ -574,7 +630,7 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
                 <p className="text-slate-600 text-lg mb-6">No projects yet</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax( 200px, 1fr))] gap-2 mb-6">
                 {projects?.map((p) => (
                   <div
                     key={p.id}

@@ -36,14 +36,6 @@ const CreateNewProject = ({ ScssMixVar }) => {
     }
   );
 
-  useEffect(() => {
-    if (ScssMixVar) {
-      console.log(
-        "<==💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥== ScssMixVar====>",
-        ScssMixVar
-      );
-    }
-  }, [ScssMixVar]);
   const createNewProject = async () => {
     if (!newProjectName || !user) {
       setModalMessage(" All fields are required.");
@@ -60,6 +52,7 @@ const CreateNewProject = ({ ScssMixVar }) => {
           ownerId: user.id,
           name: newProjectName,
           data: htmlJson,
+          scssMixVar: ScssMixVar,
         },
       });
 

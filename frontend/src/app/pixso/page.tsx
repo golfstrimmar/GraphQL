@@ -403,7 +403,7 @@ export default function FigmaPage() {
   font-weight: ${el.fontWeight};
   font-size: ${el.fontSize};
   color: ${colorVariable};
-}`;
+};`;
 
             return (
               <div

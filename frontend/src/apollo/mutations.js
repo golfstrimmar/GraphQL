@@ -79,8 +79,18 @@ export const REMOVE_USER = gql`
 
 // Создание проекта
 export const CREATE_PROJECT = gql`
-  mutation CreateProject($ownerId: ID!, $name: String!, $data: JSON!) {
-    createProject(ownerId: $ownerId, name: $name, data: $data) {
+  mutation CreateProject(
+    $ownerId: ID!
+    $name: String!
+    $data: JSON!
+    $scssMixVar: String
+  ) {
+    createProject(
+      ownerId: $ownerId
+      name: $name
+      data: $data
+      scssMixVar: $scssMixVar
+    ) {
       id
       name
     }
@@ -182,7 +192,6 @@ export const UPDATE_FIGMA_PROJECT = gql`
     }
   }
 `;
-
 
 // Удалить Figma-проект
 export const REMOVE_FIGMA_PROJECT = gql`

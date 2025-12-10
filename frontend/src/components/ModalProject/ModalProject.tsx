@@ -32,6 +32,7 @@ const ModalProject: React.FC<ModalMessageProps> = ({
           ownerId: user.id,
           name: projectName,
           data: JSON.stringify(newJson),
+          scssMixVar: "",
         },
       });
 
