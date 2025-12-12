@@ -69,11 +69,12 @@ export default function FigmaPage() {
   const [allProjects, setAllProjects] = useState<Project[]>([]);
   const [projectId, setProjectId] = useState<string>("");
   const [currentProject, setcurrentProject] = useState<FigmaProject | null>(
-    null
+    null,
   );
   const [modalOpen, setModalOpen] = useState(false);
   const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
   const [preview, setPreview] = useState<ImageFile>(null);
+  const [ScssMixVar, setScssMixVar] = useState<string>("");
   // Query
   const {
     data: figmaProjectsByUser,
@@ -93,7 +94,7 @@ export default function FigmaPage() {
 
   //Mutation
   const [uploadFigmaJsonProject, { loading }] = useMutation(
-    UPLOAD_FIGMA_JSON_PROJECT
+    UPLOAD_FIGMA_JSON_PROJECT,
   );
   const [removeFigmaProject, { loading: removeLoading }] =
     useMutation(REMOVE_FIGMA_PROJECT);
@@ -168,7 +169,7 @@ export default function FigmaPage() {
               ...prev,
               children: [
                 ...(prev.children || []).filter(
-                  (ch) => ch.tag !== "div" || ch.text !== "img-container"
+                  (ch) => ch.tag !== "div" || ch.text !== "img-container",
                 ),
                 ...imageNodes,
               ],
@@ -258,7 +259,7 @@ export default function FigmaPage() {
         acc[key] = el;
       }
       return acc;
-    }, {})
+    }, {}),
   );
   const toFontFamily = (fam: string): string => `"${fam}", sans-serif`;
   //
@@ -541,7 +542,25 @@ export default function FigmaPage() {
                 setcurrentProject={setcurrentProject}
                 figmaProjectRefetch={figmaProjectRefetch}
                 removeFigmaProject={removeFigmaProject}
+                setScssMixVar={setScssMixVar}
               />
+              {projectId && (
+                <button
+                  onClick={() => {
+                    setPreview(null);
+                    setFile(null);
+                    setProjectId("");
+                    setcurrentProject(null);
+                    setColors([]);
+                    setFonts([]);
+                    setTexts([]);
+                    setScssMixVar("");
+                    setHtmlJson(null);
+                  }}
+                >
+                  Quit active Project
+                </button>
+              )}
               <Button
                 onClick={() => {
                   setFile(null);
@@ -564,7 +583,7 @@ export default function FigmaPage() {
           />
         )}
         {renderColorPalette()}
-        <RenderColorVars colorsTo={colorsTo} />
+        {projectId && <RenderColorVars colorsTo={colorsTo} />}
         {renderTypography()}
         {renderScssMixins()}
         {renderTextStyles()}
@@ -573,6 +592,8 @@ export default function FigmaPage() {
             preview={preview}
             uniqueMixins={uniqueMixins}
             colorsTo={colorsTo}
+            ScssMixVar={ScssMixVar}
+            setScssMixVar={setScssMixVar}
           />
         )}
         <AnimatePresence>

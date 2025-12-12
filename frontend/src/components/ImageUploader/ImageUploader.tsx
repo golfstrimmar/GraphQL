@@ -104,7 +104,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
 
   const handleFileChange = (
     event: ChangeEvent<HTMLInputElement>,
-    isPrev: boolean
+    isPrev: boolean,
   ) => {
     if (event.target.files) {
       const newFiles = Array.from(event.target.files);
@@ -141,8 +141,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
           (f) =>
             f?.fileName !== "preview.png" &&
             f?.name !== "preview.png" &&
-            f?.file?.name !== "preview.png"
-        )
+            f?.file?.name !== "preview.png",
+        ),
       );
     }
     if (currentProject && img.nodeId) {
@@ -162,10 +162,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     if (!imageFiles.length) return;
 
     const imageFilesToUpload = imageFiles.filter(
-      (img) => img.file !== undefined
+      (img) => img.file !== undefined,
     );
     const uploadPromises = imageFilesToUpload.map((imgFile) =>
-      uploadImage({ variables: { file: imgFile.file } })
+      uploadImage({ variables: { file: imgFile.file } }),
     );
     const results = await Promise.all(uploadPromises);
     const urls = results.map((res) => res.data?.uploadImage?.url);

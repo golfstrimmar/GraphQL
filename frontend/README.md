@@ -4,7 +4,7 @@ StateProvider.tsx --> orderIndexes --> jsonToHtml --> formatHtml --> monaco
 
 --> плагины фигмы для снятия данных
 Figma to JSON Exporter
-Bulk image
+Bulk image exporter
 
 --> Image
 import Image from "next/image";

@@ -33,6 +33,7 @@ const FigmaProjectsList: React.FC<FigmaProjectsListProps> = ({
   figmaProjectRefetch,
   removeFigmaProject,
   setAllProjects,
+  setScssMixVar,
 }) => {
   const fetchProjectData = (id) => {
     setColors([]);
@@ -49,6 +50,7 @@ const FigmaProjectsList: React.FC<FigmaProjectsListProps> = ({
     setColors([]);
     setFonts([]);
     setTexts([]);
+    setScssMixVar("");
   };
   return (
     <div className="flex flex-col gap-2 mb-2">

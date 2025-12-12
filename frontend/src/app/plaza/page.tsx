@@ -45,7 +45,13 @@ export interface ProjectNode {
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 
-export default function Plaza({ preview, uniqueMixins, colorsTo }) {
+export default function Plaza({
+  preview,
+  uniqueMixins,
+  colorsTo,
+  ScssMixVar,
+  setScssMixVar,
+}) {
   const {
     htmlJson,
     user,
@@ -76,7 +82,7 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
   const [modalTextsOpen, setModalTextsOpen] = useState<boolean>(false);
   const [NNode, setNNode] = useState<ProjectNode>(null);
   const [openAdmin, setOpenAdmin] = useState<boolean>(false);
-  const [ScssMixVar, setScssMixVar] = useState<string>("");
+
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 
   const isPlaza = () => {
@@ -106,65 +112,174 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
     refetchQueries: [{ query: GET_ALL_PROJECTS_BY_USER, variables }],
     awaitRefetchQueries: true,
   });
-  // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
+
+  // ⇨⇨⇨⇨⇨⇨
+  // ⇨⇨⇨⇨⇨⇨
+  useEffect(() => {
+    console.log("<==💥💥💥💥ScssMixVar💥💥💥💥💥 ====>", ScssMixVar);
+  }, [ScssMixVar]);
+  // ⇨⇨⇨⇨⇨⇨ uniqueMixins, colorsTo придетают пропсами если есть фигма проект
   useEffect(() => {
     const mixins = createMixins();
     const googleFonts = buildGoogleFontsImport();
     if (mixins === undefined || googleFonts === undefined) return;
 
-    const newContent =
-      googleFonts + "\n\n" + mixins + "\n\n" + colorsTo.join("\n");
-
     setScssMixVar((prev) => {
-      // 1. Извлекаем имена миксинов из prev
-      const existingMixinNames = new Set();
-      if (prev) {
-        const matches = prev.match(/@mixin\s+(\S+)/g);
-        matches?.forEach((match) => {
-          const name = match.match(/@mixin\s+(\S+)/)?.[1];
-          if (name) existingMixinNames.add(name);
+      const prevText = prev ?? "";
+
+      // ---------- 1. МИКСИНЫ ИЗ prev ----------
+      const mixinRegex = /@mixin\s+\S+\s*{[\s\S]*?};/g;
+      const existingMixinBlocks = prevText.match(mixinRegex) || [];
+      const existingMixinNames = new Set<string>();
+      existingMixinBlocks.forEach((block) => {
+        const name = block.match(/@mixin\s+(\S+)/)?.[1];
+        if (name) existingMixinNames.add(name);
+      });
+      const prevWithoutMixins = prevText.replace(mixinRegex, "");
+
+      // ---------- 2. ЦВЕТА ИЗ prev ----------
+      const prevColorLines: string[] = [];
+      let maxColorIndex = 0;
+      const existingColorValues = new Set<string>();
+
+      prevWithoutMixins
+        .split("\n")
+        .map((l) => l.trimEnd())
+        .filter((l) => l.trim())
+        .forEach((line) => {
+          const m = line.match(/^\s*(\$color-(\d+)):\s*(.+);?\s*$/);
+          if (m) {
+            const idx = Number(m[2]);
+            let value = m[3].trim(); // rgb(...); или rgb(...);;;
+            value = value.replace(/;+\s*$/, ""); // убираем хвост ;;;
+            if (!Number.isNaN(idx)) {
+              maxColorIndex = Math.max(maxColorIndex, idx);
+            }
+            prevColorLines.push(`${m[1]}: ${value};`);
+            existingColorValues.add(value);
+          }
+        });
+
+      // ---------- 3. ИМПОРТЫ и прочий текст из prev ----------
+      const importLines: string[] = [];
+      const otherLines: string[] = [];
+
+      prevWithoutMixins
+        .split("\n")
+        .map((l) => l.trimEnd())
+        .filter((l) => l.trim())
+        .forEach((line) => {
+          if (line.includes("https://fonts.googleapis.com")) {
+            if (!importLines.includes(line)) importLines.push(line);
+          } else if (!line.match(/\$color-\d+:/)) {
+            otherLines.push(line);
+          }
+        });
+
+      // ---------- 4. НОВЫЕ МИКСИНЫ из createMixins ----------
+      const newMixinsBlocks: string[] = [];
+      mixins
+        .split(/(@mixin\s+\S+\s*{[\s\S]*?};)/)
+        .filter(Boolean)
+        .forEach((block) => {
+          const name = block.match(/@mixin\s+(\S+)/)?.[1];
+          if (name && !existingMixinNames.has(name)) {
+            existingMixinNames.add(name);
+            newMixinsBlocks.push(block.trim());
+          }
+        });
+
+      // ---------- 5. НОВЫЕ ЦВЕТА с продолжением нумерации (по УНИКАЛЬНЫМ значениям) ----------
+      const newColorLines: string[] = [];
+      let colorIndex = maxColorIndex;
+
+      colorsTo.forEach((colorValue) => {
+        const valueMatch = colorValue.match(/:\s*(.+);?$/);
+        let value = valueMatch ? valueMatch[1].trim() : colorValue.trim();
+        value = value.replace(/;+\s*$/, ""); // убираем ;; если прилетели
+
+        if (existingColorValues.has(value)) {
+          // такое значение уже есть → переменную не создаём
+          return;
+        }
+
+        existingColorValues.add(value);
+        colorIndex += 1;
+        newColorLines.push(`$color-${colorIndex}: ${value};`);
+      });
+
+      // ---------- 6. ИМПОРТЫ ИЗ googleFonts ----------
+      if (googleFonts) {
+        googleFonts
+          .split("\n")
+          .map((l) => l.trim())
+          .filter((l) => l.startsWith("@import"))
+          .forEach((line) => {
+            if (!importLines.includes(line)) {
+              importLines.push(line);
+            }
+          });
+      }
+
+      // ---------- 7. Сборка: импорты → переменные → миксины → остальное ----------
+      const colorLines = [...prevColorLines, ...newColorLines];
+      const mixinBlocksAll = [
+        ...existingMixinBlocks.map((b) => b.trim()),
+        ...newMixinsBlocks,
+      ];
+
+      const parts: string[] = [];
+
+      if (importLines.length) {
+        parts.push(importLines.join("\n"));
+      }
+
+      if (colorLines.length) {
+        parts.push(colorLines.join("\n"));
+      }
+
+      if (mixinBlocksAll.length) {
+        parts.push(mixinBlocksAll.join("\n\n"));
+      }
+
+      if (otherLines.length) {
+        parts.push(otherLines.join("\n"));
+      }
+
+      let result = parts
+        .join("\n\n")
+        .split("\n")
+        .map((l) => l.trimEnd())
+        .filter((l) => l.trim())
+        .join("\n");
+
+      // ---------- 8. ЗАМЕНА цветов в миксинах на переменные ----------
+      const colorMap = new Map<string, string>();
+      colorLines.forEach((line) => {
+        const m = line.match(/(\$color-\d+):\s*(.+);/);
+        if (m) {
+          const name = m[1]; // $color-1
+          const value = m[2].trim(); // rgb(...), #fff и т.п.
+          colorMap.set(value, name);
+        }
+      });
+
+      if (colorMap.size > 0) {
+        result = result.replace(mixinRegex, (block) => {
+          let newBlock = block;
+          colorMap.forEach((varName, value) => {
+            const valueEscaped = value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            const re = new RegExp(`(color:\\s*)${valueEscaped}(\\s*;)`, "g");
+            newBlock = newBlock.replace(re, `$1${varName}$2`);
+          });
+          return newBlock;
         });
       }
 
-      // 2. Разбиваем newContent на БЛОКИ миксинов
-      const blocks = newContent
-        .split(/(@mixin\s+\S+\s*{[\s\S]*?};)/)
-        .filter(Boolean);
-      const filteredBlocks: string[] = [];
-
-      blocks.forEach((block) => {
-        // Если это миксин-блок и имя уже есть — пропускаем ВЕСЬ блок
-        if (block.match(/@mixin\s+(\S+)/)) {
-          const name = block.match(/@mixin\s+(\S+)/)?.[1];
-          if (name && existingMixinNames.has(name)) return;
-        }
-
-        // Цвета тоже проверяем
-        if (block.match(/\$color-\d+:/)) {
-          const colorNum = block.match(/\$color-(\d+)/)?.[1];
-          if (colorNum && prev?.includes(`$color-${colorNum}:`)) return;
-        }
-
-        filteredBlocks.push(block);
-      });
-
-      // 3. Собираем результат БЕЗ пустых строк
-      const result = [prev, filteredBlocks.join("\n\n")]
-        .filter(Boolean)
-        .join("\n\n");
-
-      return result
-        .split("\n")
-        .filter((line) => line.trim()) // убираем пустые строки
-        .join("\n");
+      return result;
     });
   }, [uniqueMixins, colorsTo]);
 
-  useEffect(() => {
-    if (ScssMixVar) {
-      console.log("<==💥💥💥💥💥💥💥💥💥💥💥== ScssMixVar====>", ScssMixVar);
-    }
-  }, [ScssMixVar]);
   useEffect(() => {
     if (!dataProject) return;
 
@@ -173,7 +288,7 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
     setProjectId(proj.id);
     setProjectName(proj.name);
     setScssMixVar((prev) => {
-      return prev + proj.scssMixVar;
+      return proj.scssMixVar;
     });
     updateHtmlJson((prev) => {
       if (!prev) return prev;
@@ -183,13 +298,14 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
       return newHtmlJson;
     });
   }, [dataProject]);
+
   useEffect(() => {
     if (!htmlJson) return;
     isSyncingRef.current = true;
 
     const mergeWithExistingKeys = (
       node: ProjectNode | string,
-      existing?: ProjectNode | string
+      existing?: ProjectNode | string,
     ): ProjectNode | string => {
       if (typeof node === "string") return node;
 
@@ -205,8 +321,8 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
                 child,
                 Array.isArray(existing?.children)
                   ? existing.children[i]
-                  : undefined
-              )
+                  : undefined,
+              ),
             )
           : node.children,
       };
@@ -215,11 +331,12 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
     setProject((prevProject) =>
       Array.isArray(htmlJson)
         ? htmlJson.map((node, i) =>
-            mergeWithExistingKeys(node, prevProject?.[i])
+            mergeWithExistingKeys(node, prevProject?.[i]),
           )
-        : mergeWithExistingKeys(htmlJson, prevProject)
+        : mergeWithExistingKeys(htmlJson, prevProject),
     );
   }, [htmlJson]);
+
   useEffect(() => {
     if (isSyncingRef.current) {
       isSyncingRef.current = false;
@@ -228,12 +345,15 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
     const newProject = removeKeys(project);
     updateHtmlJson(newProject);
   }, [project]);
+
   useEffect(() => {
     resetAll();
   }, []);
+
   useEffect(() => {
     if (!user) resetAll();
   }, [user]);
+
   useEffect(() => {
     if (data?.getAllProjectsByUser) {
       setProjects(data?.getAllProjectsByUser);
@@ -260,15 +380,23 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
     }
   }, [project, editMode, openInfoKey]);
   // 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹
+  const resetAll = () => {
+    setProject(null);
+    setProjectId("");
+    setProjectName("");
+    setOpenInfoKey(null);
+    updateHtmlJson([]);
+    setScssMixVar("");
+  };
   const buildGoogleFontsImport = () => {
     const uniqueFonts = Array.from(
-      new Set(uniqueMixins.map((f) => f.fontFamily))
+      new Set(uniqueMixins.map((f) => f.fontFamily)),
     );
     if (uniqueFonts.length === 0) return "";
     return `@import url('https://fonts.googleapis.com/css2?${uniqueFonts
       .map(
         (name) =>
-          `family=${encodeURIComponent(name)}:ital,wght@0,100..900;1,100..900`
+          `family=${encodeURIComponent(name)}:ital,wght@0,100..900;1,100..900`,
       )
       .join("&")}&display=swap');`;
   };
@@ -325,13 +453,6 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
         next.style.height = `${tag.offsetHeight}px`;
       }
     });
-  };
-  const resetAll = () => {
-    setProject(null);
-    setProjectId(undefined);
-    setProjectName("");
-    setOpenInfoKey(null);
-    updateHtmlJson([]);
   };
   const removeKeys = (node: ProjectNode | string): any => {
     if (!node) return node;
@@ -401,7 +522,7 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
         project,
         resetAll,
       }),
-    [editMode, nodeToDrag, nodeToDragEl, openInfoKey]
+    [editMode, nodeToDrag, nodeToDragEl, openInfoKey],
   );
   const createHtml = async () => {
     if (htmlJson) {
@@ -433,7 +554,7 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
       ]
         .filter((part) => part)
         .join("\n");
-      console.log("<==💥💥💥💥==res==💥💥💥💥==>", res);
+      console.log("<===✅✅=res=✅✅===>", res);
       setSCSS(res);
       try {
         await navigator.clipboard.writeText(res);
@@ -456,6 +577,9 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
     }
   };
 
+  //
+
+  //
   //
   return (
     <section
@@ -579,7 +703,7 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
           <motion.div
             id="plaza-container"
             className={`grid transition-all duration-300  gap-2  ${editMode ? "bg-slate-400 rounded" : ""}
-            
+
            `}
           >
             <AnimatePresence mode="wait">
@@ -634,9 +758,9 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
                 {projects?.map((p) => (
                   <div
                     key={p.id}
-                    className={` group relative p-2 ${
+                    className={`gap-2 group relative p-2 ${
                       projectId === p.id
-                        ? "border border-[var(--teal)] flex items-center"
+                        ? "border border-[var(--teal)] flex flex-col"
                         : "btn-teal"
                     }`}
                   >
@@ -669,10 +793,10 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
                         </h5>
                       </div>
                     </button>
-                    {projectId && projectId !== "" && (
+                    {projectId && projectId !== "" && projectId === p.id && (
                       <div className="flex items-center gap-3">
                         <button
-                          className="btn-teal"
+                          className="btn-teal !py-0"
                           type="button"
                           onClick={() => updateTempProject()}
                         >
@@ -700,6 +824,26 @@ export default function Plaza({ preview, uniqueMixins, colorsTo }) {
                     )}
                   </div>
                 ))}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpenAdmin(false);
+                    setProject(null);
+                    setScssMixVar("");
+                    setProjectId("");
+                    setOpenInfoKey(null);
+                    setProjectName("");
+                    setpId(null);
+                    setEditMode(false);
+                    setNodeToDragEl(null);
+                    setNodeToDrag(null);
+                    setModalTextsOpen(false);
+                    setNNode(null);
+                    setOpenAdmin(false);
+                  }}
+                >
+                  Quit active Project
+                </button>
               </div>
             )}
             <ModalTexts
