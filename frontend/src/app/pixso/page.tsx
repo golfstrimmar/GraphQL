@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useMemo } from "react";
-import { useMutation, useQuery } from "@apollo/client";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import {
   UPLOAD_FIGMA_JSON_PROJECT,
   REMOVE_FIGMA_PROJECT,
@@ -75,6 +75,7 @@ export default function FigmaPage() {
   const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
   const [preview, setPreview] = useState<ImageFile>(null);
   const [ScssMixVar, setScssMixVar] = useState<string>("");
+
   // Query
   const {
     data: figmaProjectsByUser,
@@ -100,7 +101,6 @@ export default function FigmaPage() {
     useMutation(REMOVE_FIGMA_PROJECT);
 
   //////--------------------
-
   useEffect(() => {
     if (figmaProjectsByUser?.figmaProjectsByUser) {
       setAllProjects(figmaProjectsByUser.figmaProjectsByUser);
@@ -109,6 +109,7 @@ export default function FigmaPage() {
 
   useEffect(() => {
     const data = figmaProjectData?.getFigmaProjectData;
+
     if (!data) return;
 
     console.log("<==🔥🔥🔥🔥==figmaProjectData ==🔥🔥🔥==>", data);
@@ -164,7 +165,7 @@ export default function FigmaPage() {
 
     setHtmlJson((prev) => {
       const base: HtmlNode =
-        prev && prev.tag // если уже есть базовый Figma‑json
+        prev && prev.tag
           ? {
               ...prev,
               children: [
@@ -245,7 +246,6 @@ export default function FigmaPage() {
     reader.readAsText(file);
   };
   //////////////////
-
   const colorsTo = useMemo(() => {
     if (colors.length > 0) {
       return colors.map((color, index) => `$color-${index + 1}: ${color};`);
@@ -398,13 +398,12 @@ export default function FigmaPage() {
         <div className="mb-4  grid grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))] gap-2">
           {uniqueMixins.map((el) => {
             const colorVariable = getColorVarByValue(el.color);
-
             const scssMixin = `@mixin ${el.mixin} {
-  font-family: "${el.fontFamily}", sans-serif;
-  font-weight: ${el.fontWeight};
-  font-size: ${el.fontSize};
-  color: ${colorVariable};
-};`;
+            font-family: "${el.fontFamily}", sans-serif;
+            font-weight: ${el.fontWeight};
+            font-size: ${el.fontSize};
+            color: ${colorVariable};
+            };`;
 
             return (
               <div
@@ -489,7 +488,7 @@ export default function FigmaPage() {
     );
   };
 
-  //
+  //--------
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
       <div className="container mx-auto px-4 py-12 max-w-7xl pt-[100px]">

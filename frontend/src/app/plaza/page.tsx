@@ -4,7 +4,6 @@ import React, {
   useEffect,
   useMemo,
   useLayoutEffect,
-  useCallback,
   useRef,
 } from "react";
 import { usePathname } from "next/navigation";

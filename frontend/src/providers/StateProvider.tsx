@@ -17,7 +17,7 @@ import {
 
 const ModalMessage = dynamic(
   () => import("@/components/ModalMessage/ModalMessage"),
-  { ssr: false }
+  { ssr: false },
 );
 
 type HtmlNode = {
@@ -73,7 +73,7 @@ export function StateProvider({ children }: { children: ReactNode }) {
   const [texts, setTexts] = useState<string[]>([]);
   const { data: usersData, subscribeToMore: subscribeToUsers } = useQuery(
     GET_USERS,
-    { fetchPolicy: "cache-and-network" }
+    { fetchPolicy: "cache-and-network" },
   );
 
   const { data: jsonData } = useQuery(GET_JSON_DOCUMENT, {
@@ -86,7 +86,7 @@ export function StateProvider({ children }: { children: ReactNode }) {
   const [SCSS, setSCSS] = useState<string>("");
   // ===================================
   const updateHtmlJson = (
-    nextHtmlJson: HtmlNode[] | ((prev: HtmlNode[]) => HtmlNode[])
+    nextHtmlJson: HtmlNode[] | ((prev: HtmlNode[]) => HtmlNode[]),
   ) => {
     setUndoStack((prev) => [...prev, JSON.parse(JSON.stringify(htmlJson))]);
     setRedoStack([]);
@@ -136,7 +136,7 @@ export function StateProvider({ children }: { children: ReactNode }) {
         if (!subscriptionData.data) return prev;
         const newUser = subscriptionData.data.userCreated;
         setUsers((prevUsers) =>
-          prevUsers ? [...prevUsers, newUser] : [newUser]
+          prevUsers ? [...prevUsers, newUser] : [newUser],
         );
         return { users: [...prev.users, newUser] };
       },
@@ -149,12 +149,12 @@ export function StateProvider({ children }: { children: ReactNode }) {
         const updatedUser = subscriptionData.data.userUpdated;
         setUsers((prevUsers) =>
           prevUsers.map((user) =>
-            user.id === updatedUser.id ? updatedUser : user
-          )
+            user.id === updatedUser.id ? updatedUser : user,
+          ),
         );
         return {
           users: prev.users.map((user) =>
-            user.id === updatedUser.id ? updatedUser : user
+            user.id === updatedUser.id ? updatedUser : user,
           ),
         };
       },
@@ -168,7 +168,7 @@ export function StateProvider({ children }: { children: ReactNode }) {
         setUsers((prevUsers) =>
           prevUsers
             ? prevUsers.filter((user) => user.id !== deletedUserId)
-            : null
+            : null,
         );
         return {
           users: prev.users

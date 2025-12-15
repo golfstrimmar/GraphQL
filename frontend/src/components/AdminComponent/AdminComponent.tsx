@@ -59,6 +59,7 @@ const TagsNamen4 = [
 const TagsNamen5 = [
   { tag: "hero", color: "powderblue" }, // teal
   { tag: "cards section", color: "powderblue" }, // teal
+  { tag: "sec", color: "powderblue" }, // teal
 ];
 // =====================================
 
