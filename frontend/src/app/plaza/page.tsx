@@ -230,10 +230,6 @@ export default function Plaza({
 
       const parts: string[] = [];
 
-      if (importLines.length) {
-        parts.push(importLines.join("\n"));
-      }
-
       if (colorLines.length) {
         parts.push(colorLines.join("\n"));
       }
@@ -246,13 +242,16 @@ export default function Plaza({
         parts.push(otherLines.join("\n"));
       }
 
+      if (importLines.length) {
+        parts.push(importLines.join("\n"));
+      }
+
       let result = parts
         .join("\n\n")
         .split("\n")
         .map((l) => l.trimEnd())
         .filter((l) => l.trim())
         .join("\n");
-
       // ---------- 8. ЗАМЕНА цветов в миксинах на переменные ----------
       const colorMap = new Map<string, string>();
       colorLines.forEach((line) => {
@@ -541,17 +540,7 @@ export default function Plaza({
   const createSCSS = async () => {
     if (htmlJson) {
       const { scss } = jsonToHtml(htmlJson);
-      // const mixins = createMixins();
-      // const googleFonts = buildGoogleFontsImport();
-      const res = [
-        // googleFonts !== undefined ? googleFonts : "",
-        // colorsTo !== undefined && colorsTo.length > 0
-        //   ? colorsTo.join("\n")
-        //   : "",
-        // mixins ?? "",
-        scss ?? "",
-        ScssMixVar !== undefined ? ScssMixVar : "",
-      ]
+      const res = [ScssMixVar !== undefined ? ScssMixVar : "", scss ?? ""]
         .filter((part) => part)
         .join("\n");
       console.log("<===✅✅=res=✅✅===>", res);

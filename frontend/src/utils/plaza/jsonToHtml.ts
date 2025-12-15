@@ -298,7 +298,7 @@ function scssBlocksToString(blocks, indent = "") {
     .replace(/\s*}\s*/g, " } ") // и вокруг }
     .replace(/\s*;\s*/g, ";") // убрать пробелы вокруг ;
     .trim();
-  // console.log("<==💥💥💥💥==cleaned==💥💥💥💥==>", cleaned);
+  console.log("<==💥💥💥💥==cleaned==💥💥💥💥==>", cleaned);
   return cleaned;
 }
 
