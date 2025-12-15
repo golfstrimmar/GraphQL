@@ -53,6 +53,7 @@ export default function Plaza({
 }) {
   const {
     htmlJson,
+    setHtmlJson,
     user,
     setModalMessage,
     updateHtmlJson,
@@ -575,8 +576,98 @@ export default function Plaza({
       }
     }
   };
+  const SERVICE_TEXTS = [
+    "section",
+    "container",
+    "flex row",
+    "flex col",
+    "link",
+    "span",
+    "div",
+    "div__wrap",
+    "a",
+    "button",
+    "ul",
+    "flex",
+    "ul flex row",
+    "ul flex col",
 
-  //
+    "li",
+    "nav",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "p",
+    "legend",
+    "article",
+    "aside",
+    "fieldset",
+    "form",
+    "header",
+    "ol",
+    "option",
+    "optgroup",
+    "select",
+    "imgs",
+    "img",
+    "img-container",
+    "img container",
+    "hero__wrap",
+    "hero__title",
+    "hero__content",
+    "hero img",
+    "hero__img",
+    "hero__info",
+    "hero__items",
+    "slotes",
+    "slotes__wrap",
+    "slotes__title",
+    "slotes__title title",
+    "slotes__cards",
+    "slotes__cards cards",
+    "cards__card",
+    "cards__card card",
+    "card__title",
+    "card__button",
+  ];
+  function cleanServiceTexts() {
+    const serviceSet = new Set(
+      SERVICE_TEXTS.map((t) => t.trim().toLowerCase()),
+    );
+
+    function walk(node) {
+      if (!node || typeof node !== "object") return node;
+
+      let nextText = node.text;
+
+      if (typeof node.text === "string") {
+        const normalizedText = node.text.trim().toLowerCase();
+        if (serviceSet.has(normalizedText)) {
+          nextText = "";
+        }
+      }
+
+      let nextChildren = node.children;
+      if (Array.isArray(node.children)) {
+        nextChildren = node.children.map(walk);
+      }
+
+      return {
+        ...node,
+        text: nextText,
+        children: nextChildren,
+      };
+    }
+
+    if (Array.isArray(htmlJson)) {
+      setHtmlJson(htmlJson.map(walk));
+    } else {
+      setHtmlJson(walk(htmlJson));
+    }
+  }
 
   //
   //
@@ -670,6 +761,14 @@ export default function Plaza({
                   <СhevronRight width={12} height={14} />
                 </button>
               </div>
+              <button
+                className="btn-teal  w-full"
+                type="button"
+                onClick={() => cleanServiceTexts()}
+              >
+                {" "}
+                Clear services texts{" "}
+              </button>
               <div className="h-px w-full bg-slate-300"></div>
               <button
                 className="btn-teal  w-full"

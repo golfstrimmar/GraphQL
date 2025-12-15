@@ -200,7 +200,7 @@ function renderNodesAndCollectScss(nodes, parentClasses: string[] = []) {
     if (children.length > 0) {
       childScssBlocks = renderNodesAndCollectScss(
         children,
-        currentClasses
+        currentClasses,
       ).scssBlocks;
     }
 
@@ -237,8 +237,6 @@ function renderNodesAndCollectScss(nodes, parentClasses: string[] = []) {
 
       sorted.forEach((text) => {
         const pattern = text.replace(/\s+/g, "\\s+");
-
-        // только текстовый узел между > и <, теги не трогаем
         const re = new RegExp(`>(\\s*)${pattern}(\\s*)<`, "g");
         out = out.replace(re, ">$1$2<"); // оставляем только пробелы (если были)
       });
