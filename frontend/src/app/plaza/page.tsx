@@ -6,6 +6,7 @@ import React, {
   useLayoutEffect,
   useRef,
 } from "react";
+import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import { useStateContext } from "@/providers/StateProvider";
 import { useMutation, useQuery, useLazyQuery } from "@apollo/client";
@@ -69,6 +70,7 @@ export default function Plaza({
     setSCSS,
   } = useStateContext();
   const pathname = usePathname();
+  const router = useRouter();
   const [projects, setProjects] = useState<PProject[]>([]);
   const [project, setProject] = useState<ProjectNode | null>(null);
   const [projectId, setProjectId] = useState<string>("");
@@ -657,14 +659,18 @@ export default function Plaza({
       setHtmlJson(walk(htmlJson));
     }
   }
-
-  //
-  //
+  //-------------
+  const moveToSandbox = () => {
+    createHtml();
+    createSCSS();
+    router.push("/sandbox");
+  };
+  //--------------
   return (
     <section
       className={`${
         isPlaza() ? "pt-[100px]" : "pt-12"
-      } min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-slate-50 pb-[200px]`}
+      } min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-slate-50 pb-[250px]`}
     >
       <div className={`${isPlaza() ? "container" : ""}`}>
         <div className="text-center mb-12">
@@ -677,16 +683,24 @@ export default function Plaza({
         </div>
 
         {/* // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ Canvas */}
-        <div className="bg-navy rounded-2xl shadow-xl p-2 mb-8 border border-slate-200 text-[#000]">
+        <div className="bg-navy rounded-2xl shadow-xl p-2 mb-8 border border-slate-200 ">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
-              <span className="text-xl text-white">📐</span>
+            <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
+              <span className=" text-white">📐</span>
             </div>
-            <h3 className="text-xl font-bold text-slate-800">Canvas</h3>
+            <h5 className=" font-bold text-slate-800">Canvas</h5>
+            <button
+              className="btn btn-empty px-1"
+              onClick={() => {
+                moveToSandbox();
+              }}
+            >
+              To Sandbox ⇨
+            </button>
           </div>
           <div
             id="plaza-render-area"
-            className="flex flex-col gap-2 mb-2 relative"
+            className="flex flex-col gap-2 mb-2 relative text-[#000]"
           >
             {project &&
               (Array.isArray(project)
@@ -821,14 +835,13 @@ export default function Plaza({
         {user && (
           <div className="bg-navy rounded-2xl shadow-xl p-2 mt-2 mb-8 border border-slate-200">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
-                <span className="text-xl text-white">📂</span>
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-slate-800">
+              <div className="flex items-center gap-3">
+                <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                  <span className=" text-white"> 📋</span>
+                </div>
+                <h6 className=" font-bold text-slate-800">
                   Your Ulon projects
-                </h3>
-                <p className="text-sm text-slate-600">{user?.name}</p>
+                </h6>
               </div>
             </div>
             {loading ? (
@@ -841,96 +854,79 @@ export default function Plaza({
                 <p className="text-slate-600 text-lg mb-6">No projects yet</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax( 200px, 1fr))] gap-2 mb-6">
-                {projects?.map((p) => (
-                  <div
-                    key={p.id}
-                    className={`gap-2 group relative p-2 ${
-                      projectId === p.id
-                        ? "border border-[var(--teal)] flex flex-col"
-                        : "btn-teal"
-                    }`}
+              <div
+                className="
+                flex flex-wrap
+                gap-2
+                mb-6
+              "
+              >
+                {projectId !== "" && (
+                  <button
+                    className="btn btn-empty mt-2 px-2"
+                    type="button"
+                    onClick={() => {
+                      setOpenAdmin(false);
+                      setProject(null);
+                      setScssMixVar("");
+                      setProjectId("");
+                      setOpenInfoKey(null);
+                      setProjectName("");
+                      setpId(null);
+                      setEditMode(false);
+                      setNodeToDragEl(null);
+                      setNodeToDrag(null);
+                      setModalTextsOpen(false);
+                      setNNode(null);
+                      setOpenAdmin(false);
+                    }}
                   >
-                    {projectId !== p.id && (
-                      <button
-                        className="absolute top-[50%] right-1 w-4 h-4 bg-red-500 hover:bg-red-600 text-white rounded-lg flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 z-10 transform translate-y-[-50%]"
-                        onClick={() => delProject(p?.id)}
-                      >
-                        <Image
-                          src="/svg/cross-com.svg"
-                          alt="icon"
-                          width={12}
-                          height={12}
-                          className="brightness-0 invert"
-                        />
-                      </button>
-                    )}
-
-                    <button
-                      className="w-full text-left"
-                      onClick={async () => setpId(p.id)}
-                      type="button"
+                    Quit active Project
+                  </button>
+                )}
+                {projects?.map((p) => (
+                  <div key={p.id} className={`flex gap-2 w-full `}>
+                    <div
+                      className={`gap-2 w-full group rounded relative p-1   border   ${
+                        projectId === p.id
+                          ? " border-[var(--teal)] flex flex-col bg-[var(--teal-navi)] text-[var(--white)]"
+                          : "hover:bg-slate-300 hover:border-[var(--teal)] hover:text-[var(--teal-light)] border-transparent bg-slate-200"
+                      }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-6 h-6 p-2 bg-purple-100 rounded flex items-center justify-center">
-                          <span className="">📄</span>
-                        </div>
-                        <h5 className="text-lg font-bold text-slate-800 flex-1 truncate">
-                          {p?.name}
-                        </h5>
-                      </div>
-                    </button>
+                      <button
+                        className={`w-full text-left  text-sm font-medium `}
+                        onClick={async () => setpId(p.id)}
+                        type="button"
+                        disabled={loadingProject || projectId === p.id}
+                      >
+                        {loadingProject ? <Loading /> : p?.name}
+                      </button>
+                    </div>
                     {projectId && projectId !== "" && projectId === p.id && (
                       <div className="flex items-center gap-3">
                         <button
-                          className="btn-teal !py-0"
+                          className="btn btn-primary !py-0"
                           type="button"
                           onClick={() => updateTempProject()}
                         >
                           <div className="w-4 h-4 overflow-hidden">
                             <Update />
                           </div>
-                          <span className="text-sm font-medium">Update</span>
+                          <span className="text-sm font-medium ml-2">
+                            Update
+                          </span>
                         </button>
-
                         <button
                           className=" btn px-2 btn-allert min-w-[max-content]  gap-2"
                           type="button"
                           onClick={() => delProject(projectId)}
                         >
-                          <Image
-                            src="/svg/cross.svg"
-                            alt="icon"
-                            width={16}
-                            height={16}
-                            className="brightness-0 invert"
-                          />
-                          <span className="text-sm font-medium">Delete</span>
+                          <span className="text-sm font-medium">Remove</span>
                         </button>
                       </div>
                     )}
                   </div>
                 ))}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setOpenAdmin(false);
-                    setProject(null);
-                    setScssMixVar("");
-                    setProjectId("");
-                    setOpenInfoKey(null);
-                    setProjectName("");
-                    setpId(null);
-                    setEditMode(false);
-                    setNodeToDragEl(null);
-                    setNodeToDrag(null);
-                    setModalTextsOpen(false);
-                    setNNode(null);
-                    setOpenAdmin(false);
-                  }}
-                >
-                  Quit active Project
-                </button>
               </div>
             )}
             <ModalTexts

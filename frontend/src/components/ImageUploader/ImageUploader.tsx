@@ -303,10 +303,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   return (
     <div className="bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 mb-8">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-red-500 rounded-lg flex items-center justify-center">
-          <span className="text-xl">🖼️</span>
+        <div className="w-6 h-6 bg-gradient-to-br from-yellow-500 to-red-500 rounded-lg flex items-center justify-center">
+          <span>🖼️</span>
         </div>
-        <h3 className="text-2xl font-bold text-slate-800">Images</h3>
+        <h5 className=" font-bold text-slate-800">Images</h5>
       </div>
 
       <div className="flex items-center gap-2">

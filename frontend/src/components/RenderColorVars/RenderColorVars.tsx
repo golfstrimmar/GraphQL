@@ -16,10 +16,10 @@ const RenderColorVars: React.FC<RenderColorVarsProps> = ({ colorsTo }) => {
     <div className=" mb-4 p-2  bg-navy  rounded-xl border border-slate-200">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-orange-500 rounded-lg flex items-center justify-center">
-            <span className="text-xl">🎨</span>
+          <div className="w-6 h-6 bg-gradient-to-br from-pink-500 to-orange-500 rounded-lg flex items-center justify-center">
+            <span>🎨</span>
           </div>
-          <h3 className="text-2xl font-bold text-slate-800">SCSS Variables</h3>
+          <h5 className="font-bold text-slate-800">SCSS Variables</h5>
         </div>
         <button
           onClick={() => {

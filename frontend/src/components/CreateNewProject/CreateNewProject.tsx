@@ -33,7 +33,7 @@ const CreateNewProject = ({ ScssMixVar }) => {
     {
       refetchQueries: [{ query: GET_ALL_PROJECTS_BY_USER, variables }],
       awaitRefetchQueries: true,
-    }
+    },
   );
 
   const createNewProject = async () => {
@@ -67,9 +67,9 @@ const CreateNewProject = ({ ScssMixVar }) => {
   return (
     <div className="createnewproject">
       <hr className="bordered-2 border-slate-200 mt-2 mb-4" />
-      <h5 className="text-lg font-semibold text-slate-700 mb-3">
+      <h6 className="font-semibold text-slate-700 mb-3">
         Create a new Ulon project
-      </h5>
+      </h6>
       <div className="grid grid-cols-[1fr_max-content] gap-2 w-full mt-4">
         <Input
           typeInput="text"

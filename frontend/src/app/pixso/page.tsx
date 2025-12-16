@@ -277,10 +277,10 @@ export default function FigmaPage() {
     return (
       <div className="bg-navy rounded-2xl shadow-xl p-2 mb-4 border border-slate-200">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-orange-500 rounded-lg flex items-center justify-center">
-            <span className="text-xl">🎨</span>
+          <div className="w-6 h-6 bg-gradient-to-br from-pink-500 to-orange-500 rounded-lg flex items-center justify-center">
+            <span>🎨</span>
           </div>
-          <h3 className="text-2xl font-bold text-slate-800">Color Palette</h3>
+          <h5 className="text-2xl font-bold text-slate-800">Color Palette</h5>
         </div>
         <div className="grid grid-cols-[repeat(auto-fill,_minmax(150px,_1fr))] gap-2">
           {colors.map((value, index) => (
@@ -323,10 +323,10 @@ export default function FigmaPage() {
     return (
       <div className="bg-navy rounded-2xl shadow-xl p-2  mb-4 border border-slate-200">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
-            <span className="text-xl">Aa</span>
+          <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
+            <span>Aa</span>
           </div>
-          <h3 className="text-2xl font-bold text-slate-800">Typography</h3>
+          <h5 className=" font-bold text-slate-800">Typography</h5>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Object.entries(fonts).map(([key, fontObj]) => (
@@ -390,10 +390,10 @@ export default function FigmaPage() {
     return (
       <div className="bg-navy rounded-2xl shadow-xl p-2  border border-slate-200  mb-4">
         <div className="flex items-center gap-3 mb-6 ">
-          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-            <span className="text-xl">{"{ }"}</span>
+          <div className="w-6 h-6 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+            <span>{"{ }"}</span>
           </div>
-          <h3 className="text-2xl font-bold text-slate-800">SCSS Mixins</h3>
+          <h5 className=" font-bold text-slate-800">SCSS Mixins</h5>
         </div>
         <div className="mb-4  grid grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))] gap-2">
           {uniqueMixins.map((el) => {
@@ -434,10 +434,10 @@ export default function FigmaPage() {
     return (
       <div className="bg-navy rounded-2xl shadow-xl p-2  border border-slate-200  mb-4">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
-            <span className="text-xl">🧻</span>
+          <div className="w-6 h-6 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
+            <span>🧻</span>
           </div>
-          <h3 className="text-2xl font-bold text-slate-800">Text Styles</h3>
+          <h5 className="text-2xl font-bold text-slate-800">Text Styles</h5>
         </div>
         <div className="space-y-3">
           {texts.map((el, idx) => (
@@ -529,20 +529,13 @@ export default function FigmaPage() {
             </div>
           ) : (
             <div className="pb-2">
-              <h2 className="mb-2">Your Projects</h2>
-              <FigmaProjectsList
-                allProjects={allProjects}
-                setAllProjects={setAllProjects}
-                projectId={projectId}
-                setColors={setColors}
-                setFonts={setFonts}
-                setTexts={setTexts}
-                setProjectId={setProjectId}
-                setcurrentProject={setcurrentProject}
-                figmaProjectRefetch={figmaProjectRefetch}
-                removeFigmaProject={removeFigmaProject}
-                setScssMixVar={setScssMixVar}
-              />
+              <div className="flex text-center  gap-3 ">
+                <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                  <span>📁</span>
+                </div>
+                <h5 className="mb-2">Your Projects</h5>
+              </div>
+
               {projectId && (
                 <button
                   onClick={() => {
@@ -556,19 +549,34 @@ export default function FigmaPage() {
                     setScssMixVar("");
                     setHtmlJson(null);
                   }}
+                  className="btn btn-empty px-2 my-2 mr-2"
                 >
                   Quit active Project
                 </button>
               )}
-              <Button
+              <button
                 onClick={() => {
                   setFile(null);
                   setName("");
                   setModalOpen(true);
                 }}
+                className="btn btn-empty px-2 my-2 "
               >
                 + Add Project
-              </Button>
+              </button>
+              <FigmaProjectsList
+                allProjects={allProjects}
+                setAllProjects={setAllProjects}
+                projectId={projectId}
+                setColors={setColors}
+                setFonts={setFonts}
+                setTexts={setTexts}
+                setProjectId={setProjectId}
+                setcurrentProject={setcurrentProject}
+                figmaProjectRefetch={figmaProjectRefetch}
+                removeFigmaProject={removeFigmaProject}
+                setScssMixVar={setScssMixVar}
+              />
             </div>
           )}
         </div>
