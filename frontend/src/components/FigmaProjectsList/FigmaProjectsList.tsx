@@ -1,13 +1,8 @@
 "use client";
-// import React, {
-//   useState,
-//   useEffect,
-//   useRef,
-//   useCallback,
-//   useMemo,
-// } from "react";
-import "./figmaprojectslist.scss";
-import Image from "next/image";
+
+if (typeof window !== "undefined") {
+  void import("./figmaprojectslist.scss");
+}
 
 interface FigmaProjectsListProps {
   allProjects: any[];
@@ -33,16 +28,15 @@ const FigmaProjectsList: React.FC<FigmaProjectsListProps> = ({
   figmaProjectRefetch,
   removeFigmaProject,
   setAllProjects,
-  setScssMixVar,
 }) => {
-  const fetchProjectData = (id) => {
+  const fetchProjectData = (id: string) => {
     setColors([]);
     setFonts([]);
     setTexts([]);
     setProjectId(id);
     figmaProjectRefetch({ projectId: id });
   };
-  const handlerRemoveFigmaProject = (id) => {
+  const handlerRemoveFigmaProject = (id: string) => {
     removeFigmaProject({ variables: { figmaProjectId: id } });
     setAllProjects(allProjects.filter((p) => p.id !== id));
     setProjectId("");
@@ -50,7 +44,6 @@ const FigmaProjectsList: React.FC<FigmaProjectsListProps> = ({
     setColors([]);
     setFonts([]);
     setTexts([]);
-    setScssMixVar("");
   };
   return (
     <div className="flex flex-col gap-2 mb-2">
@@ -76,7 +69,7 @@ const FigmaProjectsList: React.FC<FigmaProjectsListProps> = ({
             </button>
             <button
               className="btn btn-allert"
-              onClick={(e) => {
+              onClick={() => {
                 handlerRemoveFigmaProject(project.id);
               }}
             >

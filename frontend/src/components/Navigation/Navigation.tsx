@@ -9,6 +9,7 @@ import { useMutation } from "@apollo/client";
 import { useStateContext } from "@/providers/StateProvider";
 const pages = [
   { title: "Home", path: "/" },
+  { title: "Figma", path: "/figma" },
   { title: "Plaza", path: "/plaza" },
   { title: "Sandbox", path: "/sandbox" },
   { title: "Register", path: "/register" },

@@ -65,14 +65,18 @@ const TagsNamen5 = [
 
 const AdminComponent = () => {
   const { updateHtmlJson } = useStateContext();
+  const [name, setName] = useState<string | null>(null);
+
   const { refetch: refetchJson } = useQuery(GET_JSON_DOCUMENT, {
-    variables: { name: name },
+    variables: { name },
+    skip: !name, // чтобы не дёргать запрос без имени
     fetchPolicy: "no-cache",
   });
-  // =============================
-  const handleLoad = async (name: string) => {
-    if (!name) return;
-    const { data } = await refetchJson({ name });
+
+  const handleLoad = async (tag: string) => {
+    if (!tag) return;
+    setName(tag);
+    const { data } = await refetchJson({ name: tag });
     const content = data?.jsonDocumentByName?.content;
     if (!content) return;
     updateHtmlJson((prev) => ({
@@ -83,24 +87,23 @@ const AdminComponent = () => {
       ],
     }));
   };
-  const renderTags = (TagsNamen) => {
-    return (
-      <div className="flex flex-wrap gap-1 bg-slate-200  p-2">
-        {TagsNamen.map((el, i) => (
-          <button
-            key={i}
-            className={"btn  px-1.5! border-1 border-[#aaa] text-black"}
-            style={{ background: el.color }}
-            type="button"
-            onClick={() => handleLoad(el.tag)}
-          >
-            {el.tag}
-          </button>
-        ))}
-      </div>
-    );
-  };
-  // =============================
+
+  const renderTags = (tags) => (
+    <div className="flex flex-wrap gap-1 bg-slate-200 p-2">
+      {tags.map((el, i) => (
+        <button
+          key={i}
+          className="btn px-1.5! border-1 border-[#aaa] text-black"
+          style={{ background: el.color }}
+          type="button"
+          onClick={() => handleLoad(el.tag)}
+        >
+          {el.tag}
+        </button>
+      ))}
+    </div>
+  );
+
   return (
     <div className="admincomponent">
       {renderTags(TagsNamen1)}
