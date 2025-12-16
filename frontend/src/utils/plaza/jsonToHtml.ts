@@ -1,3 +1,5 @@
+import { experimental_taintObjectReference } from "react";
+
 const selfClosingTags = new Set([
   "area",
   "base",
@@ -301,11 +303,89 @@ function scssBlocksToString(blocks, indent = "") {
   console.log("<==💥💥💥💥==cleaned==💥💥💥💥==>", cleaned);
   return cleaned;
 }
+// ---------------------
+// ---------------------
+
+function normalizeBlock(block) {
+  return block
+    .replace(/\s+/g, " ")
+    .replace(/\s*{\s*/g, "{")
+    .replace(/\s*}\s*/g, "}")
+    .trim();
+}
+
+function collapseOnce(str) {
+  let out = "";
+  let i = 0;
+  let prevNorm = null;
+
+  while (i < str.length) {
+    const start = str.indexOf("li", i);
+    if (start === -1) {
+      out += str.slice(i);
+      break;
+    }
+
+    out += str.slice(i, start);
+
+    let j = start + 2;
+    while (j < str.length && /\s/.test(str[j])) j++;
+    if (j >= str.length || str[j] !== "{") {
+      out += str.slice(start, j);
+      i = j;
+      prevNorm = null;
+      continue;
+    }
+
+    let pos = j;
+    let depth = 0;
+    while (pos < str.length) {
+      const ch = str[pos];
+      if (ch === "{") depth++;
+      if (ch === "}") depth--;
+      pos++;
+      if (depth === 0) break;
+    }
+
+    let block = str.slice(start, pos);
+
+    // рекурсивно чистим li внутри блока
+    const braceIndex = block.indexOf("{");
+    const head = block.slice(0, braceIndex + 1);
+    const body = block.slice(braceIndex + 1, -1);
+    const cleanedBody = removeDuplicateLiBlocks(body);
+    block = head + cleanedBody + "}";
+
+    const norm = normalizeBlock(block);
+
+    if (norm !== prevNorm) {
+      out += block;
+      prevNorm = norm;
+    }
+
+    i = pos;
+  }
+
+  return out;
+}
+
+function removeDuplicateLiBlocks(str) {
+  while (true) {
+    const next = collapseOnce(str);
+    if (next === str) return next;
+    str = next;
+  }
+}
+
+// ---------------------
+// ---------------------
 
 const jsonToHtml = (json) => {
   const nodes = json.children || [];
   const { html, scssBlocks, pug } = renderNodesAndCollectScss(nodes);
-  const scss = scssBlocksToString(scssBlocks);
+  const res = scssBlocksToString(scssBlocks);
+  const scss = removeDuplicateLiBlocks(res);
+  console.log("====💥💥💥FINAL SCSS💥💥💥====", scss);
   return { html, scss, pug };
 };
 
