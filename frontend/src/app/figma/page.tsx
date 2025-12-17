@@ -19,6 +19,7 @@ import generateGoogleFontsImport from "@/utils/generateGoogleFontsImport";
 import { AnimatePresence, motion } from "framer-motion";
 import FigmaProjectsList from "@/components/FigmaProjectsList/FigmaProjectsList";
 import Plaza from "@/app/plaza/page";
+import Sandbox from "@/app/sandbox/page";
 import ImageUploader from "@/components/ImageUploader/ImageUploader";
 import RenderColorVars from "@/components/RenderColorVars/RenderColorVars";
 // --------
@@ -75,7 +76,7 @@ export default function FigmaPage() {
   const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
   const [preview, setPreview] = useState<ImageFile>(null);
   const [ScssMixVar, setScssMixVar] = useState<string>("");
-
+  const [openSandbox, setOpenSandbox] = useState<boolean>(false);
   // Query
   const {
     data: figmaProjectsByUser,
@@ -594,6 +595,14 @@ export default function FigmaPage() {
         {renderTypography()}
         {renderScssMixins()}
         {renderTextStyles()}
+        {/*<button
+          className="btn btn-empty"
+          type="button"
+          onClick={() => setOpenSandbox(!openSandbox)}
+        >
+          Open Sandbox
+        </button>*/}
+        {user && openSandbox && <Sandbox />}
         {user && (
           <Plaza
             preview={preview}
@@ -601,6 +610,8 @@ export default function FigmaPage() {
             colorsTo={colorsTo}
             ScssMixVar={ScssMixVar}
             setScssMixVar={setScssMixVar}
+            setOpenSandbox={setOpenSandbox}
+            openSandbox={openSandbox}
           />
         )}
         <AnimatePresence>

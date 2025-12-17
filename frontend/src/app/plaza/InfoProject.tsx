@@ -117,9 +117,9 @@ const InfoProject: React.FC<InfoProjectProps> = ({
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: 100, opacity: 0 }}
             transition={{ duration: 0.1, ease: [0.25, 0.8, 0.5, 1] }}
-            className="bg-navy rounded shadow-xl p-1  border border-slate-200  bottom-0 right-0 transform min-w-[300px] fixed  z-50"
+            className="bg-navy rounded shadow-xl p-1  border border-slate-200  bottom-0 right-0 transform min-w-[calc(100vw-150px)] min-h-[312px] fixed  z-50"
           >
-            <div className=" flex flex-col relative rounded border-2 border-[var(--teal)] p-1 text-[#000] ">
+            <div className=" flex flex-col relative rounded border-2 border-[var(--teal)] p-1 text-[#000] h-full">
               <p className="bg-white !font-bold px-2 inline-block z-30 py-0.5 rounded mt-2 ml-auto -mb-4.5 w-[max-content]">
                 Tag:
               </p>

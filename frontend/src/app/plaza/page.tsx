@@ -50,6 +50,7 @@ export interface ProjectNode {
   children: (ProjectNode | string)[];
 }
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
+
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 
 export default function Plaza({
@@ -58,6 +59,8 @@ export default function Plaza({
   colorsTo = [],
   ScssMixVar = "",
   setScssMixVar = () => {},
+  openSandbox = false,
+  setOpenSandbox = () => {},
 }) {
   const {
     htmlJson,
@@ -137,7 +140,7 @@ export default function Plaza({
     const googleFonts = buildGoogleFontsImport();
     if (mixins === undefined || googleFonts === undefined) return;
 
-    setScssMixVar((prev) => {
+    setScssMixVar((prev: string) => {
       const prevText = prev ?? "";
 
       // ---------- 1. МИКСИНЫ ИЗ prev ----------
@@ -674,7 +677,8 @@ export default function Plaza({
   const moveToSandbox = () => {
     createHtml();
     createSCSS();
-    router.push("/sandbox");
+    setOpenSandbox(!openSandbox);
+    // router.push("/sandbox");
   };
   //--------------
   return (
