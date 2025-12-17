@@ -53,11 +53,11 @@ export interface ProjectNode {
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 
 export default function Plaza({
-  preview,
-  uniqueMixins,
-  colorsTo,
-  ScssMixVar,
-  setScssMixVar,
+  preview = null,
+  uniqueMixins = [],
+  colorsTo = [],
+  ScssMixVar = "",
+  setScssMixVar = () => {},
 }) {
   const {
     htmlJson,
@@ -681,7 +681,7 @@ export default function Plaza({
     <section
       className={`${
         isPlaza() ? "pt-[100px]" : "pt-12"
-      } min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-slate-50 pb-[250px]`}
+      } min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-slate-50 pb-[300px]`}
     >
       <div className={`${isPlaza() ? "container" : ""}`}>
         <div className="text-center mb-12">
