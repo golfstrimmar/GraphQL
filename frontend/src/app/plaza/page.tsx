@@ -6,6 +6,7 @@ import React, {
   useLayoutEffect,
   useRef,
 } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import { useStateContext } from "@/providers/StateProvider";
@@ -19,11 +20,8 @@ import {
 import Loading from "@/components/ui/Loading/Loading";
 import PProject from "@/types/PProject";
 import PProjectDataElement from "@/types/PProject";
-import InfoProject from "@/components/InfoProject/InfoProject";
-import CreateNewProject from "@/components/CreateNewProject/CreateNewProject";
 import createRenderNode from "@/utils/plaza/RenderNode.tsx";
 import "./plaza.scss";
-import { motion, AnimatePresence } from "framer-motion";
 import AdminComponent from "@/components/AdminComponent/AdminComponent";
 import jsonToHtml from "@/utils/plaza/jsonToHtml";
 import Image from "next/image";
@@ -33,6 +31,15 @@ import СhevronLeft from "@/components/icons/СhevronLeft";
 import СhevronRight from "@/components/icons/СhevronRight";
 import Update from "@/components/icons/Update";
 import ModalTexts from "@/components/ModalTexts/ModalTexts";
+// ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
+const CreateNewProject = dynamic(() => import("./CreateNewProject"), {
+  ssr: false,
+  loading: () => <Loading />,
+});
+const InfoProject = dynamic(() => import("./InfoProject"), {
+  ssr: false,
+  loading: () => <Loading />,
+});
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 export interface ProjectNode {
   _key?: string;
@@ -116,6 +123,10 @@ export default function Plaza({
   });
 
   // ⇨⇨⇨⇨⇨⇨
+  useEffect(() => {
+    if (!openInfoKey) return;
+    setOpenAdmin(true);
+  }, [openInfoKey]);
   // ⇨⇨⇨⇨⇨⇨
   useEffect(() => {
     console.log("<==💥💥💥💥ScssMixVar💥💥💥💥💥 ====>", ScssMixVar);
@@ -801,35 +812,16 @@ export default function Plaza({
             </div>
           </div>
           <AdminComponent />
-          <motion.div
-            id="plaza-container"
-            className={`grid transition-all duration-300  gap-2  ${editMode ? "bg-slate-400 rounded" : ""}
 
-           `}
-          >
-            <AnimatePresence mode="wait">
-              {openInfoKey != null && project && (
-                <motion.div
-                  key="info-project"
-                  initial={{ x: 100, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  exit={{ x: 100, opacity: 0 }}
-                  transition={{ duration: 0.1, ease: [0.25, 0.8, 0.5, 1] }}
-                  className="bg-navy rounded-2xl shadow-xl p-1  border border-slate-200 fixed bottom-0 right-0 transform min-w-[300px]   z-50"
-                >
-                  <InfoProject
-                    project={project}
-                    setProject={setProject}
-                    updateHtmlJson={updateHtmlJson}
-                    setOpenInfoKey={setOpenInfoKey}
-                    openInfoKey={openInfoKey}
-                    setModalTextsOpen={setModalTextsOpen}
-                    setNNode={setNNode}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
+          <InfoProject
+            project={project}
+            setProject={setProject}
+            updateHtmlJson={updateHtmlJson}
+            setOpenInfoKey={setOpenInfoKey}
+            openInfoKey={openInfoKey}
+            setModalTextsOpen={setModalTextsOpen}
+            setNNode={setNNode}
+          />
         </div>
         {/* ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ */}
         {user && (
