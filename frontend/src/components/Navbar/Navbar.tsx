@@ -23,7 +23,7 @@ const Navbar: React.FC = () => {
   const pages = [
     { title: "Home", path: "/" },
     { title: "Figma", path: "/figma" },
-    { title: "Plaza", path: "/plaza" },
+    // { title: "Plaza", path: "/plaza" },
     { title: "Sandbox", path: "/sandbox" },
     // { title: "Register", path: "/register" },
     // { title: "Login", path: "/login" },
