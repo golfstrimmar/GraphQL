@@ -18,8 +18,8 @@ import Image from "next/image";
 import generateGoogleFontsImport from "@/utils/generateGoogleFontsImport";
 import { AnimatePresence, motion } from "framer-motion";
 import FigmaProjectsList from "@/components/FigmaProjectsList/FigmaProjectsList";
-import Plaza from "@/app/plaza/page";
-import Sandbox from "@/app/sandbox/page";
+import PlazaComponent from "@/components/PlazaComponent/PlazaComponent";
+import SandboxComponent from "@/components/SandboxComponent/SandboxComponent";
 import ImageUploader from "@/components/ImageUploader/ImageUploader";
 import RenderColorVars from "@/components/RenderColorVars/RenderColorVars";
 // --------
@@ -55,10 +55,12 @@ type TextNode = {
   fontSize: string;
 };
 interface ImageFile {
-  file: File;
+  file?: File;
   previewUrl: string;
+  fileName?: string;
+  id?: string;
+  nodeId?: string;
 }
-
 export default function FigmaPage() {
   const router = useRouter();
   const { user, setHtmlJson, setModalMessage, texts, setTexts } =
@@ -123,7 +125,7 @@ export default function FigmaPage() {
     const currentImgs = data.project.figmaImages || [];
     const tempPrev = currentImgs.find((img) => img.fileName === "preview.png");
     setPreview(tempPrev);
-    const temp = currentImgs
+    const temp: ImageFile[] = currentImgs
       .filter((img) => img.fileName !== "preview.png")
       .map((img) => ({
         ...img,
@@ -404,7 +406,7 @@ export default function FigmaPage() {
             font-weight: ${el.fontWeight};
             font-size: ${el.fontSize};
             color: ${colorVariable};
-            };`;
+            }`;
 
             return (
               <div
@@ -602,9 +604,18 @@ export default function FigmaPage() {
         >
           Open Sandbox
         </button>*/}
-        {user && openSandbox && <Sandbox />}
+        {user && openSandbox && <SandboxComponent />}
         {user && (
-          <Plaza
+          // <Plaza
+          //   preview={preview}
+          //   uniqueMixins={uniqueMixins}
+          //   colorsTo={colorsTo}
+          //   ScssMixVar={ScssMixVar}
+          //   setScssMixVar={setScssMixVar}
+          //   setOpenSandbox={setOpenSandbox}
+          //   openSandbox={openSandbox}
+          // />
+          <PlazaComponent
             preview={preview}
             uniqueMixins={uniqueMixins}
             colorsTo={colorsTo}

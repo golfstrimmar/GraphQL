@@ -23,7 +23,7 @@ const ModalMessage = dynamic(
 type HtmlNode = {
   tag: string;
   class?: string;
-  children?: HtmlNode[] | HtmlNode | string;
+  children?: HtmlNode[];
   text?: string;
   style?: string;
   attributes?: Record<string, string>;
@@ -186,16 +186,13 @@ export function StateProvider({ children }: { children: ReactNode }) {
   }, [usersData, subscribeToUsers]);
 
   // ==================== MODAL ====================
-  const showModal = (message: string, duration = 3000) => {
-    setModalMessage(message);
+  useEffect(() => {
+    if (!modalMessage) return;
     setIsModalOpen(true);
     setTimeout(() => {
       setIsModalOpen(false);
       setModalMessage("");
-    }, duration);
-  };
-  useEffect(() => {
-    if (modalMessage) showModal(modalMessage);
+    }, 2000);
   }, [modalMessage]);
   // ==================== INIT HTML JSON ====================
   useEffect(() => {
@@ -253,11 +250,7 @@ export function StateProvider({ children }: { children: ReactNode }) {
         setUser,
         users,
         setUsers,
-        modalMessage,
         setModalMessage,
-        isModalOpen,
-        setIsModalOpen,
-        showModal,
         updateHtmlJson,
         undo,
         redo,
