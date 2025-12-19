@@ -1,0 +1,12 @@
+[
+  {
+    "adapter": "JavaScript",
+    "label": "Debug frontend dev server",
+    "type": "node",
+    "request": "launch",
+    "program": "npm",
+    "args": ["run", "dev"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "skipFiles": ["<node_internals>/**"],
+  },
+]
