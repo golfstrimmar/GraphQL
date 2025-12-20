@@ -12,14 +12,9 @@ import { usePathname } from "next/navigation";
 import { useStateContext } from "@/providers/StateProvider";
 import { useMutation, useQuery, useLazyQuery } from "@apollo/client";
 import { UPDATE_PROJECT, REMOVE_PROJECT } from "@/apollo/mutations";
-import {
-  GET_JSON_DOCUMENT,
-  GET_ALL_PROJECTS_BY_USER,
-  FIND_PROJECT,
-} from "@/apollo/queries";
+import { GET_ALL_PROJECTS_BY_USER, FIND_PROJECT } from "@/apollo/queries";
 import Loading from "@/components/ui/Loading/Loading";
 import PProject from "@/types/PProject";
-import PProjectDataElement from "@/types/PProject";
 import createRenderNode from "@/utils/plaza/RenderNode.tsx";
 import "./plaza.scss";
 import AdminComponent from "@/components/AdminComponent/AdminComponent";
@@ -66,21 +61,9 @@ export default function PlazaComponent({
   openSandbox,
   setOpenSandbox,
 }: PlazaProps) {
-  const {
-    htmlJson,
-    setHtmlJson,
-    user,
-    setModalMessage,
-    updateHtmlJson,
-    texts,
-    setTexts,
-    HTML,
-    setHTML,
-    SCSS,
-    setSCSS,
-  } = useStateContext();
+  const { htmlJson, user, setModalMessage, updateHtmlJson, texts, setHTML } =
+    useStateContext();
   const pathname = usePathname();
-  const router = useRouter();
   const [projects, setProjects] = useState<PProject[]>([]);
   const [project, setProject] = useState<ProjectNode | null>(null);
   const [projectId, setProjectId] = useState<string>("");
@@ -236,18 +219,6 @@ export default function PlazaComponent({
       setProjects(data?.getAllProjectsByUser);
     }
   }, [data]);
-
-  // useEffect(() => {
-  //   if (uniqueMixins) {
-  //     console.log("<==== uniqueMixins====>", uniqueMixins);
-  //   }
-  // }, [uniqueMixins]);
-
-  // useEffect(() => {
-  //   if (colorsTo) {
-  //     console.log("<==== colorsTo====>", colorsTo);
-  //   }
-  // }, [colorsTo]);
   // 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹Project
   useLayoutEffect(() => {
     if (!project) return;
