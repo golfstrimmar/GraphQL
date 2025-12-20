@@ -81,21 +81,15 @@ const SandboxСomponent: React.FC = () => {
   useEffect(() => {
     const run = async () => {
       setStartScss(startScssContent);
-      setScss(SCSS);
-      // if (SCSS) {
-      //   try {
-      //     const formatted = await formatScss(SCSS);
-      //     setScss(formatted);
-      //   } catch (e) {
-      //     setModalMessage("Errror formated sass");
-      //   }
-      // } else {
-      //   setScss("");
-      // }
+      if (!SCSS) {
+        return;
+      }
+      const formatted = await formatScss(SCSS);
+      setScss(formatted);
     };
 
     void run();
-  }, [SCSS]);
+  }, [SCSS, startScssContent]);
 
   // ----- сборка превью из html + scss
   useEffect(() => {
