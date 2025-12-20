@@ -24,13 +24,11 @@ import createRenderNode from "@/utils/plaza/RenderNode.tsx";
 import "./plaza.scss";
 import AdminComponent from "@/components/AdminComponent/AdminComponent";
 import jsonToHtml from "@/utils/plaza/jsonToHtml";
-import Image from "next/image";
-import EditModeIcon from "@/components/icons/EditModeIcon";
-import ClearIcon from "@/components/icons/ClearIcon";
-import СhevronLeft from "@/components/icons/СhevronLeft";
 import СhevronRight from "@/components/icons/СhevronRight";
 import Update from "@/components/icons/Update";
 import ModalTexts from "@/components/ModalTexts/ModalTexts";
+import buildScssMixVar from "./buildScssMixVar";
+import PlazaToolbar from "./PlazaToolbar";
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 const CreateNewProject = dynamic(() => import("./CreateNewProject"), {
   ssr: false,
@@ -49,29 +47,31 @@ export interface ProjectNode {
   style: string;
   children: (ProjectNode | string)[];
 }
-// ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 
+type PlazaProps = {
+  preview?: { filePath: string } | null;
+  colorsTo?: string[];
+  ScssMixVar: string;
+  setScssMixVar: React.Dispatch<React.SetStateAction<string>>;
+  openSandbox: boolean;
+  setOpenSandbox: React.Dispatch<React.SetStateAction<boolean>>;
+};
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 
 export default function PlazaComponent({
   preview = null,
-  uniqueMixins = [],
   colorsTo = [],
-  ScssMixVar = "",
-  setScssMixVar = () => {},
-  openSandbox = false,
-  setOpenSandbox = () => {},
-}) {
+  ScssMixVar,
+  setScssMixVar,
+  openSandbox,
+  setOpenSandbox,
+}: PlazaProps) {
   const {
     htmlJson,
     setHtmlJson,
     user,
     setModalMessage,
     updateHtmlJson,
-    undo,
-    redo,
-    undoStack,
-    redoStack,
     texts,
     setTexts,
     HTML,
@@ -94,6 +94,17 @@ export default function PlazaComponent({
   const [modalTextsOpen, setModalTextsOpen] = useState<boolean>(false);
   const [NNode, setNNode] = useState<ProjectNode>(null);
   const [openAdmin, setOpenAdmin] = useState<boolean>(false);
+
+  // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
+  const uniqueMixins = Object.values(
+    texts.reduce<Record<string, TextNode>>((acc, el) => {
+      const key = `${el.mixin}`;
+      if (!acc[key]) {
+        acc[key] = el;
+      }
+      return acc;
+    }, {}),
+  );
 
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 
@@ -134,167 +145,18 @@ export default function PlazaComponent({
   useEffect(() => {
     console.log("<==💥💥💥💥ScssMixVar💥💥💥💥💥 ====>", ScssMixVar);
   }, [ScssMixVar]);
-  // ⇨⇨⇨⇨⇨⇨ uniqueMixins, colorsTo придетают пропсами если есть фигма проект
+  // ⇨⇨⇨⇨⇨⇨ uniqueMixins, colorsTo прилетают пропсами если есть фигма проект
+
   useEffect(() => {
     const mixins = createMixins();
     const googleFonts = buildGoogleFontsImport();
-    if (mixins === undefined || googleFonts === undefined) return;
+    if (!mixins && !googleFonts) return;
 
-    setScssMixVar((prev: string) => {
-      const prevText = prev ?? "";
-
-      // ---------- 1. МИКСИНЫ ИЗ prev ----------
-      const mixinRegex = /@mixin\s+\S+\s*{[\s\S]*?}/g;
-      const existingMixinBlocks = prevText.match(mixinRegex) || [];
-      const existingMixinNames = new Set<string>();
-      existingMixinBlocks.forEach((block) => {
-        const name = block.match(/@mixin\s+(\S+)/)?.[1];
-        if (name) existingMixinNames.add(name);
-      });
-      const prevWithoutMixins = prevText.replace(mixinRegex, "");
-
-      // ---------- 2. ЦВЕТА ИЗ prev ----------
-      const prevColorLines: string[] = [];
-      let maxColorIndex = 0;
-      const existingColorValues = new Set<string>();
-
-      prevWithoutMixins
-        .split("\n")
-        .map((l) => l.trimEnd())
-        .filter((l) => l.trim())
-        .forEach((line) => {
-          const m = line.match(/^\s*(\$color-(\d+)):\s*(.+);?\s*$/);
-          if (m) {
-            const idx = Number(m[2]);
-            let value = m[3].trim(); // rgb(...); или rgb(...);;;
-            value = value.replace(/;+\s*$/, ""); // убираем хвост ;;;
-            if (!Number.isNaN(idx)) {
-              maxColorIndex = Math.max(maxColorIndex, idx);
-            }
-            prevColorLines.push(`${m[1]}: ${value};`);
-            existingColorValues.add(value);
-          }
-        });
-
-      // ---------- 3. ИМПОРТЫ и прочий текст из prev ----------
-      const importLines: string[] = [];
-      const otherLines: string[] = [];
-
-      prevWithoutMixins
-        .split("\n")
-        .map((l) => l.trimEnd())
-        .filter((l) => l.trim())
-        .forEach((line) => {
-          if (line.includes("https://fonts.googleapis.com")) {
-            if (!importLines.includes(line)) importLines.push(line);
-          } else if (!line.match(/\$color-\d+:/)) {
-            otherLines.push(line);
-          }
-        });
-
-      // ---------- 4. НОВЫЕ МИКСИНЫ из createMixins ----------
-      const newMixinsBlocks: string[] = [];
-      mixins
-        .split(/(@mixin\s+\S+\s*{[\s\S]*?})/)
-        .filter(Boolean)
-        .forEach((block) => {
-          const name = block.match(/@mixin\s+(\S+)/)?.[1];
-          if (name && !existingMixinNames.has(name)) {
-            existingMixinNames.add(name);
-            newMixinsBlocks.push(block.trim());
-          }
-        });
-
-      // ---------- 5. НОВЫЕ ЦВЕТА с продолжением нумерации (по УНИКАЛЬНЫМ значениям) ----------
-      const newColorLines: string[] = [];
-      let colorIndex = maxColorIndex;
-
-      colorsTo.forEach((colorValue) => {
-        const valueMatch = colorValue.match(/:\s*(.+);?$/);
-        let value = valueMatch ? valueMatch[1].trim() : colorValue.trim();
-        value = value.replace(/;+\s*$/, ""); // убираем ;; если прилетели
-
-        if (existingColorValues.has(value)) {
-          // такое значение уже есть → переменную не создаём
-          return;
-        }
-
-        existingColorValues.add(value);
-        colorIndex += 1;
-        newColorLines.push(`$color-${colorIndex}: ${value};`);
-      });
-
-      // ---------- 6. ИМПОРТЫ ИЗ googleFonts ----------
-      if (googleFonts) {
-        googleFonts
-          .split("\n")
-          .map((l) => l.trim())
-          .filter((l) => l.startsWith("@import"))
-          .forEach((line) => {
-            if (!importLines.includes(line)) {
-              importLines.push(line);
-            }
-          });
-      }
-
-      // ---------- 7. Сборка: импорты → переменные → миксины → остальное ----------
-      const colorLines = [...prevColorLines, ...newColorLines];
-      const mixinBlocksAll = [
-        ...existingMixinBlocks.map((b) => b.trim()),
-        ...newMixinsBlocks,
-      ];
-
-      const parts: string[] = [];
-
-      if (colorLines.length) {
-        parts.push(colorLines.join("\n"));
-      }
-
-      if (mixinBlocksAll.length) {
-        parts.push(mixinBlocksAll.join("\n\n"));
-      }
-
-      if (otherLines.length) {
-        parts.push(otherLines.join("\n"));
-      }
-
-      if (importLines.length) {
-        parts.push(importLines.join("\n"));
-      }
-
-      let result = parts
-        .join("\n\n")
-        .split("\n")
-        .map((l) => l.trimEnd())
-        .filter((l) => l.trim())
-        .join("\n");
-      // ---------- 8. ЗАМЕНА цветов в миксинах на переменные ----------
-      const colorMap = new Map<string, string>();
-      colorLines.forEach((line) => {
-        const m = line.match(/(\$color-\d+):\s*(.+);/);
-        if (m) {
-          const name = m[1]; // $color-1
-          const value = m[2].trim(); // rgb(...), #fff и т.п.
-          colorMap.set(value, name);
-        }
-      });
-
-      if (colorMap.size > 0) {
-        result = result.replace(mixinRegex, (block) => {
-          let newBlock = block;
-          colorMap.forEach((varName, value) => {
-            const valueEscaped = value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-            const re = new RegExp(`(color:\\s*)${valueEscaped}(\\s*;)`, "g");
-            newBlock = newBlock.replace(re, `$1${varName}$2`);
-          });
-          return newBlock;
-        });
-      }
-
-      return result;
-    });
+    setScssMixVar((prev) =>
+      buildScssMixVar(prev ?? "", uniqueMixins, colorsTo),
+    );
   }, [uniqueMixins, colorsTo]);
-
+  // ⇨⇨⇨⇨⇨⇨
   useEffect(() => {
     if (!dataProject) return;
 
@@ -402,6 +264,7 @@ export default function PlazaComponent({
     setOpenInfoKey(null);
     updateHtmlJson([]);
     setScssMixVar("");
+    setOpenSandbox(false);
   };
   const buildGoogleFontsImport = () => {
     const uniqueFonts = Array.from(
@@ -569,110 +432,6 @@ export default function PlazaComponent({
       }
     }
   };
-  const createPug = async () => {
-    if (htmlJson) {
-      const { pug } = jsonToHtml(htmlJson);
-      console.log("<==== pug ====>", pug);
-      try {
-        await navigator.clipboard.writeText(pug);
-        setModalMessage("Pug copied!");
-      } catch {
-        setModalMessage("Failed to copy");
-      }
-    }
-  };
-  const SERVICE_TEXTS = [
-    "section",
-    "container",
-    "flex row",
-    "flex col",
-    "link",
-    "span",
-    "div",
-    "div__wrap",
-    "a",
-    "button",
-    "ul",
-    "flex",
-    "ul flex row",
-    "ul flex col",
-
-    "li",
-    "nav",
-    "h1",
-    "h2",
-    "h3",
-    "h4",
-    "h5",
-    "h6",
-    "p",
-    "legend",
-    "article",
-    "aside",
-    "fieldset",
-    "form",
-    "header",
-    "ol",
-    "option",
-    "optgroup",
-    "select",
-    "imgs",
-    "img",
-    "img-container",
-    "img container",
-    "hero__wrap",
-    "hero__title",
-    "hero__content",
-    "hero img",
-    "hero__img",
-    "hero__info",
-    "hero__items",
-    "slotes",
-    "slotes__wrap",
-    "slotes__title",
-    "slotes__title title",
-    "slotes__cards",
-    "slotes__cards cards",
-    "cards__card",
-    "cards__card card",
-    "card__title",
-    "card__button",
-  ];
-  function cleanServiceTexts() {
-    const serviceSet = new Set(
-      SERVICE_TEXTS.map((t) => t.trim().toLowerCase()),
-    );
-
-    function walk(node) {
-      if (!node || typeof node !== "object") return node;
-
-      let nextText = node.text;
-
-      if (typeof node.text === "string") {
-        const normalizedText = node.text.trim().toLowerCase();
-        if (serviceSet.has(normalizedText)) {
-          nextText = "";
-        }
-      }
-
-      let nextChildren = node.children;
-      if (Array.isArray(node.children)) {
-        nextChildren = node.children.map(walk);
-      }
-
-      return {
-        ...node,
-        text: nextText,
-        children: nextChildren,
-      };
-    }
-
-    if (Array.isArray(htmlJson)) {
-      setHtmlJson(htmlJson.map(walk));
-    } else {
-      setHtmlJson(walk(htmlJson));
-    }
-  }
   //-------------
   const moveToSandbox = () => {
     createHtml();
@@ -742,78 +501,13 @@ export default function PlazaComponent({
             </div>
           </button>
           <div className="bg-navy rounded shadow-xl p-1  border border-slate-200 max-h-[max-content]">
-            <div className="flex flex-col items-center gap-2">
-              <button
-                className="btn-teal w-full"
-                type="button"
-                onClick={() => resetAll()}
-              >
-                <ClearIcon />
-                <span className="text-sm font-medium">Clear</span>
-              </button>
-              <button
-                className={`btn-teal  w-full ${editMode ? "teal-500 " : " "}`}
-                type="button"
-                onClick={() => setEditMode((prev) => !prev)}
-              >
-                <EditModeIcon></EditModeIcon>
-                <span className="text-sm font-medium">Edit Mode</span>
-              </button>
-              <div className="grid grid-cols-2 gap-1">
-                <button
-                  className="btn-teal   disabled:opacity-50"
-                  type="button"
-                  onClick={undo}
-                  disabled={undoStack.length === 0}
-                >
-                  <СhevronLeft width={12} height={14} />
-                  <span className="text-[10px]">UNDO</span>
-                </button>
-                <button
-                  className="btn-teal    disabled:opacity-50 "
-                  type="button"
-                  onClick={redo}
-                  disabled={redoStack.length === 0}
-                >
-                  <span className="text-[10px]">REDO</span>{" "}
-                  <СhevronRight width={12} height={14} />
-                </button>
-              </div>
-              <button
-                className="btn-teal  w-full"
-                type="button"
-                onClick={() => cleanServiceTexts()}
-              >
-                {" "}
-                Clear services texts{" "}
-              </button>
-              <div className="h-px w-full bg-slate-300"></div>
-              <button
-                className="btn-teal  w-full"
-                type="button"
-                onClick={() => createHtml()}
-              >
-                <Image src="/svg/html.svg" alt="copy" width={16} height={16} />
-
-                <span className="text-sm font-medium">HTML</span>
-              </button>
-              <button
-                className="btn-teal  w-full"
-                type="button"
-                onClick={() => createSCSS()}
-              >
-                <Image src="/svg/scss.svg" alt="copy" width={16} height={16} />
-                <span className="text-sm font-medium">SCSS</span>
-              </button>
-              <button
-                className="btn-teal  w-full"
-                type="button"
-                onClick={() => createPug()}
-              >
-                <Image src="/svg/pug.svg" alt="copy" width={16} height={16} />
-                <span className="text-sm font-medium">Pug</span>
-              </button>
-            </div>
+            <PlazaToolbar
+              resetAll={resetAll}
+              setEditMode={setEditMode}
+              editMode={editMode}
+              createHtml={createHtml}
+              createSCSS={createSCSS}
+            />
           </div>
           <AdminComponent />
 
@@ -875,6 +569,7 @@ export default function PlazaComponent({
                       setModalTextsOpen(false);
                       setNNode(null);
                       setOpenAdmin(false);
+                      setOpenSandbox(false);
                     }}
                   >
                     Quit active Project
