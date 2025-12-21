@@ -1,18 +1,19 @@
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
-  const { userId, token } = await request.json();
+  const { user, token } = await request.json();
 
   const res = NextResponse.json({ ok: true });
 
-  // Примеры: можешь хранить либо userId, либо сам token
-  res.cookies.set("userId", String(userId), {
+  // токен — httpOnly
+  res.cookies.set("token", token, {
     httpOnly: true,
     path: "/",
   });
 
-  res.cookies.set("token", token, {
-    httpOnly: true,
+  // весь user — обычная кука (чтобы layout мог прочитать и отдать в StateProvider)
+  res.cookies.set("user", JSON.stringify(user), {
+    httpOnly: false,
     path: "/",
   });
 

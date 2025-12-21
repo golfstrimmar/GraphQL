@@ -31,7 +31,7 @@ type HtmlNode = {
 
 type nodeToAdd = { type: number };
 
-type User = {
+export type User = {
   id: string;
   email: string;
   name: string;
@@ -59,18 +59,33 @@ interface StateContextType {
   redoStack: HtmlNode[][];
   texts: string[];
   setTexts: React.Dispatch<React.SetStateAction<string[]>>;
+  HTML: string;
+  setHTML: React.Dispatch<React.SetStateAction<string>>;
+  SCSS: string;
+  setSCSS: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const StateContext = createContext<StateContextType | null>(null);
 
-export function StateProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+export function StateProvider({
+  children,
+  initialUser,
+}: {
+  children: ReactNode;
+  initialUser: User | null;
+}) {
+  const [user, setUser] = useState<User | null>(initialUser);
   const [users, setUsers] = useState<User[] | null>(null);
   const [htmlJson, setHtmlJson] = useState<HtmlNode[]>([]);
   const [nodeToAdd, setNodeToAdd] = useState<nodeToAdd | null>(null);
   const [modalMessage, setModalMessage] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [texts, setTexts] = useState<string[]>([]);
+  const [undoStack, setUndoStack] = useState<HtmlNode[][]>([]);
+  const [redoStack, setRedoStack] = useState<HtmlNode[][]>([]);
+  const [HTML, setHTML] = useState<string>("");
+  const [SCSS, setSCSS] = useState<string>("");
+
   const { data: usersData, subscribeToMore: subscribeToUsers } = useQuery(
     GET_USERS,
     { fetchPolicy: "cache-and-network" },
@@ -80,11 +95,15 @@ export function StateProvider({ children }: { children: ReactNode }) {
     variables: { name: "initialTags" },
     fetchPolicy: "network-only",
   });
-  const [undoStack, setUndoStack] = useState<HtmlNode[][]>([]);
-  const [redoStack, setRedoStack] = useState<HtmlNode[][]>([]);
-  const [HTML, setHTML] = useState<string>("");
-  const [SCSS, setSCSS] = useState<string>("");
-  // ===================================
+  // ------------------------
+  useEffect(() => {
+    if (!user) return;
+    console.log("<===state user===>", user);
+  }, [user]);
+
+  // ------------------------
+  // ------------------------
+  // ------------------------
   const updateHtmlJson = (
     nextHtmlJson: HtmlNode[] | ((prev: HtmlNode[]) => HtmlNode[]),
   ) => {
@@ -113,20 +132,7 @@ export function StateProvider({ children }: { children: ReactNode }) {
     setHtmlJson(next);
   };
 
-  // ==================== INIT USER ====================
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const stored = localStorage.getItem("user");
-    if (stored) setUser(JSON.parse(stored));
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (user) localStorage.setItem("user", JSON.stringify(user));
-    else localStorage.removeItem("user");
-  }, [user]);
-
-  // ==================== INIT USERS + SUB ====================
+  // ==== INIT USERS + SUBS ====
   useEffect(() => {
     if (usersData?.users) setUsers(usersData.users);
 
@@ -148,13 +154,13 @@ export function StateProvider({ children }: { children: ReactNode }) {
         if (!subscriptionData.data) return prev;
         const updatedUser = subscriptionData.data.userUpdated;
         setUsers((prevUsers) =>
-          prevUsers.map((user) =>
-            user.id === updatedUser.id ? updatedUser : user,
-          ),
+          prevUsers
+            ? prevUsers.map((u) => (u.id === updatedUser.id ? updatedUser : u))
+            : null,
         );
         return {
-          users: prev.users.map((user) =>
-            user.id === updatedUser.id ? updatedUser : user,
+          users: prev.users.map((u) =>
+            u.id === updatedUser.id ? updatedUser : u,
           ),
         };
       },
@@ -166,13 +172,11 @@ export function StateProvider({ children }: { children: ReactNode }) {
         if (!subscriptionData.data) return prev;
         const deletedUserId = subscriptionData.data.userDeleted;
         setUsers((prevUsers) =>
-          prevUsers
-            ? prevUsers.filter((user) => user.id !== deletedUserId)
-            : null,
+          prevUsers ? prevUsers.filter((u) => u.id !== deletedUserId) : null,
         );
         return {
           users: prev.users
-            ? prev.users.filter((user) => user.id !== deletedUserId)
+            ? prev.users.filter((u) => u.id !== deletedUserId)
             : [],
         };
       },
@@ -185,16 +189,18 @@ export function StateProvider({ children }: { children: ReactNode }) {
     };
   }, [usersData, subscribeToUsers]);
 
-  // ==================== MODAL ====================
+  // ==== MODAL ====
   useEffect(() => {
     if (!modalMessage) return;
     setIsModalOpen(true);
-    setTimeout(() => {
+    const t = setTimeout(() => {
       setIsModalOpen(false);
       setModalMessage("");
     }, 2000);
+    return () => clearTimeout(t);
   }, [modalMessage]);
-  // ==================== INIT HTML JSON ====================
+
+  // ==== INIT HTML JSON ====
   useEffect(() => {
     if (typeof window === "undefined") return;
     const stored = localStorage.getItem("htmlJson");
@@ -202,9 +208,12 @@ export function StateProvider({ children }: { children: ReactNode }) {
       setHtmlJson(JSON.parse(stored));
     } else if (jsonData) {
       const initialJson = jsonData?.jsonDocumentByName?.content[0];
-      localStorage.setItem("htmlJson", JSON.stringify(initialJson));
-      setHtmlJson(initialJson);
-      localStorage.setItem("htmlJson", JSON.stringify(initialJson));
+      if (initialJson) {
+        localStorage.setItem("htmlJson", JSON.stringify(initialJson));
+        setHtmlJson(initialJson);
+      } else {
+        setHtmlJson([]);
+      }
     } else {
       setHtmlJson([]);
     }
@@ -217,27 +226,29 @@ export function StateProvider({ children }: { children: ReactNode }) {
       (htmlJson === null || htmlJson === undefined || htmlJson.length === 0) &&
       jsonData
     ) {
-      // setUndoStack([]);
-      // setRedoStack([]);
       const initialJson = jsonData?.jsonDocumentByName?.content[0];
 
       if (initialJson) {
-        // 🧩 создаём новый объект (глубокая копия)
         const clone = JSON.parse(JSON.stringify(initialJson));
-
-        // сохраняем в localStorage и в состояние
         localStorage.setItem("htmlJson", JSON.stringify(clone));
-        updateHtmlJson(clone); // <-- гарантирует новое значение (новая ссылка)
+        updateHtmlJson(clone);
       } else {
-        // если вдруг jsonData пустое — обнуляем
         updateHtmlJson([]);
         localStorage.setItem("htmlJson", "[]");
       }
     } else {
-      // сохраняем текущее состояние в localStorage
       localStorage.setItem("htmlJson", JSON.stringify(htmlJson));
     }
   }, [htmlJson, jsonData]);
+
+  const showModal = (message: string, duration = 2000) => {
+    setModalMessage(message);
+    setIsModalOpen(true);
+    setTimeout(() => {
+      setIsModalOpen(false);
+      setModalMessage("");
+    }, duration);
+  };
 
   return (
     <StateContext.Provider
@@ -250,7 +261,11 @@ export function StateProvider({ children }: { children: ReactNode }) {
         setUser,
         users,
         setUsers,
+        modalMessage,
         setModalMessage,
+        isModalOpen,
+        setIsModalOpen,
+        showModal,
         updateHtmlJson,
         undo,
         redo,

@@ -11,7 +11,6 @@ import {
   LOGIN_WITH_GOOGLE,
   SET_PASSWORD,
 } from "@/apollo/mutations";
-
 import { GET_USERS } from "@/apollo/queries";
 import { useStateContext } from "@/providers/StateProvider";
 
@@ -19,7 +18,7 @@ export default function Login() {
   const router = useRouter();
   const client = useApolloClient();
   const { setModalMessage, setUser } = useStateContext();
-  //
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -49,36 +48,25 @@ export default function Login() {
         setIsLoading(false);
         return setModalMessage("⚠️Invalid login");
       }
-      console.log("<=====🟢 MUTATION LOGIN USER  =====>", loggedInUser);
-      // -------- localStorage
       const { token, ...userWithoutToken } = loggedInUser;
       const newUser = { ...userWithoutToken };
-      localStorage.setItem("token", token);
       await fetch("/api/auth/set-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: newUser.user.id,
+          user: newUser.user,
           token,
         }),
       });
-
-      console.log("<=== 📤 User :", newUser);
       setUser(newUser.user);
-      localStorage.setItem("user", JSON.stringify(newUser));
-      // --------
-
-      // Обновляем статус пользователя в кэше Apollo
-      updateUserStatusInCache(client, loggedInUser.id, true);
-
+      updateUserStatusInCache(client, loggedInUser.user.id, true);
       setModalMessage("🟢Login successful!");
-
       setTimeout(() => {
         setEmail("");
         setPassword("");
         router.push("/profile");
       }, 2000);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Login error:", err);
 
       if (
@@ -123,18 +111,17 @@ export default function Login() {
         return setModalMessage("Google login failed");
       }
 
-      // ---- localStorage + контекст
-      localStorage.setItem("token", loggedInToken);
-      console.log("<====👤👤👤loggedInUser====>", loggedInUser);
-      setUser(loggedInUser);
-      localStorage.setItem("user", JSON.stringify(loggedInUser));
+      // при желании можно оставить токен в localStorage
+      // localStorage.setItem("token", loggedInToken);
 
-      // ---- куки для сервера
+      setUser(loggedInUser);
+
+      // куки: целый user + token
       await fetch("/api/auth/set-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: loggedInUser.id,
+          user: loggedInUser,
           token: loggedInToken,
         }),
       });
@@ -174,7 +161,6 @@ export default function Login() {
     setModalMessage("Google login failed.");
   };
 
-  //------- Обновляет статус пользователя в Apollo cache
   function updateUserStatusInCache(
     client: any,
     userId: number,
@@ -262,7 +248,7 @@ export default function Login() {
 
                   try {
                     await setPasswordMutation({
-                      variables: { email, password },
+                      variables: { email, password: newPassword },
                     });
                     setModalMessage("Password set successfully!");
 
