@@ -47,8 +47,7 @@ const Navbar: React.FC = () => {
   const handleLogout = async () => {
     try {
       setUser(null);
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      localStorage.removeItem("lastActivity");
 
       await fetch("/api/auth/logout", {
         method: "POST",
