@@ -54,6 +54,15 @@ export default function Login() {
       const { token, ...userWithoutToken } = loggedInUser;
       const newUser = { ...userWithoutToken };
       localStorage.setItem("token", token);
+      await fetch("/api/auth/set-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: newUser.user.id,
+          token,
+        }),
+      });
+
       console.log("<=== 📤 User :", newUser);
       setUser(newUser.user);
       localStorage.setItem("user", JSON.stringify(newUser));
@@ -117,6 +126,15 @@ export default function Login() {
       console.log("<====👤👤👤loggedInUser====>", loggedInUser);
       setUser(loggedInUser);
       localStorage.setItem("user", JSON.stringify(loggedInUser));
+      await fetch("/api/auth/set-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: newUser.user.id,
+          token,
+        }),
+      });
+
       // ----------------------
       setModalMessage("Google login successful!");
       setTimeout(() => router.push("/profile"), 2000);
@@ -128,7 +146,7 @@ export default function Login() {
 
       if (graphQLError?.extensions?.code === "ACCOUNT_NEEDS_PASSWORD") {
         setModalMessage(
-          "Account registered via Google. Please set a password first."
+          "Account registered via Google. Please set a password first.",
         );
         setTimeout(() => setShowSetPasswordModal(true), 2000);
         return;
@@ -159,14 +177,14 @@ export default function Login() {
   function updateUserStatusInCache(
     client: any,
     userId: number,
-    isLoggedIn: boolean
+    isLoggedIn: boolean,
   ) {
     client.cache.updateQuery({ query: GET_USERS }, (prev: any) => {
       if (!prev?.users) return prev;
 
       return {
         users: prev.users.map((u: any) =>
-          u.id === userId ? { ...u, isLoggedIn } : u
+          u.id === userId ? { ...u, isLoggedIn } : u,
         ),
       };
     });
@@ -250,7 +268,7 @@ export default function Login() {
                     setShowSetPasswordModal(false);
                     setTimeout(
                       () => handleSubmit(new Event("submit") as any),
-                      1000
+                      1000,
                     ); // автологин
                   } catch (err: any) {
                     console.error("Set password error:", err);

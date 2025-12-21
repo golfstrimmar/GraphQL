@@ -22,6 +22,7 @@ const Navbar: React.FC = () => {
   // const [logoutUser, { loading }] = useMutation(LOGOUT_USER);
   const pages = [
     { title: "Home", path: "/" },
+    { title: "Figma Projects", path: "/figprojcts" },
     { title: "Figma", path: "/figma" },
     { title: "Plaza", path: "/plaza" },
     { title: "Sandbox", path: "/sandbox" },
@@ -43,7 +44,7 @@ const Navbar: React.FC = () => {
     setUser(null);
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    router.push("/plaza");
+    router.push("/");
   };
 
   useEffect(() => {
