@@ -7,12 +7,14 @@ import { useRouter, usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { useMutation } from "@apollo/client";
 import useHasMounted from "@/hooks/useHasMounted";
+import { NextResponse } from "next/server";
 // import { LOGOUT_USER } from "@/apolo/mutations";
 import { useStateContext } from "@/providers/StateProvider";
 import { User } from "@/types/user";
 import Image from "next/image";
 
 const Navbar: React.FC = () => {
+  const { setModalMessage } = useStateContext();
   const hasMounted = useHasMounted();
   const router = useRouter();
   const pathname = usePathname();
@@ -20,6 +22,8 @@ const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [activeLink, setActiveLink] = useState<string>("");
   // const [logoutUser, { loading }] = useMutation(LOGOUT_USER);
+
+  //------------------
   const pages = [
     { title: "Home", path: "/" },
     { title: "Figma Projects", path: "/figprojcts" },
@@ -41,12 +45,22 @@ const Navbar: React.FC = () => {
   }, [pathname, isOpen]);
 
   const handleLogout = async () => {
-    setUser(null);
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    router.push("/");
-  };
+    try {
+      setUser(null);
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
 
+      await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+
+      setModalMessage("You have been logged out.");
+      router.push("/");
+    } catch (e) {
+      console.error("Logout error", e);
+      setModalMessage("Logout failed. Try again.");
+    }
+  };
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth > 767) setIsOpen(false);

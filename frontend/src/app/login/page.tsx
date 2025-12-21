@@ -114,34 +114,35 @@ export default function Login() {
         variables: { idToken: response.credential },
       });
       console.log("<====data====>", data);
-      const loggedInUser = data?.loginWithGoogle.user;
 
-      if (!loggedInUser) {
+      const loggedInUser = data?.loginWithGoogle.user;
+      const loggedInToken = data?.loginWithGoogle.token;
+
+      if (!loggedInUser || !loggedInToken) {
         setIsLoading(false);
         return setModalMessage("Google login failed");
       }
-      const loggedInToken = data?.loginWithGoogle.token;
-      // ----------------------
+
+      // ---- localStorage + контекст
       localStorage.setItem("token", loggedInToken);
       console.log("<====👤👤👤loggedInUser====>", loggedInUser);
       setUser(loggedInUser);
       localStorage.setItem("user", JSON.stringify(loggedInUser));
+
+      // ---- куки для сервера
       await fetch("/api/auth/set-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: newUser.user.id,
-          token,
+          userId: loggedInUser.id,
+          token: loggedInToken,
         }),
       });
 
-      // ----------------------
       setModalMessage("Google login successful!");
       setTimeout(() => router.push("/profile"), 2000);
     } catch (err: any) {
       console.error("Login error:", err);
-
-      // Проверяем GraphQL ошибки
       const graphQLError = err?.graphQLErrors?.[0];
 
       if (graphQLError?.extensions?.code === "ACCOUNT_NEEDS_PASSWORD") {
@@ -162,7 +163,7 @@ export default function Login() {
         setTimeout(() => router.push("/register"), 2000);
         return;
       }
-      // Любая другая ошибка
+
       setModalMessage("⚠️Something went wrong. Try again.");
     } finally {
       setIsLoading(false);

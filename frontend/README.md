@@ -66,3 +66,14 @@ return;
 }, 2000);
 
 https://console.cloudinary.com/app/c-9988edc34f8836c410ad1695096399/assets/media_library/search?q=&view_mode=mosaic
+
+import { cookies } from "next/headers";
+export default async function Page() {
+  const cookieStore = await cookies();
+  const userId = cookieStore.get("userId")?.value ?? null;
+  // ...
+}
+
+
+const [getDogs, { loading, data }] = useLazyQuery(GET_DOGS);
+onClick={() => getDogs({ variables: { breed: 'bulldog' } })}
