@@ -41,15 +41,20 @@ export default function ClientLayout({
     return () => {
       clearInterval(interval);
       events.forEach((event) =>
-        window.removeEventListener(event, updateActivity)
+        window.removeEventListener(event, updateActivity),
       );
     };
   }, []);
 
-  const clearStorage = () => {
+  const clearStorage = async () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("lastActivity");
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (e) {
+      console.error("Auto logout cookie clear failed", e);
+    }
     window.location.href = "/login";
   };
 
