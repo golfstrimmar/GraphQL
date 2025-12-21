@@ -110,13 +110,8 @@ export default function Login() {
         setIsLoading(false);
         return setModalMessage("Google login failed");
       }
-
-      // при желании можно оставить токен в localStorage
-      // localStorage.setItem("token", loggedInToken);
-
       setUser(loggedInUser);
 
-      // куки: целый user + token
       await fetch("/api/auth/set-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -126,7 +121,7 @@ export default function Login() {
         }),
       });
 
-      setModalMessage("Google login successful!");
+      setModalMessage("🟢Google login successful!");
       setTimeout(() => router.push("/profile"), 2000);
     } catch (err: any) {
       console.error("Login error:", err);
