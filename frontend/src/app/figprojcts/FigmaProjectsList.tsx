@@ -98,15 +98,8 @@ const FigmaProjectsList: React.FC<FigmaProjectsListProps> = ({
           Quit active Project
         </button>
       )}*/}
-      <button
-        onClick={() => {
-          setModalOpen(true);
-        }}
-        className="btn btn-empty px-2 my-2 "
-      >
-        + Add Project
-      </button>
-      {allProjects.length === 0 &&
+
+      {allProjects.length !== 0 &&
         allProjects.map((project) => (
           <div key={project.id} className="flex justify-between gap-2 p-1!  ">
             <Link
@@ -125,6 +118,14 @@ const FigmaProjectsList: React.FC<FigmaProjectsListProps> = ({
             </button>
           </div>
         ))}
+      <button
+        onClick={() => {
+          setModalOpen(true);
+        }}
+        className="btn btn-empty px-2 my-2 "
+      >
+        + Add Project
+      </button>
     </div>
   );
 };

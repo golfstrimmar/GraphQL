@@ -102,23 +102,13 @@ export const GET_FIGMA_PROJECTS_BY_USER = gql`
 export const GET_FIGMA_PROJECT_DATA = gql`
   query GetFigmaProjectData($projectId: ID!) {
     getFigmaProjectData(projectId: $projectId) {
-      project {
+      id
+      name
+      fileCache
+      owner {
         id
         name
-        fileKey
-        nodeId
-        owner {
-          id
-          name
-        }
-        figmaImages {
-          fileName
-          filePath
-          nodeId
-        }
-        fileCache
       }
-
       colors
       fonts
       textNodes {
@@ -128,6 +118,14 @@ export const GET_FIGMA_PROJECT_DATA = gql`
         fontSize
         color
         mixin
+      }
+      figmaImages {
+        fileName
+        filePath
+        nodeId
+        imageRef
+        type
+        fileKey
       }
     }
   }

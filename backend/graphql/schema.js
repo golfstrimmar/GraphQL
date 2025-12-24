@@ -129,7 +129,7 @@ export const typeDefs = gql`
     fileCache: JSON!
     createdAt: String!
     colors: [String!]
-    fonts: [String!]
+    fonts: JSON
     textNodes: [TextNodeWithStyle!]
   }
   type ImageUploadResponse {

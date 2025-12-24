@@ -35,29 +35,22 @@ export function getMixinName(fontFamily, fontWeight, fontSize) {
 // Функция извлечения данных для резолвера
 export function extractFigmaData(realJsonContent) {
   const colors = Object.values(realJsonContent.designTokens?.colors || {});
-  const fonts = realJsonContent.designTokens?.fonts || {};
+
+  const fontsObj = realJsonContent.designTokens?.fonts || {};
+  const fonts = fontsObj;
   const textNodes = findAllTextNodes(realJsonContent.structure);
-  // Генерация миксинов для уникальных комбо
+
   const usedCombos = new Set();
   textNodes.forEach((node) => {
     usedCombos.add(
-      `${node.fontFamily}|${node.fontWeight}|${node.fontSize}|${node.color}`
+      `${node.fontFamily}|${node.fontWeight}|${node.fontSize}|${node.color}`,
     );
   });
-  // usedCombos.forEach((combo) => {
-  // const [family, weight, size, color] = combo.split("|");
-  //     const mixinName = getMixinName(family, weight, size, color);
-  //     console.log(`@mixin ${mixinName} {
-  //   font-family: "${family}", sans-serif;
-  //   font-weight: ${weight};
-  //   font-size: ${size};
-  //   color: ${color};
-  // }
-  //   `);
-  // });
+
   const enhancedTextNodes = textNodes.map((node) => ({
     ...node,
     mixin: getMixinName(node.fontFamily, node.fontWeight, node.fontSize),
   }));
+
   return { colors, fonts, textNodes: enhancedTextNodes };
 }

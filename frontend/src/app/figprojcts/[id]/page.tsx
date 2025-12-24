@@ -42,12 +42,13 @@ const ProjectPage = () => {
   });
   const [project, setProject] = useState<any>(null);
 
-  //==== Обновление состояния при получении данных
+  //====
+
   useEffect(() => {
     if (!data?.getFigmaProjectData) return;
     const curentProject = data?.getFigmaProjectData;
     console.log("<=🔥🔥🔥🔥==project from db=🔥🔥🔥🔥==>", curentProject);
-    setProject(curentProject.project);
+    setProject(curentProject);
     setColors(curentProject.colors);
     setFonts(curentProject.fonts);
     setTexts(curentProject.textNodes);

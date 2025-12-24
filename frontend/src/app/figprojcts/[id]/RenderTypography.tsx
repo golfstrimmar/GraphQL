@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 const RenderTypography = ({ fonts }) => {
+  console.log("<===fonts===>", fonts);
   if (!fonts || Object.keys(fonts).length === 0) return null;
   return (
     <div className="bg-navy rounded-2xl shadow-xl p-2  mb-4 border border-slate-200">

@@ -33,7 +33,6 @@ const FigmaProjects = async () => {
   });
 
   const projects = data?.figmaProjectsByUser ?? [];
-
   return (
     <div className="container">
       <div className="flex flex-col gap-2 mb-2 mt-[100px]">
