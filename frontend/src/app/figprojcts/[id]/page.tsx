@@ -63,6 +63,7 @@ const ProjectPage = () => {
       .filter((img) => img.fileName !== "preview.png")
       .map((img) => ({
         ...img,
+        id: img.id,
         name: img.fileName,
         previewUrl: img.filePath,
       }));

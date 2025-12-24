@@ -46,8 +46,6 @@ model Project {
 model FigmaProject {
   id            Int          @id @default(autoincrement())
   name          String
-  fileKey       String?
-  nodeId        String?
   createdAt     DateTime     @default(now())
   owner         User         @relation("UserFigmaProjects", fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId       Int
@@ -55,12 +53,15 @@ model FigmaProject {
   figmaImages   FigmaImage[] @relation("ProjectImages")
   fileCache          Json?
   fileCacheUpdatedAt DateTime?
+  colors      Json?   // массив строк
+  fonts       Json?   // объект с family/sizes/weights
+  textNodes   Json?   // массив TextNodeWithStyle
   @@unique([ownerId, name])
 }
 
+
 model Font {
   id        Int      @id @default(autoincrement())
-  fileKey   String
   name      String
   scss      String
   texts     String[] // Postgres array (или JSON, если на SQLite)
@@ -74,10 +75,7 @@ model ColorVariable {
   hex          String
   rgba         String
   type         ColorType
-  fileKey      String
   createdAt    DateTime  @default(now())
-  @@unique([fileKey, variableName])
-  @@index([fileKey])
 }
 
 
@@ -87,17 +85,14 @@ model FigmaImage {
   id             Int          @id @default(autoincrement())
   fileName       String
   filePath       String
-  nodeId         String
   imageRef       String
   type           ImageType    @default(RASTER)
   createdAt      DateTime     @default(now())
   figmaProject   FigmaProject @relation("ProjectImages", fields: [figmaProjectId], references: [id], onDelete: Cascade)
   figmaProjectId Int
-  fileKey        String
-  @@unique([figmaProjectId, nodeId])
   @@index([figmaProjectId])
-  @@index([fileKey])
 }
+
 
 
 

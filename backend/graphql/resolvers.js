@@ -11,10 +11,10 @@ import getFigmaProjectData from "../queries/getFigmaProjectData.js";
 // import uploadFigmaImagesToCloudinary from "../mutations/FigmaImages.js";
 // import uploadFigmaSvgsToCloudinary from "../mutations/FigmaSVG.js";
 import removeFigmaImage from "../mutations/removeFigmaImage.js";
-import transformRasterToSvg from "../mutations/transformRasterToSvg.js";
+// import transformRasterToSvg from "../mutations/transformRasterToSvg.js";
 import removeFigmaProject from "../mutations/removeFigmaProject.js";
-import extractAndSaveColors from "../mutations/extractAndSaveColors.js";
-import extractAndSaveFonts from "../mutations/extractAndSaveFonts.js";
+// import extractAndSaveColors from "../mutations/extractAndSaveColors.js";
+// import extractAndSaveFonts from "../mutations/extractAndSaveFonts.js";
 import uploadFigmaJsonProject from "../mutations/uploadFigmaJsonProject.js";
 // ----
 import { GraphQLUpload } from "graphql-upload";
@@ -52,10 +52,6 @@ export const resolvers = {
         include: { owner: true },
       });
     },
-    getColorVariablesByFileKey: async (_, { fileKey }) =>
-      prisma.colorVariable.findMany({ where: { fileKey } }),
-    getFontsByFileKey: async (_, { fileKey }) =>
-      prisma.font.findMany({ where: { fileKey } }),
     getFigmaProjectData,
   },
   Mutation: {
@@ -152,32 +148,14 @@ export const resolvers = {
     removeUser: async (_, { userId }) => {
       const id = Number(userId);
 
-      // 1. Получаем все figmaProjects этого пользователя, чтобы найти fileKeys
       const userFigmaProjects = await prisma.figmaProject.findMany({
         where: { ownerId: id },
       });
-      const fileKeys = userFigmaProjects.map((f) => f.fileKey);
-
-      // 2. Удаляем все шрифты, связанные с этими fileKey
-      if (fileKeys.length) {
-        await prisma.font.deleteMany({ where: { fileKey: { in: fileKeys } } });
-        await prisma.colorVariable.deleteMany({
-          where: { fileKey: { in: fileKeys } },
-        });
-        // Добавь сюда аналогично удаление других сущностей по fileKey, если появятся.
-      }
-
-      // 3. Удаляем проекты и figmaProjects пользователя (эти действия удалят и каскадные FigmaImages)
-      await prisma.project.deleteMany({ where: { ownerId: id } });
-      await prisma.figmaProject.deleteMany({ where: { ownerId: id } });
-
-      // 4. Удаляем юзера
       const deletedUser = await prisma.user.delete({
         where: { id },
         select: { id: true },
       });
 
-      // 5. Триггерим событие подписки на удаление
       ee.emit("USER_DELETED", deletedUser.id);
 
       return deletedUser.id;
@@ -249,7 +227,6 @@ export const resolvers = {
       const exists = await prisma.figmaProject.findUnique({
         where: { id },
       });
-      console.log("figmaProject exists?", !!exists);
 
       if (!exists) {
         throw new Error(`FigmaProject ${id} not found`);
@@ -270,10 +247,8 @@ export const resolvers = {
             create: images.map((img) => ({
               fileName: img.fileName,
               filePath: img.filePath,
-              nodeId: img.nodeId,
               imageRef: img.imageRef,
               type: img.type,
-              fileKey: img.fileKey,
             })),
           },
         },
@@ -286,41 +261,43 @@ export const resolvers = {
       return updated;
     },
 
-    removeFigmaImage: async (_parent, { nodeId, figmaProjectId }) => {
-      const projectId = Number(figmaProjectId);
+    // removeFigmaImage: async (_parent, { figmaProjectId, figmaImageId }) => {
+    //   const projectId = Number(figmaProjectId);
+    //   const imageId = Number(figmaImageId);
 
-      // Проверяем, что проект есть
-      const project = await prisma.figmaProject.findUnique({
-        where: { id: projectId },
-      });
-      if (!project) {
-        throw new Error(`FigmaProject ${projectId} not found`);
-      }
-      const updated = await prisma.figmaProject.update({
-        where: { id: projectId },
-        data: {
-          figmaImages: {
-            deleteMany: {
-              nodeId,
-            },
-          },
-        },
-        include: {
-          figmaImages: true,
-          owner: true,
-        },
-      });
-      console.log("<====updated====>", updated);
-      return updated;
-    },
+    //   const project = await prisma.figmaProject.findUnique({
+    //     where: { id: projectId },
+    //   });
+
+    //   if (!project) {
+    //     throw new Error(`FigmaProject ${projectId} not found`);
+    //   }
+
+    //   const updated = await prisma.figmaProject.update({
+    //     where: { id: projectId },
+    //     data: {
+    //       figmaImages: {
+    //         deleteMany: {
+    //           id: imageId,
+    //         },
+    //       },
+    //     },
+    //     include: {
+    //       figmaImages: true,
+    //       owner: true,
+    //     },
+    //   });
+
+    //   return updated;
+    // },
 
     // uploadFigmaImagesToCloudinary,
     // uploadFigmaSvgsToCloudinary,
-    transformRasterToSvg,
+
     removeFigmaImage,
     removeFigmaProject,
-    extractAndSaveColors,
-    extractAndSaveFonts,
+    // extractAndSaveColors,
+    // extractAndSaveFonts,
     uploadFigmaJsonProject,
   },
   User: {
@@ -332,7 +309,7 @@ export const resolvers = {
     figmaProjects: (parent) =>
       prisma.figmaProject.findMany({
         where: { ownerId: parent.id },
-        select: { id: true, name: true, fileKey: true, nodeId: true },
+        select: { id: true, name: true },
       }),
   },
   Project: {

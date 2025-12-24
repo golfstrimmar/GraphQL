@@ -55,35 +55,38 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     useMutation(UPLOAD_ULON_IMAGE);
   const [updateFigmaProject, { loading: updateLoading }] =
     useMutation(UPDATE_FIGMA_PROJECT);
-  const [removeFigmaImage] = useMutation(REMOVE_FIGMA_IMAGE, {
-    update(cache, { data }) {
-      const updatedProject = data?.removeFigmaImage;
-      if (!updatedProject) return;
+  const [removeFigmaImage, { loading: removeLoading }] = useMutation(
+    REMOVE_FIGMA_IMAGE,
+    {
+      update(cache, { data }) {
+        const updatedProject = data?.removeFigmaImage;
+        if (!updatedProject) return;
 
-      // читаем из кеша текущие данные проекта
-      const existing = cache.readQuery({
-        query: GET_FIGMA_PROJECT_DATA,
-        variables: { projectId: String(updatedProject.id) },
-      }) as any;
+        // читаем из кеша текущие данные проекта
+        const existing = cache.readQuery({
+          query: GET_FIGMA_PROJECT_DATA,
+          variables: { projectId: String(updatedProject.id) },
+        }) as any;
 
-      if (!existing?.getFigmaProjectData) return;
+        if (!existing?.getFigmaProjectData) return;
 
-      cache.writeQuery({
-        query: GET_FIGMA_PROJECT_DATA,
-        variables: { projectId: String(updatedProject.id) },
-        data: {
-          getFigmaProjectData: {
-            ...existing.getFigmaProjectData,
-            project: {
-              ...existing.getFigmaProjectData.project,
-              figmaImages: updatedProject.figmaImages,
-              fileCache: updatedProject.fileCache,
+        cache.writeQuery({
+          query: GET_FIGMA_PROJECT_DATA,
+          variables: { projectId: String(updatedProject.id) },
+          data: {
+            getFigmaProjectData: {
+              ...existing.getFigmaProjectData,
+              project: {
+                ...existing.getFigmaProjectData.project,
+                figmaImages: updatedProject.figmaImages,
+                fileCache: updatedProject.fileCache,
+              },
             },
           },
-        },
-      });
+        });
+      },
     },
-  });
+  );
 
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨э
 
@@ -128,33 +131,39 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   };
 
   const handleRemoveImage = async (img) => {
-    if (
-      img?.name === "preview.png" ||
-      img?.fileName === "preview.png" ||
-      img?.file?.name === "preview.png"
-    ) {
-      setIsPrev(false);
-      setIsNewImages(false);
-      setPreview(null);
-      setImageFiles((prev) =>
-        prev.filter(
-          (f) =>
-            f?.fileName !== "preview.png" &&
-            f?.name !== "preview.png" &&
-            f?.file?.name !== "preview.png",
-        ),
-      );
-    }
-    if (currentProject && img.nodeId) {
-      setImageFiles((prev) => {
-        return prev.filter((f) => f.nodeId !== img.nodeId);
-      });
-      await removeFigmaImage({
+    setImageFiles((prev) => prev.filter((f) => f.id !== img.id));
+    // if (
+    //   img?.name === "preview.png" ||
+    //   img?.fileName === "preview.png" ||
+    //   img?.file?.name === "preview.png"
+    // ) {
+    //   setIsPrev(false);
+    //   setIsNewImages(false);
+    //   setPreview(null);
+    //   setImageFiles((prev) =>
+    //     prev.filter(
+    //       (f) =>
+    //         f?.fileName !== "preview.png" &&
+    //         f?.name !== "preview.png" &&
+    //         f?.file?.name !== "preview.png",
+    //     ),
+    //   );
+    //   return;
+    // }
+
+    if (currentProject && img.id) {
+      const { data } = await removeFigmaImage({
         variables: {
           figmaProjectId: currentProject.id,
-          nodeId: img.nodeId,
+          figmaImageId: img.id,
         },
       });
+      if (!data) {
+        setModalMessage("Error removing image");
+        return;
+      }
+      setModalMessage("Image removed successfully");
+      console.log("<==Remove=img===>", data.removeFigmaImage.figmaImages);
     }
   };
 
@@ -188,97 +197,13 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       return {
         fileName,
         filePath: url,
-        nodeId: String(maxNodeId + 1 + index),
         imageRef: url,
         type: "RASTER",
-        fileKey: currentProject.fileKey,
       };
     });
     setIsPrev(false);
     return { images };
   };
-
-  // const saveAllImages = async () => {
-  //   if (!imageFiles.length) return;
-  //   console.log("<===Uploader imageFiles=====>", imageFiles);
-
-  //   const imageFilesToUpload = imageFiles.filter(
-  //     (img) => img.file !== undefined
-  //   );
-  //   console.log("<====imageFilesToUpload====>", imageFilesToUpload);
-
-  //   try {
-  //     const uploadPromises = imageFilesToUpload.map((imgFile) =>
-  //       uploadImage({
-  //         variables: { file: imgFile.file },
-  //       })
-  //     );
-
-  //     const results = await Promise.all(uploadPromises);
-  //     console.log("<====results====>", results);
-
-  //     // const urls = results.map((res) => res.data?.uploadImage?.url);
-
-  //     // const newNodes: HtmlNode[] = urls.map((url, index) => ({
-  //     //   tag: "div",
-  //     //   class: "",
-  //     //   text: "img container",
-  //     //   style:
-  //     //     "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;position: relative; ",
-  //     //   children: [
-  //     //     {
-  //     //       tag: "div",
-  //     //       text: "imgs",
-  //     //       class: "imgs",
-  //     //       style:
-  //     //         "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;overflow: hidden;position: absolute;width: 100%;height: 100%;top: 0;left: 0;",
-  //     //       children: [
-  //     //         {
-  //     //           tag: "img",
-  //     //           text: "",
-  //     //           class: "",
-  //     //           style:
-  //     //             "background: #0ea5e9; padding: 2px 4px; border: 1px solid #adadad;",
-  //     //           children: [],
-  //     //           attributes: {
-  //     //             alt: index.toString(),
-  //     //             src: url,
-  //     //           },
-  //     //         },
-  //     //       ],
-  //     //     },
-  //     //   ],
-  //     // }));
-
-  //     // const newHtmlJson = {
-  //     //   ...htmlJson,
-  //     //   children: [...(htmlJson.children || []), ...newNodes],
-  //     // };
-  //     // setHtmlJson(newHtmlJson);
-
-  //     // ВАЖНО: используем тот же imageFilesToUpload
-  //     // const images = urls.map((url, index) => {
-  //     // const srcImg = imageFilesToUpload[index];
-  //     // const fileName = srcImg?.file?.name ?? srcImg?.fileName ?? "";
-  //     const images = results.map((res, index) => {
-  //       const url = res.data?.uploadImage?.url;
-  //       const fileName = res.data?.uploadImage?.filename;
-  //       console.log("<====url====>", url, fileName);
-  //       return {
-  //         fileName,
-  //         filePath: url,
-  //         nodeId: String(index),
-  //         imageRef: url,
-  //         type: "RASTER",
-  //         fileKey: currentProject.fileKey,
-  //       };
-  //     });
-  //     return { images };
-  //   } catch (error) {
-  //     console.error("Error saving images:", error);
-  //     setModalMessage("Error saving images", error);
-  //   }
-  // };
 
   const handleSaveProjectWithImages = async () => {
     const projectId = currentProject.id;
@@ -302,6 +227,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
   return (
     <div className="bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 mb-8">
+      {removeLoading && <Loading></Loading>}
       <div className="flex items-center gap-3 mb-6">
         <div className=" p-1 bg-gradient-to-br from-yellow-500 to-red-500 rounded-lg flex items-center justify-center">
           <span>🖼️</span>

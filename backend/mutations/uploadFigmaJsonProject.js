@@ -13,7 +13,6 @@ const uploadFigmaJsonProject = async (_, { ownerId, name, jsonContent }) => {
     data: {
       name,
       fileKey: realJsonContent?.metadata?.componentName || "json-upload",
-      nodeId: "root",
       previewUrl: null,
       fileCache: realJsonContent,
       owner: { connect: { id: Number(ownerId) } },

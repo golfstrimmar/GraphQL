@@ -15,7 +15,7 @@ const hasDirectVectorChildren = (node) => {
       "POLYGON",
       "STAR",
       "RECTANGLE",
-    ].includes(child.type)
+    ].includes(child.type),
   );
 };
 
@@ -46,30 +46,23 @@ const uploadFigmaSvgsToCloudinary = async (_, { projectId }) => {
   });
   if (!project) throw new Error("Project not found");
 
-  const { id, fileKey, nodeId, token, figmaImages } = project;
+  const { id, fileKey, token, figmaImages } = project;
   const headers = { "X-Figma-Token": token };
 
   // 🧠 1️⃣ Check if there are already saved SVG images
   const existingVectors = figmaImages.filter((img) => img.type === "VECTOR");
   if (existingVectors.length > 0) {
     console.log(
-      `📦 Found ${existingVectors.length} SVGs in the database, returning them.`
+      `📦 Found ${existingVectors.length} SVGs in the database, returning them.`,
     );
-    return existingVectors.map(({ nodeId, filePath }) => ({
-      nodeId,
+    return existingVectors.map(({ filePath }) => ({
       filePath,
     }));
   }
 
-  // 2️⃣ Получаем дерево ноды
-  const fileRes = await fetch(
-    `https://api.figma.com/v1/files/${fileKey}/nodes?ids=${nodeId}`,
-    { headers }
-  );
   if (!fileRes.ok) throw new Error("Failed to fetch Figma node data");
 
   const { nodes } = await fileRes.json();
-  const nodeData = nodes?.[nodeId];
   if (!nodeData) throw new Error("Node not found in Figma response");
 
   // 3️⃣ Собираем группы с прямыми векторными потомками
@@ -88,7 +81,7 @@ const uploadFigmaSvgsToCloudinary = async (_, { projectId }) => {
         try {
           const exportRes = await fetch(
             `https://api.figma.com/v1/images/${fileKey}?ids=${groupId}&format=svg`,
-            { headers }
+            { headers },
           );
           const { images } = await exportRes.json();
           const svgUrl = images[groupId];
@@ -98,7 +91,7 @@ const uploadFigmaSvgsToCloudinary = async (_, { projectId }) => {
           const { secure_url } = await uploadSvgToCloudinary(
             Buffer.from(svgBuffer),
             "ulon",
-            `${groupId}`
+            `${groupId}`,
           );
 
           // 5️⃣ Сохраняем SVG в базе
@@ -106,7 +99,6 @@ const uploadFigmaSvgsToCloudinary = async (_, { projectId }) => {
             data: {
               fileName: `${name.replace(/\.svg$/i, "")}.svg`,
               filePath: secure_url,
-              nodeId: groupId,
               imageRef: groupId,
               type: "VECTOR",
               figmaProjectId: id,
@@ -115,12 +107,12 @@ const uploadFigmaSvgsToCloudinary = async (_, { projectId }) => {
           });
 
           console.log(`✅ Uploaded top-level vector group: ${name}`);
-          uploaded.push({ nodeId: groupId, filePath: secure_url });
+          uploaded.push({ filePath: secure_url });
         } catch (err) {
           console.error(`❌ Failed to upload group ${name}`, err.message);
         }
-      })
-    )
+      }),
+    ),
   );
 
   return uploaded;

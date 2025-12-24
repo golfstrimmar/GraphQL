@@ -1,8 +1,8 @@
 import extractDesignColors from "../utils/extractDesignColors.js";
 import prisma from "../prisma/client.js";
-const extractAndSaveColors = async (_, { fileKey, figmaFile, nodeId }) => {
+const extractAndSaveColors = async (_, { fileKey, figmaFile }) => {
   // 1. Извлечение цветов с помощью серверной extractDesignColors
-  const extractedColors = extractDesignColors(figmaFile, nodeId);
+  const extractedColors = extractDesignColors(figmaFile);
   // console.log("<====extractedColors====>", extractedColors);
   if (!Array.isArray(extractedColors)) throw new Error("No color data");
 
@@ -40,14 +40,14 @@ const extractAndSaveColors = async (_, { fileKey, figmaFile, nodeId }) => {
       const rgba =
         c.formats?.rgba ||
         `rgba(${Math.round(c.r * 255)},${Math.round(c.g * 255)},${Math.round(
-          c.b * 255
+          c.b * 255,
         )},${c.a})`;
       const type = typeMap[c.type?.toLowerCase()] || "PALETTE";
       const variableName = `$${type.toLowerCase()}-${maxColors + index}`;
       return { variableName, hex, rgba, type };
     })
     .filter(
-      (v) => !existingVars.some((e) => e.hex === v.hex && e.type === v.type)
+      (v) => !existingVars.some((e) => e.hex === v.hex && e.type === v.type),
     );
 
   // 5. Сохраняем новые в БД

@@ -15,8 +15,6 @@ export const GET_USERS = gql`
       figmaProjects {
         id
         name
-        fileKey
-        nodeId
       }
     }
   }
@@ -63,8 +61,6 @@ export const GET_FIGMA_PROJECT = gql`
     figmaProject(id: $id) {
       id
       name
-      fileKey
-      nodeId
       token
       previewUrl
       owner {
@@ -74,7 +70,6 @@ export const GET_FIGMA_PROJECT = gql`
       figmaImages {
         fileName
         filePath
-        nodeId
         imageRef
         type
       }
@@ -88,8 +83,6 @@ export const GET_FIGMA_PROJECTS_BY_USER = gql`
     figmaProjectsByUser(userId: $userId) {
       id
       name
-      fileKey
-      nodeId
       owner {
         id
         name
@@ -120,38 +113,12 @@ export const GET_FIGMA_PROJECT_DATA = gql`
         mixin
       }
       figmaImages {
+        id
         fileName
         filePath
-        nodeId
         imageRef
         type
-        fileKey
       }
-    }
-  }
-`;
-
-// Получить colorVariables по fileKey
-export const GET_COLOR_VARIABLES_BY_FILE_KEY = gql`
-  query GetColorVariablesByFileKey($fileKey: String!) {
-    getColorVariablesByFileKey(fileKey: $fileKey) {
-      id
-      variableName
-      hex
-      type
-      fileKey
-    }
-  }
-`;
-export const GET_FONTS_BY_FILE_KEY = gql`
-  query GetFontsByFileKey($fileKey: String!) {
-    getFontsByFileKey(fileKey: $fileKey) {
-      id
-      fileKey
-      name
-      scss
-      texts
-      createdAt
     }
   }
 `;

@@ -11,6 +11,7 @@ import fetch from "node-fetch";
 import { typeDefs } from "./graphql/schema.js";
 import { resolvers } from "./graphql/resolvers.js";
 import { graphqlUploadExpress } from "graphql-upload";
+
 // Создаём схему
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 
@@ -54,7 +55,7 @@ app.use(
   }),
   graphqlUploadExpress({ maxFileSize: 100000000, maxFiles: 100 }),
   bodyParser.json({ limit: "20mb" }),
-  expressMiddleware(server)
+  expressMiddleware(server),
 );
 
 const PORT = process.env.PORT || 4000;
@@ -67,6 +68,6 @@ app.get("/", (req, res) => {
 httpServer.listen(PORT, () => {
   console.log(`🚀 GraphQL server running on port ${PORT}`);
   console.log(
-    `📡 WebSocket subscriptions ready at ws://localhost:${PORT}/graphql`
+    `📡 WebSocket subscriptions ready at ws://localhost:${PORT}/graphql`,
   );
 });

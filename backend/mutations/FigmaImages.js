@@ -14,19 +14,18 @@ const uploadFigmaImagesToCloudinary = async (_, { projectId }) => {
   });
   if (!project) throw new Error("Project not found");
 
-  const { id, fileKey, nodeId, token, figmaImages } = project;
+  const { id, figmaImages } = project;
 
   // 🧠 1️⃣ Check if there are already saved RASTER images
   const existingRASTERImages = figmaImages.filter(
-    (img) => img.type === "RASTER"
+    (img) => img.type === "RASTER",
   );
 
   if (existingRASTERImages.length > 0) {
     console.log(
-      `📦  ${existingRASTERImages.length} RASTER images found in DB.`
+      `📦  ${existingRASTERImages.length} RASTER images found in DB.`,
     );
-    return existingRASTERImages.map(({ nodeId, filePath }) => ({
-      nodeId,
+    return existingRASTERImages.map(({ filePath }) => ({
       filePath,
     }));
   }
@@ -34,33 +33,17 @@ const uploadFigmaImagesToCloudinary = async (_, { projectId }) => {
   // --- если нет изображений в базе, продолжаем загрузку из Figma ---
   const headers = { "X-Figma-Token": token };
 
-  // 2️⃣ Запрашиваем конкретный узел (страницу/фрейм)
-  const fileRes = await fetch(
-    `https://api.figma.com/v1/files/${fileKey}/nodes?ids=${nodeId}`,
-    { headers }
-  );
   if (!fileRes.ok) throw new Error("Failed to fetch Figma node data");
 
   const { nodes } = await fileRes.json();
-  const nodeData = nodes?.[nodeId];
   if (!nodeData) throw new Error("Node not found in Figma response");
 
   // 3️⃣ Собираем ссылки на изображения
-  const imageRefToNodeId = collectUniqueImageRefs(nodeData.document);
-  const imageRefs = Object.keys(imageRefToNodeId);
 
   if (imageRefs.length === 0) {
     console.log("⚠️ Нет изображений для загрузки");
     return [];
   }
-
-  const nodeIds = Object.values(imageRefToNodeId);
-  const imageUrlsByNodeId = await fetchImageUrls(
-    fileKey,
-    nodeIds,
-    token,
-    "png"
-  );
 
   const uploadedCache = {};
   const limit = pLimit(4);
@@ -83,14 +66,12 @@ const uploadFigmaImagesToCloudinary = async (_, { projectId }) => {
 
   const uploadTasks = imageRefs.map((imageRef) =>
     limit(async () => {
-      const nodeId = imageRefToNodeId[imageRef];
-      const url = imageUrlsByNodeId[nodeId];
       if (!url || url.endsWith(".svg")) return;
 
       try {
         const buffer = await fetchImageBuffer(url);
         const { secure_url } = await retry(() =>
-          uploadToCloudinary(buffer, "ulon", imageRef)
+          uploadToCloudinary(buffer, "ulon", imageRef),
         );
 
         uploadedCache[imageRef] = secure_url;
@@ -99,7 +80,7 @@ const uploadFigmaImagesToCloudinary = async (_, { projectId }) => {
       } catch (err) {
         console.error(`❌ Upload failed for ${imageRef}`, err.message);
       }
-    })
+    }),
   );
 
   await Promise.allSettled(uploadTasks);
@@ -107,25 +88,21 @@ const uploadFigmaImagesToCloudinary = async (_, { projectId }) => {
   // 4️⃣ Формируем результат
   const result = imageRefs
     .map((imageRef) => ({
-      nodeId: imageRefToNodeId[imageRef],
       url: uploadedCache[imageRef],
       imageRef,
     }))
     .filter(({ url }) => Boolean(url));
 
-  console.log(`✨ Uploaded ${result.length} images for node ${nodeId}`);
-
   // 5️⃣ Сохраняем в БД
   if (result.length > 0) {
     await prisma.figmaImage.createMany({
-      data: result.map(({ imageRef, url, nodeId }) => ({
+      data: result.map(({ imageRef, url }) => ({
         fileName: `${imageRef}.webp`,
         filePath: url,
-        nodeId,
+
         imageRef,
         figmaProjectId: id,
         type: "RASTER",
-        fileKey: fileKey,
       })),
       skipDuplicates: true,
     });
@@ -134,11 +111,10 @@ const uploadFigmaImagesToCloudinary = async (_, { projectId }) => {
   // 6️⃣ Возвращаем результат
   const savedImages = await prisma.figmaImage.findMany({
     where: { figmaProjectId: id, type: "RASTER" },
-    select: { nodeId: true, filePath: true },
+    select: { filePath: true },
   });
 
-  return savedImages.map(({ nodeId, filePath }) => ({
-    nodeId,
+  return savedImages.map(({ filePath }) => ({
     filePath,
   }));
 };

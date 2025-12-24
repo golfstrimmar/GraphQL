@@ -164,13 +164,10 @@ export const UPLOAD_FIGMA_JSON_PROJECT = gql`
       project {
         id
         name
-        fileKey
-        nodeId
         previewUrl
         fileCache
         figmaImages {
           fileName
-          nodeId
         }
         owner {
           id
@@ -198,11 +195,9 @@ export const UPDATE_FIGMA_PROJECT = gql`
     updateFigmaProject(figmaProjectId: $figmaProjectId, images: $images) {
       id
       name
-      fileKey
       figmaImages {
         fileName
         filePath
-        nodeId
       }
     }
   }
@@ -219,27 +214,19 @@ export const REMOVE_FIGMA_PROJECT = gql`
 export const UPLOAD_FIGMA_IMAGES_TO_CLOUDINARY = gql`
   mutation uploadFigmaImagesToCloudinary($projectId: ID!) {
     uploadFigmaImagesToCloudinary(projectId: $projectId) {
-      nodeId
-      filePath
-    }
-  }
-`;
-
-export const UPLOAD_FIGMA_SVGS_TO_CLOUDINARY = gql`
-  mutation uploadFigmaSvgsToCloudinary($projectId: ID!) {
-    uploadFigmaSvgsToCloudinary(projectId: $projectId) {
-      nodeId
       filePath
     }
   }
 `;
 
 export const REMOVE_FIGMA_IMAGE = gql`
-  mutation RemoveFigmaImage($figmaProjectId: ID!, $nodeId: String!) {
-    removeFigmaImage(figmaProjectId: $figmaProjectId, nodeId: $nodeId) {
+  mutation RemoveFigmaImage($figmaProjectId: ID!, $figmaImageId: ID!) {
+    removeFigmaImage(
+      figmaProjectId: $figmaProjectId
+      figmaImageId: $figmaImageId
+    ) {
       id
       figmaImages {
-        nodeId
         fileName
         filePath
       }
@@ -248,65 +235,21 @@ export const REMOVE_FIGMA_IMAGE = gql`
   }
 `;
 
-export const TRANSFORM_RASTER_TO_SVG = gql`
-  mutation transformRasterToSvg($nodeId: String!) {
-    transformRasterToSvg(nodeId: $nodeId) {
-      nodeId
-      filePath
-    }
-  }
-`;
-
 export const EXTRACT_AND_SAVE_COLORS = gql`
-  mutation extractAndSaveColors(
-    $fileKey: String!
-    $figmaFile: JSON!
-    $nodeId: String!
-  ) {
-    extractAndSaveColors(
-      fileKey: $fileKey
-      figmaFile: $figmaFile
-      nodeId: $nodeId
-    ) {
+  mutation extractAndSaveColors($figmaFile: JSON!) {
+    extractAndSaveColors(figmaFile: $figmaFile) {
       id
       variableName
       hex
       rgba
       type
-      fileKey
     }
   }
 `;
 
-// // Добавить классы шрифтов
-// export const ADD_FONT_CLASSES = gql`
-//   mutation addFontClasses($fileKey: String!, $fontClasses: [FontClassInput!]!) {
-//     addFontClasses(fileKey: $fileKey, fontClasses: $fontClasses) {
-//       id
-//       className
-//       fontFamily
-//       fontWeight
-//       fontSize
-//       lineHeight
-//       letterSpacing
-//       sampleText
-//       fileKey
-//       colorVariableName
-//     }
-//   }
-// `;
-
 export const EXTRACT_AND_SAVE_FONTS = gql`
-  mutation extractAndSaveFonts(
-    $fileKey: String!
-    $figmaFile: JSON!
-    $nodeId: String!
-  ) {
-    extractAndSaveFonts(
-      fileKey: $fileKey
-      figmaFile: $figmaFile
-      nodeId: $nodeId
-    ) {
+  mutation extractAndSaveFonts($figmaFile: JSON!) {
+    extractAndSaveFonts(figmaFile: $figmaFile) {
       name
       scss
       texts

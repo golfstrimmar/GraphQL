@@ -28,10 +28,8 @@ export const typeDefs = gql`
   input FigmaImageInput {
     fileName: String!
     filePath: String!
-    nodeId: String!
     imageRef: String!
     type: ImageType
-    fileKey: String!
   }
 
   type ImageUniversal {
@@ -96,17 +94,15 @@ export const typeDefs = gql`
     hex: String!
     rgba: String!
     type: ColorType!
-    fileKey: String!
   }
 
   type FigmaImage {
+    id: ID!
     fileName: String!
     filePath: String!
-    nodeId: String!
     imageRef: String!
     figmaProjectId: Int
     type: ImageType
-    fileKey: String!
   }
 
   type TextNodeWithStyle {
@@ -121,17 +117,16 @@ export const typeDefs = gql`
   type FigmaProject {
     id: ID!
     name: String!
-    fileKey: String
-    nodeId: String
     owner: User!
     previewUrl: String
     figmaImages: [FigmaImage!]
     fileCache: JSON!
     createdAt: String!
     colors: [String!]
-    fonts: JSON
+    fonts: JSON!
     textNodes: [TextNodeWithStyle!]
   }
+
   type ImageUploadResponse {
     url: String!
     filename: String!
@@ -148,7 +143,6 @@ export const typeDefs = gql`
 
   type Font {
     id: ID!
-    fileKey: String!
     name: String!
     scss: String!
     texts: [String!]!
@@ -163,8 +157,6 @@ export const typeDefs = gql`
     figmaProject(id: ID!): FigmaProject
     figmaProjectsByUser(userId: ID!): [FigmaProject!]!
     getFigmaProjectData(projectId: ID!): FigmaProject!
-    getColorVariablesByFileKey(fileKey: String!): [ColorVariable!]!
-    getFontsByFileKey(fileKey: String!): [Font!]
   }
 
   type Mutation {
@@ -185,25 +177,12 @@ export const typeDefs = gql`
       figmaProjectId: ID!
       images: [FigmaImageInput!]
     ): FigmaProject!
-    removeFigmaImage(nodeId: String!, figmaProjectId: ID!): FigmaProject!
     removeFigmaProject(figmaProjectId: ID!): ID
     uploadFigmaImagesToCloudinary(projectId: ID!): [FigmaImage!]!
     uploadFigmaSvgsToCloudinary(projectId: ID!): [FigmaImage!]!
-
-    transformRasterToSvg(nodeId: String!): FigmaImage!
-    extractAndSaveColors(
-      fileKey: String!
-      figmaFile: JSON!
-      nodeId: String!
-    ): [ColorVariable!]!
-    extractAndSaveFonts(
-      fileKey: String!
-      figmaFile: JSON!
-      nodeId: String!
-    ): [Font!]!
     uploadDesignFile(file: Upload!): UploadedResult!
     traceImageFromFig(imageName: String!, archiveBuffer: Upload!): TracedSVG!
-
+    removeFigmaImage(figmaImageId: ID!, figmaProjectId: ID!): FigmaProject!
     uploadFigmaJsonProject(
       ownerId: ID!
       name: String!

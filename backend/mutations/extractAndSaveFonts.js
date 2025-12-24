@@ -15,8 +15,8 @@ const getMixinScss = (name, font, color) =>
 }
 `.trim();
 
-const extractAndSaveFonts = async (_, { fileKey, figmaFile, nodeId }) => {
-  const { styles, textToStyle } = extractTypography(figmaFile, nodeId);
+const extractAndSaveFonts = async (_, { fileKey, figmaFile }) => {
+  const { styles, textToStyle } = extractTypography(figmaFile);
 
   if (!styles || styles.length === 0) {
     return [];
@@ -33,7 +33,7 @@ const extractAndSaveFonts = async (_, { fileKey, figmaFile, nodeId }) => {
     // Match colorVariable по HEX коду
     const matchedColor = colorVariables.find(
       (colorVar) =>
-        colorVar.hex.toLowerCase() === (style.color?.toLowerCase() || "")
+        colorVar.hex.toLowerCase() === (style.color?.toLowerCase() || ""),
     );
     const colorVar = matchedColor?.variableName || "text-2";
     const name = getMixinName(style, idx);
@@ -50,7 +50,7 @@ const extractAndSaveFonts = async (_, { fileKey, figmaFile, nodeId }) => {
   for (const [text, style] of textToStyle.entries()) {
     const matchedColor = colorVariables.find(
       (colorVar) =>
-        colorVar.hex.toLowerCase() === (style.color?.toLowerCase() || "")
+        colorVar.hex.toLowerCase() === (style.color?.toLowerCase() || ""),
     );
     const colorVar = matchedColor?.variableName || "text-2";
     const key = `${style.fontFamily}-${style.fontWeight}-${style.fontSize}-${style.lineHeightPx}-${colorVar}`;

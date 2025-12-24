@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { v2 as cloudinary } from "cloudinary";
 
 cloudinary.config({
@@ -6,6 +7,12 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
   secure: true,
 });
+console.log("CLD cloud_name:", process.env.CLOUDINARY_CLOUD_NAME);
+console.log("CLD api_key:", process.env.CLOUDINARY_API_KEY);
+console.log(
+  "CLD api_secret exists:",
+  process.env.CLOUDINARY_API_SECRET ? "YES" : "NO",
+);
 
 /**
  * Загружает изображение в Cloudinary
@@ -27,7 +34,7 @@ export function uploadToCloudinary(file, folder = "ulon", fileName) {
       (error, result) => {
         if (error) reject(error);
         else resolve(result);
-      }
+      },
     );
 
     if (typeof file.pipe === "function") {
@@ -57,7 +64,7 @@ export function uploadSvgToCloudinary(fileBuffer, folder = "ulon", fileName) {
       (error, result) => {
         if (error) reject(error);
         else resolve(result);
-      }
+      },
     );
 
     stream.end(fileBuffer);
