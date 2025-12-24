@@ -23,93 +23,59 @@ const ModalCreateFigmaProject: React.FC<ModalCreateFigmaProjectProps> = ({
 }) => {
   const { user } = useStateContext();
   const { setModalMessage } = useStateContext();
-  const [name, setName] = useState("");
-  const [fileKey, setFileKey] = useState("");
-  const [nodeId, setNodeId] = useState("");
-  const [token, setToken] = useState("");
-  const [FigmaLink, setFigmaLink] = useState<string>("");
-  const [projectType, setProjectType] = useState<string>("figma");
+  const [file, setFile] = useState<File | null>(null);
+  const [name, setName] = useState<string>("");
 
   const [createFigmaProject, { loading }] = useMutation(CREATE_FIGMA_PROJECT);
-  const fillForm = (link: string) => {
-    if (!link) return;
-
-    // Парсим Figma ссылку
-    if (link.includes("figma.com")) {
-      const fileKeyMatch = link.match(/figma\.com\/[^/]+\/([^/?]+)/);
-      const tfileKey = fileKeyMatch ? fileKeyMatch[1] : null;
-
-      const nodeIdMatch = link.match(/node-id=([\w-]+)/);
-      const tnodeId = nodeIdMatch ? nodeIdMatch[1].replace(/-/g, ":") : null;
-
-      setFileKey(tfileKey);
-      setNodeId(tnodeId);
-    }
-
-    // Парсим Pixso ссылку
-    if (link.includes("pixso.net") || link.includes("pixso.io")) {
-      // https://pixso.net/app/design/00-hSPZmRH4oPOgHu9Q9Hg?item-id=986:2678
-      const fileKeyMatch = link.match(/design\/([^/?]+)/);
-      const tfileKey = fileKeyMatch ? fileKeyMatch[1] : null;
-
-      const nodeIdMatch = link.match(/item-id=([\w:]+)/);
-      const tnodeId = nodeIdMatch ? nodeIdMatch[1] : null;
-
-      setFileKey(tfileKey);
-      setNodeId(tnodeId);
-    }
-  };
-
-  useEffect(() => {
-    if (FigmaLink) {
-      fillForm(FigmaLink);
-    }
-  }, [FigmaLink]);
-
+  const [hover, setHover] = useState(false);
   // -----------------------
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (
-      name === "" ||
-      fileKey === "" ||
-      nodeId === ""
-      // token === "" ||
-      // !user
-    ) {
+    if (file === null || name === "") {
       setModalMessage("All fields are required.");
       return;
     }
+    console.log("<===createFigmaProject===>", user.id, name, file);
+    const text = await file.text();
 
+    // 2. Парсим JSON
+    let json;
+    try {
+      json = JSON.parse(text);
+    } catch (e) {
+      console.error("Invalid JSON file", e);
+      setModalMessage("Invalid JSON file");
+      return;
+    }
+    console.log("000000000000000000fileCache to send:", typeof json);
+    console.log("000000000000000000fileCache to send:", json);
     try {
       const { data } = await createFigmaProject({
         variables: {
           ownerId: user.id,
-          name,
-          fileKey,
-          nodeId,
-          token,
-          type: projectType,
+          name: name,
+          fileCache: json,
         },
       });
 
       if (data.createFigmaProject) {
         console.log(
           "<========> Created figma project: <========>",
-          data.createFigmaProject
+          data.createFigmaProject,
         );
-        setProjects((prev) => {
-          if (!prev.find((p) => p.id === data.createFigmaProject)) {
-            return [...prev, data.createFigmaProject];
-          }
-          return prev;
-        });
+        // setProjects((prev) => {
+        //   if (!prev.find((p) => p.id === data.createFigmaProject)) {
+        //     return [...prev, data.createFigmaProject];
+        //   }
+        //   return prev;
+        // });
         setModalOpen(false);
-        setFigmaLink("");
-        setName("");
-        setFileKey("");
-        setNodeId("");
-        setToken("");
+        // setFigmaLink("");
+        // setName("");
+        // setFileKey("");
+        // setNodeId("");
+        // setToken("");
       }
     } catch (err: any) {
       setModalOpen(false);
@@ -154,52 +120,38 @@ const ModalCreateFigmaProject: React.FC<ModalCreateFigmaProjectProps> = ({
               onSubmit={handleSubmit}
               className="modal-content flex flex-col min-w-[500px] bg-white p-6 rounded-lg gap-4"
             >
+              <div className="flex flex-col gap-2">
+                <input
+                  id="figma-json-file"
+                  type="file"
+                  style={{ display: "none" }}
+                  accept=".json"
+                  onChange={(e) => setFile(e.target.files?.[0] || null)}
+                />
+
+                <div className="text text-slate-500">
+                  {file ? file.name : "No file selected"}
+                </div>
+                <label
+                  htmlFor="figma-json-file"
+                  className=" px-[10px] py-1 text-[12px] rounded  cursor-pointer  text-[#193756]"
+                  style={{
+                    border: `1px solid ${hover ? "#007bff" : "rgb(173, 173, 173)"}`,
+                  }}
+                  onMouseEnter={() => setHover(true)}
+                  onMouseLeave={() => setHover(false)}
+                >
+                  {file ? "Change file" : "Choose file"}
+                </label>
+              </div>
               <Input
                 typeInput="text"
                 id="name"
                 data="Project Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                classInput="modalInput"
               />
-
-              <Input
-                typeInput="text"
-                id="FigmaLink"
-                data={projectType === "pixso" ? "Pixso Link" : "Figma Link"}
-                value={FigmaLink}
-                onChange={(e) => setFigmaLink(e.target.value)}
-              />
-              {/* <Input
-                  typeInput="text"
-                  id="name"
-                  data="File Key"
-                  value={fileKey}
-                  onChange={(e) => setFileKey(e.target.value)}
-                />
-
-                <Input
-                  typeInput="text"
-                  id="name"
-                  data="Node ID"
-                  value={nodeId}
-                  onChange={(e) => setNodeId(e.target.value)}
-                /> */}
-
-              {/* <Input
-                typeInput="text"
-                id="name"
-                data={projectType === "pixso" ? "Pixso Token" : "Figma Token"}
-                value={token}
-                onChange={(e) => setToken(e.target.value)}
-              /> */}
-              <InputRadio
-                type="radio"
-                data="type"
-                value={projectType}
-                options={["figma", "pixso"]}
-                onChange={(value) => setProjectType(value)}
-              />
-
               <div className="flex gap-2">
                 <button
                   className="btn btn-primary "

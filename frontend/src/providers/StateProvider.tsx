@@ -6,6 +6,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
 import { useQuery } from "@apollo/client";
 import { GET_USERS, GET_JSON_DOCUMENT } from "@/apollo/queries";
@@ -79,7 +80,7 @@ export function StateProvider({
   const [htmlJson, setHtmlJson] = useState<HtmlNode[]>([]);
   const [nodeToAdd, setNodeToAdd] = useState<nodeToAdd | null>(null);
   const [modalMessage, setModalMessage] = useState<string>("");
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(false);
   const [texts, setTexts] = useState<string[]>([]);
   const [undoStack, setUndoStack] = useState<HtmlNode[][]>([]);
   const [redoStack, setRedoStack] = useState<HtmlNode[][]>([]);
@@ -192,11 +193,13 @@ export function StateProvider({
   // ==== MODAL ====
   useEffect(() => {
     if (!modalMessage) return;
-    setIsModalOpen(true);
+    setOpen(true);
+
     const t = setTimeout(() => {
-      setIsModalOpen(false);
-      setModalMessage("");
+      setOpen(false); // триггерит exit‑анимацию
+      setModalMessage(""); // можно чуть позже, но так тоже ок
     }, 2000);
+
     return () => clearTimeout(t);
   }, [modalMessage]);
 
@@ -241,15 +244,6 @@ export function StateProvider({
     }
   }, [htmlJson, jsonData]);
 
-  const showModal = (message: string, duration = 2000) => {
-    setModalMessage(message);
-    setIsModalOpen(true);
-    setTimeout(() => {
-      setIsModalOpen(false);
-      setModalMessage("");
-    }, duration);
-  };
-
   return (
     <StateContext.Provider
       value={{
@@ -263,9 +257,6 @@ export function StateProvider({
         setUsers,
         modalMessage,
         setModalMessage,
-        isModalOpen,
-        setIsModalOpen,
-        showModal,
         updateHtmlJson,
         undo,
         redo,
@@ -279,9 +270,10 @@ export function StateProvider({
         setSCSS,
       }}
     >
-      {isModalOpen && (
-        <ModalMessage open={isModalOpen} message={modalMessage} />
-      )}
+      <AnimatePresence initial={false} mode="wait">
+        {open && <ModalMessage message={modalMessage} />}
+      </AnimatePresence>
+
       {children}
     </StateContext.Provider>
   );

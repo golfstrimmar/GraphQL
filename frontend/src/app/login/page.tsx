@@ -14,23 +14,24 @@ import {
 import { GET_USERS } from "@/apollo/queries";
 import { useStateContext } from "@/providers/StateProvider";
 
+// -----------------
+// -----------------
+// -----------------
+// -----------------
 export default function Login() {
   const router = useRouter();
   const client = useApolloClient();
   const { setModalMessage, setUser } = useStateContext();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
-  const [loginUser, { loading: loginLoading }] = useMutation(LOGIN_USER);
-  const [LoginWithGoogle, { loading: googleLoading }] =
-    useMutation(LOGIN_WITH_GOOGLE);
-
   const [showSetPasswordModal, setShowSetPasswordModal] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [setPasswordMutation] = useMutation(SET_PASSWORD);
-
+  const [loginUser, { loading: loginLoading }] = useMutation(LOGIN_USER);
+  const [LoginWithGoogle, { loading: googleLoading }] =
+    useMutation(LOGIN_WITH_GOOGLE);
+  // -----------------
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -89,7 +90,7 @@ export default function Login() {
       setIsLoading(false);
     }
   };
-
+  // -----------------
   const handleGoogleLoginSuccess = async (response: CredentialResponse) => {
     console.log("<====== GOOGLE LOGIN RESPONSE =====>", response.credential);
     if (!response.credential)
@@ -151,11 +152,11 @@ export default function Login() {
       setIsLoading(false);
     }
   };
-
+  // -----------------
   const handleGoogleLoginFailure = () => {
     setModalMessage("Google login failed.");
   };
-
+  // -----------------
   function updateUserStatusInCache(
     client: any,
     userId: number,
@@ -171,7 +172,9 @@ export default function Login() {
       };
     });
   }
-
+  // -----------------
+  // -----------------
+  // -----------------
   return (
     <div className="flex items-center justify-center min-h-screen ">
       <form

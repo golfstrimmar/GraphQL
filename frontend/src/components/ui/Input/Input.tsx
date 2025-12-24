@@ -19,14 +19,15 @@ interface InputProps {
   name: string;
   value: string;
   onChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
   inputRef?: RefObject<HTMLInputElement | HTMLTextAreaElement>;
   onClick?: (
-    e: React.MouseEvent<HTMLInputElement | HTMLTextAreaElement, MouseEvent>
+    e: React.MouseEvent<HTMLInputElement | HTMLTextAreaElement, MouseEvent>,
   ) => void;
   activ?: boolean;
   disabled?: boolean;
+  class?: string;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -40,6 +41,7 @@ const Input: React.FC<InputProps> = ({
   onClick,
   disabled,
   activ,
+  classInput,
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -89,7 +91,7 @@ const Input: React.FC<InputProps> = ({
           onChange={onChange}
           onClick={onClick}
           disabled={disabled}
-          className={`${
+          className={`${classInput} ${
             activ ? "bg-emerald-400" : ""
           } cursor-pointer border rounded px-1 border-emerald-900`}
           required

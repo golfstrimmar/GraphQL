@@ -5,7 +5,6 @@
   border-radius: 5px;
   max-height: 80px;
 
-
   input[type="text"],
   input[type="email"],
   input[type="tel"],
@@ -27,7 +26,7 @@
     min-height: 40px;
     z-index: 2;
 
-    &+label {
+    & + label {
       position: absolute !important;
       top: 50%;
       transform: translateY(-50%);
@@ -52,7 +51,15 @@
         top: 50% !important;
         left: 10px !important;
         transform: translateY(-50%) !important;
-        box-shadow: -3px 0 0 #fff, 3px 0 0 #fff !important;
+        box-shadow:
+          -3px 0 0 #fff,
+          3px 0 0 #fff !important;
+      }
+    }
+    &.modalInput {
+      background: white !important;
+      & + label {
+        color: #193756 !important;
       }
     }
 
@@ -60,12 +67,11 @@
       opacity: 0;
     }
 
-
     &:hover {
       border: 1px solid #007bff;
     }
 
-    &:hover+label {
+    &:hover + label {
       color: #007bff;
     }
 
@@ -84,14 +90,14 @@
   input[type="search"],
   input[type="number"],
   input[type="tel"] {
-    &+label {
+    & + label {
       background: transparent !important;
       font-size: 12px;
       white-space: nowrap;
     }
 
-    &:focus+label,
-    &:valid+label {
+    &:focus + label,
+    &:valid + label {
       top: 16% !important;
       z-index: 10;
       left: 10px !important;
@@ -124,13 +130,13 @@
     input[type="search"],
     input[type="number"],
     input[type="tel"] {
-      &+label {
+      & + label {
         // color: #193756 !important;
         font-size: 12px;
       }
 
-      &:focus+label,
-      &:valid+label {
+      &:focus + label,
+      &:valid + label {
         top: 0% !important;
         z-index: 10;
         background-color: aliceblue !important;

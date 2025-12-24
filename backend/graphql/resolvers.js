@@ -83,7 +83,7 @@ export const resolvers = {
       if (!user) throw new Error("User not found");
       if (!user.password) {
         const error = new Error(
-          "This account was registered via Google. User must set a password."
+          "This account was registered via Google. User must set a password.",
         );
         error.code = "ACCOUNT_NEEDS_PASSWORD";
         throw error;
@@ -219,7 +219,7 @@ export const resolvers = {
         const result = await uploadToCloudinary(
           stream,
           "ulon_projects",
-          filename
+          filename,
         );
         return {
           url: result.secure_url,
@@ -229,6 +229,18 @@ export const resolvers = {
         console.error("Failed to upload image to Cloudinary:", error);
         throw new Error("Image upload failed.");
       }
+    },
+    createFigmaProject: async (_parent, { ownerId, name, fileCache }) => {
+      const project = await prisma.figmaProject.create({
+        data: {
+          ownerId: Number(ownerId),
+          name,
+          fileCache,
+          fileCacheUpdatedAt: new Date(),
+        },
+        include: { owner: true },
+      });
+      return project;
     },
     updateFigmaProject: async (_parent, { figmaProjectId, images }) => {
       const id = Number(figmaProjectId);

@@ -27,7 +27,7 @@ const Navbar: React.FC = () => {
   const pages = [
     { title: "Home", path: "/" },
     { title: "Figma Projects", path: "/figprojcts" },
-    { title: "Figma", path: "/figma" },
+    // { title: "Figma", path: "/figma" },
     { title: "Plaza", path: "/plaza" },
     { title: "Sandbox", path: "/sandbox" },
     // { title: "Register", path: "/register" },
@@ -169,9 +169,9 @@ const Navbar: React.FC = () => {
             ) : (
               <>
                 <li className="flex items-center gap-2 text-white">
-                  {user.picture ? (
+                  {user?.picture ? (
                     <Image
-                      src={user.picture}
+                      src={user?.picture}
                       alt="User"
                       width={25}
                       height={25}
@@ -179,7 +179,7 @@ const Navbar: React.FC = () => {
                     />
                   ) : (
                     <Image
-                      src="./svg/avatar.svg"
+                      src="/svg/avatar.svg"
                       alt="User"
                       width={25}
                       height={25}

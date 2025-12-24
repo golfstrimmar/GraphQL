@@ -46,8 +46,8 @@ model Project {
 model FigmaProject {
   id            Int          @id @default(autoincrement())
   name          String
-  fileKey       String
-  nodeId        String
+  fileKey       String?
+  nodeId        String?
   createdAt     DateTime     @default(now())
   owner         User         @relation("UserFigmaProjects", fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId       Int
@@ -93,10 +93,10 @@ model FigmaImage {
   createdAt      DateTime     @default(now())
   figmaProject   FigmaProject @relation("ProjectImages", fields: [figmaProjectId], references: [id], onDelete: Cascade)
   figmaProjectId Int
-  fileKey        String       
+  fileKey        String
   @@unique([figmaProjectId, nodeId])
   @@index([figmaProjectId])
-  @@index([fileKey])          
+  @@index([fileKey])
 }
 
 

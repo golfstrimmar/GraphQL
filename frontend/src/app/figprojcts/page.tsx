@@ -46,13 +46,23 @@ const FigmaProjects = async () => {
           </p>
         </div>
 
-        {projects.length === 0 ? (
-          <p className="text-slate-600 text-lg py-4 mb-6">
-            No Figma projects found
-          </p>
+        {!user ? (
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-2">
+            <span className="text-2xl">📁</span>
+            <p className="text-slate-600 text-lg py-4 mb-6 border border-slate-200">
+              Please, login to see Projects
+            </p>{" "}
+          </div>
         ) : (
-          <FigmaProjectsList figmaProjects={projects} />
+          ""
         )}
+
+        {projects.length === 0 && (
+          <h5 className="!text-[var(--teal)] text-lg py-4 mb-6 border border-[var(--teal)] text-center rounded">
+            No Figma projects found
+          </h5>
+        )}
+        <FigmaProjectsList figmaProjects={projects} />
       </div>
     </div>
   );

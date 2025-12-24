@@ -57,9 +57,9 @@ export default function PlazaComponent({
   preview = null,
   colorsTo = [],
   ScssMixVar,
-  setScssMixVar,
+  setScssMixVar = () => {},
   openSandbox,
-  setOpenSandbox,
+  setOpenSandbox = () => {},
 }: PlazaProps) {
   const { htmlJson, user, setModalMessage, updateHtmlJson, texts, setHTML } =
     useStateContext();

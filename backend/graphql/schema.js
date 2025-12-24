@@ -109,16 +109,6 @@ export const typeDefs = gql`
     fileKey: String!
   }
 
-  type FigmaProject {
-    id: ID!
-    name: String!
-    fileKey: String!
-    nodeId: String!
-    owner: User!
-    previewUrl: String
-    figmaImages: [FigmaImage!]!
-    fileCache: JSON
-  }
   type TextNodeWithStyle {
     text: String!
     fontFamily: String!
@@ -128,23 +118,19 @@ export const typeDefs = gql`
     mixin: String!
   }
 
-  type FigmaProjectData {
+  type FigmaProject {
     id: ID!
     name: String!
-    fileKey: String!
-    nodeId: String!
-    fileCache: JSON!
+    fileKey: String
+    nodeId: String
     owner: User!
-    colors: [String!]!
-    fonts: [String!]!
-    textNodes: [TextNodeWithStyle!]!
-  }
-
-  type FigmaProjectExtended {
-    project: FigmaProject!
-    colors: [String!]!
-    fonts: JSON
-    textNodes: [TextNodeWithStyle!]!
+    previewUrl: String
+    figmaImages: [FigmaImage!]
+    fileCache: JSON!
+    createdAt: String!
+    colors: [String!]
+    fonts: [String!]
+    textNodes: [TextNodeWithStyle!]
   }
   type ImageUploadResponse {
     url: String!
@@ -176,7 +162,7 @@ export const typeDefs = gql`
     jsonDocumentByName(name: String!): JsonDocument
     figmaProject(id: ID!): FigmaProject
     figmaProjectsByUser(userId: ID!): [FigmaProject!]!
-    getFigmaProjectData(projectId: ID!): FigmaProjectExtended!
+    getFigmaProjectData(projectId: ID!): FigmaProject!
     getColorVariablesByFileKey(fileKey: String!): [ColorVariable!]!
     getFontsByFileKey(fileKey: String!): [Font!]
   }
@@ -187,21 +173,13 @@ export const typeDefs = gql`
     setPassword(email: String!, password: String!): User!
     loginWithGoogle(idToken: String!): AuthPayload!
     removeUser(userId: ID!): ID!
-    createProject(
-      ownerId: ID!
-      name: String!
-      data: JSON!
-      scssMixVar: String
-    ): Project!
+    createProject(ownerId: ID!, name: String!, data: JSON!): Project!
     updateProject(projectId: ID!, data: JSON!): Project!
     removeProject(projectId: ID!): ID
     createFigmaProject(
       ownerId: ID!
       name: String!
-      fileKey: String!
-      nodeId: String!
-      token: String!
-      type: String!
+      fileCache: JSON!
     ): FigmaProject!
     updateFigmaProject(
       figmaProjectId: ID!
@@ -230,7 +208,7 @@ export const typeDefs = gql`
       ownerId: ID!
       name: String!
       jsonContent: JSON!
-    ): FigmaProjectExtended!
+    ): FigmaProject!
     uploadImage(file: Upload!): ImageUploadResponse!
   }
 

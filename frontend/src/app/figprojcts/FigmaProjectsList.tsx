@@ -1,10 +1,20 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
-
+import Link from "next/link";
 import { useStateContext } from "@/providers/StateProvider";
 import Loading from "@/components/ui/Loading/Loading";
 import Button from "@/components/ui/Button/Button";
+import { REMOVE_FIGMA_PROJECT } from "@/apollo/mutations";
+import dynamic from "next/dynamic";
+const ModalCreateFigmaProject = dynamic(
+  () =>
+    import("../../components/ModalCreateFigmaProject/ModalCreateFigmaProject"),
+  {
+    ssr: false,
+    loading: () => <Loading />,
+  },
+);
 // --------------- interface
 interface FigmaProjectsListProps {
   figmaProjects: Project[];
@@ -23,6 +33,15 @@ const FigmaProjectsList: React.FC<FigmaProjectsListProps> = ({
   const { user, setHtmlJson, setModalMessage, texts, setTexts } =
     useStateContext();
   const [allProjects, setAllProjects] = useState<Project[]>([]);
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  // --------------------------------
+  const [removeFigmaProject] = useMutation(REMOVE_FIGMA_PROJECT, {
+    onError: () => {
+      setModalMessage("Error removing Figma project");
+    },
+  });
+
+  // --------------------------------
   useEffect(() => {
     if (!allProjects) return;
     console.log("<===allProjects===>", allProjects);
@@ -40,18 +59,26 @@ const FigmaProjectsList: React.FC<FigmaProjectsListProps> = ({
   //   setProjectId(id);
   //   figmaProjectRefetch({ projectId: id });
   // };
-  // const handlerRemoveFigmaProject = (id: string) => {
-  //   removeFigmaProject({ variables: { figmaProjectId: id } });
-  //   setAllProjects(allProjects.filter((p) => p.id !== id));
-  //   setProjectId("");
-  //   setcurrentProject(null);
-  //   setColors([]);
-  //   setFonts([]);
-  //   setTexts([]);
-  // };
+  const handlerRemoveFigmaProject = (id: string) => {
+    removeFigmaProject({ variables: { figmaProjectId: id } });
+    setAllProjects(allProjects.filter((p) => p.id !== id));
+    setModalMessage("Figma Project removed successfully");
+    // setProjectId("");
+    // setcurrentProject(null);
+    // setColors([]);
+    // setFonts([]);
+    // setTexts([]);
+  };
 
   return (
     <div className="flex flex-col gap-2 mb-2">
+      {modalOpen && (
+        <ModalCreateFigmaProject
+          modalOpen={modalOpen}
+          setModalOpen={setModalOpen}
+          setAllProjects={setAllProjects}
+        />
+      )}
       {/*{allProjectsLoading && <Loading />}*/}
       {/*{projectId && (
         <button
@@ -71,70 +98,33 @@ const FigmaProjectsList: React.FC<FigmaProjectsListProps> = ({
           Quit active Project
         </button>
       )}*/}
-      {/*<button
+      <button
         onClick={() => {
-          setFile(null);
-          setName("");
           setModalOpen(true);
         }}
         className="btn btn-empty px-2 my-2 "
       >
         + Add Project
-      </button>*/}
-      {allProjects.length === 0 ? (
-        <div className="text-center  py-4 pb-2">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-2">
-            <span className="text-2xl">📁</span>
-          </div>
-          <p className="text-slate-600 text-lg py-4 mb-6">
-            {user
-              ? "No Figma projects found"
-              : "Please,  login to see Projects"}
-          </p>
-          {/*{user && (
-            <Button
-              onClick={() => {
-                setFile(null);
-                setName("");
-                setModalOpen(true);
-              }}
-            >
-              Add Your First Project
-            </Button>
-          )}*/}
-        </div>
-      ) : (
+      </button>
+      {allProjects.length === 0 &&
         allProjects.map((project) => (
-          <div
-            key={project.id}
-            className="grid grid-cols-[1fr_max-content] w-full gap-1"
-          >
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                // fetchProjectData(project.id);
-              }}
-              // disabled={project.id === projectId}
-              className="bg-slate-200 hover:bg-slate-300 hover:border-[var(--teal)] hover:text-[var(--teal)]  text-sm font-medium p-1 max-h-8 rounded  gap-1 cursor-pointer transition-all border border-transparent text-center"
-              // className={`${
-              //   project.id === projectId
-              //     ? " text-slate-800 bg-[var(--teal)]"
-              //     : "bg-slate-200 hover:bg-slate-300 hover:border-[var(--teal)] hover:text-[var(--teal)]  text-sm font-medium"
-              // } p-1 max-h-8 rounded  gap-1 cursor-pointer transition-all border border-transparent text-center`}
+          <div key={project.id} className="flex justify-between gap-2 p-1!  ">
+            <Link
+              href={`/figprojcts/${project.id}`}
+              className="btn-teal flex-1"
             >
               {project.name}
-            </button>
+            </Link>
             <button
               className="btn btn-allert"
               onClick={() => {
-                // handlerRemoveFigmaProject(project.id);
+                handlerRemoveFigmaProject(project.id);
               }}
             >
               Remove
             </button>
           </div>
-        ))
-      )}
+        ))}
     </div>
   );
 };

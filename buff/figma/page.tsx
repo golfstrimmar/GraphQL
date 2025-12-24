@@ -1,189 +1,262 @@
 "use client";
-
-import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import { useStateContext } from "@/providers/StateProvider";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect, useMemo } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { REMOVE_FIGMA_PROJECT } from "@/apollo/mutations";
-import {
-  GET_FIGMA_PROJECTS_BY_USER,
-  GET_COLOR_VARIABLES_BY_FILE_KEY,
-} from "@/apollo/queries";
-import Button from "@/components/ui/Button/Button";
-import ModalCreateFigmaProject from "@/components/ModalCreateFigmaProject/ModalCreateFigmaProject";
-import "./figma.scss";
-import Loading from "@/components/ui/Loading/Loading";
-import FProject from "@/types/FProject";
-// -------
+import { GET_FIGMA_PROJECT_DATA } from "@/apollo/queries";
 
-// -------
+import "../figma/figma.scss";
+import Loading from "@/components/ui/Loading/Loading";
+import { useStateContext } from "@/providers/StateProvider";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import generateGoogleFontsImport from "@/utils/generateGoogleFontsImport";
+// import FigmaProjectsList from "../figprojcts/FigmaProjectsList";
+import PlazaComponent from "@/components/PlazaComponent/PlazaComponent";
+import SandboxComponent from "@/components/SandboxComponent/SandboxComponent";
+import ImageUploader from "../ImageUploader";
+import RenderColorVars from "../RenderColorVars/RenderColorVars";
+import RenderColorPalette from "../RenderColorPalette";
+import RenderTypography from "../RenderTypography";
+import RenderScssMixins from "../RenderScssMixins";
+import RenderTextStyles from "../RenderTextStyles";
+import ModalUploadFigmaProject from "../ModalUploadFigmaProject";
+// --------
+type FigmaProject = {
+  id: string;
+  name: string;
+  fileKey: string;
+  nodeId?: string | null;
+  file?: any | null;
+  owner: ProjectOwner;
+};
+
+type ProjectOwner = {
+  id: string;
+  name: string;
+};
+
+type FontObject = {
+  family?: string;
+  sizes?: Record<string, number>;
+  weights?: Record<string, number>;
+};
+type FontsData = Record<string, FontObject>;
+
+interface ImageFile {
+  file?: File;
+  previewUrl: string;
+  fileName?: string;
+  id?: string;
+  nodeId?: string;
+}
 export default function FigmaPage() {
   const router = useRouter();
+  const { user, setHtmlJson, setModalMessage, texts, setTexts } =
+    useStateContext();
+  const [colors, setColors] = useState<string[]>([]);
+  const [fonts, setFonts] = useState<FontsData>({});
+  const [projectId, setProjectId] = useState<string>("");
+  const [currentProject, setcurrentProject] = useState<FigmaProject | null>(
+    null,
+  );
   const [modalOpen, setModalOpen] = useState(false);
-  // ---
-  const [projects, setProjects] = useState<FProject[]>([]);
-  const { user, setModalMessage } = useStateContext();
-
-  const { data, loading } = useQuery(GET_FIGMA_PROJECTS_BY_USER, {
-    variables: { userId: user?.id },
-    skip: !user,
-    fetchPolicy: "cache-and-network",
+  const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
+  const [preview, setPreview] = useState<ImageFile>(null);
+  const [ScssMixVar, setScssMixVar] = useState<string>("");
+  const [openSandbox, setOpenSandbox] = useState<boolean>(false);
+  //////--- Query
+  const {
+    data: figmaProjectData,
+    loading: figmaProjectLoading,
+    error: figmaProjectError,
+    refetch: figmaProjectRefetch,
+  } = useQuery(GET_FIGMA_PROJECT_DATA, {
+    variables: { projectId: projectId },
   });
+  //////---Mutation
+  const [removeFigmaProject, { loading: removeLoading }] =
+    useMutation(REMOVE_FIGMA_PROJECT);
 
-  // ----------
-  const [removeFigmaProject] = useMutation(REMOVE_FIGMA_PROJECT);
-  // -----------------------
-  useEffect(() => {
-    if (data?.figmaProjectsByUser) {
-      setProjects(data.figmaProjectsByUser);
-    }
-  }, [data]);
+  //////--------------------
 
   useEffect(() => {
-    if (projects.length > 0) {
-      console.log("<====projects====>", projects);
-    }
-  }, [projects]);
-
-  // -----------генерация цветовых переменных для фонов------------
-  const generateFonVar = (fileKey: string) => {
-    let hash = 0;
-    for (let i = 0; i < fileKey.length; i++) {
-      hash = fileKey.charCodeAt(i) + ((hash << 5) - hash);
-    }
-
-    const hue = 170 + (Math.abs(hash) % 60); // синие оттенки
-    const saturation = 40; // немного сочнее
-    const lightness = 85; // мягкий светлый фон
-
-    return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-  };
-
-  // =======================
-  const handleRemoved = async (id: number) => {
-    try {
-      const removedProject = await removeFigmaProject({
-        variables: { figmaProjectId: id },
-        refetchQueries: [
+    const data = figmaProjectData?.getFigmaProjectData;
+    if (!data) return;
+    console.log("<==🔥🔥🔥🔥==figmaProjectData ==🔥🔥🔥==>", data);
+    setcurrentProject(data.project);
+    setColors(data.colors);
+    setFonts(data.fonts);
+    setTexts(data.textNodes);
+    const currentImgs = data.project.figmaImages || [];
+    const tempPrev = currentImgs.find((img) => img.fileName === "preview.png");
+    setPreview(tempPrev);
+    const temp: ImageFile[] = currentImgs
+      .filter((img) => img.fileName !== "preview.png")
+      .map((img) => ({
+        ...img,
+        name: img.fileName,
+        previewUrl: img.filePath,
+      }));
+    setImageFiles(temp);
+    const imageNodes: HtmlNode[] = currentImgs
+      .filter((img) => img.fileName !== "preview.png")
+      .map((img, index) => ({
+        tag: "div",
+        class: "",
+        text: "img-container",
+        style:
+          "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;position: relative; min-height: 50px;",
+        children: [
           {
-            query: GET_FIGMA_PROJECTS_BY_USER, // чтобы обновить список проектов
-          },
-          {
-            query: GET_COLOR_VARIABLES_BY_FILE_KEY, // можно тоже обновить цвета
+            tag: "div",
+            text: "imgs",
+            class: "imgs",
+            style:
+              "background: rgb(226, 232, 240);padding: 2px 4px;border: 1px solid #adadad;overflow: hidden;position: absolute;width: 100%;height: 100%;top: 0;left: 0;",
+            children: [
+              {
+                tag: "img",
+                text: "",
+                class: "",
+                style:
+                  "background: #0ea5e9; padding: 2px 4px; border: 1px solid #adadad;",
+                children: [],
+                attributes: {
+                  alt: img.nodeId ?? index.toString(),
+                  src: img.filePath,
+                },
+              },
+            ],
           },
         ],
-      });
+      }));
+    setHtmlJson((prev) => {
+      const base: HtmlNode =
+        prev && prev.tag
+          ? {
+              ...prev,
+              children: [
+                ...(prev.children || []).filter(
+                  (ch) => ch.tag !== "div" || ch.text !== "img-container",
+                ),
+                ...imageNodes,
+              ],
+            }
+          : {
+              tag: "div",
+              class: "",
+              text: "",
+              style: "",
+              children: imageNodes,
+            };
 
-      setProjects((prev) => prev.filter((p) => p.id !== id));
-      setModalMessage("Project removed");
-      console.log("<====removedProject====>", removedProject);
-    } catch (err) {
-      console.error(err);
-      setModalMessage("Error removing project");
+      return base;
+    });
+  }, [figmaProjectData]);
+
+  useEffect(() => {
+    if (Object.keys(fonts).length > 0) {
+      const links = Object.entries(fonts).map(([key, fontObj]) => ({
+        fontFamily: key,
+      }));
+      const link = generateGoogleFontsImport(links);
+      if (link) {
+        const l = document.createElement("link");
+        l.rel = "stylesheet";
+        l.href = link;
+        document.head.appendChild(l);
+      }
     }
-  };
+  }, [fonts]);
 
-  // =======================
-  https: return (
-    <div className="figma">
-      <div className="container">
-        {loading && <Loading />}
-        <h2 className="text-center mb-4">Figma projects</h2>
+  //////////////////
+  const colorsTo = useMemo(() => {
+    if (colors.length > 0) {
+      return colors.map((color, index) => `$color-${index + 1}: ${color};`);
+    }
+    return [];
+  }, [colors]);
 
-        {/* 🔹🔹🔹🔹🔹🔹🔹  create project 🔹🔹🔹🔹🔹🔹🔹🔹🔹  */}
-        <div className="inline-block mt-2">
-          {!modalOpen && (
-            <Button
-              onClick={() => {
-                if (!user) {
-                  setModalMessage("You must be logged in to create a project.");
-                  setTimeout(() => {
-                    router.push("/login");
-                    return;
-                  }, 2000);
-                } else {
-                  setModalOpen(true);
-                }
-              }}
-              buttonText="Create project Figma/Pixso"
-            />
-          )}
+  //
+
+  //--------
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
+      <div className="container mx-auto px-4 py-12 max-w-7xl pt-[100px]">
+        {/*{loading && <Loading />}*/}
+
+        {figmaProjectLoading && <Loading />}
+        {removeLoading && <Loading />}
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">
+            Figma Design Tokens
+          </h1>
+          <p className="text-slate-600 text-lg">
+            Extract and manage your design system
+          </p>
         </div>
+        <div className="bg-navy rounded-2xl shadow-xl p-2 pb-0 mb-8 border border-slate-200">
+          <div className="pb-2">
+            <div className="flex text-center  gap-3 ">
+              <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                <span>📁</span>
+              </div>
+              <h5 className="mb-2">Your Projects</h5>
+            </div>
 
-        {/* 🔹🔹🔹🔹🔹🔹🔹🔹projects🔹🔹🔹🔹🔹🔹🔹🔹 */}
-        <div className="figma-projects mt-2">
-          {projects.length === 0 && (
-            <p className="text-red-500">No projects found. </p>
-          )}
-          <ul className="grid grid-cols-[repeat(auto-fit,_minmax(500px,_1fr))] gap-2">
-            {projects.map((proj: FProject) => (
-              <li
-                key={proj.id}
-                className="relative rounded-xl shadow-lg overflow-hidden flex flex-col justify-between"
-                style={{
-                  backgroundColor: generateFonVar(proj.fileKey),
-                }}
-              >
-                {/* Верхняя часть: информация и превью */}
-                <div className="p-4 flex flex-col gap-4">
-                  {/* Информация */}
-                  <div className="flex flex-col gap-2 text-gray-900">
-                    <h3 className="text-2xl font-bold truncate">{proj.name}</h3>
-                    <p className="text-sm text-gray-700">
-                      <span className="font-semibold">ID:</span> {proj.id}
-                    </p>
-                    <p className="text-sm text-gray-700">
-                      <span className="font-semibold">File Key:</span>{" "}
-                      {proj.fileKey}
-                    </p>
-                    <p className="text-sm text-gray-700">
-                      <span className="font-semibold">Node ID:</span>{" "}
-                      {proj.nodeId}
-                    </p>
-                  </div>
-
-                  {/* Превью — большой блок */}
-                  {proj.previewUrl && (
-                    <div className="w-full max-h-[400px] overflow-hidden rounded-md shadow-inner">
-                      <img
-                        src={proj.previewUrl}
-                        alt="Figma Preview"
-                        className="object-contain w-full h-full"
-                      />
-                    </div>
-                  )}
-                </div>
-
-                {/* Нижняя часть: кнопки */}
-                <div className="p-4 flex justify-end gap-2 border-t border-gray-200 bg-white/50 backdrop-blur-sm mt-auto">
-                  <Link
-                    href={`/figma/${proj.id}`}
-                    className="btn btn-primary hover:bg-blue-600 transition-colors duration-200"
-                  >
-                    See details
-                  </Link>
-
-                  <button
-                    className="btn btn-allert hover:bg-red-600 transition-colors duration-200"
-                    onClick={() => handleRemoved(proj.id)}
-                  >
-                    Remove
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
+            {/*<FigmaProjectsList
+            projectId={projectId}
+            setColors={setColors}
+            setFonts={setFonts}
+            setProjectId={setProjectId}
+            setcurrentProject={setcurrentProject}
+            figmaProjectRefetch={figmaProjectRefetch}
+            removeFigmaProject={removeFigmaProject}
+            setScssMixVar={setScssMixVar}
+            />*/}
+          </div>
         </div>
-        {/* 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹 */}
-
-        {/* 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹 */}
-        <ModalCreateFigmaProject
+        {user && currentProject && (
+          <ImageUploader
+            imageFiles={imageFiles}
+            setImageFiles={setImageFiles}
+            currentProject={currentProject}
+            preview={preview}
+            setPreview={setPreview}
+          />
+        )}
+        <RenderColorPalette colors={colors} />
+        {projectId && <RenderColorVars colorsTo={colorsTo} />}
+        <RenderTypography fonts={fonts} />
+        <RenderScssMixins texts={texts} colors={colors} />
+        <RenderTextStyles />
+        {/*<button
+          className="btn btn-empty"
+          type="button"
+          onClick={() => setOpenSandbox(!openSandbox)}
+        >
+          Open Sandbox
+        </button>*/}
+        {user && openSandbox && <SandboxComponent />}
+        {user && (
+          <PlazaComponent
+            preview={preview}
+            colorsTo={colorsTo}
+            ScssMixVar={ScssMixVar}
+            setScssMixVar={setScssMixVar}
+            setOpenSandbox={setOpenSandbox}
+            openSandbox={openSandbox}
+          />
+        )}
+        {/*<ModalUploadFigmaProject
           modalOpen={modalOpen}
           setModalOpen={setModalOpen}
-          setProjects={setProjects}
-        />
-      </div>{" "}
+          allProjects={allProjects}
+          setFonts={setFonts}
+          setTexts={setTexts}
+          setAllProjects={setAllProjects}
+        />*/}
+      </div>
     </div>
   );
 }

@@ -1,40 +1,25 @@
 "use client";
-import React from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import "./ModalMessage.scss";
 
 interface ModalMessageProps {
   message: string;
-  open: boolean;
-  isModalOpen: boolean;
 }
 
-const ModalMessage: React.FC<ModalMessageProps> = ({ message, open }) => {
+const ModalMessage: React.FC<ModalMessageProps> = ({ message }) => {
   return (
-    <AnimatePresence mode="wait">
-      {open && (
-        <motion.div
-          key="modal-message"
-          initial={{
-            opacity: 0,
-            scale: 0.1,
-          }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.3 }}
-          exit={{
-            opacity: 0,
-            scale: 0.1,
-            transition: { duration: 0.3 },
-          }}
-        >
-          <div className="modalmessage fixed top-0 left-0  flex justify-center  items-center inset-0 bg-black/60 backdrop-blur-sm z-7000  rounded-lg w-[100vw] h-[100vh]">
-            <div className="modalmessage-inner">
-              <p className="modalmessage-message">{message}</p>
-            </div>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <motion.div
+      key="modal-message"
+      initial={{ opacity: 0, scale: 0.2 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.1, transition: { duration: 0.2 } }}
+      transition={{ duration: 0.2 }}
+      className="modalmessage fixed inset-0 z-[7000] flex items-center justify-center bg-black/60 backdrop-blur-sm w-[100vw] h-[100vh]"
+    >
+      <div className="modalmessage-inner">
+        <p className="modalmessage-message">{message}</p>
+      </div>
+    </motion.div>
   );
 };
 
