@@ -52,22 +52,10 @@ const FigmaProjectsList: React.FC<FigmaProjectsListProps> = ({
     setAllProjects(figmaProjects);
   }, [figmaProjects]);
   //////---
-  // const fetchProjectData = (id: string) => {
-  //   setColors([]);
-  //   setFonts([]);
-  //   setTexts([]);
-  //   setProjectId(id);
-  //   figmaProjectRefetch({ projectId: id });
-  // };
   const handlerRemoveFigmaProject = (id: string) => {
     removeFigmaProject({ variables: { figmaProjectId: id } });
     setAllProjects(allProjects.filter((p) => p.id !== id));
     setModalMessage("Figma Project removed successfully");
-    // setProjectId("");
-    // setcurrentProject(null);
-    // setColors([]);
-    // setFonts([]);
-    // setTexts([]);
   };
 
   return (
@@ -79,25 +67,6 @@ const FigmaProjectsList: React.FC<FigmaProjectsListProps> = ({
           setAllProjects={setAllProjects}
         />
       )}
-      {/*{allProjectsLoading && <Loading />}*/}
-      {/*{projectId && (
-        <button
-          onClick={() => {
-            setPreview(null);
-            setFile(null);
-            setProjectId("");
-            setcurrentProject(null);
-            setColors([]);
-            setFonts([]);
-            setTexts([]);
-            setScssMixVar("");
-            setHtmlJson(null);
-          }}
-          className="btn btn-empty px-2 my-2 mr-2"
-        >
-          Quit active Project
-        </button>
-      )}*/}
 
       {allProjects.length !== 0 &&
         allProjects.map((project) => (

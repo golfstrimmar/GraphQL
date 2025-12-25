@@ -105,6 +105,11 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     };
   }, [imageFiles]);
 
+  useEffect(() => {
+    if (!preview) return;
+    console.log("<===preview===>", preview);
+  }, [preview]);
+  // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨э
   const handleFileChange = (
     event: ChangeEvent<HTMLInputElement>,
     isPrev: boolean,
@@ -132,25 +137,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
 
   const handleRemoveImage = async (img) => {
     setImageFiles((prev) => prev.filter((f) => f.id !== img.id));
-    // if (
-    //   img?.name === "preview.png" ||
-    //   img?.fileName === "preview.png" ||
-    //   img?.file?.name === "preview.png"
-    // ) {
-    //   setIsPrev(false);
-    //   setIsNewImages(false);
-    //   setPreview(null);
-    //   setImageFiles((prev) =>
-    //     prev.filter(
-    //       (f) =>
-    //         f?.fileName !== "preview.png" &&
-    //         f?.name !== "preview.png" &&
-    //         f?.file?.name !== "preview.png",
-    //     ),
-    //   );
-    //   return;
-    // }
-
     if (currentProject && img.id) {
       const { data } = await removeFigmaImage({
         variables: {
@@ -193,7 +179,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     const images = urls.map((url, index) => {
       const srcImg = imageFilesToUpload[index];
       const fileName = srcImg?.file?.name ?? srcImg?.fileName ?? "";
-
       return {
         fileName,
         filePath: url,
@@ -225,9 +210,12 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     });
   };
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
+
+  // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
   return (
     <div className="bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 mb-8">
       {removeLoading && <Loading></Loading>}
+      {updateLoading && <Loading></Loading>}
       <div className="flex items-center gap-3 mb-6">
         <div className=" p-1 bg-gradient-to-br from-yellow-500 to-red-500 rounded-lg flex items-center justify-center">
           <span>🖼️</span>

@@ -165,7 +165,12 @@ export const typeDefs = gql`
     setPassword(email: String!, password: String!): User!
     loginWithGoogle(idToken: String!): AuthPayload!
     removeUser(userId: ID!): ID!
-    createProject(ownerId: ID!, name: String!, data: JSON!): Project!
+    createProject(
+      ownerId: ID!
+      name: String!
+      data: JSON!
+      scssMixVar: String
+    ): Project!
     updateProject(projectId: ID!, data: JSON!): Project!
     removeProject(projectId: ID!): ID
     createFigmaProject(

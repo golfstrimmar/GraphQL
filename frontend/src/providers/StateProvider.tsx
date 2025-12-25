@@ -38,6 +38,14 @@ export type User = {
   name: string;
   createdAt: string;
 };
+type Preview = {
+  id: string;
+  fileName: string;
+  filePath: string;
+  imageRef: string;
+  type: "VECTOR" | "RASTER" | "OTHER";
+  __typename: "FigmaImage";
+};
 
 interface StateContextType {
   htmlJson: HtmlNode[];
@@ -64,6 +72,8 @@ interface StateContextType {
   setHTML: React.Dispatch<React.SetStateAction<string>>;
   SCSS: string;
   setSCSS: React.Dispatch<React.SetStateAction<string>>;
+  colors: string;
+  setColors: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const StateContext = createContext<StateContextType | null>(null);
@@ -81,12 +91,14 @@ export function StateProvider({
   const [nodeToAdd, setNodeToAdd] = useState<nodeToAdd | null>(null);
   const [modalMessage, setModalMessage] = useState<string>("");
   const [open, setOpen] = useState<boolean>(false);
+  const [colors, setColors] = useState<string[]>([]);
   const [texts, setTexts] = useState<string[]>([]);
   const [undoStack, setUndoStack] = useState<HtmlNode[][]>([]);
   const [redoStack, setRedoStack] = useState<HtmlNode[][]>([]);
   const [HTML, setHTML] = useState<string>("");
   const [SCSS, setSCSS] = useState<string>("");
-
+  const [preview, setPreview] = useState<Preview>(null);
+  // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨э
   const { data: usersData, subscribeToMore: subscribeToUsers } = useQuery(
     GET_USERS,
     { fetchPolicy: "cache-and-network" },
@@ -268,6 +280,10 @@ export function StateProvider({
         setHTML,
         SCSS,
         setSCSS,
+        preview,
+        setPreview,
+        colors,
+        setColors,
       }}
     >
       <AnimatePresence initial={false} mode="wait">

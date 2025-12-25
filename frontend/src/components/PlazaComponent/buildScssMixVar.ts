@@ -2,6 +2,8 @@ function buildScssMixVar(
   prev: string,
   uniqueMixins: TextNode[],
   colorsTo: string[],
+  googleFonts: string[],
+  mixins: string,
 ): string {
   const prevText = prev ?? "";
 

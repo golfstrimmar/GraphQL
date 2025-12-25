@@ -24,6 +24,8 @@ import Update from "@/components/icons/Update";
 import ModalTexts from "@/components/ModalTexts/ModalTexts";
 import buildScssMixVar from "./buildScssMixVar";
 import PlazaToolbar from "./PlazaToolbar";
+import Link from "next/link";
+import { set } from "lodash";
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 const CreateNewProject = dynamic(() => import("./CreateNewProject"), {
   ssr: false,
@@ -43,26 +45,22 @@ export interface ProjectNode {
   children: (ProjectNode | string)[];
 }
 
-type PlazaProps = {
-  preview?: { filePath: string } | null;
-  colorsTo?: string[];
-  ScssMixVar: string;
-  setScssMixVar: React.Dispatch<React.SetStateAction<string>>;
-  openSandbox: boolean;
-  setOpenSandbox: React.Dispatch<React.SetStateAction<boolean>>;
-};
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 
-export default function PlazaComponent({
-  preview = null,
-  colorsTo = [],
-  ScssMixVar,
-  setScssMixVar = () => {},
-  openSandbox,
-  setOpenSandbox = () => {},
-}: PlazaProps) {
-  const { htmlJson, user, setModalMessage, updateHtmlJson, texts, setHTML } =
-    useStateContext();
+export default function PlazaComponent() {
+  const {
+    htmlJson,
+    user,
+    setModalMessage,
+    updateHtmlJson,
+    texts,
+    setHTML,
+    setSCSS,
+    preview,
+    setPreview,
+    colors,
+    setColors,
+  } = useStateContext();
   const pathname = usePathname();
   const [projects, setProjects] = useState<PProject[]>([]);
   const [project, setProject] = useState<ProjectNode | null>(null);
@@ -77,7 +75,7 @@ export default function PlazaComponent({
   const [modalTextsOpen, setModalTextsOpen] = useState<boolean>(false);
   const [NNode, setNNode] = useState<ProjectNode>(null);
   const [openAdmin, setOpenAdmin] = useState<boolean>(false);
-
+  const [ScssMixVar, setScssMixVar] = useState<string>("");
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
   const uniqueMixins = Object.values(
     texts.reduce<Record<string, TextNode>>((acc, el) => {
@@ -108,6 +106,10 @@ export default function PlazaComponent({
     variables: { id: Number(pId) || null },
     skip: !pId,
     fetchPolicy: "cache-and-network",
+    onError: (error) => {
+      console.log("<===error.message===>", error.message);
+      setModalMessage(`Error loading project: ${error.message}`);
+    },
   });
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
   const [removeProject] = useMutation(REMOVE_PROJECT, {
@@ -118,17 +120,33 @@ export default function PlazaComponent({
     refetchQueries: [{ query: GET_ALL_PROJECTS_BY_USER, variables }],
     awaitRefetchQueries: true,
   });
-
+  const colorsTo = useMemo(() => {
+    if (colors.length > 0) {
+      return colors.map((color, index) => `$color-${index + 1}: ${color};`);
+    }
+    return [];
+  }, [colors]);
   // ⇨⇨⇨⇨⇨⇨
+
+  useEffect(() => {
+    if (!user) resetAll();
+  }, [user]);
   useEffect(() => {
     if (!openInfoKey) return;
     setOpenAdmin(true);
   }, [openInfoKey]);
+  useEffect(() => {
+    if (!projects) return;
+    console.log("<===projects===>", projects);
+  }, [projects]);
+  useEffect(() => {
+    if (!pId) return;
+    console.log("<===pId===>", pId);
+  }, [pId]);
   // ⇨⇨⇨⇨⇨⇨
   useEffect(() => {
     console.log("<==💥💥💥💥ScssMixVar💥💥💥💥💥 ====>", ScssMixVar);
   }, [ScssMixVar]);
-  // ⇨⇨⇨⇨⇨⇨ uniqueMixins, colorsTo прилетают пропсами если есть фигма проект
 
   useEffect(() => {
     const mixins = createMixins();
@@ -136,10 +154,11 @@ export default function PlazaComponent({
     if (!mixins && !googleFonts) return;
 
     setScssMixVar((prev) =>
-      buildScssMixVar(prev ?? "", uniqueMixins, colorsTo),
+      buildScssMixVar(prev ?? "", uniqueMixins, colorsTo, googleFonts, mixins),
     );
   }, [uniqueMixins, colorsTo]);
-  // ⇨⇨⇨⇨⇨⇨
+
+  // ⇨⇨⇨⇨⇨⇨🔥🔥🔥🔥 proj from bd
   useEffect(() => {
     if (!dataProject) return;
 
@@ -207,14 +226,6 @@ export default function PlazaComponent({
   }, [project]);
 
   useEffect(() => {
-    resetAll();
-  }, []);
-
-  useEffect(() => {
-    if (!user) resetAll();
-  }, [user]);
-
-  useEffect(() => {
     if (data?.getAllProjectsByUser) {
       setProjects(data?.getAllProjectsByUser);
     }
@@ -233,10 +244,9 @@ export default function PlazaComponent({
     setProjectId("");
     setProjectName("");
     setOpenInfoKey(null);
-    updateHtmlJson([]);
     setScssMixVar("");
-    setOpenSandbox(false);
   };
+
   const buildGoogleFontsImport = () => {
     const uniqueFonts = Array.from(
       new Set(uniqueMixins.map((f) => f.fontFamily)),
@@ -404,13 +414,7 @@ export default function PlazaComponent({
     }
   };
   //-------------
-  const moveToSandbox = () => {
-    createHtml();
-    createSCSS();
-    setOpenSandbox(!openSandbox);
-    // router.push("/sandbox");
-  };
-  //--------------
+
   return (
     <section
       className={`${
@@ -434,14 +438,16 @@ export default function PlazaComponent({
               <span className=" text-white">📐</span>
             </div>
             <h5 className=" font-bold text-slate-800">Canvas</h5>
-            <button
-              className="btn btn-empty px-1"
+            <Link
+              href={`/sandbox`}
               onClick={() => {
-                moveToSandbox();
+                createHtml();
+                createSCSS();
               }}
+              className="btn btn-empty px-2  self-end ml-auto !text-[var(--teal)]"
             >
               To Sandbox ⇨
-            </button>
+            </Link>
           </div>
           <div
             id="plaza-render-area"
@@ -455,7 +461,20 @@ export default function PlazaComponent({
         </div>
 
         {/* ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ */}
-        {preview && <img src={preview?.filePath} alt="preview" />}
+
+        {preview && (
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={() => {
+                setPreview(null);
+              }}
+              className="btn btn-empty px-2  self-start mr-auto !text-[var(--teal)]"
+            >
+              Clear Preview
+            </button>
+            <img src={preview?.filePath} alt="preview" />
+          </div>
+        )}
         <div
           className={`${openAdmin ? "translate-x-0" : "translate-x-[calc(-100%+20px)]"} left-0 fixed bottom-0  z-5000 grid-cols-[140px_1fr] w-full h-[max-content] pt-1 grid  gap-2 bg-slate-200 rounded transition-all duration-100 ease-in-out`}
         >
@@ -540,7 +559,6 @@ export default function PlazaComponent({
                       setModalTextsOpen(false);
                       setNNode(null);
                       setOpenAdmin(false);
-                      setOpenSandbox(false);
                     }}
                   >
                     Quit active Project

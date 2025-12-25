@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useRef, useMemo } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useStateContext } from "@/providers/StateProvider";
 import { useQuery, useMutation } from "@apollo/client";
 import { GET_FIGMA_PROJECT_DATA } from "@/apollo/queries";
@@ -12,6 +12,7 @@ import RenderColorPalette from "./RenderColorPalette";
 import RenderTypography from "./RenderTypography";
 import RenderScssMixins from "./RenderScssMixins";
 import RenderTextStyles from "./RenderTextStyles";
+import Link from "next/link";
 // -------------
 type FontObject = {
   family?: string;
@@ -29,18 +30,25 @@ interface ImageFile {
 // 🟢🟢🟢🟢🟢🟢🟢🟢
 const ProjectPage = () => {
   const { id } = useParams<{ id: string }>();
-  const { texts, setModalMessage, setTexts, setHtmlJson } = useStateContext();
-  const router = useRouter();
-  const [colors, setColors] = useState<string[]>([]);
+  const {
+    texts,
+    setModalMessage,
+    setTexts,
+    setHtmlJson,
+    preview,
+    setPreview,
+    colors,
+    setColors,
+  } = useStateContext();
+
   const [fonts, setFonts] = useState<FontsData>({});
-  const [preview, setPreview] = useState<ImageFile>(null);
+  const [project, setProject] = useState<any>(null);
   const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
   // ====  Queries
   const { data, loading, error } = useQuery(GET_FIGMA_PROJECT_DATA, {
     variables: { projectId: id },
     skip: !id,
   });
-  const [project, setProject] = useState<any>(null);
 
   //====
 
@@ -154,11 +162,15 @@ const ProjectPage = () => {
       <div className="p-4 mt-[60px] mb-8 w-full">
         {loading && <Loading />}
         <div className=" p-4  shadow-md  w-full">
-          <div className="flex items-center  gap-1  bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 mb-8">
+          <div className="flex items-end   gap-1  bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 mb-4">
             <span>Fgma project: </span>
-            <h2 className="text-3xl font-extrabold text-gray-800 mb-2">
-              {project?.name}
-            </h2>
+            <h3 className=" text-gray-800 ">{project?.name}</h3>
+            <Link
+              href={`/plaza`}
+              className="btn btn-empty px-2 self-end ml-auto !text-[var(--teal)]"
+            >
+              Transform to ULON Project
+            </Link>
           </div>
           {project && (
             <ImageUploader
