@@ -136,16 +136,7 @@ const PlazaToolbar: React.FC = ({ resetAll, setEditMode, editMode }) => {
   return (
     <div className="flex flex-col items-center gap-2">
       <button
-        className="btn-teal w-full px-2  self-end ml-auto !text-[var(--teal)]"
-        onClick={() => {
-          createHtml();
-          createSCSS();
-        }}
-      >
-        To Sandbox ⇨
-      </button>
-      <button
-        className="btn-teal w-full"
+        className="btn btn-allert !gap-2 w-full"
         type="button"
         onClick={() => {
           resetAll();
@@ -153,6 +144,15 @@ const PlazaToolbar: React.FC = ({ resetAll, setEditMode, editMode }) => {
       >
         <ClearIcon />
         <span className="text-sm font-medium">Clear</span>
+      </button>
+      <button
+        className="btn-teal w-full px-2  self-end ml-auto !text-[var(--teal)]"
+        onClick={() => {
+          createHtml();
+          createSCSS();
+        }}
+      >
+        To Sandbox ⇨
       </button>
       <button
         className={`btn-teal  w-full ${editMode ? "teal-500 " : " "}`}

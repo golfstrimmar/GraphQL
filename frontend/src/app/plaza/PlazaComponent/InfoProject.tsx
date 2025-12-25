@@ -4,7 +4,7 @@ import { useStateContext } from "@/providers/StateProvider";
 import findNodeByKey from "@/utils/plaza/findNodeByKey";
 import { motion, AnimatePresence } from "framer-motion";
 import СhevronRight from "@/components/icons/СhevronRight";
-
+import StyleComponent from "./StyleComponent";
 type ProjectData = {
   tag: string;
   text: string;
@@ -32,12 +32,10 @@ const InfoProject: React.FC<InfoProjectProps> = ({
   setModalTextsOpen,
   setNNode,
 }) => {
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const textareaRefText = useRef<HTMLTextAreaElement | null>(null);
   const { texts, setTexts } = useStateContext();
 
   // ================================
-
   const updateNodeByKey = (
     nodes: ProjectData | ProjectData[],
     key: string,
@@ -73,41 +71,9 @@ const InfoProject: React.FC<InfoProjectProps> = ({
   };
 
   // ================================
-  const adjustHeight = (el: HTMLTextAreaElement) => {
-    el.style.height = "auto";
-    el.style.height = `${el.scrollHeight}px`;
-  };
-
-  const formatStyleForDisplay = (raw: string): string => {
-    // Если уже есть переносы — пользователь редактировал вручную
-    if (raw.includes("\n")) return raw;
-
-    const trimmed = raw.trim();
-    if (!trimmed) return "";
-
-    const hasTrailingSemicolon = trimmed.endsWith(";");
-    const clean = hasTrailingSemicolon ? trimmed.slice(0, -1) : trimmed;
-
-    const properties = clean
-      .split(";")
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0)
-      .map((prop) => {
-        const colonIndex = prop.indexOf(":");
-        if (colonIndex === -1) return prop;
-        const key = prop.slice(0, colonIndex).trim();
-        const value = prop.slice(colonIndex + 1).trim();
-        return `${key}: ${value}`;
-      });
-
-    // Используем реальный \n — React и textarea его правильно отобразят
-    return properties.join(";\n") + (hasTrailingSemicolon ? ";" : "");
-  };
-  // ================================
   const infoProject = (node: ProjectData) => {
     if (!node) return;
     setNNode(node);
-
     return (
       <AnimatePresence mode="wait">
         {openInfoKey != null && project && (
@@ -153,7 +119,7 @@ const InfoProject: React.FC<InfoProjectProps> = ({
                 ref={(el) => {
                   if (!el) return;
                   textareaRefText.current = el;
-                  adjustHeight(el);
+                  // adjustHeight(el);
                 }}
                 value={node?.text || ""}
                 onChange={(e) => {
@@ -182,29 +148,14 @@ const InfoProject: React.FC<InfoProjectProps> = ({
                 }}
                 className="textarea-styles"
               />
-              <p className="bg-white !font-bold inline-block z-30  rounded  py-0.5 mt-2 ml-auto -mb-4.5 w-[max-content]">
-                Style:
-              </p>
-              <textarea
-                ref={(el) => {
-                  if (!el) return;
-                  textareaRef.current = el;
-                  adjustHeight(el);
-                }}
-                value={node?.style ? formatStyleForDisplay(node.style) : ""}
-                onChange={(e) => {
-                  const newValue = e.target.value;
-                  const updatedProject = updateNodeByKey(project, node?._key, {
-                    style: newValue,
-                  });
-                  setProject(updatedProject as ProjectData);
-                  adjustHeight(e.target);
-                }}
-                onInput={(e) => adjustHeight(e.target as HTMLTextAreaElement)}
-                style={{}}
-                className="textarea-styles"
-                placeholder="background-color: #e2e8f0;\npadding: 40px;"
+              {/*===============Style=================  */}
+              <StyleComponent
+                project={project}
+                setProject={setProject}
+                node={node}
+                updateNodeByKey={updateNodeByKey}
               />
+              {/*===============================  */}
               {node?.tag === "img" && (
                 <>
                   <p className="bg-white !font-bold inline-block z-30 py-1 rounded  -mb-3 w-[max-content]">
