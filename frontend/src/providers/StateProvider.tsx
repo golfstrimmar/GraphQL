@@ -98,6 +98,7 @@ export function StateProvider({
   const [HTML, setHTML] = useState<string>("");
   const [SCSS, setSCSS] = useState<string>("");
   const [preview, setPreview] = useState<Preview>(null);
+  const [ScssMixVar, setScssMixVar] = useState<string>("");
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨э
   const { data: usersData, subscribeToMore: subscribeToUsers } = useQuery(
     GET_USERS,
@@ -284,6 +285,8 @@ export function StateProvider({
         setPreview,
         colors,
         setColors,
+        ScssMixVar,
+        setScssMixVar,
       }}
     >
       <AnimatePresence initial={false} mode="wait">

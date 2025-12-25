@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import "./sandbox.scss";
+import { usePathname } from "next/navigation";
 import Editor, { useMonaco } from "@monaco-editor/react";
 import Image from "next/image";
 import { useStateContext } from "@/providers/StateProvider";
@@ -21,6 +22,10 @@ const SandboxСomponent: React.FC = () => {
     HTML,
     SCSS,
   } = useStateContext();
+  const pathname = usePathname();
+  const isSandbox = () => {
+    return pathname === "/sandbox" ? true : false;
+  };
   const monaco = useMonaco();
   const [editorInstance, setEditorInstance] = useState<any>(null);
   const editorRef = useRef<any>(null);
@@ -76,14 +81,21 @@ const SandboxСomponent: React.FC = () => {
       if (editorInstance) editorInstance.dispose();
     };
   }, [editorInstance]);
-
+  // --  HTML
+  useEffect(() => {
+    setHtml(HTML);
+  }, [HTML]);
   // ----SCSS
   useEffect(() => {
+    console.log("<==//=SCSS==//=>", SCSS);
+  }, [SCSS]);
+  useEffect(() => {
     const run = async () => {
-      setStartScss(startScssContent);
       if (!SCSS) {
+        setScss("");
         return;
       }
+      setStartScss(startScssContent);
       const formatted = await formatScss(SCSS);
       setScss(formatted);
     };
@@ -133,19 +145,20 @@ ${html}
   };
 
   return (
-    <div className="sandbox">
-      <div className="container">
-        <header className="sandbox__header">
-          <div className="text-center mb-4">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-1">
-              Sandbox Editor
-            </h1>
-            <p className="text-slate-600 text-sm">
-              Build and manage your projects
-            </p>
-          </div>
-        </header>
-
+    <div className={`${isSandbox() ? "sandbox" : ""} `}>
+      <div className={`${isSandbox() ? "container" : ""} `}>
+        {isSandbox() && (
+          <header className="sandbox__header">
+            <div className="text-center mb-4">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-1">
+                Sandbox Editor
+              </h1>
+              <p className="text-slate-600 text-sm">
+                Build and manage your projects
+              </p>
+            </div>
+          </header>
+        )}
         {/* Превью */}
         <section className="w-full mb-4 bg-navy">
           <iframe

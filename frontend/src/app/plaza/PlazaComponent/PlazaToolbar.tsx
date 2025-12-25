@@ -7,13 +7,10 @@ import ClearIcon from "@/components/icons/ClearIcon";
 import СhevronLeft from "@/components/icons/СhevronLeft";
 import СhevronRight from "@/components/icons/СhevronRight";
 import jsonToHtml from "@/utils/plaza/jsonToHtml";
-const PlazaToolbar: React.FC = ({
-  resetAll,
-  setEditMode,
-  editMode,
-  createHtml,
-  createSCSS,
-}) => {
+import { useHtmlFromJson } from "@/hooks/useHtmlFromJson";
+import { useScssFromJson } from "@/hooks/useScssFromJson";
+
+const PlazaToolbar: React.FC = ({ resetAll, setEditMode, editMode }) => {
   const SERVICE_TEXTS = [
     "section",
     "container",
@@ -71,7 +68,10 @@ const PlazaToolbar: React.FC = ({
     "card__title",
     "card__button",
   ];
-
+  // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ хук ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
+  const { createHtml } = useHtmlFromJson();
+  const { createSCSS } = useScssFromJson();
+  // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
   const {
     htmlJson,
     setHtmlJson,
@@ -80,6 +80,9 @@ const PlazaToolbar: React.FC = ({
     redo,
     undoStack,
     redoStack,
+    setScssMixVar,
+    setHTML,
+    setSCSS,
   } = useStateContext();
   function cleanServiceTexts() {
     const serviceSet = new Set(
@@ -133,9 +136,20 @@ const PlazaToolbar: React.FC = ({
   return (
     <div className="flex flex-col items-center gap-2">
       <button
+        className="btn-teal w-full px-2  self-end ml-auto !text-[var(--teal)]"
+        onClick={() => {
+          createHtml();
+          createSCSS();
+        }}
+      >
+        To Sandbox ⇨
+      </button>
+      <button
         className="btn-teal w-full"
         type="button"
-        onClick={() => resetAll()}
+        onClick={() => {
+          resetAll();
+        }}
       >
         <ClearIcon />
         <span className="text-sm font-medium">Clear</span>

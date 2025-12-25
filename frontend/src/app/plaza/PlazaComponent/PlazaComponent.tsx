@@ -17,7 +17,7 @@ import Loading from "@/components/ui/Loading/Loading";
 import PProject from "@/types/PProject";
 import createRenderNode from "@/utils/plaza/RenderNode.tsx";
 import "./plaza.scss";
-import AdminComponent from "@/components/AdminComponent/AdminComponent";
+import AdminComponent from "./AdminComponent/AdminComponent";
 import jsonToHtml from "@/utils/plaza/jsonToHtml";
 import СhevronRight from "@/components/icons/СhevronRight";
 import Update from "@/components/icons/Update";
@@ -25,6 +25,8 @@ import ModalTexts from "@/components/ModalTexts/ModalTexts";
 import buildScssMixVar from "./buildScssMixVar";
 import PlazaToolbar from "./PlazaToolbar";
 import Link from "next/link";
+import SandboxСomponent from "@/components/SandboxComponent/SandboxComponent";
+import CustomSlider from "@/components/ui/CustomSlider/CustomSlider";
 
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 const CreateNewProject = dynamic(() => import("./CreateNewProject"), {
@@ -60,6 +62,8 @@ export default function PlazaComponent() {
     setPreview,
     colors,
     setColors,
+    ScssMixVar,
+    setScssMixVar,
   } = useStateContext();
   const pathname = usePathname();
   const [projects, setProjects] = useState<PProject[]>([]);
@@ -74,9 +78,11 @@ export default function PlazaComponent() {
   const isSyncingRef = useRef(false);
   const [modalTextsOpen, setModalTextsOpen] = useState<boolean>(false);
   const [NNode, setNNode] = useState<ProjectNode>(null);
-  const [openAdmin, setOpenAdmin] = useState<boolean>(false);
-  const [ScssMixVar, setScssMixVar] = useState<string>("");
+  const [openAdmin, setOpenAdmin] = useState<boolean>(true);
   const [imgSize, setImgSize] = useState<{ w: number; h: number } | null>(null);
+  const [previewOpacity, setPreviewOpacity] = useState<number>(0);
+  // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ хук ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
+
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
   const uniqueMixins = Object.values(
     texts.reduce<Record<string, TextNode>>((acc, el) => {
@@ -136,18 +142,8 @@ export default function PlazaComponent() {
     if (!openInfoKey) return;
     setOpenAdmin(true);
   }, [openInfoKey]);
-  useEffect(() => {
-    if (!projects) return;
-    console.log("<===projects===>", projects);
-  }, [projects]);
-  useEffect(() => {
-    if (!pId) return;
-    console.log("<===pId===>", pId);
-  }, [pId]);
+
   // ⇨⇨⇨⇨⇨⇨
-  useEffect(() => {
-    console.log("<==💥💥💥💥ScssMixVar💥💥💥💥💥 ====>", ScssMixVar);
-  }, [ScssMixVar]);
 
   useEffect(() => {
     const mixins = createMixins();
@@ -246,6 +242,8 @@ export default function PlazaComponent() {
     setProjectName("");
     setOpenInfoKey(null);
     setScssMixVar("");
+    setHTML("");
+    setSCSS("");
   };
 
   const buildGoogleFontsImport = () => {
@@ -326,8 +324,6 @@ export default function PlazaComponent() {
     };
   };
   const updateTempProject = async () => {
-    console.log("<==♻️♻️==update projectId====>", projectId);
-
     if (!projectId || !project) return;
 
     // Убираем _key из всех узлов
@@ -384,36 +380,7 @@ export default function PlazaComponent() {
       }),
     [editMode, nodeToDrag, nodeToDragEl, openInfoKey],
   );
-  const createHtml = async () => {
-    if (htmlJson) {
-      const { html } = jsonToHtml(htmlJson);
-      console.log("<==== html ====>", html);
-      setHTML(html);
-      try {
-        await navigator.clipboard.writeText(html);
-        // setModalMessage("Html copied!");
-      } catch {
-        setModalMessage("Failed to copy");
-      }
-    }
-  };
 
-  const createSCSS = async () => {
-    if (htmlJson) {
-      const { scss } = jsonToHtml(htmlJson);
-      const res = [ScssMixVar !== undefined ? ScssMixVar : "", scss ?? ""]
-        .filter((part) => part)
-        .join("\n");
-      console.log("<===✅✅=res=✅✅===>", res);
-      setSCSS(res);
-      try {
-        await navigator.clipboard.writeText(res);
-        // setModalMessage("Scss copied!");
-      } catch {
-        setModalMessage("Failed to copy");
-      }
-    }
-  };
   //-------------
 
   return (
@@ -423,7 +390,7 @@ export default function PlazaComponent() {
       } min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-slate-50 pb-[300px]`}
     >
       <div className={`${isPlaza() ? "container" : ""}`}>
-        <div className="text-center mb-12">
+        <div className="text-center ">
           <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-3">
             Plaza Editor
           </h1>
@@ -431,15 +398,82 @@ export default function PlazaComponent() {
             Build and manage your HTML/CSS projects
           </p>
         </div>
-
+        {/* ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ */}
+        <div className="relative  mt-18">
+          {preview && (
+            <div className="absolute top-[-44px]  z-5000 border border-slate-200 ">
+              <div className="flex items-center  ">
+                <button
+                  onClick={() => {
+                    setPreview(null);
+                  }}
+                  className="btn btn-empty px-2  m-2  !text-[var(--teal)]"
+                >
+                  Clear Preview
+                </button>
+                <div className="btn btn-empty  !flex items-center p-1 min-w-[650px]">
+                  <h6 className="mr-4 ">Preview Opacity</h6>
+                  <h5 className="mr-2 !text-[var(--teal)] min-w-[30px]">
+                    {previewOpacity}
+                  </h5>
+                  <CustomSlider
+                    value={previewOpacity}
+                    onChange={setPreviewOpacity}
+                    customClass="w-[450px] "
+                  />
+                </div>
+              </div>
+              {/* контейнер на всю ширину окна, с горизонтальным скроллом */}
+              <div
+                className={`w-[100vw] `}
+                style={{
+                  overflowX: "auto",
+                  overflowY: "hidden",
+                  opacity: previewOpacity / 100,
+                }}
+              >
+                {/* внутренняя обёртка строго под размер картинки */}
+                <div
+                  style={
+                    imgSize
+                      ? {
+                          width: `${imgSize.w}px`,
+                          height: `${imgSize.h}px`,
+                        }
+                      : undefined
+                  }
+                >
+                  <img
+                    src={preview.filePath}
+                    alt="preview"
+                    onLoad={(e) => {
+                      const img = e.target as HTMLImageElement;
+                      setImgSize({
+                        w: img.naturalWidth,
+                        h: img.naturalHeight,
+                      });
+                    }}
+                    style={{
+                      display: "block",
+                      maxWidth: "none", // не даём глобальному img { max-width:100% } сжимать [web:316][web:299]
+                      width: imgSize ? `${imgSize.w}px` : "auto",
+                      height: imgSize ? `${imgSize.h}px` : "auto",
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+          <SandboxСomponent />
+        </div>
         {/* // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ Canvas */}
-        <div className="bg-navy rounded-2xl shadow-xl p-2 mb-8 border border-slate-200 ">
+        <div className="bg-navy rounded-2xl shadow-xl p-2 mt-4 mb-8 border border-slate-200 ">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
               <span className=" text-white">📐</span>
             </div>
             <h5 className=" font-bold text-slate-800">Canvas</h5>
-            <Link
+            {/*<Link
               href={`/sandbox`}
               onClick={() => {
                 createHtml();
@@ -448,7 +482,16 @@ export default function PlazaComponent() {
               className="btn btn-empty px-2  self-end ml-auto !text-[var(--teal)]"
             >
               To Sandbox ⇨
-            </Link>
+            </Link>*/}
+            {/*<button
+              className="btn btn-empty px-2  self-end ml-auto !text-[var(--teal)]"
+              onClick={() => {
+                createHtml();
+                createSCSS();
+              }}
+            >
+              To Sandbox ⇨
+            </button>*/}
           </div>
           <div
             id="plaza-render-area"
@@ -461,58 +504,6 @@ export default function PlazaComponent() {
           </div>
         </div>
 
-        {/* ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ */}
-
-        {preview && (
-          <>
-            <button
-              onClick={() => {
-                setPreview(null);
-              }}
-              className="btn btn-empty px-2 mb-2 self-start mr-auto !text-[var(--teal)]"
-            >
-              Clear Preview
-            </button>
-
-            {/* контейнер на всю ширину окна, с горизонтальным скроллом */}
-            <div
-              className="w-[100vw]"
-              style={{ overflowX: "auto", overflowY: "hidden" }}
-            >
-              {/* внутренняя обёртка строго под размер картинки */}
-              <div
-                style={
-                  imgSize
-                    ? {
-                        width: `${imgSize.w}px`,
-                        height: `${imgSize.h}px`,
-                      }
-                    : undefined
-                }
-              >
-                <img
-                  src={preview.filePath}
-                  alt="preview"
-                  onLoad={(e) => {
-                    const img = e.target as HTMLImageElement;
-                    setImgSize({
-                      w: img.naturalWidth,
-                      h: img.naturalHeight,
-                    });
-                  }}
-                  style={{
-                    display: "block",
-                    maxWidth: "none", // не даём глобальному img { max-width:100% } сжимать [web:316][web:299]
-                    width: imgSize ? `${imgSize.w}px` : "auto",
-                    height: imgSize ? `${imgSize.h}px` : "auto",
-                  }}
-                />
-              </div>
-            </div>
-          </>
-        )}
-
-        {/* ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ */}
         <div
           className={`${openAdmin ? "translate-x-0" : "translate-x-[calc(-100%+20px)]"} left-0 fixed bottom-0  z-5000 grid-cols-[140px_1fr] w-full h-[max-content] pt-1 grid  gap-2 bg-slate-200 rounded transition-all duration-100 ease-in-out`}
         >
@@ -533,8 +524,6 @@ export default function PlazaComponent() {
               resetAll={resetAll}
               setEditMode={setEditMode}
               editMode={editMode}
-              createHtml={createHtml}
-              createSCSS={createSCSS}
             />
           </div>
           <AdminComponent />

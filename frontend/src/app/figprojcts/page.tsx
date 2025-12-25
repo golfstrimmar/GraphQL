@@ -32,7 +32,6 @@ const FigmaProjects = async () => {
     fetchPolicy: "network-only",
   });
   const projects = data?.figmaProjectsByUser ?? [];
-  console.log("<===projects===>", projects);
   return (
     <div className="container">
       <div className="flex flex-col gap-2 mb-2 mt-[100px]">
