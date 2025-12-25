@@ -32,6 +32,9 @@ export default function Login() {
 
               <h2 className="!text-2xl">{user.name}</h2>
               <p>
+                <small>Id:</small> <strong>{user.id}</strong>
+              </p>
+              <p>
                 <small>Email:</small> <strong>{user.email}</strong>
               </p>
               <p>

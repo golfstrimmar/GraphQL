@@ -29,10 +29,10 @@ const FigmaProjects = async () => {
   const { data } = await client.query({
     query: GET_FIGMA_PROJECTS_BY_USER,
     variables: { userId: user.id },
-    fetchPolicy: "cache-first",
+    fetchPolicy: "network-only",
   });
-
   const projects = data?.figmaProjectsByUser ?? [];
+  console.log("<===projects===>", projects);
   return (
     <div className="container">
       <div className="flex flex-col gap-2 mb-2 mt-[100px]">
@@ -56,11 +56,6 @@ const FigmaProjects = async () => {
           ""
         )}
 
-        {projects.length === 0 && (
-          <h5 className="!text-[var(--teal)] text-lg py-4 mb-6 border border-[var(--teal)] text-center rounded">
-            No Figma projects found
-          </h5>
-        )}
         <FigmaProjectsList figmaProjects={projects} />
       </div>
     </div>

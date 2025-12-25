@@ -25,7 +25,7 @@ import ModalTexts from "@/components/ModalTexts/ModalTexts";
 import buildScssMixVar from "./buildScssMixVar";
 import PlazaToolbar from "./PlazaToolbar";
 import Link from "next/link";
-import { set } from "lodash";
+
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 const CreateNewProject = dynamic(() => import("./CreateNewProject"), {
   ssr: false,
@@ -76,6 +76,7 @@ export default function PlazaComponent() {
   const [NNode, setNNode] = useState<ProjectNode>(null);
   const [openAdmin, setOpenAdmin] = useState<boolean>(false);
   const [ScssMixVar, setScssMixVar] = useState<string>("");
+  const [imgSize, setImgSize] = useState<{ w: number; h: number } | null>(null);
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
   const uniqueMixins = Object.values(
     texts.reduce<Record<string, TextNode>>((acc, el) => {
@@ -463,18 +464,55 @@ export default function PlazaComponent() {
         {/* ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ */}
 
         {preview && (
-          <div className="flex flex-col gap-2">
+          <>
             <button
               onClick={() => {
                 setPreview(null);
               }}
-              className="btn btn-empty px-2  self-start mr-auto !text-[var(--teal)]"
+              className="btn btn-empty px-2 mb-2 self-start mr-auto !text-[var(--teal)]"
             >
               Clear Preview
             </button>
-            <img src={preview?.filePath} alt="preview" />
-          </div>
+
+            {/* контейнер на всю ширину окна, с горизонтальным скроллом */}
+            <div
+              className="w-[100vw]"
+              style={{ overflowX: "auto", overflowY: "hidden" }}
+            >
+              {/* внутренняя обёртка строго под размер картинки */}
+              <div
+                style={
+                  imgSize
+                    ? {
+                        width: `${imgSize.w}px`,
+                        height: `${imgSize.h}px`,
+                      }
+                    : undefined
+                }
+              >
+                <img
+                  src={preview.filePath}
+                  alt="preview"
+                  onLoad={(e) => {
+                    const img = e.target as HTMLImageElement;
+                    setImgSize({
+                      w: img.naturalWidth,
+                      h: img.naturalHeight,
+                    });
+                  }}
+                  style={{
+                    display: "block",
+                    maxWidth: "none", // не даём глобальному img { max-width:100% } сжимать [web:316][web:299]
+                    width: imgSize ? `${imgSize.w}px` : "auto",
+                    height: imgSize ? `${imgSize.h}px` : "auto",
+                  }}
+                />
+              </div>
+            </div>
+          </>
         )}
+
+        {/* ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ */}
         <div
           className={`${openAdmin ? "translate-x-0" : "translate-x-[calc(-100%+20px)]"} left-0 fixed bottom-0  z-5000 grid-cols-[140px_1fr] w-full h-[max-content] pt-1 grid  gap-2 bg-slate-200 rounded transition-all duration-100 ease-in-out`}
         >

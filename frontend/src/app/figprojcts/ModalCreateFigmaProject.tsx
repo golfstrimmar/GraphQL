@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import "./modalcreatefigmaproject.scss";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
@@ -13,21 +14,26 @@ import FProject from "@/types/FProject";
 interface ModalCreateFigmaProjectProps {
   modalOpen: boolean;
   setModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setProjects: React.Dispatch<React.SetStateAction<FProject[] | null>>;
+  setAllProjects: React.Dispatch<React.SetStateAction<FProject[] | null>>;
 }
 
 const ModalCreateFigmaProject: React.FC<ModalCreateFigmaProjectProps> = ({
   modalOpen,
   setModalOpen,
-  setProjects,
+  setAllProjects,
 }) => {
   const { user } = useStateContext();
+  const router = useRouter();
   const { setModalMessage } = useStateContext();
   const [file, setFile] = useState<File | null>(null);
   const [name, setName] = useState<string>("");
-
-  const [createFigmaProject, { loading }] = useMutation(CREATE_FIGMA_PROJECT);
   const [hover, setHover] = useState(false);
+  // -----------------------
+  const [createFigmaProject, { loading }] = useMutation(CREATE_FIGMA_PROJECT, {
+    onCompleted: () => {
+      setModalMessage("Figma Project created successfully");
+    },
+  });
   // -----------------------
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,8 +54,7 @@ const ModalCreateFigmaProject: React.FC<ModalCreateFigmaProjectProps> = ({
       setModalMessage("Invalid JSON file");
       return;
     }
-    console.log("000000000000000000fileCache to send:", typeof json);
-    console.log("000000000000000000fileCache to send:", json);
+
     try {
       const { data } = await createFigmaProject({
         variables: {
@@ -60,22 +65,16 @@ const ModalCreateFigmaProject: React.FC<ModalCreateFigmaProjectProps> = ({
       });
 
       if (data.createFigmaProject) {
-        console.log(
-          "<========> Created figma project: <========>",
-          data.createFigmaProject,
-        );
-        // setProjects((prev) => {
-        //   if (!prev.find((p) => p.id === data.createFigmaProject)) {
-        //     return [...prev, data.createFigmaProject];
-        //   }
-        //   return prev;
-        // });
+        setAllProjects((prev) => {
+          if (!prev.find((p) => p.id === data.createFigmaProject.id)) {
+            return [...prev, data.createFigmaProject];
+          }
+          return prev;
+        });
         setModalOpen(false);
-        // setFigmaLink("");
-        // setName("");
-        // setFileKey("");
-        // setNodeId("");
-        // setToken("");
+        router.refresh();
+        setName("");
+        setFile(null);
       }
     } catch (err: any) {
       setModalOpen(false);
@@ -96,7 +95,7 @@ const ModalCreateFigmaProject: React.FC<ModalCreateFigmaProjectProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: -100 }}
             transition={{ duration: 0.3 }}
-            className=" w-[100vw] h-[100vh] fixed top-0 left-0 flex items-center justify-center bg-black bg-opacity-90 z-50"
+            className=" w-[100vw] h-[100vh] fixed top-0 left-0 flex items-center justify-center bg-black bg-opacity-90 z-5000"
             onClick={(e) => {
               e.stopPropagation();
               if (
@@ -107,7 +106,7 @@ const ModalCreateFigmaProject: React.FC<ModalCreateFigmaProjectProps> = ({
               }
             }}
           >
-            <button className="absolute top-[65px] right-2 z-3000">
+            <button className="absolute top-2 right-2 z-3000">
               <Image
                 src="./svg/cross.svg"
                 alt="close"
