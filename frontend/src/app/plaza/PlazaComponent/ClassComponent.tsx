@@ -10,7 +10,7 @@ type ProjectData = {
   children: ProjectData[] | string;
 };
 
-interface StyleComponentProps {
+interface ClassComponentProps {
   project: ProjectData;
   setProject: React.Dispatch<React.SetStateAction<ProjectData>>;
   node: ProjectData;
@@ -21,7 +21,7 @@ interface StyleComponentProps {
   ) => ProjectData | ProjectData[];
 }
 
-const StyleComponent: React.FC<StyleComponentProps> = ({
+const ClassComponent: React.FC<ClassComponentProps> = ({
   project,
   setProject,
   node,
@@ -35,7 +35,7 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
     el.style.height = `${el.scrollHeight}px`;
   };
 
-  const formatStyleForDisplay = (raw: string): string => {
+  const formatClassForDisplay = (raw: string): string => {
     // Если уже есть переносы — пользователь редактировал вручную
     if (raw.includes("\n")) return raw;
 
@@ -62,14 +62,13 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
   };
   // ================================
 
-  const [styleText, setStyleText] = useState(
-    node?.style ? formatStyleForDisplay(node.style) : "",
+  const [classText, setClassText] = useState(
+    node?.class ? formatClassForDisplay(node.style) : "",
   );
 
-  // синк при смене node / внешнего style
   useEffect(() => {
-    setStyleText(node?.style ? formatStyleForDisplay(node.style) : "");
-  }, [node?._key, node?.style]);
+    setClassText(node?.class ? formatClassForDisplay(node.class) : "");
+  }, [node?._key, node?.class]);
 
   // дебаунс обновления project
   useEffect(() => {
@@ -77,38 +76,34 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
 
     const id = setTimeout(() => {
       const updatedProject = updateNodeByKey(project, node._key, {
-        style: styleText,
+        class: classText,
       });
       setProject(updatedProject as ProjectData);
     }, 500);
 
     return () => clearTimeout(id);
-  }, [styleText, node?._key, project, setProject]);
+  }, [classText, node?._key]);
 
   // ================================
   return (
     <>
       <p className="bg-white !font-bold inline-block z-30  rounded  py-0.5 mt-2 ml-auto -mb-4.5 w-[max-content]">
-        Style:
+        Class:
       </p>
-      <textarea
+      <input
         ref={(el) => {
           if (!el) return;
           textareaRef.current = el;
           adjustHeight(el);
         }}
-        value={styleText}
+        value={classText}
         onChange={(e) => {
-          setStyleText(e.target.value); // только локальный стейт
-          adjustHeight(e.target);
+          setClassText(e.target.value);
         }}
-        onInput={(e) => adjustHeight(e.target as HTMLTextAreaElement)}
-        style={{}}
         className="textarea-styles"
-        placeholder="background-color: #e2e8f0;\npadding: 40px;"
       />
     </>
   );
 };
 
-export default StyleComponent;
+export default ClassComponent;

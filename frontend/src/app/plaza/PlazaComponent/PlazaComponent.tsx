@@ -423,7 +423,7 @@ export default function PlazaComponent() {
                   />
                 </div>
               </div>
-              {/* контейнер на всю ширину окна, с горизонтальным скроллом */}
+              {/* =========preview=========== */}
               <div
                 className={`w-[100vw] `}
                 style={{
@@ -432,7 +432,6 @@ export default function PlazaComponent() {
                   opacity: previewOpacity / 100,
                 }}
               >
-                {/* внутренняя обёртка строго под размер картинки */}
                 <div
                   style={
                     imgSize
@@ -455,7 +454,7 @@ export default function PlazaComponent() {
                     }}
                     style={{
                       display: "block",
-                      maxWidth: "none", // не даём глобальному img { max-width:100% } сжимать [web:316][web:299]
+                      maxWidth: "none",
                       width: imgSize ? `${imgSize.w}px` : "auto",
                       height: imgSize ? `${imgSize.h}px` : "auto",
                     }}
@@ -464,7 +463,10 @@ export default function PlazaComponent() {
               </div>
             </div>
           )}
-          <SandboxСomponent />
+          <SandboxСomponent
+            heightPreview={imgSize?.h ?? 300}
+            widthPreview={imgSize?.w ?? 100}
+          />
         </div>
         {/* // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ Canvas */}
         <div className="bg-navy rounded-2xl shadow-xl p-2 mt-4 mb-8 border border-slate-200 ">

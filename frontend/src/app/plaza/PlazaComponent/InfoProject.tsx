@@ -5,6 +5,9 @@ import findNodeByKey from "@/utils/plaza/findNodeByKey";
 import { motion, AnimatePresence } from "framer-motion";
 import СhevronRight from "@/components/icons/СhevronRight";
 import StyleComponent from "./StyleComponent";
+import ClassComponent from "./ClassComponent";
+import TextComponent from "./TextComponent";
+import TagComponent from "./TagComponent";
 type ProjectData = {
   tag: string;
   text: string;
@@ -86,67 +89,26 @@ const InfoProject: React.FC<InfoProjectProps> = ({
             className="bg-navy rounded shadow-xl p-1  border border-slate-200  bottom-0 right-0 transform min-w-[calc(100vw-150px)] min-h-[312px] fixed  z-50"
           >
             <div className=" flex flex-col relative rounded border-2 border-[var(--teal)] p-1 text-[#000] h-full">
-              <p className="bg-white !font-bold px-2 inline-block z-30 py-0.5 rounded mt-2 ml-auto -mb-4.5 w-[max-content]">
-                Tag:
-              </p>
-              <input
-                ref={(el) => {
-                  if (!el) return;
-                  // textareaRef.current = el;
-                  // adjustHeight(el);
-                }}
-                value={node?.tag || ""}
-                onChange={(e) => {
-                  const updatedProject = updateNodeByKey(project, node._key, {
-                    tag: e.target.value,
-                  });
-                  setProject(updatedProject as ProjectData);
-                }}
-                className="textarea-styles"
+              {/*===============Tag=================  */}
+              <TagComponent
+                project={project}
+                setProject={setProject}
+                node={node}
+                updateNodeByKey={updateNodeByKey}
               />
-              <div className="flex py-0.5 mt-2 ml-auto -mb-3 w-[max-content] bg-white rounded  z-30 !font-bold ">
-                <span className="  rounded inline-block px-2">Text:</span>
-                {texts && texts.length > 0 && (
-                  <button
-                    className="btn btn-empty w-[max-content] ml-4  mr-1 px-2"
-                    onClick={() => setModalTextsOpen(true)}
-                  >
-                    Show all texts
-                  </button>
-                )}
-              </div>
-              <textarea
-                ref={(el) => {
-                  if (!el) return;
-                  textareaRefText.current = el;
-                  // adjustHeight(el);
-                }}
-                value={node?.text || ""}
-                onChange={(e) => {
-                  const updatedProject = updateNodeByKey(project, node._key, {
-                    text: e.target.value,
-                  });
-                  setProject(updatedProject as ProjectData);
-                }}
-                className="textarea-styles"
+              {/*===============Text=================  */}
+              <TextComponent
+                project={project}
+                setProject={setProject}
+                node={node}
+                updateNodeByKey={updateNodeByKey}
               />
-              <p className="bg-white !font-bold inline-block z-30  rounded  py-0.5 mt-2 ml-auto -mb-4.5 w-[max-content]">
-                Class:
-              </p>
-              <input
-                ref={(el) => {
-                  if (!el) return;
-                  // textareaRef.current = el;
-                  // adjustHeight(el);
-                }}
-                value={node?.class || ""}
-                onChange={(e) => {
-                  const updatedProject = updateNodeByKey(project, node._key, {
-                    class: e.target.value,
-                  });
-                  setProject(updatedProject as ProjectData);
-                }}
-                className="textarea-styles"
+              {/*===============Class=================  */}
+              <ClassComponent
+                project={project}
+                setProject={setProject}
+                node={node}
+                updateNodeByKey={updateNodeByKey}
               />
               {/*===============Style=================  */}
               <StyleComponent

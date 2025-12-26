@@ -7,7 +7,16 @@ import Image from "next/image";
 import { useStateContext } from "@/providers/StateProvider";
 import startScssContent from "../SandboxComponent/startScssContent";
 import { formatScss } from "@/utils/sandboxFormatters";
-const SandboxСomponent: React.FC = () => {
+
+interface SandboxComponentProps {
+  heightPreview?: number;
+  widthPreview?: number;
+}
+
+const SandboxСomponent: React.FC<SandboxComponentProps> = ({
+  heightPreview = 300,
+  widthPreview = 600,
+}) => {
   const {
     htmlJson,
     user,
@@ -29,17 +38,89 @@ const SandboxСomponent: React.FC = () => {
   const monaco = useMonaco();
   const [editorInstance, setEditorInstance] = useState<any>(null);
   const editorRef = useRef<any>(null);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // html — содержимое body, не весь документ
   const [html, setHtml] = useState<string>(HTML);
   const [startScss, setStartScss] = useState<string>("");
   const [scss, setScss] = useState<string>("");
   const [active, setActive] = useState<"html" | "scss" | "startScss">("html");
   const [editorHeight, setEditorHeight] = useState<number>(200);
-  const [previewHtml, setPreviewHtml] = useState<string>("");
 
-  // ----- monaco
+  // ✅ Размеры preview под картинку, с fallback на пропсы
+  const [previewWidth, setPreviewWidth] = useState<number>(widthPreview);
+  const [previewHeight, setPreviewHeight] = useState<number>(heightPreview);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [previewHtml, setPreviewHtml] = useState<string>("");
+  // ----- Авторесайз iframe под содержимое (включая картинки)
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
+    const observer = new MutationObserver(() => {
+      resizeIframe();
+    });
+
+    const startObserve = () => {
+      const doc = iframe.contentDocument;
+      if (!doc) return;
+      observer.observe(doc.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+      });
+    };
+
+    iframe.addEventListener("load", startObserve);
+
+    return () => {
+      observer.disconnect();
+      iframe.removeEventListener("load", startObserve);
+    };
+  }, []);
+
+  // ✅ Главная функция ресайза - ищет картинки и подстраивается под них
+  const resizeIframe = () => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
+    const doc = iframe.contentDocument;
+    if (!doc) return;
+
+    const body = doc.body;
+    const html = doc.documentElement;
+    if (!body || !html) return;
+
+    const contentHeight = Math.max(
+      body.scrollHeight,
+      body.offsetHeight,
+      html.scrollHeight,
+      html.offsetHeight,
+    );
+
+    const contentWidth = Math.max(
+      body.scrollWidth,
+      body.offsetWidth,
+      html.scrollWidth,
+      html.offsetWidth,
+    );
+
+    iframe.style.height = `${Math.max(contentHeight, heightPreview)}px`;
+    iframe.style.width = `${Math.max(contentWidth, widthPreview)}px`;
+  };
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
+    iframe.addEventListener("load", resizeIframe);
+
+    const t = setTimeout(resizeIframe, 0); // на случай, если стили применяются чуть позже
+
+    return () => {
+      iframe.removeEventListener("load", resizeIframe);
+      clearTimeout(t);
+    };
+  }, [previewHtml, heightPreview, widthPreview]);
+
+  // ----- Monaco theme и resize под содержимое
   useEffect(() => {
     if (monaco) {
       monaco.editor.defineTheme("myCustomTheme", {
@@ -66,11 +147,13 @@ const SandboxСomponent: React.FC = () => {
     setEditorInstance(editor);
     editorRef.current = editor;
     editor.getAction("editor.action.formatDocument")?.run();
+
     editor.onDidContentSizeChange(() => {
       const contentHeight = editor.getContentHeight();
-      setEditorHeight(contentHeight);
+      setEditorHeight(Math.max(contentHeight, 200));
+
       editor.layout({
-        width: editor.getLayoutInfo().width,
+        width: Math.min(previewWidth, 1000),
         height: contentHeight,
       });
     });
@@ -81,14 +164,15 @@ const SandboxСomponent: React.FC = () => {
       if (editorInstance) editorInstance.dispose();
     };
   }, [editorInstance]);
-  // --  HTML
+
   useEffect(() => {
     setHtml(HTML);
   }, [HTML]);
-  // ----SCSS
+
   useEffect(() => {
     console.log("<==//=SCSS==//=>", SCSS);
   }, [SCSS]);
+
   useEffect(() => {
     const run = async () => {
       if (!SCSS) {
@@ -99,11 +183,9 @@ const SandboxСomponent: React.FC = () => {
       const formatted = await formatScss(SCSS);
       setScss(formatted);
     };
-
     void run();
   }, [SCSS, startScssContent]);
 
-  // ----- сборка превью из html + scss
   useEffect(() => {
     const fullDoc = `
 <!doctype html>
@@ -121,7 +203,6 @@ const SandboxСomponent: React.FC = () => {
 ${html}
 </body>
 </html>`;
-
     setPreviewHtml(fullDoc);
   }, [html, scss, startScss]);
 
@@ -145,8 +226,8 @@ ${html}
   };
 
   return (
-    <div className={`${isSandbox() ? "sandbox" : ""} `}>
-      <div className={`${isSandbox() ? "container" : ""} `}>
+    <div className={`${isSandbox() ? "sandbox" : ""}`}>
+      <div className={`${isSandbox() ? "container" : ""}`}>
         {isSandbox() && (
           <header className="sandbox__header">
             <div className="text-center mb-4">
@@ -159,14 +240,21 @@ ${html}
             </div>
           </header>
         )}
-        {/* Превью */}
-        <section className="w-full mb-4 bg-navy">
+        {/* ✅ Preview с динамическими размерами */}
+        <section className="w-full mb-4 bg-navy overflow-hidden rounded-lg mx-auto">
           <iframe
             ref={iframeRef}
             title="Sandbox preview"
-            className="w-full h-[800px]"
+            className="block border-0"
             srcDoc={previewHtml}
             sandbox="allow-scripts allow-same-origin"
+            style={{
+              width: `${widthPreview}px`,
+              height: `${heightPreview}px`,
+              minWidth: `${widthPreview}px`,
+              minHeight: `${heightPreview}px`,
+              maxWidth: "1200px",
+            }}
           />
         </section>
 
