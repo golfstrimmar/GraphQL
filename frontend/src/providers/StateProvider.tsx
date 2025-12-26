@@ -21,7 +21,7 @@ const ModalMessage = dynamic(
   { ssr: false },
 );
 
-type HtmlNode = {
+export type HtmlNode = {
   tag: string;
   class?: string;
   children?: HtmlNode[];
@@ -30,7 +30,7 @@ type HtmlNode = {
   attributes?: Record<string, string>;
 };
 
-type nodeToAdd = { type: number };
+type NodeToAdd = { type: number };
 
 export type User = {
   id: string;
@@ -51,8 +51,9 @@ type Preview = {
 interface StateContextType {
   htmlJson: HtmlNode[];
   setHtmlJson: React.Dispatch<React.SetStateAction<HtmlNode[]>>;
-  nodeToAdd: nodeToAdd | null;
-  setNodeToAdd: React.Dispatch<React.SetStateAction<nodeToAdd | null>>;
+  resetHtmlJson: () => void;
+  nodeToAdd: NodeToAdd | null;
+  setNodeToAdd: React.Dispatch<React.SetStateAction<NodeToAdd | null>>;
   user: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
   users: User[] | null;
@@ -95,7 +96,7 @@ export function StateProvider({
   const [user, setUser] = useState<User | null>(initialUser);
   const [users, setUsers] = useState<User[] | null>(null);
   const [htmlJson, setHtmlJson] = useState<HtmlNode[]>([]);
-  const [nodeToAdd, setNodeToAdd] = useState<nodeToAdd | null>(null);
+  const [nodeToAdd, setNodeToAdd] = useState<NodeToAdd | null>(null);
   const [modalMessage, setModalMessage] = useState<string>("");
   const [open, setOpen] = useState<boolean>(false);
   const [colors, setColors] = useState<string[]>([]);
@@ -109,9 +110,7 @@ export function StateProvider({
 
   const { data: usersData, subscribeToMore: subscribeToUsers } = useQuery(
     GET_USERS,
-    {
-      fetchPolicy: "cache-and-network",
-    },
+    { fetchPolicy: "cache-and-network" },
   );
 
   const { data: jsonData } = useQuery(GET_JSON_DOCUMENT, {
@@ -120,19 +119,28 @@ export function StateProvider({
   });
 
   // ------------------------ INIT HTML JSON ------------------------
-  useEffect(() => {
-    if (typeof window === "undefined" || !jsonData) return;
-
+  const getInitialHtmlJson = (): HtmlNode[] => {
+    if (typeof window === "undefined") return [];
     const stored = localStorage.getItem("htmlJson");
+    if (stored && stored !== "[]") return JSON.parse(stored);
+    const initialJson = jsonData?.jsonDocumentByName?.content[0] || [];
+    localStorage.setItem("htmlJson", JSON.stringify(initialJson));
+    return initialJson;
+  };
 
-    if (stored && stored !== "[]") {
-      setHtmlJson(JSON.parse(stored));
-    } else {
-      const initialJson = jsonData?.jsonDocumentByName?.content[0] || [];
-      setHtmlJson(initialJson);
-      localStorage.setItem("htmlJson", JSON.stringify(initialJson));
-    }
+  useEffect(() => {
+    if (!jsonData) return;
+    setHtmlJson(getInitialHtmlJson());
   }, [jsonData]);
+
+  const resetHtmlJson = () => {
+    if (jsonData?.jsonDocumentByName?.content[0]) {
+      const initialJson = jsonData.jsonDocumentByName.content[0];
+      setHtmlJson(JSON.parse(JSON.stringify(initialJson)));
+    } else {
+      setHtmlJson([]);
+    }
+  };
 
   // ------------------------ SYNC HTML JSON ------------------------
   useEffect(() => {
@@ -144,12 +152,10 @@ export function StateProvider({
   useEffect(() => {
     if (!modalMessage) return;
     setOpen(true);
-
     const t = setTimeout(() => {
       setOpen(false);
       setModalMessage("");
     }, 2000);
-
     return () => clearTimeout(t);
   }, [modalMessage]);
 
@@ -244,6 +250,7 @@ export function StateProvider({
       value={{
         htmlJson,
         setHtmlJson,
+        resetHtmlJson,
         nodeToAdd,
         setNodeToAdd,
         user,

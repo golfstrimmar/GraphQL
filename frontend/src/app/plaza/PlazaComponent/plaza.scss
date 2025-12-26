@@ -1,5 +1,5 @@
 .textarea-styles {
-  // height: 100% !important;
+  /* height: 100% !important; */
   width: 100% !important;
   padding: 10px !important;
   resize: none !important;
@@ -21,11 +21,13 @@
 .placeholder {
   // outline: 1px dashed #105fd4;
   // outline: 1px dashed rgb(6, 77, 185);
-  background: repeating-linear-gradient(45deg,
-      black,
-      black 4px,
-      yellow 4px,
-      yellow 8px);
+  background: repeating-linear-gradient(
+    45deg,
+    black,
+    black 4px,
+    yellow 4px,
+    yellow 8px
+  );
   min-height: 15px;
   min-width: 15px;
   opacity: 0;
@@ -40,7 +42,8 @@
   min-width: 50px !important;
   // max-height: 150px !important;
   background: rgb(236, 236, 236);
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px,
+  box-shadow:
+    rgba(0, 0, 0, 0.1) 0px 4px 6px,
     rgba(0, 0, 0, 0.1) 0px -4px 6px,
     rgba(0, 0, 0, 0.1) 4px 0px 6px,
     rgba(0, 0, 0, 0.1) -4px 0px 6px !important;
@@ -49,7 +52,6 @@
 
   img {
     max-height: 50px !important;
-
   }
 }
 
@@ -70,24 +72,25 @@
   white-space: nowrap;
 }
 
-.prev:hover~.nextafterButton {
+.prev:hover ~ .nextafterButton {
   transform: translateY(-40px);
   opacity: 1;
   z-index: 100;
-
 }
 
 #plaza-render-area {
   position: relative;
 }
 
-
 .layer-3d {
   /* Имитация 3D слоев через наклон и смещение */
-  transform: perspective(600px) rotateX(16deg) translateZ(var(--z, 0px)) scale(calc(1 - var(--depth, 0) * 0.08));
+  transform: perspective(600px) rotateX(16deg) translateZ(var(--z, 0px))
+    scale(calc(1 - var(--depth, 0) * 0.08));
   box-shadow: 0 0 24px 2px rgba(60, 80, 200, 0.16);
   background: rgba(180, 210, 250, 0.08);
   border: 2px solid #b2bff7;
-  transition: transform 0.25s, box-shadow 0.2s;
+  transition:
+    transform 0.25s,
+    box-shadow 0.2s;
   will-change: transform;
 }

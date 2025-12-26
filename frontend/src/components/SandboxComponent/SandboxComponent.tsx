@@ -166,6 +166,7 @@ const SandboxСomponent: React.FC<SandboxComponentProps> = ({
   }, [editorInstance]);
 
   useEffect(() => {
+    console.log("<==//=HTML==//=>", HTML);
     setHtml(HTML);
   }, [HTML]);
 

@@ -21,7 +21,7 @@ import CanvasComponent from "./CanvasComponent";
 import PlazaHeader from "./PlazaHeader";
 import PreviewComponent from "./PreviewComponent";
 import AdminPanel from "./AdminPanel";
-
+import "./plaza.scss";
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 const CreateNewProject = dynamic(() => import("./CreateNewProject"), {
   ssr: false,
@@ -61,6 +61,8 @@ export default function PlazaComponent() {
     setColors,
     ScssMixVar,
     setScssMixVar,
+    setHtmlJson,
+    resetHtmlJson,
   } = useStateContext();
   const pathname = usePathname();
   const [projects, setProjects] = useState<PProject[]>([]);
@@ -239,6 +241,7 @@ export default function PlazaComponent() {
     setScssMixVar("");
     setHTML("");
     setSCSS("");
+    resetHtmlJson();
   };
 
   const buildGoogleFontsImport = () => {

@@ -59,10 +59,10 @@ const TextComponent: React.FC<TextComponentProps> = ({
   }, [textValue, node?._key]);
 
   return (
-    <>
-      <div className="flex py-0.5 mt-2 ml-auto -mb-3 w-[max-content] bg-white rounded z-30 !font-bold">
-        <span className="rounded inline-block px-2">Text:</span>
-      </div>
+    <div className="bg-white relative rounded ml-[55px] flex mt-4">
+      <p className="absolute left-[-55px] !font-bold px-2 inline-block z-30 p-1 h-[26px]   text-white  w-[max-content]">
+        Text:
+      </p>
 
       <textarea
         ref={(el) => {
@@ -74,7 +74,7 @@ const TextComponent: React.FC<TextComponentProps> = ({
         onChange={(e) => setTextValue(e.target.value)}
         className="textarea-styles"
       />
-    </>
+    </div>
   );
 };
 

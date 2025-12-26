@@ -45,14 +45,14 @@ const TagComponent: React.FC<TagComponentProps> = ({
         (prev) =>
           updateNodeByKey(prev, node._key, { tag: tagValue }) as ProjectData,
       );
-    }, 400);
+    }, 500);
 
     return () => clearTimeout(id);
   }, [tagValue, node?._key]);
 
   return (
-    <>
-      <p className="bg-white !font-bold px-2 inline-block z-30 py-0.5 rounded mt-2 ml-auto -mb-4.5 w-[max-content]">
+    <div className="bg-white relative rounded ml-[55px]  mt-4">
+      <p className="absolute left-[-55px] !font-bold px-2 inline-block z-30 p-1 h-[26px]   text-white  w-[max-content]">
         Tag:
       </p>
 
@@ -62,7 +62,7 @@ const TagComponent: React.FC<TagComponentProps> = ({
         onChange={(e) => setTagValue(e.target.value)}
         className="textarea-styles"
       />
-    </>
+    </div>
   );
 };
 
