@@ -1,6 +1,8 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 
+import dynamic from "next/dynamic";
+
 type ProjectData = {
   _key: string;
   tag: string;
@@ -25,12 +27,9 @@ interface TextComponentProps {
 }
 
 const TextComponent: React.FC<TextComponentProps> = ({
-  project,
   setProject,
   node,
   updateNodeByKey,
-  texts,
-  setModalTextsOpen,
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -40,7 +39,10 @@ const TextComponent: React.FC<TextComponentProps> = ({
   };
 
   const [textValue, setTextValue] = useState("");
-
+  useEffect(() => {
+    if (!texts) return;
+    console.log("<===texts===>", texts);
+  }, [texts]);
   // sync on node change
   useEffect(() => {
     setTextValue(node?.text || "");
@@ -64,15 +66,6 @@ const TextComponent: React.FC<TextComponentProps> = ({
     <>
       <div className="flex py-0.5 mt-2 ml-auto -mb-3 w-[max-content] bg-white rounded z-30 !font-bold">
         <span className="rounded inline-block px-2">Text:</span>
-
-        {texts && texts.length > 0 && setModalTextsOpen && (
-          <button
-            className="btn btn-empty w-[max-content] ml-4 mr-1 px-2"
-            onClick={() => setModalTextsOpen(true)}
-          >
-            Show all texts
-          </button>
-        )}
       </div>
 
       <textarea

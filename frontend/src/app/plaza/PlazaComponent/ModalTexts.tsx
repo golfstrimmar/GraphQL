@@ -25,14 +25,22 @@ const ModalTexts = ({
   node,
 }) => {
   const { texts, setTexts } = useStateContext();
+  useEffect(() => {
+    if (!node) return;
+    console.log("<==!!!!!!=node===>", node);
+  }, [node]);
+  useEffect(() => {
+    if (!project) return;
+    console.log("<=!!!!!!==project===>", project);
+  }, [project]);
   const updateNodeByKey = (
     nodes: ProjectData | ProjectData[],
     key: string,
-    changes: Partial<ProjectData>
+    changes: Partial<ProjectData>,
   ): ProjectData | ProjectData[] => {
     if (Array.isArray(nodes)) {
       return nodes.map(
-        (node) => updateNodeByKey(node, key, changes) as ProjectData
+        (node) => updateNodeByKey(node, key, changes) as ProjectData,
       );
     }
 
@@ -51,7 +59,7 @@ const ModalTexts = ({
       const updatedChildren = nodes.children.map((child) =>
         typeof child === "string"
           ? child
-          : (updateNodeByKey(child, key, changes) as ProjectData)
+          : (updateNodeByKey(child, key, changes) as ProjectData),
       );
       return { ...nodes, children: updatedChildren };
     }

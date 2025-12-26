@@ -1,6 +1,5 @@
 "use client";
 import React, { useRef } from "react";
-import { useStateContext } from "@/providers/StateProvider";
 import findNodeByKey from "@/utils/plaza/findNodeByKey";
 import { motion, AnimatePresence } from "framer-motion";
 import СhevronRight from "@/components/icons/СhevronRight";
@@ -8,6 +7,7 @@ import StyleComponent from "./StyleComponent";
 import ClassComponent from "./ClassComponent";
 import TextComponent from "./TextComponent";
 import TagComponent from "./TagComponent";
+
 type ProjectData = {
   tag: string;
   text: string;
@@ -32,12 +32,8 @@ const InfoProject: React.FC<InfoProjectProps> = ({
   setProject,
   setOpenInfoKey,
   openInfoKey,
-  setModalTextsOpen,
   setNNode,
 }) => {
-  const textareaRefText = useRef<HTMLTextAreaElement | null>(null);
-  const { texts, setTexts } = useStateContext();
-
   // ================================
   const updateNodeByKey = (
     nodes: ProjectData | ProjectData[],
@@ -98,7 +94,6 @@ const InfoProject: React.FC<InfoProjectProps> = ({
               />
               {/*===============Text=================  */}
               <TextComponent
-                project={project}
                 setProject={setProject}
                 node={node}
                 updateNodeByKey={updateNodeByKey}

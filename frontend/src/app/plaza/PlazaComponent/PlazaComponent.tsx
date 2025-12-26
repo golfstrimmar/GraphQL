@@ -7,8 +7,7 @@ import React, {
   useRef,
 } from "react";
 import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useStateContext } from "@/providers/StateProvider";
 import { useMutation, useQuery, useLazyQuery } from "@apollo/client";
 import { UPDATE_PROJECT, REMOVE_PROJECT } from "@/apollo/mutations";
@@ -21,13 +20,13 @@ import AdminComponent from "./AdminComponent/AdminComponent";
 import jsonToHtml from "@/utils/plaza/jsonToHtml";
 import СhevronRight from "@/components/icons/СhevronRight";
 import Update from "@/components/icons/Update";
-import ModalTexts from "@/components/ModalTexts/ModalTexts";
 import buildScssMixVar from "./buildScssMixVar";
 import PlazaToolbar from "./PlazaToolbar";
 import Link from "next/link";
 import SandboxСomponent from "@/components/SandboxComponent/SandboxComponent";
-import CustomSlider from "@/components/ui/CustomSlider/CustomSlider";
 
+import PlazaHeader from "./PlazaHeader";
+import PreviewComponent from "./PreviewComponent";
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 const CreateNewProject = dynamic(() => import("./CreateNewProject"), {
   ssr: false,
@@ -36,6 +35,9 @@ const CreateNewProject = dynamic(() => import("./CreateNewProject"), {
 const InfoProject = dynamic(() => import("./InfoProject"), {
   ssr: false,
   loading: () => <Loading />,
+});
+const ModalTexts = dynamic(() => import("./ModalTexts"), {
+  ssr: false,
 });
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 export interface ProjectNode {
@@ -79,8 +81,7 @@ export default function PlazaComponent() {
   const [modalTextsOpen, setModalTextsOpen] = useState<boolean>(false);
   const [NNode, setNNode] = useState<ProjectNode>(null);
   const [openAdmin, setOpenAdmin] = useState<boolean>(true);
-  const [imgSize, setImgSize] = useState<{ w: number; h: number } | null>(null);
-  const [previewOpacity, setPreviewOpacity] = useState<number>(0);
+
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ хук ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
@@ -118,6 +119,7 @@ export default function PlazaComponent() {
       setModalMessage(`Error loading project: ${error.message}`);
     },
   });
+
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
   const [removeProject] = useMutation(REMOVE_PROJECT, {
     refetchQueries: [{ query: GET_ALL_PROJECTS_BY_USER, variables }],
@@ -387,87 +389,11 @@ export default function PlazaComponent() {
     <section
       className={`${
         isPlaza() ? "pt-[100px]" : "pt-12"
-      } min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-slate-50 pb-[300px]`}
+      } min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-slate-50 pb-[500px]`}
     >
       <div className={`${isPlaza() ? "container" : ""}`}>
-        <div className="text-center ">
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-3">
-            Plaza Editor
-          </h1>
-          <p className="text-slate-600 text-lg">
-            Build and manage your HTML/CSS projects
-          </p>
-        </div>
-        {/* ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ */}
-        <div className="relative  mt-18">
-          {preview && (
-            <div className="absolute top-[-44px]  z-5000 border border-slate-200 ">
-              <div className="flex items-center  ">
-                <button
-                  onClick={() => {
-                    setPreview(null);
-                  }}
-                  className="btn btn-empty px-2  m-2  !text-[var(--teal)]"
-                >
-                  Clear Preview
-                </button>
-                <div className="btn btn-empty  !flex items-center p-1 min-w-[650px]">
-                  <h6 className="mr-4 ">Preview Opacity</h6>
-                  <h5 className="mr-2 !text-[var(--teal)] min-w-[30px]">
-                    {previewOpacity}
-                  </h5>
-                  <CustomSlider
-                    value={previewOpacity}
-                    onChange={setPreviewOpacity}
-                    customClass="w-[450px] "
-                  />
-                </div>
-              </div>
-              {/* =========preview=========== */}
-              <div
-                className={`w-[100vw] `}
-                style={{
-                  overflowX: "auto",
-                  overflowY: "hidden",
-                  opacity: previewOpacity / 100,
-                }}
-              >
-                <div
-                  style={
-                    imgSize
-                      ? {
-                          width: `${imgSize.w}px`,
-                          height: `${imgSize.h}px`,
-                        }
-                      : undefined
-                  }
-                >
-                  <img
-                    src={preview.filePath}
-                    alt="preview"
-                    onLoad={(e) => {
-                      const img = e.target as HTMLImageElement;
-                      setImgSize({
-                        w: img.naturalWidth,
-                        h: img.naturalHeight,
-                      });
-                    }}
-                    style={{
-                      display: "block",
-                      maxWidth: "none",
-                      width: imgSize ? `${imgSize.w}px` : "auto",
-                      height: imgSize ? `${imgSize.h}px` : "auto",
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-          <SandboxСomponent
-            heightPreview={imgSize?.h ?? 300}
-            widthPreview={imgSize?.w ?? 100}
-          />
-        </div>
+        <PlazaHeader />
+        <PreviewComponent preview={preview} setPreview={setPreview} />
         {/* // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ Canvas */}
         <div className="bg-navy rounded-2xl shadow-xl p-2 mt-4 mb-8 border border-slate-200 ">
           <div className="flex items-center gap-3 mb-6">
@@ -536,7 +462,6 @@ export default function PlazaComponent() {
             updateHtmlJson={updateHtmlJson}
             setOpenInfoKey={setOpenInfoKey}
             openInfoKey={openInfoKey}
-            setModalTextsOpen={setModalTextsOpen}
             setNNode={setNNode}
           />
         </div>
@@ -553,6 +478,8 @@ export default function PlazaComponent() {
                 </h6>
               </div>
             </div>
+
+            {/*=========projects========*/}
             {loading ? (
               <Loading />
             ) : projects?.length === 0 ? (
@@ -563,14 +490,8 @@ export default function PlazaComponent() {
                 <p className="text-slate-600 text-lg mb-6">No projects yet</p>
               </div>
             ) : (
-              <div
-                className="
-                flex flex-wrap
-                gap-2
-                mb-6
-              "
-              >
-                {projectId !== "" && (
+              <div className=" flex flex-wrap gap-2 mb-6 ">
+                {/*{projectId !== "" && (
                   <button
                     className="btn btn-empty mt-2 px-2"
                     type="button"
@@ -592,7 +513,10 @@ export default function PlazaComponent() {
                   >
                     Quit active Project
                   </button>
-                )}
+                )}*/}
+                {/*======= projects =======*/}
+                {/*======= projects =======*/}
+                {/*======= projects =======*/}
                 {projects?.map((p) => (
                   <div key={p.id} className={`flex gap-2 w-full `}>
                     <div
@@ -611,6 +535,8 @@ export default function PlazaComponent() {
                         {loadingProject ? <Loading /> : p?.name}
                       </button>
                     </div>
+
+                    {/*======== update Remove =========*/}
                     {projectId && projectId !== "" && projectId === p.id && (
                       <div className="flex items-center gap-3">
                         <button
@@ -634,17 +560,30 @@ export default function PlazaComponent() {
                         </button>
                       </div>
                     )}
+                    {/*=================*/}
                   </div>
                 ))}
+
+                {/*======== /projects =========*/}
               </div>
             )}
-            <ModalTexts
-              project={project}
-              modalTextsOpen={modalTextsOpen}
-              setModalTextsOpen={setModalTextsOpen}
-              setProject={setProject}
-              node={NNode}
-            />
+            {/*{modalTextsOpen && (
+              <ModalTexts
+                project={project}
+                modalTextsOpen={modalTextsOpen}
+                setModalTextsOpen={setModalTextsOpen}
+                setProject={setProject}
+                node={NNode}
+              />
+            )}
+            {texts && texts.length > 0 && setModalTextsOpen && (
+              <button
+                className="btn btn-empty w-[max-content] ml-4 mr-1 px-2"
+                onClick={() => setModalTextsOpen(true)}
+              >
+                Show all texts
+              </button>
+            )}*/}
             <CreateNewProject ScssMixVar={ScssMixVar} />
           </div>
         )}
