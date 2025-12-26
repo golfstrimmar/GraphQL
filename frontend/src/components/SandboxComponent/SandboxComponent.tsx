@@ -3,10 +3,10 @@ import React, { useState, useEffect, useRef } from "react";
 import "./sandbox.scss";
 import { usePathname } from "next/navigation";
 import Editor, { useMonaco } from "@monaco-editor/react";
-import Image from "next/image";
 import { useStateContext } from "@/providers/StateProvider";
 import startScssContent from "../SandboxComponent/startScssContent";
 import { formatScss } from "@/utils/sandboxFormatters";
+import formatHtml from "@/utils/formatHtml";
 
 interface SandboxComponentProps {
   heightPreview?: number;
@@ -31,26 +31,59 @@ const SandboxСomponent: React.FC<SandboxComponentProps> = ({
     HTML,
     SCSS,
   } = useStateContext();
+
   const pathname = usePathname();
-  const isSandbox = () => {
-    return pathname === "/sandbox" ? true : false;
-  };
+  const isSandbox = () => pathname === "/sandbox";
+
   const monaco = useMonaco();
   const [editorInstance, setEditorInstance] = useState<any>(null);
   const editorRef = useRef<any>(null);
 
-  const [html, setHtml] = useState<string>(HTML);
+  const [value, setValue] = useState<string>("");
+  const [html, setHtml] = useState<string>("");
   const [startScss, setStartScss] = useState<string>("");
   const [scss, setScss] = useState<string>("");
   const [active, setActive] = useState<"html" | "scss" | "startScss">("html");
   const [editorHeight, setEditorHeight] = useState<number>(200);
 
-  // ✅ Размеры preview под картинку, с fallback на пропсы
-  const [previewWidth, setPreviewWidth] = useState<number>(widthPreview);
-  const [previewHeight, setPreviewHeight] = useState<number>(heightPreview);
+  const [previewWidth] = useState<number>(widthPreview);
+  const [previewHeight] = useState<number>(heightPreview);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [previewHtml, setPreviewHtml] = useState<string>("");
-  // ----- Авторесайз iframe под содержимое (включая картинки)
+
+  useEffect(() => {
+    console.log("<===HTML===>", HTML);
+    if (!HTML) {
+      setHtml("");
+      return;
+    }
+    const formatted = formatHtml(HTML);
+    setHtml(formatted);
+  }, [HTML]);
+
+  useEffect(() => {
+    console.log("<===SCSS===>", SCSS);
+    if (!SCSS) {
+      setScss("");
+      return;
+    }
+    setScss(SCSS);
+  }, [SCSS]);
+  // start.scss один раз
+  useEffect(() => {
+    setStartScss(startScssContent);
+  }, []);
+
+  // форматируем SCSS из контекста
+  useEffect(() => {
+    const run = async () => {
+      const formatted = await formatScss(SCSS);
+      setScss(formatted);
+    };
+    void run();
+  }, [SCSS]);
+
+  // наблюдаем за DOM внутри iframe
   useEffect(() => {
     const iframe = iframeRef.current;
     if (!iframe) return;
@@ -77,7 +110,7 @@ const SandboxСomponent: React.FC<SandboxComponentProps> = ({
     };
   }, []);
 
-  // ✅ Главная функция ресайза - ищет картинки и подстраивается под них
+  // функция ресайза iframe
   const resizeIframe = () => {
     const iframe = iframeRef.current;
     if (!iframe) return;
@@ -86,33 +119,33 @@ const SandboxСomponent: React.FC<SandboxComponentProps> = ({
     if (!doc) return;
 
     const body = doc.body;
-    const html = doc.documentElement;
-    if (!body || !html) return;
+    const htmlEl = doc.documentElement;
+    if (!body || !htmlEl) return;
 
     const contentHeight = Math.max(
       body.scrollHeight,
       body.offsetHeight,
-      html.scrollHeight,
-      html.offsetHeight,
+      htmlEl.scrollHeight,
+      htmlEl.offsetHeight,
     );
 
     const contentWidth = Math.max(
       body.scrollWidth,
       body.offsetWidth,
-      html.scrollWidth,
-      html.offsetWidth,
+      htmlEl.scrollWidth,
+      htmlEl.offsetWidth,
     );
 
     iframe.style.height = `${Math.max(contentHeight, heightPreview)}px`;
     iframe.style.width = `${Math.max(contentWidth, widthPreview)}px`;
   };
+
   useEffect(() => {
     const iframe = iframeRef.current;
     if (!iframe) return;
 
     iframe.addEventListener("load", resizeIframe);
-
-    const t = setTimeout(resizeIframe, 0); // на случай, если стили применяются чуть позже
+    const t = setTimeout(resizeIframe, 0);
 
     return () => {
       iframe.removeEventListener("load", resizeIframe);
@@ -120,7 +153,7 @@ const SandboxСomponent: React.FC<SandboxComponentProps> = ({
     };
   }, [previewHtml, heightPreview, widthPreview]);
 
-  // ----- Monaco theme и resize под содержимое
+  // Monaco тема
   useEffect(() => {
     if (monaco) {
       monaco.editor.defineTheme("myCustomTheme", {
@@ -151,9 +184,8 @@ const SandboxСomponent: React.FC<SandboxComponentProps> = ({
     editor.onDidContentSizeChange(() => {
       const contentHeight = editor.getContentHeight();
       setEditorHeight(Math.max(contentHeight, 200));
-
       editor.layout({
-        width: Math.min(previewWidth, 1000),
+        width: Math.min(previewWidth || 1000, 1000),
         height: contentHeight,
       });
     });
@@ -165,28 +197,7 @@ const SandboxСomponent: React.FC<SandboxComponentProps> = ({
     };
   }, [editorInstance]);
 
-  useEffect(() => {
-    console.log("<==//=HTML==//=>", HTML);
-    setHtml(HTML);
-  }, [HTML]);
-
-  useEffect(() => {
-    console.log("<==//=SCSS==//=>", SCSS);
-  }, [SCSS]);
-
-  useEffect(() => {
-    const run = async () => {
-      if (!SCSS) {
-        setScss("");
-        return;
-      }
-      setStartScss(startScssContent);
-      const formatted = await formatScss(SCSS);
-      setScss(formatted);
-    };
-    void run();
-  }, [SCSS, startScssContent]);
-
+  // собираем HTML для iframe
   useEffect(() => {
     const fullDoc = `
 <!doctype html>
@@ -208,27 +219,36 @@ ${html}
   }, [html, scss, startScss]);
 
   const isHtml = active === "html";
-  const value =
-    active === "html"
-      ? html
-      : active === "scss"
-        ? scss
-        : active === "startScss"
-          ? startScss
-          : undefined;
-
   const language = isHtml ? "html" : "scss";
 
-  const handleCodeChange = (value: string | undefined) => {
-    if (value === undefined) return;
-    if (active === "html") setHtml(value);
-    else if (active === "scss") setScss(value);
-    else if (active === "startScss") setStartScss(value);
+  // синхронизация value с активной вкладкой
+  useEffect(() => {
+    if (active === "html") {
+      setValue(html);
+    } else if (active === "scss") {
+      setValue(scss);
+    } else if (active === "startScss") {
+      setValue(startScss);
+    }
+  }, [active, html, scss, startScss]);
+
+  useEffect(() => {
+    if (!editorRef.current) return;
+    requestAnimationFrame(() => {
+      editorRef.current.layout();
+    });
+  }, [value]);
+
+  const handleCodeChange = (val: string | undefined) => {
+    if (val === undefined) return;
+    if (active === "html") setHtml(val);
+    else if (active === "scss") setScss(val);
+    else if (active === "startScss") setStartScss(val);
   };
 
   return (
-    <div className={`${isSandbox() ? "sandbox" : ""}`}>
-      <div className={`${isSandbox() ? "container" : ""}`}>
+    <div className={isSandbox() ? "sandbox" : ""}>
+      <div className={isSandbox() ? "container" : ""}>
         {isSandbox() && (
           <header className="sandbox__header">
             <div className="text-center mb-4">
@@ -241,7 +261,7 @@ ${html}
             </div>
           </header>
         )}
-        {/* ✅ Preview с динамическими размерами */}
+
         <section className="w-full mb-4 bg-navy overflow-hidden">
           <iframe
             ref={iframeRef}
@@ -251,10 +271,9 @@ ${html}
             sandbox="allow-scripts allow-same-origin"
             style={{
               width: widthPreview !== 0 ? `${widthPreview}px` : "100%",
-              height: `${heightPreview}px`,
+              height: `${previewHeight}px`,
               minWidth: `${widthPreview}px`,
-              minHeight: `${heightPreview}px`,
-              // maxWidth: "100vw",
+              minHeight: `${previewHeight}px`,
             }}
           />
         </section>
@@ -292,30 +311,28 @@ ${html}
             </ul>
           </aside>
 
-          <main className="flex-[1_1_100%] bg-slate-200">
-            <section className="w-full">
-              <Editor
-                height={editorHeight}
-                language={language}
-                value={value}
-                onChange={handleCodeChange}
-                onMount={handleEditorMount}
-                options={{
-                  fontSize: 14,
-                  fontFamily: "Fira Code, monospace",
-                  minimap: { enabled: false },
-                  scrollBeyondLastLine: false,
-                  scrollbar: {
-                    verticalScrollbarSize: 14,
-                    horizontalScrollbarSize: 14,
-                  },
-                  automaticLayout: true,
-                  autoIndent: "full",
-                  formatOnPaste: true,
-                  formatOnType: true,
-                }}
-              />
-            </section>
+          <main className="flex-[0_1_100%] bg-slate-200">
+            <Editor
+              height={editorHeight}
+              language={language}
+              value={value}
+              onChange={handleCodeChange}
+              onMount={handleEditorMount}
+              options={{
+                fontSize: 14,
+                fontFamily: "Fira Code, monospace",
+                minimap: { enabled: false },
+                scrollBeyondLastLine: false,
+                scrollbar: {
+                  verticalScrollbarSize: 14,
+                  horizontalScrollbarSize: 14,
+                },
+                automaticLayout: true,
+                autoIndent: "full",
+                formatOnPaste: true,
+                formatOnType: true,
+              }}
+            />
           </main>
         </div>
       </div>

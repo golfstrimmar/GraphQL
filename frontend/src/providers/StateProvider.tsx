@@ -277,6 +277,7 @@ export function StateProvider({
         setScssMixVar,
         isModalOpen: open,
         setIsModalOpen: setOpen,
+        resetHtmlJson,
         showModal: (msg, duration = 2000) => setModalMessage(msg),
       }}
     >
