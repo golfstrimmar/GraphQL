@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-
-import dynamic from "next/dynamic";
+import { useStateContext } from "@/providers/StateProvider";
 
 type ProjectData = {
   _key: string;
@@ -14,7 +13,6 @@ type ProjectData = {
 };
 
 interface TextComponentProps {
-  project: ProjectData;
   setProject: React.Dispatch<React.SetStateAction<ProjectData>>;
   node: ProjectData;
   updateNodeByKey: (
@@ -22,8 +20,6 @@ interface TextComponentProps {
     key: string,
     changes: Partial<ProjectData>,
   ) => ProjectData | ProjectData[];
-  texts?: string[];
-  setModalTextsOpen?: (v: boolean) => void;
 }
 
 const TextComponent: React.FC<TextComponentProps> = ({
@@ -32,7 +28,7 @@ const TextComponent: React.FC<TextComponentProps> = ({
   updateNodeByKey,
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-
+  const { texts } = useStateContext();
   const adjustHeight = (el: HTMLTextAreaElement) => {
     el.style.height = "auto";
     el.style.height = `${el.scrollHeight}px`;

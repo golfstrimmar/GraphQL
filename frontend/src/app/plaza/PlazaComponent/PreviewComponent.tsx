@@ -7,7 +7,7 @@ export default function PreviewComponent({ preview, setPreview }) {
   const [previewOpacity, setPreviewOpacity] = useState<number>(0);
   const [imgSize, setImgSize] = useState<{ w: number; h: number } | null>(null);
   return (
-    <div className="relative  mt-18">
+    <div className="relative  mt-18 ">
       {preview && (
         <div className="absolute top-[-44px]  z-5000 border border-slate-200 ">
           <div className="flex items-center  ">
@@ -73,7 +73,7 @@ export default function PreviewComponent({ preview, setPreview }) {
       )}
       <SandboxСomponent
         heightPreview={imgSize?.h ?? 300}
-        widthPreview={imgSize?.w ?? 100}
+        widthPreview={imgSize?.w ?? 0}
       />
     </div>
   );

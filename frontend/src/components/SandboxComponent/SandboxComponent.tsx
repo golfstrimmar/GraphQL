@@ -15,7 +15,7 @@ interface SandboxComponentProps {
 
 const SandboxСomponent: React.FC<SandboxComponentProps> = ({
   heightPreview = 300,
-  widthPreview = 600,
+  widthPreview = 0,
 }) => {
   const {
     htmlJson,
@@ -241,7 +241,7 @@ ${html}
           </header>
         )}
         {/* ✅ Preview с динамическими размерами */}
-        <section className="w-full mb-4 bg-navy overflow-hidden rounded-lg mx-auto">
+        <section className="w-full mb-4 bg-navy overflow-hidden">
           <iframe
             ref={iframeRef}
             title="Sandbox preview"
@@ -249,11 +249,11 @@ ${html}
             srcDoc={previewHtml}
             sandbox="allow-scripts allow-same-origin"
             style={{
-              width: `${widthPreview}px`,
+              width: widthPreview !== 0 ? `${widthPreview}px` : "100%",
               height: `${heightPreview}px`,
               minWidth: `${widthPreview}px`,
               minHeight: `${heightPreview}px`,
-              maxWidth: "1200px",
+              // maxWidth: "100vw",
             }}
           />
         </section>

@@ -38,6 +38,7 @@ export type User = {
   name: string;
   createdAt: string;
 };
+
 type Preview = {
   id: string;
   fileName: string;
@@ -61,7 +62,9 @@ interface StateContextType {
   isModalOpen: boolean;
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   showModal: (message: string, duration?: number) => void;
-  updateHtmlJson: (next: HtmlNode[]) => void;
+  updateHtmlJson: (
+    next: HtmlNode[] | ((prev: HtmlNode[]) => HtmlNode[]),
+  ) => void;
   undo: () => void;
   redo: () => void;
   undoStack: HtmlNode[][];
@@ -72,8 +75,12 @@ interface StateContextType {
   setHTML: React.Dispatch<React.SetStateAction<string>>;
   SCSS: string;
   setSCSS: React.Dispatch<React.SetStateAction<string>>;
-  colors: string;
-  setColors: React.Dispatch<React.SetStateAction<string>>;
+  colors: string[];
+  setColors: React.Dispatch<React.SetStateAction<string[]>>;
+  preview: Preview | null;
+  setPreview: React.Dispatch<React.SetStateAction<Preview | null>>;
+  ScssMixVar: string;
+  setScssMixVar: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const StateContext = createContext<StateContextType | null>(null);
@@ -97,56 +104,56 @@ export function StateProvider({
   const [redoStack, setRedoStack] = useState<HtmlNode[][]>([]);
   const [HTML, setHTML] = useState<string>("");
   const [SCSS, setSCSS] = useState<string>("");
-  const [preview, setPreview] = useState<Preview>(null);
+  const [preview, setPreview] = useState<Preview | null>(null);
   const [ScssMixVar, setScssMixVar] = useState<string>("");
-  // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨э
+
   const { data: usersData, subscribeToMore: subscribeToUsers } = useQuery(
     GET_USERS,
-    { fetchPolicy: "cache-and-network" },
+    {
+      fetchPolicy: "cache-and-network",
+    },
   );
 
   const { data: jsonData } = useQuery(GET_JSON_DOCUMENT, {
     variables: { name: "initialTags" },
     fetchPolicy: "network-only",
   });
-  // ------------------------
+
+  // ------------------------ INIT HTML JSON ------------------------
   useEffect(() => {
-    if (!user) return;
-    console.log("<===state user===>", user);
-  }, [user]);
+    if (typeof window === "undefined" || !jsonData) return;
 
-  // ------------------------
-  // ------------------------
-  // ------------------------
-  const updateHtmlJson = (
-    nextHtmlJson: HtmlNode[] | ((prev: HtmlNode[]) => HtmlNode[]),
-  ) => {
-    setUndoStack((prev) => [...prev, JSON.parse(JSON.stringify(htmlJson))]);
-    setRedoStack([]);
-    if (typeof nextHtmlJson === "function") {
-      setHtmlJson((prev) => nextHtmlJson(JSON.parse(JSON.stringify(prev))));
+    const stored = localStorage.getItem("htmlJson");
+
+    if (stored && stored !== "[]") {
+      setHtmlJson(JSON.parse(stored));
     } else {
-      setHtmlJson(JSON.parse(JSON.stringify(nextHtmlJson)));
+      const initialJson = jsonData?.jsonDocumentByName?.content[0] || [];
+      setHtmlJson(initialJson);
+      localStorage.setItem("htmlJson", JSON.stringify(initialJson));
     }
-  };
+  }, [jsonData]);
 
-  const undo = () => {
-    if (undoStack.length === 0) return;
-    const prev = undoStack[undoStack.length - 1];
-    setUndoStack((stack) => stack.slice(0, -1));
-    setRedoStack((stack) => [...stack, JSON.parse(JSON.stringify(htmlJson))]);
-    setHtmlJson(prev);
-  };
+  // ------------------------ SYNC HTML JSON ------------------------
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    localStorage.setItem("htmlJson", JSON.stringify(htmlJson));
+  }, [htmlJson]);
 
-  const redo = () => {
-    if (redoStack.length === 0) return;
-    const next = redoStack[redoStack.length - 1];
-    setRedoStack((stack) => stack.slice(0, -1));
-    setUndoStack((stack) => [...stack, JSON.parse(JSON.stringify(htmlJson))]);
-    setHtmlJson(next);
-  };
+  // ------------------------ MODAL ------------------------
+  useEffect(() => {
+    if (!modalMessage) return;
+    setOpen(true);
 
-  // ==== INIT USERS + SUBS ====
+    const t = setTimeout(() => {
+      setOpen(false);
+      setModalMessage("");
+    }, 2000);
+
+    return () => clearTimeout(t);
+  }, [modalMessage]);
+
+  // ------------------------ USERS SUBSCRIPTIONS ------------------------
   useEffect(() => {
     if (usersData?.users) setUsers(usersData.users);
 
@@ -203,59 +210,34 @@ export function StateProvider({
     };
   }, [usersData, subscribeToUsers]);
 
-  // ==== MODAL ====
-  useEffect(() => {
-    if (!modalMessage) return;
-    setOpen(true);
-
-    const t = setTimeout(() => {
-      setOpen(false); // триггерит exit‑анимацию
-      setModalMessage(""); // можно чуть позже, но так тоже ок
-    }, 2000);
-
-    return () => clearTimeout(t);
-  }, [modalMessage]);
-
-  // ==== INIT HTML JSON ====
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const stored = localStorage.getItem("htmlJson");
-    if (stored && stored !== "[]") {
-      setHtmlJson(JSON.parse(stored));
-    } else if (jsonData) {
-      const initialJson = jsonData?.jsonDocumentByName?.content[0];
-      if (initialJson) {
-        localStorage.setItem("htmlJson", JSON.stringify(initialJson));
-        setHtmlJson(initialJson);
-      } else {
-        setHtmlJson([]);
-      }
+  // ------------------------ UNDO/REDO ------------------------
+  const updateHtmlJson = (
+    nextHtmlJson: HtmlNode[] | ((prev: HtmlNode[]) => HtmlNode[]),
+  ) => {
+    setUndoStack((prev) => [...prev, JSON.parse(JSON.stringify(htmlJson))]);
+    setRedoStack([]);
+    if (typeof nextHtmlJson === "function") {
+      setHtmlJson((prev) => nextHtmlJson(JSON.parse(JSON.stringify(prev))));
     } else {
-      setHtmlJson([]);
+      setHtmlJson(JSON.parse(JSON.stringify(nextHtmlJson)));
     }
-  }, [jsonData]);
+  };
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
+  const undo = () => {
+    if (undoStack.length === 0) return;
+    const prev = undoStack[undoStack.length - 1];
+    setUndoStack((stack) => stack.slice(0, -1));
+    setRedoStack((stack) => [...stack, JSON.parse(JSON.stringify(htmlJson))]);
+    setHtmlJson(prev);
+  };
 
-    if (
-      (htmlJson === null || htmlJson === undefined || htmlJson.length === 0) &&
-      jsonData
-    ) {
-      const initialJson = jsonData?.jsonDocumentByName?.content[0];
-
-      if (initialJson) {
-        const clone = JSON.parse(JSON.stringify(initialJson));
-        localStorage.setItem("htmlJson", JSON.stringify(clone));
-        updateHtmlJson(clone);
-      } else {
-        updateHtmlJson([]);
-        localStorage.setItem("htmlJson", "[]");
-      }
-    } else {
-      localStorage.setItem("htmlJson", JSON.stringify(htmlJson));
-    }
-  }, [htmlJson, jsonData]);
+  const redo = () => {
+    if (redoStack.length === 0) return;
+    const next = redoStack[redoStack.length - 1];
+    setRedoStack((stack) => stack.slice(0, -1));
+    setUndoStack((stack) => [...stack, JSON.parse(JSON.stringify(htmlJson))]);
+    setHtmlJson(next);
+  };
 
   return (
     <StateContext.Provider
@@ -287,6 +269,9 @@ export function StateProvider({
         setColors,
         ScssMixVar,
         setScssMixVar,
+        isModalOpen: open,
+        setIsModalOpen: setOpen,
+        showModal: (msg, duration = 2000) => setModalMessage(msg),
       }}
     >
       <AnimatePresence initial={false} mode="wait">

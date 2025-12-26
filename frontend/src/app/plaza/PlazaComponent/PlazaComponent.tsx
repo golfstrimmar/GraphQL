@@ -7,26 +7,21 @@ import React, {
   useRef,
 } from "react";
 import dynamic from "next/dynamic";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useStateContext } from "@/providers/StateProvider";
 import { useMutation, useQuery, useLazyQuery } from "@apollo/client";
 import { UPDATE_PROJECT, REMOVE_PROJECT } from "@/apollo/mutations";
 import { GET_ALL_PROJECTS_BY_USER, FIND_PROJECT } from "@/apollo/queries";
 import Loading from "@/components/ui/Loading/Loading";
 import PProject from "@/types/PProject";
-import createRenderNode from "@/utils/plaza/RenderNode.tsx";
-import "./plaza.scss";
-import AdminComponent from "./AdminComponent/AdminComponent";
-import jsonToHtml from "@/utils/plaza/jsonToHtml";
-import СhevronRight from "@/components/icons/СhevronRight";
+import createRenderNode from "./RenderNode";
 import Update from "@/components/icons/Update";
 import buildScssMixVar from "./buildScssMixVar";
-import PlazaToolbar from "./PlazaToolbar";
-import Link from "next/link";
-import SandboxСomponent from "@/components/SandboxComponent/SandboxComponent";
-
+import CanvasComponent from "./CanvasComponent";
 import PlazaHeader from "./PlazaHeader";
 import PreviewComponent from "./PreviewComponent";
+import AdminPanel from "./AdminPanel";
+
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 const CreateNewProject = dynamic(() => import("./CreateNewProject"), {
   ssr: false,
@@ -36,9 +31,9 @@ const InfoProject = dynamic(() => import("./InfoProject"), {
   ssr: false,
   loading: () => <Loading />,
 });
-const ModalTexts = dynamic(() => import("./ModalTexts"), {
-  ssr: false,
-});
+// const ModalTexts = dynamic(() => import("./ModalTexts"), {
+//   ssr: false,
+// });
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 export interface ProjectNode {
   _key?: string;
@@ -74,15 +69,12 @@ export default function PlazaComponent() {
   const [openInfoKey, setOpenInfoKey] = useState<string | null>(null);
   const [projectName, setProjectName] = useState<string>("");
   const [pId, setpId] = useState<string | null>(null);
-  const [editMode, setEditMode] = useState(false);
+  const [editMode, setEditMode] = useState(true);
   const [nodeToDragEl, setNodeToDragEl] = useState<HTMLElement | null>(null);
   const [nodeToDrag, setNodeToDrag] = useState<ProjectNode | null>(null);
   const isSyncingRef = useRef(false);
-  const [modalTextsOpen, setModalTextsOpen] = useState<boolean>(false);
-  const [NNode, setNNode] = useState<ProjectNode>(null);
+  // const [modalTextsOpen, setModalTextsOpen] = useState<boolean>(false);
   const [openAdmin, setOpenAdmin] = useState<boolean>(true);
-
-  // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ хук ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
   const uniqueMixins = Object.values(
@@ -140,12 +132,12 @@ export default function PlazaComponent() {
   useEffect(() => {
     if (!user) resetAll();
   }, [user]);
+
   useEffect(() => {
     if (!openInfoKey) return;
+    console.log("<==!!!!!=openInfoKey===>", openInfoKey);
     setOpenAdmin(true);
   }, [openInfoKey]);
-
-  // ⇨⇨⇨⇨⇨⇨
 
   useEffect(() => {
     const mixins = createMixins();
@@ -221,6 +213,7 @@ export default function PlazaComponent() {
       return;
     }
     const newProject = removeKeys(project);
+    if (!newProject) return;
     updateHtmlJson(newProject);
   }, [project]);
 
@@ -394,77 +387,20 @@ export default function PlazaComponent() {
       <div className={`${isPlaza() ? "container" : ""}`}>
         <PlazaHeader />
         <PreviewComponent preview={preview} setPreview={setPreview} />
-        {/* // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ Canvas */}
-        <div className="bg-navy rounded-2xl shadow-xl p-2 mt-4 mb-8 border border-slate-200 ">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
-              <span className=" text-white">📐</span>
-            </div>
-            <h5 className=" font-bold text-slate-800">Canvas</h5>
-            {/*<Link
-              href={`/sandbox`}
-              onClick={() => {
-                createHtml();
-                createSCSS();
-              }}
-              className="btn btn-empty px-2  self-end ml-auto !text-[var(--teal)]"
-            >
-              To Sandbox ⇨
-            </Link>*/}
-            {/*<button
-              className="btn btn-empty px-2  self-end ml-auto !text-[var(--teal)]"
-              onClick={() => {
-                createHtml();
-                createSCSS();
-              }}
-            >
-              To Sandbox ⇨
-            </button>*/}
-          </div>
-          <div
-            id="plaza-render-area"
-            className="flex flex-col gap-2 mb-2 relative text-[#000]"
-          >
-            {project &&
-              (Array.isArray(project)
-                ? project.map(renderNode)
-                : renderNode(project))}
-          </div>
-        </div>
-
-        <div
-          className={`${openAdmin ? "translate-x-0" : "translate-x-[calc(-100%+20px)]"} left-0 fixed bottom-0  z-5000 grid-cols-[140px_1fr] w-full h-[max-content] pt-1 grid  gap-2 bg-slate-200 rounded transition-all duration-100 ease-in-out`}
-        >
-          <button
-            onClick={() => {
-              setOpenAdmin((prev) => {
-                return !prev;
-              });
-            }}
-            className={` absolute top-0.5 translateY-[-50%] right-0 bg-[var(--light-navy)] px-1 font-bold border h-full    border-[var(--white)] transition-all duration-300 ease-in-out  hover:bg-[var(--teal)] hover:text-white hover:border-[var(--teal)] `}
-          >
-            <div className={`${openAdmin ? "rotate-180" : "rotate-0"}   w-3`}>
-              <СhevronRight />
-            </div>
-          </button>
-          <div className="bg-navy rounded shadow-xl p-1  border border-slate-200 max-h-[max-content]">
-            <PlazaToolbar
-              resetAll={resetAll}
-              setEditMode={setEditMode}
-              editMode={editMode}
-            />
-          </div>
-          <AdminComponent />
-
-          <InfoProject
-            project={project}
-            setProject={setProject}
-            updateHtmlJson={updateHtmlJson}
-            setOpenInfoKey={setOpenInfoKey}
-            openInfoKey={openInfoKey}
-            setNNode={setNNode}
-          />
-        </div>
+        <CanvasComponent project={project} renderNode={renderNode} />
+        <AdminPanel
+          openAdmin={openAdmin}
+          setOpenAdmin={setOpenAdmin}
+          resetAll={resetAll}
+          editMode={editMode}
+          setEditMode={setEditMode}
+        />
+        <InfoProject
+          project={project}
+          setProject={setProject}
+          setOpenInfoKey={setOpenInfoKey}
+          openInfoKey={openInfoKey}
+        />
         {/* ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ */}
         {user && (
           <div className="bg-navy rounded-2xl shadow-xl p-2 mt-2 mb-8 border border-slate-200">
@@ -507,7 +443,6 @@ export default function PlazaComponent() {
                       setNodeToDragEl(null);
                       setNodeToDrag(null);
                       setModalTextsOpen(false);
-                      setNNode(null);
                       setOpenAdmin(false);
                     }}
                   >
@@ -573,7 +508,6 @@ export default function PlazaComponent() {
                 modalTextsOpen={modalTextsOpen}
                 setModalTextsOpen={setModalTextsOpen}
                 setProject={setProject}
-                node={NNode}
               />
             )}
             {texts && texts.length > 0 && setModalTextsOpen && (

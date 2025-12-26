@@ -23,16 +23,17 @@ interface InfoProjectProps {
   setOpenInfoKey: React.Dispatch<React.SetStateAction<string>>;
   openInfoKey: string;
   setModalTextsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setNNode: React.Dispatch<React.SetStateAction<ProjectData | null>>;
   editMode: boolean;
 }
-
+interface InfoProjectProps {
+  project: ProjectData;
+  setProject: React.Dispatch<React.SetStateAction<ProjectData>>;
+}
 const InfoProject: React.FC<InfoProjectProps> = ({
   project,
   setProject,
   setOpenInfoKey,
   openInfoKey,
-  setNNode,
 }) => {
   // ================================
   const updateNodeByKey = (
@@ -72,7 +73,7 @@ const InfoProject: React.FC<InfoProjectProps> = ({
   // ================================
   const infoProject = (node: ProjectData) => {
     if (!node) return;
-    setNNode(node);
+
     return (
       <AnimatePresence mode="wait">
         {openInfoKey != null && project && (
@@ -240,9 +241,7 @@ const InfoProject: React.FC<InfoProjectProps> = ({
   // ================================
   // ================================
   // ================================
-  return (
-    <div className="">{infoProject(findNodeByKey(project, openInfoKey))}</div>
-  );
+  return <div>{infoProject(findNodeByKey(project, openInfoKey))}</div>;
 };
 
 export default InfoProject;
