@@ -21,7 +21,7 @@ const ModalMessage = dynamic(
   { ssr: false },
 );
 
-export type HtmlNode = {
+type HtmlNode = {
   tag: string;
   class?: string;
   children?: HtmlNode[];
@@ -30,7 +30,7 @@ export type HtmlNode = {
   attributes?: Record<string, string>;
 };
 
-type NodeToAdd = { type: number };
+type nodeToAdd = { type: number };
 
 export type User = {
   id: string;
@@ -51,9 +51,8 @@ type Preview = {
 interface StateContextType {
   htmlJson: HtmlNode[];
   setHtmlJson: React.Dispatch<React.SetStateAction<HtmlNode[]>>;
-  resetHtmlJson: () => void;
-  nodeToAdd: NodeToAdd | null;
-  setNodeToAdd: React.Dispatch<React.SetStateAction<NodeToAdd | null>>;
+  nodeToAdd: nodeToAdd | null;
+  setNodeToAdd: React.Dispatch<React.SetStateAction<nodeToAdd | null>>;
   user: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
   users: User[] | null;
@@ -96,7 +95,7 @@ export function StateProvider({
   const [user, setUser] = useState<User | null>(initialUser);
   const [users, setUsers] = useState<User[] | null>(null);
   const [htmlJson, setHtmlJson] = useState<HtmlNode[]>([]);
-  const [nodeToAdd, setNodeToAdd] = useState<NodeToAdd | null>(null);
+  const [nodeToAdd, setNodeToAdd] = useState<nodeToAdd | null>(null);
   const [modalMessage, setModalMessage] = useState<string>("");
   const [open, setOpen] = useState<boolean>(false);
   const [colors, setColors] = useState<string[]>([]);
@@ -141,7 +140,6 @@ export function StateProvider({
       setHtmlJson([]);
     }
   };
-
   // ------------------------ SYNC HTML JSON ------------------------
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -152,10 +150,12 @@ export function StateProvider({
   useEffect(() => {
     if (!modalMessage) return;
     setOpen(true);
+
     const t = setTimeout(() => {
       setOpen(false);
       setModalMessage("");
     }, 2000);
+
     return () => clearTimeout(t);
   }, [modalMessage]);
 
@@ -250,7 +250,6 @@ export function StateProvider({
       value={{
         htmlJson,
         setHtmlJson,
-        resetHtmlJson,
         nodeToAdd,
         setNodeToAdd,
         user,
