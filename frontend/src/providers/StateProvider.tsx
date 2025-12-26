@@ -81,6 +81,7 @@ interface StateContextType {
   setPreview: React.Dispatch<React.SetStateAction<Preview | null>>;
   ScssMixVar: string;
   setScssMixVar: React.Dispatch<React.SetStateAction<string>>;
+  resetHtmlJson: () => void;
 }
 
 const StateContext = createContext<StateContextType | null>(null);

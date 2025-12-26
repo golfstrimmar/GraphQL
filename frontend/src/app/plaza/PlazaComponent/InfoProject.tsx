@@ -87,7 +87,7 @@ const InfoProject: React.FC<InfoProjectProps> = ({
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: 100, opacity: 0 }}
             transition={{ duration: 0.1, ease: [0.25, 0.8, 0.5, 1] }}
-            className="bg-navy rounded shadow-xl p-1  border border-slate-200  bottom-0 right-0 transform min-w-[calc(100vw-150px)] min-h-[312px] fixed  z-5000"
+            className="bg-navy rounded shadow-xl p-1  border border-slate-200  bottom-0 right-0 transform min-w-[calc(100vw-310px)] min-h-[312px] fixed  z-5000"
           >
             <div className="  flex flex-col relative rounded border-2 border-[var(--teal)] p-1 text-[#000] h-full">
               {/*===============Tag=================  */}
@@ -230,9 +230,9 @@ const InfoProject: React.FC<InfoProjectProps> = ({
               )}
               <button
                 onClick={() => setOpenInfoKey(null)}
-                className="absolute left-[50%] -top-3 border rounded bg-slate-200 hover:bg-slate-300 transition-all duration-200   btn-teal !p-0.5"
+                className="absolute left-[50%] -top-4 border rounded bg-slate-200 hover:bg-slate-300 transition-all duration-200   btn-teal w-[60px] !p-0.5"
               >
-                <div className="max-h-6 border-2 border-[var(--teal)]">
+                <div className="max-h-6 w-full !py-0.5 flex justify-center border-2 border-[var(--teal)]">
                   <СhevronRight width={16} height={16} />
                 </div>
               </button>

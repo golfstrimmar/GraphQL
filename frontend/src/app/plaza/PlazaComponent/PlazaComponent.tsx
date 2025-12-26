@@ -9,7 +9,7 @@ import React, {
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { useStateContext } from "@/providers/StateProvider";
-import { useMutation, useQuery, useLazyQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { UPDATE_PROJECT, REMOVE_PROJECT } from "@/apollo/mutations";
 import { GET_ALL_PROJECTS_BY_USER, FIND_PROJECT } from "@/apollo/queries";
 import Loading from "@/components/ui/Loading/Loading";
@@ -58,10 +58,8 @@ export default function PlazaComponent() {
     preview,
     setPreview,
     colors,
-    setColors,
     ScssMixVar,
     setScssMixVar,
-    setHtmlJson,
     resetHtmlJson,
   } = useStateContext();
   const pathname = usePathname();
@@ -77,6 +75,9 @@ export default function PlazaComponent() {
   const isSyncingRef = useRef(false);
   // const [modalTextsOpen, setModalTextsOpen] = useState<boolean>(false);
   const [openAdmin, setOpenAdmin] = useState<boolean>(true);
+  const previewRef = useRef<HTMLDivElement | null>(null);
+  const canvasRef = useRef<HTMLDivElement | null>(null);
+  const projectsRef = useRef<HTMLDivElement | null>(null);
 
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
   const uniqueMixins = Object.values(
@@ -389,14 +390,21 @@ export default function PlazaComponent() {
     >
       <div className={`${isPlaza() ? "container" : ""}`}>
         <PlazaHeader />
-        <PreviewComponent preview={preview} setPreview={setPreview} />
-        <CanvasComponent project={project} renderNode={renderNode} />
+        <div ref={previewRef}>
+          <PreviewComponent preview={preview} setPreview={setPreview} />
+        </div>
+        <div ref={canvasRef}>
+          <CanvasComponent project={project} renderNode={renderNode} />
+        </div>
         <AdminPanel
           openAdmin={openAdmin}
           setOpenAdmin={setOpenAdmin}
           resetAll={resetAll}
           editMode={editMode}
           setEditMode={setEditMode}
+          previewRef={previewRef}
+          canvasRef={canvasRef}
+          projectsRef={projectsRef}
         />
         <InfoProject
           project={project}
@@ -406,7 +414,10 @@ export default function PlazaComponent() {
         />
         {/* ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ */}
         {user && (
-          <div className="bg-navy rounded-2xl shadow-xl p-2 mt-2 mb-8 border border-slate-200">
+          <div
+            ref={projectsRef}
+            className="bg-navy rounded-2xl shadow-xl p-2 mt-2 mb-8 border border-slate-200"
+          >
             <div className="flex items-center gap-3 mb-6">
               <div className="flex items-center gap-3">
                 <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">

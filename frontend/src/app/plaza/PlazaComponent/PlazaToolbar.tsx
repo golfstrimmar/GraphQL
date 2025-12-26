@@ -10,7 +10,14 @@ import jsonToHtml from "@/utils/plaza/jsonToHtml";
 import { useHtmlFromJson } from "@/hooks/useHtmlFromJson";
 import { useScssFromJson } from "@/hooks/useScssFromJson";
 
-const PlazaToolbar: React.FC = ({ resetAll, setEditMode, editMode }) => {
+const PlazaToolbar: React.FC = ({
+  resetAll,
+  setEditMode,
+  editMode,
+  previewRef,
+  canvasRef,
+  projectsRef,
+}) => {
   const SERVICE_TEXTS = [
     "section",
     "container",
@@ -132,90 +139,124 @@ const PlazaToolbar: React.FC = ({ resetAll, setEditMode, editMode }) => {
       }
     }
   };
+  const scrollToSection = (ref: React.RefObject<HTMLElement | null>) => {
+    if (!ref.current) return;
+
+    const rect = ref.current.getBoundingClientRect();
+    const offset = 100; // отступ сверху
+    const top = rect.top + window.scrollY - offset;
+
+    window.scrollTo({
+      top,
+      behavior: "smooth",
+    });
+  };
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <button
-        className="btn btn-allert !gap-2 w-full"
-        type="button"
-        onClick={() => {
-          resetAll();
-        }}
-      >
-        <ClearIcon />
-        <span className="text-sm font-medium">Clear</span>
-      </button>
-      <button
-        className="btn-teal w-full px-2  self-end ml-auto !text-[var(--teal)]"
-        onClick={() => {
-          createHtml();
-          createSCSS();
-        }}
-      >
-        To Sandbox ⇨
-      </button>
-      <button
-        className={`btn-teal  w-full ${editMode ? "teal-500 " : " "}`}
-        type="button"
-        onClick={() => setEditMode((prev) => !prev)}
-      >
-        <EditModeIcon></EditModeIcon>
-        <span className="text-sm font-medium">Edit Mode</span>
-      </button>
-      <div className="grid grid-cols-2 gap-1">
+    <div className="flex  items-start gap-2">
+      <div className="flex flex-col items-center flex-[0_1_100%] gap-2">
         <button
-          className="btn-teal   disabled:opacity-50"
+          className="btn btn-allert !gap-2 w-full"
           type="button"
-          onClick={undo}
-          disabled={undoStack.length === 0}
+          onClick={() => {
+            resetAll();
+          }}
         >
-          <СhevronLeft width={12} height={14} />
-          <span className="text-[10px]">UNDO</span>
+          <ClearIcon />
+          <span className="text-sm font-medium">Clear</span>
         </button>
         <button
-          className="btn-teal    disabled:opacity-50 "
-          type="button"
-          onClick={redo}
-          disabled={redoStack.length === 0}
+          className="btn-teal w-full px-2  self-end ml-auto !text-[var(--teal)]"
+          onClick={() => {
+            createHtml();
+            createSCSS();
+          }}
         >
-          <span className="text-[10px]">REDO</span>{" "}
-          <СhevronRight width={12} height={14} />
+          To Sandbox ⇨
+        </button>
+        <button
+          className={`btn-teal  w-full ${editMode ? "teal-500 " : " "}`}
+          type="button"
+          onClick={() => setEditMode((prev) => !prev)}
+        >
+          <EditModeIcon></EditModeIcon>
+          <span className="text-sm font-medium">Edit Mode</span>
+        </button>
+        <div className="grid grid-cols-2 gap-1">
+          <button
+            className="btn-teal   disabled:opacity-50"
+            type="button"
+            onClick={undo}
+            disabled={undoStack.length === 0}
+          >
+            <СhevronLeft width={12} height={14} />
+            <span className="text-[10px]">UNDO</span>
+          </button>
+          <button
+            className="btn-teal    disabled:opacity-50 "
+            type="button"
+            onClick={redo}
+            disabled={redoStack.length === 0}
+          >
+            <span className="text-[10px]">REDO</span>{" "}
+            <СhevronRight width={12} height={14} />
+          </button>
+        </div>
+        <button
+          className="btn-teal  w-full"
+          type="button"
+          onClick={() => cleanServiceTexts()}
+        >
+          {" "}
+          Clear services texts{" "}
+        </button>
+        <div className="h-px w-full bg-slate-300"></div>
+        <button
+          className="btn-teal  w-full"
+          type="button"
+          onClick={() => createHtml()}
+        >
+          <Image src="/svg/html.svg" alt="copy" width={16} height={16} />
+
+          <span className="text-sm font-medium">HTML</span>
+        </button>
+        <button
+          className="btn-teal  w-full"
+          type="button"
+          onClick={() => createSCSS()}
+        >
+          <Image src="/svg/scss.svg" alt="copy" width={16} height={16} />
+          <span className="text-sm font-medium">SCSS</span>
+        </button>
+        <button
+          className="btn-teal  w-full"
+          type="button"
+          onClick={() => createPug()}
+        >
+          <Image src="/svg/pug.svg" alt="copy" width={16} height={16} />
+          <span className="text-sm font-medium">Pug</span>
         </button>
       </div>
-      <button
-        className="btn-teal  w-full"
-        type="button"
-        onClick={() => cleanServiceTexts()}
-      >
-        {" "}
-        Clear services texts{" "}
-      </button>
-      <div className="h-px w-full bg-slate-300"></div>
-      <button
-        className="btn-teal  w-full"
-        type="button"
-        onClick={() => createHtml()}
-      >
-        <Image src="/svg/html.svg" alt="copy" width={16} height={16} />
-
-        <span className="text-sm font-medium">HTML</span>
-      </button>
-      <button
-        className="btn-teal  w-full"
-        type="button"
-        onClick={() => createSCSS()}
-      >
-        <Image src="/svg/scss.svg" alt="copy" width={16} height={16} />
-        <span className="text-sm font-medium">SCSS</span>
-      </button>
-      <button
-        className="btn-teal  w-full"
-        type="button"
-        onClick={() => createPug()}
-      >
-        <Image src="/svg/pug.svg" alt="copy" width={16} height={16} />
-        <span className="text-sm font-medium">Pug</span>
-      </button>
+      <div className="flex flex-col flex-1/2 items-center gap-2">
+        <button
+          className="btn-teal w-full"
+          onClick={() => scrollToSection(previewRef)}
+        >
+          Preview ⏫
+        </button>
+        <button
+          className="btn-teal w-full"
+          onClick={() => scrollToSection(canvasRef)}
+        >
+          Canvas ⏫
+        </button>
+        <button
+          className="btn-teal w-full"
+          onClick={() => scrollToSection(projectsRef)}
+        >
+          Projects ⏫
+        </button>
+      </div>
     </div>
   );
 };

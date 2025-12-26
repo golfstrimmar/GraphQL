@@ -21,11 +21,14 @@ export default function AdminPanel({
   resetAll,
   editMode,
   setEditMode,
+  previewRef,
+  canvasRef,
+  projectsRef,
 }) {
   const {} = useStateContext();
   return (
     <div
-      className={`${openAdmin ? "translate-x-0" : "translate-x-[calc(-100%+20px)]"} left-0 fixed bottom-0  z-5000 grid-cols-[140px_1fr] w-full h-[max-content] pt-1 grid  gap-2 bg-slate-200 rounded transition-all duration-100 ease-in-out`}
+      className={`${openAdmin ? "translate-x-0" : "translate-x-[calc(-100%+20px)]"} left-0 fixed bottom-0  z-5000 grid-cols-[max-content_1fr] w-full h-[max-content] pt-1 grid  gap-2 bg-slate-200 rounded transition-all duration-100 ease-in-out`}
     >
       <button
         onClick={() => {
@@ -41,6 +44,9 @@ export default function AdminPanel({
       </button>
       <div className="bg-navy rounded shadow-xl p-1  border border-slate-200 max-h-[max-content]">
         <PlazaToolbar
+          previewRef={previewRef}
+          canvasRef={canvasRef}
+          projectsRef={projectsRef}
           resetAll={resetAll}
           setEditMode={setEditMode}
           editMode={editMode}
