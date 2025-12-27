@@ -66,6 +66,30 @@ const ModalTexts = ({
 
     return { ...nodes };
   };
+
+  const setTextFigma = (foo) => {
+    const removeMixins = (style: string) =>
+      style
+        .split("\n")
+        .map((l) => l.trimEnd())
+        .filter((line) => !line.trim().startsWith("@include "))
+        .join("\n")
+        .trim();
+    const rawStyle = node.style || "";
+    const styleWithoutMixins = removeMixins(rawStyle);
+    const mixinString = `@include ${foo.mixin};`;
+    const newStyle = styleWithoutMixins
+      ? `${styleWithoutMixins}\n${mixinString}`
+      : mixinString;
+    const updatedProject = updateNodeByKey(project, node._key, {
+      text: foo.text,
+      style: newStyle,
+    });
+
+    setProject(updatedProject as ProjectData);
+    setModalTextsOpen(false);
+  };
+
   return (
     <AnimatePresence mode="wait">
       {texts && modalTextsOpen && (
@@ -90,33 +114,11 @@ const ModalTexts = ({
           {texts.map((foo, index) => (
             <div className="flex gap-4" key={index}>
               <button
-                // onDoubleClick={() => {
-                //   setTexts(texts.filter((t) => t !== text));
-                // }}
                 className="btn btn-empty text-white  px-2 bg-slate-50"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  const removeMixins = (style: string) =>
-                    style
-                      .split("\n")
-                      .map((l) => l.trimEnd())
-                      .filter((line) => !line.trim().startsWith("@include "))
-                      .join("\n")
-                      .trim();
-                  const rawStyle = node.style || "";
-                  const styleWithoutMixins = removeMixins(rawStyle);
-                  const mixinString = `@include ${foo.mixin};`;
-                  const newStyle = styleWithoutMixins
-                    ? `${styleWithoutMixins}\n${mixinString}`
-                    : mixinString;
-                  const updatedProject = updateNodeByKey(project, node._key, {
-                    text: foo.text,
-                    style: newStyle,
-                  });
-
-                  setProject(updatedProject as ProjectData);
-                  setModalTextsOpen(false);
+                  setTextFigma(foo);
                 }}
               >
                 {foo.text}

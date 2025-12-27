@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { useStateContext } from "@/providers/StateProvider";
-
+import ModalTexts from "./ModalTexts";
 type ProjectData = {
   _key: string;
   tag: string;
@@ -25,18 +25,25 @@ interface TextComponentProps {
 
 const TextComponent: React.FC<TextComponentProps> = ({
   setProject,
+  project,
   node,
   updateNodeByKey,
   itemClass,
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const { texts } = useStateContext();
+  const [modalTextsOpen, setModalTextsOpen] = useState<boolean>(false);
+  const [textValue, setTextValue] = useState("");
+
+  useEffect(() => {
+    setTextValue(node?.text || "");
+  }, [node?._key, node?.text]);
+
   const adjustHeight = (el: HTMLTextAreaElement) => {
     el.style.height = "auto";
     el.style.height = `${el.scrollHeight}px`;
   };
 
-  const [textValue, setTextValue] = useState("");
   useEffect(() => {
     if (!texts) return;
     console.log("<===texts===>", texts);
@@ -62,8 +69,31 @@ const TextComponent: React.FC<TextComponentProps> = ({
 
   return (
     <div className="bg-white relative rounded ml-[50px] flex mt-4">
-      <p className={itemClass}>Text:</p>
+      {modalTextsOpen && (
+        <ModalTexts
+          node={node}
+          project={project}
+          modalTextsOpen={modalTextsOpen}
+          setModalTextsOpen={setModalTextsOpen}
+          setProject={setProject}
+        />
+      )}
 
+      {texts && texts.length > 0 && setModalTextsOpen && (
+        <p className={itemClass}>
+          <span>Text:</span>
+          <button
+            className="btn-teal mt-2 !px-1"
+            onClick={() =>
+              setModalTextsOpen(() => {
+                return !modalTextsOpen;
+              })
+            }
+          >
+            Texts
+          </button>
+        </p>
+      )}
       <textarea
         ref={(el) => {
           if (!el) return;

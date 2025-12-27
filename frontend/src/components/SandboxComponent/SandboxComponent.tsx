@@ -50,7 +50,7 @@ const SandboxСomponent: React.FC<SandboxComponentProps> = ({
   const [previewHeight] = useState<number>(heightPreview);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [previewHtml, setPreviewHtml] = useState<string>("");
-
+  const [openMonaco, setopenMonaco] = useState<boolean>(false);
   useEffect(() => {
     console.log("<===HTML===>", HTML);
     if (!HTML) {
@@ -248,10 +248,10 @@ ${html}
 
   return (
     <div className={isSandbox() ? "sandbox" : ""}>
-      <div className={isSandbox() ? "container" : ""}>
+      <div className={isSandbox() ? "container" : "relative"}>
         {isSandbox() && (
-          <header className="sandbox__header">
-            <div className="text-center mb-4">
+          <header className="sandbox__header ">
+            <div className="text-center mb-4 ">
               <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-1">
                 Sandbox Editor
               </h1>
@@ -261,6 +261,14 @@ ${html}
             </div>
           </header>
         )}
+        <button
+          className="btn btn-primary absolute top-[-35px] left-2"
+          onClick={() => {
+            setopenMonaco(!openMonaco);
+          }}
+        >
+          {openMonaco ? "Close Monaco" : "Open Monaco"}
+        </button>
 
         <section className="w-full mb-4 bg-navy overflow-hidden">
           <iframe
@@ -279,63 +287,65 @@ ${html}
           />
         </section>
 
-        <div className="flex">
-          <aside className="flex-[1_0_20%] bg-navy border">
-            <ul className="p-1">
-              <li
-                className={
-                  "hover:bg-slate-600 cursor-pointer px-1" +
-                  (active === "html" ? " teal-500" : "")
-                }
-                onClick={() => setActive("html")}
-              >
-                <span className="sandbox__file-name">index.html</span>
-              </li>
-              <li
-                className={
-                  "hover:bg-slate-600 cursor-pointer px-1" +
-                  (active === "scss" ? " teal-500" : "")
-                }
-                onClick={() => setActive("scss")}
-              >
-                <span className="sandbox__file-name">styles.scss</span>
-              </li>
-              <li
-                className={
-                  "hover:bg-slate-600 cursor-pointer px-1" +
-                  (active === "startScss" ? " teal-500" : "")
-                }
-                onClick={() => setActive("startScss")}
-              >
-                <span className="sandbox__file-name">start.scss</span>
-              </li>
-            </ul>
-          </aside>
+        {openMonaco && (
+          <div className="flex">
+            <aside className="flex-[1_0_20%] bg-navy border">
+              <ul className="p-1">
+                <li
+                  className={
+                    "hover:bg-slate-600 cursor-pointer px-1" +
+                    (active === "html" ? " teal-500" : "")
+                  }
+                  onClick={() => setActive("html")}
+                >
+                  <span className="sandbox__file-name">index.html</span>
+                </li>
+                <li
+                  className={
+                    "hover:bg-slate-600 cursor-pointer px-1" +
+                    (active === "scss" ? " teal-500" : "")
+                  }
+                  onClick={() => setActive("scss")}
+                >
+                  <span className="sandbox__file-name">styles.scss</span>
+                </li>
+                <li
+                  className={
+                    "hover:bg-slate-600 cursor-pointer px-1" +
+                    (active === "startScss" ? " teal-500" : "")
+                  }
+                  onClick={() => setActive("startScss")}
+                >
+                  <span className="sandbox__file-name">start.scss</span>
+                </li>
+              </ul>
+            </aside>
 
-          <main className="flex-[0_1_100%] bg-slate-200">
-            <Editor
-              height={editorHeight}
-              language={language}
-              value={value}
-              onChange={handleCodeChange}
-              onMount={handleEditorMount}
-              options={{
-                fontSize: 14,
-                fontFamily: "Fira Code, monospace",
-                minimap: { enabled: false },
-                scrollBeyondLastLine: false,
-                scrollbar: {
-                  verticalScrollbarSize: 14,
-                  horizontalScrollbarSize: 14,
-                },
-                automaticLayout: true,
-                autoIndent: "full",
-                formatOnPaste: true,
-                formatOnType: true,
-              }}
-            />
-          </main>
-        </div>
+            <main className="flex-[0_1_100%] bg-slate-200">
+              <Editor
+                height={editorHeight}
+                language={language}
+                value={value}
+                onChange={handleCodeChange}
+                onMount={handleEditorMount}
+                options={{
+                  fontSize: 14,
+                  fontFamily: "Fira Code, monospace",
+                  minimap: { enabled: false },
+                  scrollBeyondLastLine: false,
+                  scrollbar: {
+                    verticalScrollbarSize: 14,
+                    horizontalScrollbarSize: 14,
+                  },
+                  automaticLayout: true,
+                  autoIndent: "full",
+                  formatOnPaste: true,
+                  formatOnType: true,
+                }}
+              />
+            </main>
+          </div>
+        )}
       </div>
     </div>
   );

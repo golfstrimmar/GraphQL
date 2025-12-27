@@ -87,9 +87,8 @@ const PlazaToolbar: React.FC = ({
     redo,
     undoStack,
     redoStack,
-    setScssMixVar,
-    setHTML,
-    setSCSS,
+    HTML,
+    SCSS,
   } = useStateContext();
   function cleanServiceTexts() {
     const serviceSet = new Set(
@@ -214,7 +213,15 @@ const PlazaToolbar: React.FC = ({
         <button
           className="btn-teal  w-full"
           type="button"
-          onClick={() => createHtml()}
+          onClick={async () => {
+            createHtml();
+            try {
+              await navigator.clipboard.writeText(HTML);
+              setModalMessage("HTML copied!");
+            } catch {
+              setModalMessage("Failed to copy");
+            }
+          }}
         >
           <Image src="/svg/html.svg" alt="copy" width={16} height={16} />
 
@@ -223,7 +230,15 @@ const PlazaToolbar: React.FC = ({
         <button
           className="btn-teal  w-full"
           type="button"
-          onClick={() => createSCSS()}
+          onClick={async () => {
+            createSCSS();
+            try {
+              await navigator.clipboard.writeText(SCSS);
+              setModalMessage("SCSS copied!");
+            } catch {
+              setModalMessage("Failed to copy");
+            }
+          }}
         >
           <Image src="/svg/scss.svg" alt="copy" width={16} height={16} />
           <span className="text-sm font-medium">SCSS</span>

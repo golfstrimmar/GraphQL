@@ -73,7 +73,7 @@ export default function PlazaComponent() {
   const [nodeToDragEl, setNodeToDragEl] = useState<HTMLElement | null>(null);
   const [nodeToDrag, setNodeToDrag] = useState<ProjectNode | null>(null);
   const isSyncingRef = useRef(false);
-  // const [modalTextsOpen, setModalTextsOpen] = useState<boolean>(false);
+  //
   const [openAdmin, setOpenAdmin] = useState<boolean>(true);
   const previewRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLDivElement | null>(null);
@@ -525,22 +525,7 @@ export default function PlazaComponent() {
                 {/*======== /projects =========*/}
               </div>
             )}
-            {/*{modalTextsOpen && (
-              <ModalTexts
-                project={project}
-                modalTextsOpen={modalTextsOpen}
-                setModalTextsOpen={setModalTextsOpen}
-                setProject={setProject}
-              />
-            )}
-            {texts && texts.length > 0 && setModalTextsOpen && (
-              <button
-                className="btn btn-empty w-[max-content] ml-4 mr-1 px-2"
-                onClick={() => setModalTextsOpen(true)}
-              >
-                Show all texts
-              </button>
-            )}*/}
+
             <CreateNewProject ScssMixVar={ScssMixVar} />
           </div>
         )}

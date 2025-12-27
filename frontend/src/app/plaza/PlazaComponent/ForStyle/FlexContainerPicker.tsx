@@ -2,10 +2,14 @@
 import React from "react";
 
 const flexDirectionOptions = [
-  "row",
-  "row-reverse",
   "column",
   "column-reverse",
+  "row",
+  "row-reverse",
+  "0 0 100%",
+  "0 1 100%",
+  "1 0 100%",
+  "1 1 100%",
 ] as const;
 
 const flexWrapOptions = ["nowrap", "wrap", "wrap-reverse"] as const;

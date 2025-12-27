@@ -8,21 +8,14 @@ export function useScssFromJson() {
   const { htmlJson, setModalMessage, setSCSS, ScssMixVar, setScssMixVar } =
     useStateContext();
 
-  const createSCSS = useCallback(async () => {
+  const createSCSS = useCallback(() => {
     if (!htmlJson) return;
 
     const { scss } = jsonToHtml(htmlJson as any);
     const res = [ScssMixVar ?? "", scss ?? ""]
       .filter((part) => part)
       .join("\n");
-
     setSCSS(res);
-
-    // try {
-    //   await navigator.clipboard.writeText(res);
-    // } catch {
-    //   setModalMessage?.("Failed to copy");
-    // }
   }, [htmlJson, ScssMixVar, setModalMessage, setSCSS]);
 
   return { createSCSS };

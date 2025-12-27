@@ -10,6 +10,7 @@ const gridTemplateColumnsPresets = [
   "minmax(100px, 1fr)",
   "fit-content(40%)",
   "repeat(3, 200px)",
+  "repeat(auto-fill, 300px)",
   "repeat(auto-fill, minmax(min(250px, 100%), 1fr))",
   "repeat(auto-fitt, minmax(min(250px, 100%), 1fr));",
 ] as const;

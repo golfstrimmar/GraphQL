@@ -118,6 +118,7 @@ const InfoProject: React.FC<InfoProjectProps> = ({
               />
               {/*===============Text=================  */}
               <TextComponent
+                project={project}
                 setProject={setProject}
                 node={node}
                 updateNodeByKey={updateNodeByKey}
