@@ -70,7 +70,10 @@ const ModalProject: React.FC<ModalMessageProps> = ({
             }
           }}
         >
-          <button className="absolute block top-4 right-8 bg-white! rounded-full z-2140! p-2">
+          <button
+            className="absolute block top-4 right-8 bg-white! rounded-full z-2140! p-2"
+            onClick={() => setOpenModalProject(false)}
+          >
             <Image
               src="./svg/cross-com.svg"
               alt="close"

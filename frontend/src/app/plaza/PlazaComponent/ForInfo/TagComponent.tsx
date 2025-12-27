@@ -19,12 +19,14 @@ interface TagComponentProps {
     key: string,
     changes: Partial<ProjectData>,
   ) => ProjectData | ProjectData[];
+  itemClass: string;
 }
 
 const TagComponent: React.FC<TagComponentProps> = ({
   setProject,
   node,
   updateNodeByKey,
+  itemClass,
 }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [tagValue, setTagValue] = useState("");
@@ -49,11 +51,8 @@ const TagComponent: React.FC<TagComponentProps> = ({
   }, [tagValue, node?._key]);
 
   return (
-    <div className="bg-white relative rounded ml-[55px]  mt-4">
-      <p className="absolute left-[-55px] !font-bold px-2 inline-block z-30 p-1 h-[26px]   text-white  w-[max-content]">
-        Tag:
-      </p>
-
+    <div className="bg-white relative rounded ml-[50px]  mt-4">
+      <p className={itemClass}>Tag:</p>
       <input
         ref={inputRef}
         value={tagValue}

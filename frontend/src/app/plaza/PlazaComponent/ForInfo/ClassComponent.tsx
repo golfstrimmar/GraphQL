@@ -19,6 +19,7 @@ interface ClassComponentProps {
     key: string,
     changes: Partial<ProjectData>,
   ) => ProjectData | ProjectData[];
+  itemClass: string;
 }
 
 const ClassComponent: React.FC<ClassComponentProps> = ({
@@ -26,6 +27,7 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
   setProject,
   node,
   updateNodeByKey,
+  itemClass,
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -86,10 +88,8 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
 
   // ================================
   return (
-    <div className="bg-white relative rounded ml-[55px] flex mt-4">
-      <p className="absolute left-[-55px] !font-bold px-2 inline-block z-30 p-1 h-[26px]   text-white  w-[max-content]">
-        Class:
-      </p>
+    <div className="bg-white relative rounded ml-[50px] flex mt-4">
+      <p className={itemClass}>Class:</p>
       <input
         ref={(el) => {
           if (!el) return;

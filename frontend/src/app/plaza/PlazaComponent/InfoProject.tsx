@@ -3,10 +3,10 @@ import React, { useEffect, useState } from "react";
 import findNodeByKey from "@/utils/plaza/findNodeByKey";
 import { motion, AnimatePresence } from "framer-motion";
 import СhevronRight from "@/components/icons/СhevronRight";
-import StyleComponent from "./StyleComponent";
-import ClassComponent from "./ClassComponent";
-import TextComponent from "./TextComponent";
-import TagComponent from "./TagComponent";
+import StyleComponent from "./ForInfo/StyleComponent";
+import ClassComponent from "./ForInfo/ClassComponent";
+import TextComponent from "./ForInfo/TextComponent";
+import TagComponent from "./ForInfo/TagComponent";
 import { useHtmlFromJson } from "@/hooks/useHtmlFromJson";
 import { useScssFromJson } from "@/hooks/useScssFromJson";
 import { useStateContext } from "@/providers/StateProvider";
@@ -94,6 +94,8 @@ const InfoProject: React.FC<InfoProjectProps> = ({
   // ================================
   const infoProject = (node: ProjectData) => {
     if (!node) return;
+    const itemClass =
+      "absolute left-[-55px] !font-bold px-2 inline-block z-30 p-1 h-[26px] text-white w-[max-content]";
 
     return (
       <AnimatePresence mode="wait">
@@ -104,7 +106,7 @@ const InfoProject: React.FC<InfoProjectProps> = ({
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: 100, opacity: 0 }}
             transition={{ duration: 0.1, ease: [0.25, 0.8, 0.5, 1] }}
-            className="bg-navy rounded shadow-xl p-1  border border-slate-200  bottom-0 right-0 transform min-w-[calc(100vw-310px)] min-h-[312px] fixed  z-5000"
+            className="bg-navy rounded shadow-xl p-1  border border-slate-200  bottom-0 right-0 transform min-w-[calc(100vw-270px)] min-h-[312px] fixed  z-5000"
           >
             <div className="  flex flex-col relative rounded border-2 border-[var(--teal)] p-1 text-[#000] h-full">
               {/*===============Tag=================  */}
@@ -112,12 +114,14 @@ const InfoProject: React.FC<InfoProjectProps> = ({
                 setProject={setProject}
                 node={node}
                 updateNodeByKey={updateNodeByKey}
+                itemClass={itemClass}
               />
               {/*===============Text=================  */}
               <TextComponent
                 setProject={setProject}
                 node={node}
                 updateNodeByKey={updateNodeByKey}
+                itemClass={itemClass}
               />
               {/*===============Class=================  */}
               <ClassComponent
@@ -125,6 +129,7 @@ const InfoProject: React.FC<InfoProjectProps> = ({
                 setProject={setProject}
                 node={node}
                 updateNodeByKey={updateNodeByKey}
+                itemClass={itemClass}
               />
               {/*===============Style=================  */}
               <StyleComponent
@@ -132,6 +137,7 @@ const InfoProject: React.FC<InfoProjectProps> = ({
                 setProject={setProject}
                 node={node}
                 updateNodeByKey={updateNodeByKey}
+                itemClass={itemClass}
               />
               {/*===============================  */}
               {node?.tag === "img" && (

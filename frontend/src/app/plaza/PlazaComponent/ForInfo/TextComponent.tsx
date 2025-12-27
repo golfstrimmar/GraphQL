@@ -20,12 +20,14 @@ interface TextComponentProps {
     key: string,
     changes: Partial<ProjectData>,
   ) => ProjectData | ProjectData[];
+  itemClass: string;
 }
 
 const TextComponent: React.FC<TextComponentProps> = ({
   setProject,
   node,
   updateNodeByKey,
+  itemClass,
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const { texts } = useStateContext();
@@ -59,10 +61,8 @@ const TextComponent: React.FC<TextComponentProps> = ({
   }, [textValue, node?._key]);
 
   return (
-    <div className="bg-white relative rounded ml-[55px] flex mt-4">
-      <p className="absolute left-[-55px] !font-bold px-2 inline-block z-30 p-1 h-[26px]   text-white  w-[max-content]">
-        Text:
-      </p>
+    <div className="bg-white relative rounded ml-[50px] flex mt-4">
+      <p className={itemClass}>Text:</p>
 
       <textarea
         ref={(el) => {

@@ -1,5 +1,11 @@
 "use client";
 import React, { useRef, useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+import Loading from "@/components/ui/Loading/Loading";
+const MobileAddStyle = dynamic(() => import("../MobileAddStyle"), {
+  ssr: false,
+  loading: () => <Loading />,
+});
 type ProjectData = {
   tag: string;
   text: string;
@@ -18,6 +24,7 @@ interface StyleComponentProps {
     key: string,
     changes: Partial<ProjectData>,
   ) => ProjectData | ProjectData[];
+  itemClass: string;
 }
 // ================================
 // ================================
@@ -27,8 +34,10 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
   setProject,
   node,
   updateNodeByKey,
+  itemClass,
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const [openMobile, setOpenMobile] = useState(false);
   const adjustHeight = (el: HTMLTextAreaElement) => {
     el.style.height = "auto";
     el.style.height = `${el.scrollHeight}px`;
@@ -86,9 +95,26 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
 
   // ================================
   return (
-    <div className="bg-white relative rounded ml-[55px] flex mt-4">
-      <p className="absolute left-[-55px] !font-bold px-2 inline-block z-30 p-1 h-[26px]   text-white  w-[max-content]">
-        Style:
+    <div className="bg-white relative rounded ml-[50px] flex mt-4">
+      {openMobile && (
+        <MobileAddStyle
+          setStyleText={setStyleText}
+          openMobile={openMobile}
+          setOpenMobile={setOpenMobile}
+        />
+      )}
+      <p className={itemClass}>
+        <span>Style:</span>
+        <button
+          className="btn-teal mt-2"
+          onClick={() =>
+            setOpenMobile(() => {
+              return !openMobile;
+            })
+          }
+        >
+          Add
+        </button>
       </p>
       <textarea
         ref={(el) => {
