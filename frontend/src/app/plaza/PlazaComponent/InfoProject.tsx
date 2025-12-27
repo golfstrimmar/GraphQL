@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import findNodeByKey from "@/utils/plaza/findNodeByKey";
 import { motion, AnimatePresence } from "framer-motion";
 import СhevronRight from "@/components/icons/СhevronRight";
@@ -9,6 +9,8 @@ import TextComponent from "./TextComponent";
 import TagComponent from "./TagComponent";
 import { useHtmlFromJson } from "@/hooks/useHtmlFromJson";
 import { useScssFromJson } from "@/hooks/useScssFromJson";
+import { useStateContext } from "@/providers/StateProvider";
+
 type ProjectData = {
   tag: string;
   text: string;
@@ -38,6 +40,18 @@ const InfoProject: React.FC<InfoProjectProps> = ({
 }) => {
   const { createHtml } = useHtmlFromJson();
   const { createSCSS } = useScssFromJson();
+  const { htmlJson } = useStateContext();
+  // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
+  const [lastUpdate, setLastUpdate] = useState(0);
+  useEffect(() => {
+    if (!htmlJson) return;
+    const now = Date.now();
+    if (now - lastUpdate < 1000) return;
+    setLastUpdate(now);
+    void createHtml();
+    void createSCSS();
+  }, [htmlJson, createHtml, createSCSS, lastUpdate]);
+  // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
   useEffect(() => {
     if (!openInfoKey) return;
     console.log("<===openInfoKey===>", openInfoKey);
@@ -95,20 +109,15 @@ const InfoProject: React.FC<InfoProjectProps> = ({
             <div className="  flex flex-col relative rounded border-2 border-[var(--teal)] p-1 text-[#000] h-full">
               {/*===============Tag=================  */}
               <TagComponent
-                project={project}
                 setProject={setProject}
                 node={node}
                 updateNodeByKey={updateNodeByKey}
-                createHtml={createHtml}
-                createSCSS={createSCSS}
               />
               {/*===============Text=================  */}
               <TextComponent
                 setProject={setProject}
                 node={node}
                 updateNodeByKey={updateNodeByKey}
-                createHtml={createHtml}
-                createSCSS={createSCSS}
               />
               {/*===============Class=================  */}
               <ClassComponent

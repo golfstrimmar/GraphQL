@@ -120,10 +120,17 @@ export default function PlazaComponent() {
     refetchQueries: [{ query: GET_ALL_PROJECTS_BY_USER, variables }],
     awaitRefetchQueries: true,
   });
-  const [updateProject] = useMutation(UPDATE_PROJECT, {
+  const [
+    updateProject,
+    { data: dataUpdateProject, loading: loadingUpdateProject },
+  ] = useMutation(UPDATE_PROJECT, {
     refetchQueries: [{ query: GET_ALL_PROJECTS_BY_USER, variables }],
     awaitRefetchQueries: true,
   });
+
+  // Использование:
+  // await mutateFn({ variables: {  } });
+
   const colorsTo = useMemo(() => {
     if (colors.length > 0) {
       return colors.map((color, index) => `$color-${index + 1}: ${color};`);
@@ -493,7 +500,9 @@ export default function PlazaComponent() {
                           type="button"
                           onClick={() => updateTempProject()}
                         >
-                          <div className="w-4 h-4 overflow-hidden">
+                          <div
+                            className={`${loadingUpdateProject ? "spin-fast" : ""} w-4 h-4 overflow-hidden`}
+                          >
                             <Update />
                           </div>
                           <span className="text-sm font-medium ml-2">

@@ -270,7 +270,8 @@ ${html}
             srcDoc={previewHtml}
             sandbox="allow-scripts allow-same-origin"
             style={{
-              width: widthPreview !== 0 ? `${widthPreview}px` : "100%",
+              // width: widthPreview !== 0 ? `${widthPreview}px` : "100%",
+              width: "100%",
               height: `${previewHeight}px`,
               minWidth: `${widthPreview}px`,
               minHeight: `${previewHeight}px`,

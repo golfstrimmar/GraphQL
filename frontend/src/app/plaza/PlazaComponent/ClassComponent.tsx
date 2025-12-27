@@ -79,7 +79,7 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
         class: classText,
       });
       setProject(updatedProject as ProjectData);
-    }, 500);
+    }, 1000);
 
     return () => clearTimeout(id);
   }, [classText, node?._key]);

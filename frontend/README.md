@@ -77,3 +77,9 @@ export default async function Page() {
 
 const [getDogs, { loading, data }] = useLazyQuery(GET_DOGS);
 onClick={() => getDogs({ variables: { breed: 'bulldog' } })}
+
+--------вращает иконку при отработке сервера
+import Update from "@/components/icons/Update";
+<div className={`${loadingUpdateProject ? "animate-spin" : ""} w-4 h-4 overflow-hidden`} >
+<Update />
+</div>

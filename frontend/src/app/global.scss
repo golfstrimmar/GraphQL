@@ -1,7 +1,6 @@
 // @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Playwrite+HU:wght@100..400&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Playwrite+HU:wght@100..400&display=swap");
 // @import "@/scss/common/null.scss";
-
 
 // @import "@/scss/custom/radio.scss";
 
@@ -20,7 +19,6 @@
   --blue-800: #1e40af;
   --blue-900: #1e3a8a;
   --blue-950: #172554;
-
 
   --grey-00: #ffffff;
   --grey-10: #f4f4ff;
@@ -54,7 +52,6 @@
   --slate-700: #334155;
   --slate-800: #1e293b;
   --slate-900: #0f172a;
-
 
   --token-02: 0.1rem;
   --token-04: 0.2rem;
@@ -165,7 +162,6 @@ h2 {
   font-size: var(--font-size-h2);
   // color: var(--headings-color);
   letter-spacing: var(--ls-headings);
-
 }
 
 h3 {
@@ -268,7 +264,6 @@ pre * {
   padding: 0 0 0 0 !important;
 }
 
-
 a,
 input,
 select,
@@ -294,7 +289,6 @@ span {
   color: var(--grey-00);
   border: 1px solid var(--primary);
   padding: 0 5px;
-
 }
 
 .btn-allert {
@@ -307,7 +301,6 @@ span {
 .btn-empty {
   border: 1px solid var(--primary);
   display: inline-block;
-
 }
 
 .btn-teal {
@@ -347,7 +340,6 @@ li {
   }
 }
 
-
 // ---------------------------------
 .checkClasses {
   // .form-check {
@@ -363,8 +355,8 @@ li {
     width: 0px;
   }
 
-  input[type="radio"]:checked+label,
-  input[type="radio"]:not(:checked)+label {
+  input[type="radio"]:checked + label,
+  input[type="radio"]:not(:checked) + label {
     display: inline-block;
     position: relative;
     cursor: pointer;
@@ -379,30 +371,23 @@ li {
     }
   }
 
-
-
-
-
-  input[type="radio"]:checked+label::before,
-  input[type="radio"]:not(:checked)+label::before {
+  input[type="radio"]:checked + label::before,
+  input[type="radio"]:not(:checked) + label::before {
     content: "";
     position: absolute;
     left: 0px !important;
     top: 50% !important;
     transform: translateY(-50%) !important;
     background-color: transparent !important;
-    transition: all .3s;
+    transition: all 0.3s;
     border-radius: 50%;
     width: 20px;
     height: 20px;
     border: solid 2px #cfd4da;
   }
 
-
-
-
-  input[type="radio"]:checked+label::after,
-  input[type="radio"]:not(:checked)+label::after {
+  input[type="radio"]:checked + label::after,
+  input[type="radio"]:not(:checked) + label::after {
     content: "";
     position: absolute !important;
     width: 12px;
@@ -413,20 +398,45 @@ li {
     transform: translate(1%, -50%);
     border: solid 2px var(--blue-100);
     background-color: var(--blue-100);
-    transition: all .3s;
+    transition: all 0.3s;
   }
 
-  input[type="radio"]:checked+label::after {
+  input[type="radio"]:checked + label::after {
     opacity: 1;
   }
 
-  input[type="radio"]:not(:checked)+label::after {
+  input[type="radio"]:not(:checked) + label::after {
     opacity: 0;
   }
 }
 
-
 ._isActive {
   box-shadow: 0px 0px 10px 0px blue;
   background-color: #7e4d92;
+}
+
+@keyframes spin-fast {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin-fast {
+  animation: spin-fast 0.4s linear infinite;
+}
+
+.tag-scale-pulse {
+  animation: tag-scale-pulse 0.9s ease-in-out infinite;
+}
+
+@keyframes tag-scale-pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.01); /* чуть увеличился */
+  }
+  100% {
+    transform: scale(1);
+  }
 }

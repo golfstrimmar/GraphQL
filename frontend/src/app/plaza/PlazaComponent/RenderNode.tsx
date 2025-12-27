@@ -43,14 +43,14 @@ const createRenderNode = ({
   const addNodeToTargetByKey = (
     node: any,
     targetKey: string,
-    nodeToAdd: any
+    nodeToAdd: any,
   ): any => {
     if (!node) return node;
     if (typeof node === "string") return node;
 
     if (Array.isArray(node)) {
       return node.map((child) =>
-        addNodeToTargetByKey(child, targetKey, nodeToAdd)
+        addNodeToTargetByKey(child, targetKey, nodeToAdd),
       );
     }
 
@@ -68,7 +68,7 @@ const createRenderNode = ({
       return {
         ...node,
         children: node.children.map((child) =>
-          addNodeToTargetByKey(child, targetKey, nodeToAdd)
+          addNodeToTargetByKey(child, targetKey, nodeToAdd),
         ),
       };
     }
@@ -193,7 +193,7 @@ const createRenderNode = ({
     e: React.DragEvent<HTMLElement>,
     parentKey: string,
     siblingKey: string | null,
-    type: "before" | "after"
+    type: "before" | "after",
   ) => {
     e.preventDefault();
     e.stopPropagation();
@@ -365,7 +365,7 @@ const createRenderNode = ({
       const match = styleString.match(new RegExp(`${prop}\\s*:\\s*([^;]+);?`));
       return match ? match[1].trim() : "";
     };
-
+    const isActive = openInfoKey === node._key;
     // ---------------- VOID ELEMENT ----------------
     if (isVoid) {
       return (
@@ -377,7 +377,9 @@ const createRenderNode = ({
           onDragOver={editMode ? (e) => handleDragOver(e, node) : undefined}
           onDragLeave={editMode ? handleDragLeave : undefined}
           onDrop={editMode ? (e) => handleDrop(e, node, true) : undefined}
-          className={`${editMode ? "card" : node.class} render-tag relative `}
+          className={`${editMode ? "card" : node.class} render-tag relative ${
+            isActive ? "tag-scale-pulse" : ""
+          }`}
           style={{
             ...parseInlineStyle(node.style),
             border:
@@ -407,10 +409,10 @@ const createRenderNode = ({
                       e,
                       node._key,
                       node.children[idx]?._key || null,
-                      "before"
+                      "before",
                     )
                   }
-                />
+                />,
               );
             }
 
@@ -429,10 +431,10 @@ const createRenderNode = ({
                       e,
                       node._key,
                       node.children[idx]?._key || null,
-                      "after"
+                      "after",
                     )
                   }
-                />
+                />,
               );
             }
 
@@ -448,7 +450,9 @@ const createRenderNode = ({
           onDragOver={editMode ? (e) => handleDragOver(e, node) : undefined}
           onDragLeave={editMode ? handleDragLeave : undefined}
           onDrop={editMode ? (e) => handleDrop(e, node, true) : undefined}
-          className={`${editMode ? "card" : node.class} render-tag relative }`}
+          className={`${editMode ? "card" : node.class} render-tag relative ${
+            isActive ? "tag-scale-pulse" : ""
+          }`}
           id={node.attributes?.id}
           htmlFor={node.attributes?.for}
           href={node.attributes?.href}
@@ -456,20 +460,20 @@ const createRenderNode = ({
           style={(() => {
             const originalStyle = {
               ...parseInlineStyle(node.style),
-              border:
+              outline:
                 openInfoKey === node._key
-                  ? "1px solid var(--teal)"
+                  ? "1px solid var(--blue-900)"
                   : getStyleProperty(node.style, "border"),
               background:
                 openInfoKey === node._key
-                  ? "var(--teal-light)"
+                  ? "var(--blue-700)"
                   : getStyleProperty(node.style, "background"),
             };
             const baseStyle = editMode
               ? Object.fromEntries(
                   Object.entries(originalStyle).filter(([key]) =>
-                    /^(display|flex|grid|justify|align)/i.test(key)
-                  )
+                    /^(display|flex|grid|justify|align)/i.test(key),
+                  ),
                 )
               : originalStyle;
 
@@ -482,13 +486,13 @@ const createRenderNode = ({
               position: "relative",
               transition: "opacity 0.2s ease, border 0.2s ease",
               overflow: "hidden",
-              border:
+              outline:
                 openInfoKey === node._key
-                  ? "1px solid  var(--teal)"
+                  ? "1px solid  var(--blue-900)"
                   : "1px solid #aaa",
               background:
                 openInfoKey === node._key
-                  ? "var(--teal-light)"
+                  ? "var(--blue-700)"
                   : getStyleProperty(node.style, "background"),
             };
 

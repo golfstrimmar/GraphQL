@@ -1,6 +1,5 @@
 "use client";
 import React, { useRef, useEffect, useState } from "react";
-
 type ProjectData = {
   tag: string;
   text: string;
@@ -20,7 +19,9 @@ interface StyleComponentProps {
     changes: Partial<ProjectData>,
   ) => ProjectData | ProjectData[];
 }
-
+// ================================
+// ================================
+// ================================
 const StyleComponent: React.FC<StyleComponentProps> = ({
   project,
   setProject,
@@ -28,8 +29,6 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
   updateNodeByKey,
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-
-  // ================================
   const adjustHeight = (el: HTMLTextAreaElement) => {
     el.style.height = "auto";
     el.style.height = `${el.scrollHeight}px`;
