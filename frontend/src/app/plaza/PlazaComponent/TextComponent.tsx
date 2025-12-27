@@ -26,13 +26,27 @@ const TextComponent: React.FC<TextComponentProps> = ({
   setProject,
   node,
   updateNodeByKey,
+  createHtml,
+  createSCSS,
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const { texts } = useStateContext();
+  const { texts, htmlJson } = useStateContext();
   const adjustHeight = (el: HTMLTextAreaElement) => {
     el.style.height = "auto";
     el.style.height = `${el.scrollHeight}px`;
   };
+
+  const [lastUpdate, setLastUpdate] = useState(0);
+
+  // useEffect(() => {
+  //   if (!htmlJson) return;
+  //   const now = Date.now();
+  //   if (now - lastUpdate < 800) return;
+
+  //   setLastUpdate(now);
+  //   void createHtml();
+  //   void createSCSS();
+  // }, [htmlJson, createHtml, createSCSS, lastUpdate]);
 
   const [textValue, setTextValue] = useState("");
   useEffect(() => {
@@ -53,7 +67,7 @@ const TextComponent: React.FC<TextComponentProps> = ({
         (prev) =>
           updateNodeByKey(prev, node._key, { text: textValue }) as ProjectData,
       );
-    }, 400);
+    }, 200);
 
     return () => clearTimeout(id);
   }, [textValue, node?._key]);

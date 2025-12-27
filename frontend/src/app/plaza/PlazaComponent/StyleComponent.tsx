@@ -80,7 +80,7 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
         style: styleText,
       });
       setProject(updatedProject as ProjectData);
-    }, 500);
+    }, 2000);
 
     return () => clearTimeout(id);
   }, [styleText, node?._key, project, setProject]);

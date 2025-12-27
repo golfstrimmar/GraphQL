@@ -7,7 +7,8 @@ import StyleComponent from "./StyleComponent";
 import ClassComponent from "./ClassComponent";
 import TextComponent from "./TextComponent";
 import TagComponent from "./TagComponent";
-
+import { useHtmlFromJson } from "@/hooks/useHtmlFromJson";
+import { useScssFromJson } from "@/hooks/useScssFromJson";
 type ProjectData = {
   tag: string;
   text: string;
@@ -35,6 +36,8 @@ const InfoProject: React.FC<InfoProjectProps> = ({
   setOpenInfoKey,
   openInfoKey,
 }) => {
+  const { createHtml } = useHtmlFromJson();
+  const { createSCSS } = useScssFromJson();
   useEffect(() => {
     if (!openInfoKey) return;
     console.log("<===openInfoKey===>", openInfoKey);
@@ -96,12 +99,16 @@ const InfoProject: React.FC<InfoProjectProps> = ({
                 setProject={setProject}
                 node={node}
                 updateNodeByKey={updateNodeByKey}
+                createHtml={createHtml}
+                createSCSS={createSCSS}
               />
               {/*===============Text=================  */}
               <TextComponent
                 setProject={setProject}
                 node={node}
                 updateNodeByKey={updateNodeByKey}
+                createHtml={createHtml}
+                createSCSS={createSCSS}
               />
               {/*===============Class=================  */}
               <ClassComponent

@@ -13,11 +13,11 @@ export function useHtmlFromJson() {
     const { html } = jsonToHtml(htmlJson as any);
     setHTML(html);
 
-    try {
-      await navigator.clipboard.writeText(html);
-    } catch {
-      setModalMessage?.("Failed to copy");
-    }
+    // try {
+    //   await navigator.clipboard.writeText(html);
+    // } catch {
+    //   setModalMessage?.("Failed to copy");
+    // }
   }, [htmlJson, setModalMessage]);
 
   return { createHtml };

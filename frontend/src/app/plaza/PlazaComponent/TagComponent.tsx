@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-
+import { useStateContext } from "@/providers/StateProvider";
 type ProjectData = {
   _key: string;
   tag: string;
@@ -27,10 +27,21 @@ const TagComponent: React.FC<TagComponentProps> = ({
   setProject,
   node,
   updateNodeByKey,
+  createHtml,
+  createSCSS,
 }) => {
+  const { htmlJson } = useStateContext();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [tagValue, setTagValue] = useState("");
-
+  const [lastUpdate, setLastUpdate] = useState(0);
+  // useEffect(() => {
+  //   if (!htmlJson) return;
+  //   const now = Date.now();
+  //   if (now - lastUpdate < 800) return;
+  //   setLastUpdate(now);
+  //   void createHtml();
+  //   void createSCSS();
+  // }, [htmlJson, createHtml, createSCSS, lastUpdate]);
   // sync on node change
   useEffect(() => {
     setTagValue(node?.tag || "");
@@ -45,7 +56,7 @@ const TagComponent: React.FC<TagComponentProps> = ({
         (prev) =>
           updateNodeByKey(prev, node._key, { tag: tagValue }) as ProjectData,
       );
-    }, 500);
+    }, 200);
 
     return () => clearTimeout(id);
   }, [tagValue, node?._key]);

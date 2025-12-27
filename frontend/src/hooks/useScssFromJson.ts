@@ -18,11 +18,11 @@ export function useScssFromJson() {
 
     setSCSS(res);
 
-    try {
-      await navigator.clipboard.writeText(res);
-    } catch {
-      setModalMessage?.("Failed to copy");
-    }
+    // try {
+    //   await navigator.clipboard.writeText(res);
+    // } catch {
+    //   setModalMessage?.("Failed to copy");
+    // }
   }, [htmlJson, ScssMixVar, setModalMessage, setSCSS]);
 
   return { createSCSS };

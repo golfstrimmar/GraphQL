@@ -134,6 +134,8 @@ export function StateProvider({
   }, [jsonData]);
 
   const resetHtmlJson = () => {
+    setUndoStack([]);
+    setRedoStack([]);
     if (jsonData?.jsonDocumentByName?.content[0]) {
       const initialJson = jsonData.jsonDocumentByName.content[0];
       setHtmlJson(JSON.parse(JSON.stringify(initialJson)));
