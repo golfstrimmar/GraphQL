@@ -15,6 +15,7 @@ import { Loading } from "@/components/Loading/Loading";
 import СhevronRight from "@/components/icons/СhevronRight";
 import PlazaToolbar from "./PlazaToolbar";
 import AdminComponent from "./AdminComponent";
+import ServisButtons from "./ForToolbar/ServisButtons";
 export default function AdminPanel({
   openAdmin,
   setOpenAdmin,
@@ -28,7 +29,7 @@ export default function AdminPanel({
   const {} = useStateContext();
   return (
     <div
-      className={`${openAdmin ? "translate-x-0" : "translate-x-[calc(-100%+20px)]"} left-0 fixed bottom-0  z-5000 grid-cols-[max-content_1fr] w-full h-[max-content] pt-1 grid  gap-2 bg-slate-200 rounded transition-all duration-100 ease-in-out`}
+      className={`${openAdmin ? "translate-x-0" : "translate-x-[calc(-100%+20px)]"} left-0 fixed bottom-0  z-5000  w-full  pt-1  bg-slate-200 rounded transition-all duration-100 ease-in-out`}
     >
       <button
         onClick={() => {
@@ -42,17 +43,31 @@ export default function AdminPanel({
           <СhevronRight />
         </div>
       </button>
-      <div className="bg-navy rounded shadow-xl p-1  border border-slate-200 max-h-[max-content]">
-        <PlazaToolbar
-          previewRef={previewRef}
-          canvasRef={canvasRef}
-          projectsRef={projectsRef}
-          resetAll={resetAll}
-          setEditMode={setEditMode}
-          editMode={editMode}
-        />
+      <div
+        className="bg-navy rounded shadow-xl p-1  border border-slate-200   grid   grid-cols-[max-content_1fr] grid-rows-[max-content_1fr]  gap-2"
+        style={{ gridTemplateAreas: `'a b' 'a c'` }}
+      >
+        <div className="[grid-area:a] h-full border-r-2  border-slate-300 pr-1">
+          <PlazaToolbar
+            previewRef={previewRef}
+            canvasRef={canvasRef}
+            projectsRef={projectsRef}
+            resetAll={resetAll}
+            setEditMode={setEditMode}
+            editMode={editMode}
+          />
+        </div>
+        <div className="[grid-area:b]">
+          <ServisButtons
+            resetAll={resetAll}
+            setEditMode={setEditMode}
+            editMode={editMode}
+          />
+        </div>
+        <div className="[grid-area:c]">
+          <AdminComponent />
+        </div>
       </div>
-      <AdminComponent />
     </div>
   );
 }

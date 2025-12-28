@@ -1,6 +1,8 @@
 "use client";
 import React from "react";
 
+const flexOptions = ["0 0 100%", "0 1 100%", "1 0 100%", "1 1 100%"] as const;
+
 const flexDirectionOptions = [
   "column",
   "column-reverse",
@@ -46,44 +48,44 @@ type PickerProps = {
   toAdd: (v: string) => void;
 };
 
+const commonClass = "px-2 btn btn-empty  text-[12px]";
+
 export default function FlexContainerPicker({ toAdd }: PickerProps) {
   return (
     <div className="flex flex-col gap-3">
+      {/* flex-direction */}
+      <div className="flex flex-wrap gap-2 items-center">
+        <span className="text-xs opacity-70">flex</span>
+        {flexOptions.map((v) => (
+          <button
+            key={v}
+            className={commonClass}
+            onClick={() => toAdd(`flex:${v};`)}
+          >
+            {v}
+          </button>
+        ))}
+      </div>
       {/* flex-direction */}
       <div className="flex flex-wrap gap-2 items-center">
         <span className="text-xs opacity-70">flex-direction</span>
         {flexDirectionOptions.map((v) => (
           <button
             key={v}
-            className="px-2 btn btn-empty"
+            className={commonClass}
             onClick={() => toAdd(`flex-direction:${v};`)}
           >
             {v}
           </button>
         ))}
       </div>
-
-      {/* flex-wrap */}
-      <div className="flex flex-wrap gap-2 items-center">
-        <span className="text-xs opacity-70">flex-wrap</span>
-        {flexWrapOptions.map((v) => (
-          <button
-            key={v}
-            className="px-2 btn btn-empty"
-            onClick={() => toAdd(`flex-wrap:${v};`)}
-          >
-            {v}
-          </button>
-        ))}
-      </div>
-
       {/* justify-content */}
       <div className="flex flex-wrap gap-2 items-center">
         <span className="text-xs opacity-70">justify-content</span>
         {justifyContentOptions.map((v) => (
           <button
             key={v}
-            className="px-2 btn btn-empty"
+            className={commonClass}
             onClick={() => toAdd(`justify-content:${v};`)}
           >
             {v}
@@ -97,8 +99,22 @@ export default function FlexContainerPicker({ toAdd }: PickerProps) {
         {alignItemsOptions.map((v) => (
           <button
             key={v}
-            className="px-2 btn btn-empty"
+            className={commonClass}
             onClick={() => toAdd(`align-items:${v};`)}
+          >
+            {v}
+          </button>
+        ))}
+      </div>
+
+      {/* flex-wrap */}
+      <div className="flex flex-wrap gap-2 items-center">
+        <span className="text-xs opacity-70">flex-wrap</span>
+        {flexWrapOptions.map((v) => (
+          <button
+            key={v}
+            className={commonClass}
+            onClick={() => toAdd(`flex-wrap:${v};`)}
           >
             {v}
           </button>
@@ -111,7 +127,7 @@ export default function FlexContainerPicker({ toAdd }: PickerProps) {
         {alignContentOptions.map((v) => (
           <button
             key={v}
-            className="px-2 btn btn-empty"
+            className={commonClass}
             onClick={() => toAdd(`align-content:${v};`)}
           >
             {v}
@@ -125,7 +141,7 @@ export default function FlexContainerPicker({ toAdd }: PickerProps) {
         {gapOptions.map((v) => (
           <button
             key={v}
-            className="px-2 btn btn-empty"
+            className={commonClass}
             onClick={() => toAdd(`gap:${v};`)}
           >
             {v}

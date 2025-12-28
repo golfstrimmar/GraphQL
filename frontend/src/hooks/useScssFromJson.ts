@@ -5,8 +5,7 @@ import jsonToHtml from "@/utils/plaza/jsonToHtml";
 import { useStateContext } from "@/providers/StateProvider";
 
 export function useScssFromJson() {
-  const { htmlJson, setModalMessage, setSCSS, ScssMixVar, setScssMixVar } =
-    useStateContext();
+  const { htmlJson, setSCSS, ScssMixVar } = useStateContext();
 
   const createSCSS = useCallback(() => {
     if (!htmlJson) return;
@@ -16,7 +15,7 @@ export function useScssFromJson() {
       .filter((part) => part)
       .join("\n");
     setSCSS(res);
-  }, [htmlJson, ScssMixVar, setModalMessage, setSCSS]);
+  }, [htmlJson, ScssMixVar, setSCSS]);
 
   return { createSCSS };
 }

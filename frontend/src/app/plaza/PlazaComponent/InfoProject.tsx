@@ -95,7 +95,7 @@ const InfoProject: React.FC<InfoProjectProps> = ({
   const infoProject = (node: ProjectData) => {
     if (!node) return;
     const itemClass =
-      "absolute left-[-55px] !font-bold px-2 inline-block z-30 p-1 h-[26px] text-white w-[max-content]";
+      "absolute top-[-30px] !font-bold  inline-flex items-center gap-2 z-30 py-1 min-h-[26px] text-white w-[max-content]";
 
     return (
       <AnimatePresence mode="wait">
@@ -106,19 +106,11 @@ const InfoProject: React.FC<InfoProjectProps> = ({
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: 100, opacity: 0 }}
             transition={{ duration: 0.1, ease: [0.25, 0.8, 0.5, 1] }}
-            className="bg-navy rounded shadow-xl p-1  border border-slate-200  bottom-0 right-0 transform min-w-[calc(100vw-270px)] min-h-[312px] fixed  z-5000"
+            className="bg-navy rounded shadow-xl p-1  border border-slate-200  bottom-0 right-0 transform min-w-[calc(100vw-80px)]  fixed  z-5000"
           >
-            <div className="  flex flex-col relative rounded border-2 border-[var(--teal)] p-1 text-[#000] h-full">
+            <div className="grid grid-cols-[repeat(2_,max-content)_1fr_2fr] relative rounded border-2 border-[var(--teal)] p-1 text-[#000] h-full">
               {/*===============Tag=================  */}
               <TagComponent
-                setProject={setProject}
-                node={node}
-                updateNodeByKey={updateNodeByKey}
-                itemClass={itemClass}
-              />
-              {/*===============Text=================  */}
-              <TextComponent
-                project={project}
                 setProject={setProject}
                 node={node}
                 updateNodeByKey={updateNodeByKey}
@@ -134,6 +126,14 @@ const InfoProject: React.FC<InfoProjectProps> = ({
               />
               {/*===============Style=================  */}
               <StyleComponent
+                project={project}
+                setProject={setProject}
+                node={node}
+                updateNodeByKey={updateNodeByKey}
+                itemClass={itemClass}
+              />
+              {/*===============Text=================  */}
+              <TextComponent
                 project={project}
                 setProject={setProject}
                 node={node}
@@ -253,7 +253,7 @@ const InfoProject: React.FC<InfoProjectProps> = ({
               )}
               <button
                 onClick={() => setOpenInfoKey(null)}
-                className="absolute left-[50%] -top-4 border rounded bg-slate-200 hover:bg-slate-300 transition-all duration-200   btn-teal w-[60px] !p-0.5"
+                className="absolute  -top-4 border rounded bg-slate-200 hover:bg-slate-300 transition-all duration-200   btn-teal w-full !p-0.5"
               >
                 <div className="max-h-6 w-full !py-0.5 flex justify-center border-2 border-[var(--teal)]">
                   <СhevronRight width={16} height={16} />

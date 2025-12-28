@@ -2,7 +2,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import Loading from "@/components/ui/Loading/Loading";
-const MobileAddStyle = dynamic(() => import("../MobileAddStyle"), {
+const MobileAddStyle = dynamic(() => import("../ForStyle/MobileAddStyle"), {
   ssr: false,
   loading: () => <Loading />,
 });
@@ -95,7 +95,7 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
 
   // ================================
   return (
-    <div className="bg-white relative rounded ml-[50px] flex mt-4">
+    <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-10  flex flex-col relative ">
       {openMobile && (
         <MobileAddStyle
           setStyleText={setStyleText}
@@ -106,7 +106,7 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
       <p className={itemClass}>
         <span>Style:</span>
         <button
-          className="btn-teal mt-2"
+          className="btn-teal text-[12px] "
           onClick={() =>
             setOpenMobile(() => {
               return !openMobile;

@@ -1,7 +1,3 @@
-"use client";
-
-import React from "react";
-
 const EditModeIcon: React.FC<React.SVGProps<SVGSVGElement>> = () => (
   <svg
     fill="currentColor"

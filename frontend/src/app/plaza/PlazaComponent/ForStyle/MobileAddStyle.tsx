@@ -9,11 +9,11 @@ import React, {
 import { useStateContext } from "@/providers/StateProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import NormalizeSCSS from "./NormalizeSCSS";
-import ColorPicker from "./ForStyle/ColorPicker";
-import DisplayPicker from "./ForStyle/DisplayPicker";
-import FlexContainerPicker from "./ForStyle/FlexContainerPicker";
-import GridContainerPicker from "./ForStyle/GridContainerPicker";
+import NormalizeSCSS from "../NormalizeSCSS";
+import ColorPicker from "./ColorPicker";
+import DisplayPicker from "./DisplayPicker";
+import FlexContainerPicker from "./FlexContainerPicker";
+import GridContainerPicker from "./GridContainerPicker";
 
 export default function MobileAddStyle({
   setStyleText,
@@ -93,7 +93,7 @@ export default function MobileAddStyle({
   };
   // --------------
   const ItemClass =
-    "flex items-center gap-2 bg-[var(--lightest-slate)] rounded-2xl shadow-xl p-2 border border-slate-200"; // --------------
+    "grid grid-cols-[100px_1fr] gap-2 bg-[var(--lightest-slate)] rounded-2xl shadow-xl p-2 border border-slate-200"; // --------------
 
   // --------------
   return (
@@ -191,26 +191,37 @@ export default function MobileAddStyle({
             </div>
 
             <div className="flex flex-col gap-2 mt-6">
-              {/*========background-color===========*/}
-              <div className={ItemClass}>
-                <span className="flex-[0_1_150px]">background-color: </span>
-                <ColorPicker toAdd={toAdd} />
-              </div>
               {/*========display===========*/}
               <div className={ItemClass}>
-                <span className="flex-[0_1_150px]"> display: </span>
+                <span className="text-[var(--navy)] font-bold text-[14px]">
+                  {" "}
+                  display:{" "}
+                </span>
                 <DisplayPicker toAdd={toAdd} />
               </div>
 
               {/*========Flex===========*/}
               <div className={ItemClass}>
-                <span className="flex-[0_1_150px]"> Flex </span>
+                <span className="text-[var(--navy)] font-bold text-[14px]">
+                  {" "}
+                  Flex{" "}
+                </span>
                 <FlexContainerPicker toAdd={toAdd} />
               </div>
               {/*=======Grid===========*/}
               <div className={ItemClass}>
-                <span className="flex-[0_1_150px]"> Grid </span>
+                <span className="text-[var(--navy)] font-bold text-[14px]">
+                  {" "}
+                  Grid{" "}
+                </span>
                 <GridContainerPicker toAdd={toAdd} />
+              </div>
+              {/*========background-color===========*/}
+              <div className={ItemClass}>
+                <span className="text-[var(--navy)] font-bold text-[14px]">
+                  background-color:{" "}
+                </span>
+                <ColorPicker toAdd={toAdd} />
               </div>
             </div>
           </div>

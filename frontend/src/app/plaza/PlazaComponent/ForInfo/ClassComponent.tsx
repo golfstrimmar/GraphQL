@@ -88,7 +88,7 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
 
   // ================================
   return (
-    <div className="bg-white relative rounded ml-[50px] flex mt-4">
+    <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-10  flex flex-col relative   ">
       <p className={itemClass}>Class:</p>
       <input
         ref={(el) => {
@@ -100,7 +100,7 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
         onChange={(e) => {
           setClassText(e.target.value);
         }}
-        className="textarea-styles"
+        className="textarea-styles "
       />
     </div>
   );

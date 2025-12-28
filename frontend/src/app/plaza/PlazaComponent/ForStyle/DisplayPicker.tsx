@@ -30,7 +30,7 @@ export default function DisplayPicker({
       {displayOptions.map((d: DisplayValue) => (
         <button
           key={d}
-          className="px-2 btn btn-empty"
+          className="px-2 btn btn-empty text-[12px]"
           onClick={() => {
             toAdd("display:" + d + ";");
           }}

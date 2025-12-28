@@ -51,7 +51,7 @@ const TagComponent: React.FC<TagComponentProps> = ({
   }, [tagValue, node?._key]);
 
   return (
-    <div className="bg-white relative rounded ml-[50px]  mt-4">
+    <div className="bg-white flex flex-col relative rounded max-h-[min-content] mt-10">
       <p className={itemClass}>Tag:</p>
       <input
         ref={inputRef}

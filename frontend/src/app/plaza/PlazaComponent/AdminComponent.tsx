@@ -93,7 +93,7 @@ const AdminComponent = () => {
       {tags.map((el, i) => (
         <button
           key={i}
-          className="btn px-1.5! border-1 border-[#aaa] text-black"
+          className="btn px-1.5! border-1 border-[#aaa] text-black text-[12px]"
           style={{ background: el.color }}
           type="button"
           onClick={() => handleLoad(el.tag)}

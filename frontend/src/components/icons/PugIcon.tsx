@@ -1,7 +1,3 @@
-"use client";
-
-import React from "react";
-
 const ClearIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
     fill="currentColor"

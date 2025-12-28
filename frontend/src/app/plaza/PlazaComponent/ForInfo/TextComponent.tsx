@@ -68,7 +68,7 @@ const TextComponent: React.FC<TextComponentProps> = ({
   }, [textValue, node?._key]);
 
   return (
-    <div className="bg-white relative rounded ml-[50px] flex mt-4">
+    <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-10  flex flex-col relative ">
       {modalTextsOpen && (
         <ModalTexts
           node={node}
@@ -79,9 +79,9 @@ const TextComponent: React.FC<TextComponentProps> = ({
         />
       )}
 
-      {texts && texts.length > 0 && setModalTextsOpen && (
-        <p className={itemClass}>
-          <span>Text:</span>
+      <p className={itemClass}>
+        <span>Text:</span>
+        {texts && texts.length > 0 && setModalTextsOpen && (
           <button
             className="btn-teal mt-2 !px-1"
             onClick={() =>
@@ -92,8 +92,9 @@ const TextComponent: React.FC<TextComponentProps> = ({
           >
             Texts
           </button>
-        </p>
-      )}
+        )}
+      </p>
+
       <textarea
         ref={(el) => {
           if (!el) return;

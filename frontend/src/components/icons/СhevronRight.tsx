@@ -1,7 +1,3 @@
-"use client";
-
-import React from "react";
-
 const СhevronRight: React.FC<React.SVGProps<SVGSVGElement>> = ({
   width,
   height,
