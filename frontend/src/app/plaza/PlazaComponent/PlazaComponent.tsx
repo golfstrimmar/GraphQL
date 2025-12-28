@@ -424,7 +424,7 @@ export default function PlazaComponent() {
         {user && (
           <div
             ref={projectsRef}
-            className="bg-navy rounded-2xl shadow-xl p-2 mt-2 mb-8 border border-slate-200"
+            className="bg-navy rounded-2xl shadow-xl p-2 mt-2 mb-8 border border-slate-200 transition-all duration-200"
           >
             <div className="flex items-center gap-3 mb-6">
               <div className="flex items-center gap-3">

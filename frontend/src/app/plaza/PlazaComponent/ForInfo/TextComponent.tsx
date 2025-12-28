@@ -83,7 +83,7 @@ const TextComponent: React.FC<TextComponentProps> = ({
         <span>Text:</span>
         {texts && texts.length > 0 && setModalTextsOpen && (
           <button
-            className="btn-teal mt-2 !px-1"
+            className="btn-teal  text-[12px]"
             onClick={() =>
               setModalTextsOpen(() => {
                 return !modalTextsOpen;

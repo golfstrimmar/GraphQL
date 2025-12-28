@@ -5,6 +5,8 @@ import { useMutation } from "@apollo/client";
 import { CREATE_PROJECT } from "@/apollo/mutations";
 import { GET_ALL_PROJECTS_BY_USER } from "@/apollo/queries";
 import Input from "@/components/ui/Input/Input";
+import CreateIcon from "@/components/icons/CreateIcon";
+import { motion, AnimatePresence } from "framer-motion";
 
 type HtmlNode = {
   tag: string;
@@ -62,29 +64,49 @@ const CreateNewProject = ({ ScssMixVar }) => {
       console.error(error);
     }
   };
-
+  const [openCreate, setOpenCreate] = useState<boolean>(false);
   return (
     <div className="createnewproject">
       <hr className="bordered-2 border-slate-200 mt-2 mb-4" />
-      <h6 className="font-semibold text-slate-700 mb-3">
-        Create a new Ulon project
-      </h6>
-      <div className="grid grid-cols-[1fr_max-content] gap-2 w-full mt-4">
-        <Input
-          typeInput="text"
-          data="Project name"
-          value={newProjectName}
-          onChange={(e) => setNewProjectName(e.target.value)}
-        />
+
+      <div className=" ">
         <button
-          type="button"
-          className=" px-5 py-2 bg-blue-500 text-white text-sm font-medium rounded hover:bg-blue-600 transition-colors shadow-sm disabled:opacity-50"
-          onClick={createNewProject}
-          disabled={createLoading}
+          onClick={() => setOpenCreate(!openCreate)}
+          className=" h-6 flex items-center gap-2 btn btn-primary"
         >
-          {createLoading ? "Creating..." : "Create Project"}
+          <span className="text-white mr-2">
+            <CreateIcon />
+          </span>
+
+          <h6 className="font-bold text-slate-800">Create new project</h6>
         </button>
       </div>
+      <AnimatePresence>
+        {openCreate && (
+          <motion.div
+            initial={{ height: 0, opacity: 0, y: -10 }}
+            animate={{ height: "auto", opacity: 1, y: 0 }}
+            exit={{ height: 0, opacity: 0, y: -10 }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            className="grid grid-cols-[1fr_max-content] gap-2 w-full mt-4"
+          >
+            <Input
+              typeInput="text"
+              data="Project name"
+              value={newProjectName}
+              onChange={(e) => setNewProjectName(e.target.value)}
+            />
+            <button
+              type="button"
+              className="btn  btn-primary  disabled:opacity-50"
+              onClick={createNewProject}
+              disabled={createLoading}
+            >
+              {createLoading ? "Creating..." : "Create Project"}
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

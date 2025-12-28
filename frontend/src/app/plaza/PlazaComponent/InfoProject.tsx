@@ -262,10 +262,10 @@ const InfoProject: React.FC<InfoProjectProps> = ({
               )}
               <button
                 onClick={() => setOpenInfoKey(null)}
-                className="absolute  -top-4 border rounded bg-slate-200 hover:bg-slate-300 transition-all duration-200   btn-teal w-full !p-0.5"
+                className="absolute  -top-3 border   bg-slate-200 hover:bg-slate-300 transition-all duration-200   btn-teal w-[90%] left-[50%] translate-x-[-50%] !p-0.5"
               >
-                <div className="max-h-6 w-full !py-0.5 flex justify-center border-2 border-[var(--teal)]">
-                  <СhevronRight width={16} height={16} />
+                <div className="w-full h-4  center border-2 border-[var(--teal)] rounded bg-[var(--teal-light)]">
+                  <СhevronRight width={10} height={10} />
                 </div>
               </button>
             </div>

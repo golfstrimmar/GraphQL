@@ -37,10 +37,12 @@ export default function AdminPanel({
             return !prev;
           });
         }}
-        className={` absolute top-0.5 translateY-[-50%] right-0 bg-[var(--light-navy)] px-1 font-bold border h-full    border-[var(--white)] transition-all duration-300 ease-in-out  hover:bg-[var(--teal)] hover:text-white hover:border-[var(--teal)] `}
+        className={` absolute top-0 text-[#000] right-0 bg-slate-200  hover:bg-slate-300  h-full font-bold transition-all duration-300 ease-in-out btn-teal !p-0.5`}
       >
-        <div className={`${openAdmin ? "rotate-180" : "rotate-0"}   w-3`}>
-          <СhevronRight />
+        <div
+          className={`!px-0.5 center  border-2 border-[var(--teal)] bg-[var(--teal-light)] rounded  h-full w-4`}
+        >
+          <СhevronRight width={16} height={16} />
         </div>
       </button>
       <div
