@@ -21,6 +21,7 @@ import CanvasComponent from "./CanvasComponent";
 import PlazaHeader from "./PlazaHeader";
 import PreviewComponent from "./PreviewComponent";
 import AdminPanel from "./AdminPanel";
+import PrjectsIcon from "@/components/icons/PrjectsIcon";
 import "./plaza.scss";
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 const CreateNewProject = dynamic(() => import("./CreateNewProject"), {
@@ -428,7 +429,9 @@ export default function PlazaComponent() {
             <div className="flex items-center gap-3 mb-6">
               <div className="flex items-center gap-3">
                 <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
-                  <span className=" text-white"> 📋</span>
+                  <span className=" text-white">
+                    <PrjectsIcon />
+                  </span>
                 </div>
                 <h6 className=" font-bold text-slate-800">
                   Your Ulon projects

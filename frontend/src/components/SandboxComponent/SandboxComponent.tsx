@@ -7,7 +7,7 @@ import { useStateContext } from "@/providers/StateProvider";
 import startScssContent from "../SandboxComponent/startScssContent";
 import { formatScss } from "@/utils/sandboxFormatters";
 import formatHtml from "@/utils/formatHtml";
-
+import SundboxIcon from "@/components/icons/SundboxIcon";
 interface SandboxComponentProps {
   heightPreview?: number;
   widthPreview?: number;
@@ -249,27 +249,34 @@ ${html}
   return (
     <div className={isSandbox() ? "sandbox" : ""}>
       <div className={isSandbox() ? "container" : "relative"}>
-        {isSandbox() && (
-          <header className="sandbox__header ">
-            <div className="text-center mb-4 ">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-1">
-                Sandbox Editor
-              </h1>
-              <p className="text-slate-600 text-sm">
-                Build and manage your projects
-              </p>
+        <div className="flex ">
+          {isSandbox() ? (
+            <header className="sandbox__header ">
+              <div className="text-center mb-4 ">
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-1">
+                  Sandbox Editor
+                </h1>
+                <p className="text-slate-600 text-sm">
+                  Build and manage your projects
+                </p>
+              </div>
+            </header>
+          ) : (
+            <div className="absolute top-[-35px] left-2 w-6 h-6 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center  z-50">
+              <span className=" text-white">
+                <SundboxIcon />
+              </span>
             </div>
-          </header>
-        )}
-        <button
-          className="btn btn-primary absolute top-[-35px] left-2"
-          onClick={() => {
-            setopenMonaco(!openMonaco);
-          }}
-        >
-          {openMonaco ? "Close Monaco" : "Open Monaco"}
-        </button>
-
+          )}
+          <button
+            className="btn btn-primary absolute top-[-35px] left-8 z-50"
+            onClick={() => {
+              setopenMonaco(!openMonaco);
+            }}
+          >
+            {openMonaco ? "Close Monaco" : "Open Monaco"}
+          </button>
+        </div>
         <section className="w-full mb-4 bg-navy overflow-hidden">
           <iframe
             ref={iframeRef}

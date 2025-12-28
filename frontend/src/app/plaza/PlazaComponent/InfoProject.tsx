@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import findNodeByKey from "@/utils/plaza/findNodeByKey";
 import { motion, AnimatePresence } from "framer-motion";
 import СhevronRight from "@/components/icons/СhevronRight";
@@ -41,6 +41,7 @@ const InfoProject: React.FC<InfoProjectProps> = ({
   const { createHtml } = useHtmlFromJson();
   const { createSCSS } = useScssFromJson();
   const { htmlJson } = useStateContext();
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
   const [lastUpdate, setLastUpdate] = useState(0);
   useEffect(() => {
@@ -90,7 +91,10 @@ const InfoProject: React.FC<InfoProjectProps> = ({
 
     return { ...nodes };
   };
-
+  const adjustHeight = (el: HTMLTextAreaElement) => {
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  };
   // ================================
   const infoProject = (node: ProjectData) => {
     if (!node) return;
@@ -142,18 +146,23 @@ const InfoProject: React.FC<InfoProjectProps> = ({
               />
               {/*===============================  */}
               {node?.tag === "img" && (
-                <>
-                  <p className="bg-white !font-bold inline-block z-30 py-1 rounded  -mb-3 w-[max-content]">
-                    Src:
+                <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-10  flex flex-col relative ">
+                  <p className={itemClass}>
+                    <span>Src:</span>
                   </p>
                   <textarea
                     value={node?.attributes?.src || ""}
+                    ref={(el) => {
+                      if (!el) return;
+                      textareaRef.current = el;
+                      adjustHeight(el);
+                    }}
                     onChange={(e) => {
                       const updatedProject = updateNodeByKey(
                         project,
                         node._key,
                         {
-                          attributes: { src: e.target.value }, // ✅ обновляем только src
+                          attributes: { src: e.target.value },
                         },
                       );
                       setProject(updatedProject as ProjectData);
@@ -161,12 +170,12 @@ const InfoProject: React.FC<InfoProjectProps> = ({
                     className="textarea-styles"
                     placeholder=""
                   />
-                </>
+                </div>
               )}
               {node?.tag === "input" && (
-                <>
-                  <p className="bg-white !font-bold inline-block z-30 py-1 rounded  -mb-3 w-[max-content]">
-                    Id:
+                <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-10  flex flex-col relative ">
+                  <p className={itemClass}>
+                    <span>Id:</span>
                   </p>
                   <textarea
                     value={node?.attributes?.id || ""}
@@ -183,12 +192,12 @@ const InfoProject: React.FC<InfoProjectProps> = ({
                     className="textarea-styles"
                     placeholder=""
                   />
-                </>
+                </div>
               )}
               {node?.tag === "label" && (
-                <>
-                  <p className="bg-white !font-bold inline-block z-30 py-1 rounded  -mb-3 w-[max-content]">
-                    For:
+                <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-10  flex flex-col relative ">
+                  <p className={itemClass}>
+                    <span>For:</span>
                   </p>
                   <textarea
                     value={node?.attributes?.for || ""}
@@ -205,12 +214,12 @@ const InfoProject: React.FC<InfoProjectProps> = ({
                     className="textarea-styles"
                     placeholder=""
                   />
-                </>
+                </div>
               )}{" "}
               {node?.tag === "a" && (
-                <>
-                  <p className="bg-white !font-bold inline-block z-30 py-1 rounded  -mb-3 w-[max-content]">
-                    Href:
+                <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-10  flex flex-col relative ">
+                  <p className={itemClass}>
+                    <span>Href:</span>
                   </p>
                   <textarea
                     value={node?.attributes?.href || ""}
@@ -227,12 +236,12 @@ const InfoProject: React.FC<InfoProjectProps> = ({
                     className="textarea-styles"
                     placeholder=""
                   />
-                </>
+                </div>
               )}{" "}
               {node?.tag === "a" && (
-                <>
-                  <p className="bg-white !font-bold inline-block z-30 py-1 rounded  -mb-3 w-[max-content]">
-                    Rel:
+                <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-10  flex flex-col relative ">
+                  <p className={itemClass}>
+                    <span>Rel:</span>
                   </p>
                   <textarea
                     value={node?.attributes?.rel || ""}
@@ -249,7 +258,7 @@ const InfoProject: React.FC<InfoProjectProps> = ({
                     className="textarea-styles"
                     placeholder=""
                   />
-                </>
+                </div>
               )}
               <button
                 onClick={() => setOpenInfoKey(null)}

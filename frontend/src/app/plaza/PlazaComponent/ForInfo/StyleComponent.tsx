@@ -2,6 +2,8 @@
 import React, { useRef, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import Loading from "@/components/ui/Loading/Loading";
+import cleanConstructorScss from "./cleanConstructorScss";
+
 const MobileAddStyle = dynamic(() => import("../ForStyle/MobileAddStyle"), {
   ssr: false,
   loading: () => <Loading />,
@@ -122,7 +124,7 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
           textareaRef.current = el;
           adjustHeight(el);
         }}
-        value={styleText}
+        value={cleanConstructorScss(styleText)}
         onChange={(e) => {
           setStyleText(e.target.value); // только локальный стейт
           adjustHeight(e.target);
@@ -130,7 +132,7 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
         onInput={(e) => adjustHeight(e.target as HTMLTextAreaElement)}
         style={{}}
         className="textarea-styles"
-        placeholder="background-color: #e2e8f0;\npadding: 40px;"
+        placeholder=""
       />
     </div>
   );

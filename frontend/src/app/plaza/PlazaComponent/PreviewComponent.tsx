@@ -9,7 +9,7 @@ export default function PreviewComponent({ preview, setPreview }) {
   return (
     <div className="relative  mt-18">
       {preview && (
-        <div className="absolute top-[-44px]  z-5000 border border-slate-200 ">
+        <div className="absolute top-[-44px]   z-5 border border-slate-200 ">
           <div className="flex items-center   ml-[200px]">
             <button
               onClick={() => {

@@ -204,8 +204,6 @@ export default function ServisButtons({ resetAll, setEditMode, editMode }) {
         }}
       >
         <Image src="/svg/html.svg" alt="copy" width={16} height={16} />
-
-        {/*<span className="text-sm font-medium">HTML</span>*/}
       </button>
       <button
         className="btn-teal center "
@@ -221,7 +219,6 @@ export default function ServisButtons({ resetAll, setEditMode, editMode }) {
         }}
       >
         <Image src="/svg/scss.svg" alt="copy" width={16} height={16} />
-        {/*<span className="text-sm font-medium">SCSS</span>*/}
       </button>
       <button
         className="btn-teal center"
@@ -229,7 +226,6 @@ export default function ServisButtons({ resetAll, setEditMode, editMode }) {
         onClick={() => createPug()}
       >
         <Image src="/svg/pug.svg" alt="copy" width={16} height={16} />
-        {/*<span className="text-sm font-medium">Pug</span>*/}
       </button>
     </nav>
   );

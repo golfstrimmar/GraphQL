@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Burger from "../ui/Burger/Burger";
 import "./Navigation.scss";
@@ -22,7 +22,7 @@ const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [activeLink, setActiveLink] = useState<string>("");
   // const [logoutUser, { loading }] = useMutation(LOGOUT_USER);
-
+  const stableUser = useMemo(() => user, [user?.id]);
   //------------------
   const pages = [
     { title: "Home", path: "/" },
@@ -105,7 +105,6 @@ const Navbar: React.FC = () => {
                     {pathname === path && (
                       <motion.div
                         className="indicator"
-                        layoutId="indicator"
                         style={{ borderRadius: 32 }}
                       />
                     )}
@@ -133,7 +132,6 @@ const Navbar: React.FC = () => {
                       {pathname === "/register" && (
                         <motion.div
                           className="indicator"
-                          layoutId="indicator"
                           style={{ borderRadius: 32 }}
                         />
                       )}
@@ -157,7 +155,6 @@ const Navbar: React.FC = () => {
                       {pathname === "/login" && (
                         <motion.div
                           className="indicator"
-                          layoutId="indicator"
                           style={{ borderRadius: 32 }}
                         />
                       )}

@@ -33,19 +33,19 @@ const PlazaToolbar: React.FC = ({
           className="btn-teal w-full !text-[12px]"
           onClick={() => scrollToSection(previewRef)}
         >
-          <SundboxIcon /> ⏫
+          ⏫ <SundboxIcon />
         </button>
         <button
           className="btn-teal w-full !text-[12px]"
           onClick={() => scrollToSection(canvasRef)}
         >
-          <WorkerIcon></WorkerIcon> ⏫
+          ⏫ <WorkerIcon></WorkerIcon>
         </button>
         <button
           className="btn-teal w-full !text-[12px]"
           onClick={() => scrollToSection(projectsRef)}
         >
-          <PrjectsIcon /> ⏫
+          ⏫ <PrjectsIcon />
         </button>
       </div>
     </div>

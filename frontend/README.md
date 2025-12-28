@@ -83,3 +83,18 @@ import Update from "@/components/icons/Update";
 <div className={`${loadingUpdateProject ? "animate-spin" : ""} w-4 h-4 overflow-hidden`} >
 <Update />
 </div>
+
+
+--------------------------
+
+InfoProject  панель информации о выбранном узле при фокусе на узле меняем мета данные
+
+AdminPanel общая панель выежает внизу. -->  PlazaToolbar ServisButtons AdminComponent
+
+ServisButtons ряд кнопок вверху AdminComponent
+ниже
+AdminComponent цветные кнопки добавления тэгов
+слева 
+PlazaToolbar три кнопки перехода по странице
+
+StyleComponent --> MobileAddStyle
