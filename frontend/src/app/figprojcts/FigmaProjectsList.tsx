@@ -5,8 +5,8 @@ import { useMutation, useQuery } from "@apollo/client";
 import Link from "next/link";
 import { useStateContext } from "@/providers/StateProvider";
 import Loading from "@/components/ui/Loading/Loading";
-import Button from "@/components/ui/Button/Button";
 import { REMOVE_FIGMA_PROJECT } from "@/apollo/mutations";
+import PageHeader from "@/app/plaza/PlazaComponent/PageHeader";
 import dynamic from "next/dynamic";
 const ModalCreateFigmaProject = dynamic(
   () => import("./ModalCreateFigmaProject"),
@@ -64,14 +64,8 @@ const FigmaProjectsList: React.FC<FigmaProjectsListProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-2 mb-2">
-      {modalOpen && (
-        <ModalCreateFigmaProject
-          modalOpen={modalOpen}
-          setModalOpen={setModalOpen}
-          setAllProjects={setAllProjects}
-        />
-      )}
+    <div className="flex flex-col gap-2 mb-2 w-full mt-[30px] bg-navy rounded-2xl shadow-xl p-2  mb-8 border border-slate-200 ">
+      {PageHeader("projectsIcon", "Your Figma projects")}
       {allProjects.length === 0 && (
         <h5 className="!text-[var(--teal)] text-lg py-4 mb-2 border border-[var(--teal)] text-center rounded">
           No Figma projects found
@@ -79,7 +73,7 @@ const FigmaProjectsList: React.FC<FigmaProjectsListProps> = ({
       )}
       {allProjects.length !== 0 &&
         allProjects.map((project) => (
-          <div key={project.id} className="flex justify-between gap-2 p-1!  ">
+          <div key={project.id} className="flex justify-between gap-2 ">
             <Link
               href={`/figprojcts/${project.id}`}
               className="btn-teal flex-1"
@@ -98,12 +92,18 @@ const FigmaProjectsList: React.FC<FigmaProjectsListProps> = ({
         ))}
       <button
         onClick={() => {
-          setModalOpen(true);
+          setModalOpen(!modalOpen);
         }}
         className="btn btn-empty px-2 my-2 "
       >
-        + Add Project
+        {!modalOpen ? "+ Add Project" : "- Close Modal"}
       </button>
+
+      <ModalCreateFigmaProject
+        modalOpen={modalOpen}
+        setModalOpen={setModalOpen}
+        setAllProjects={setAllProjects}
+      />
     </div>
   );
 };

@@ -4,7 +4,7 @@ const WorkerIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     height="18px"
     width="18px"
     viewBox="0 0 512 512"
-    enable-background="new 0 0 512 512"
+    enableBackground="new 0 0 512 512"
     id="Layer_1"
     version="1.1"
   >

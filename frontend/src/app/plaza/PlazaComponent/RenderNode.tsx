@@ -522,7 +522,7 @@ const createRenderNode = ({
           onClick={handleNodeClick}
         >
           {node.class === "baza"
-            ? "baza"
+            ? "BAZA"
             : editMode
               ? truncateText(node.text)
               : truncateText(node.text)}

@@ -2,7 +2,7 @@
 import React from "react";
 import SundboxIcon from "@/components/icons/SundboxIcon";
 import WorkerIcon from "@/components/icons/WorkerIcon";
-import PrjectsIcon from "@/components/icons/PrjectsIcon";
+import ProjectsIcon from "@/components/icons/ProjectsIcon";
 
 const PlazaToolbar: React.FC = ({
   resetAll,
@@ -33,19 +33,19 @@ const PlazaToolbar: React.FC = ({
           className="btn-teal w-full !text-[12px]"
           onClick={() => scrollToSection(previewRef)}
         >
-          ⏫ <SundboxIcon />
+          <SundboxIcon />
         </button>
         <button
           className="btn-teal w-full !text-[12px]"
           onClick={() => scrollToSection(canvasRef)}
         >
-          ⏫ <WorkerIcon></WorkerIcon>
+          <WorkerIcon></WorkerIcon>
         </button>
         <button
           className="btn-teal w-full !text-[12px]"
           onClick={() => scrollToSection(projectsRef)}
         >
-          ⏫ <PrjectsIcon />
+          <ProjectsIcon />
         </button>
       </div>
     </div>

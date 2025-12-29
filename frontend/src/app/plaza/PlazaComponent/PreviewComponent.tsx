@@ -2,12 +2,14 @@
 import React, { useState } from "react";
 import SandboxСomponent from "@/components/SandboxComponent/SandboxComponent";
 import CustomSlider from "@/components/ui/CustomSlider/CustomSlider";
+import PageHeader from "./PageHeader";
 
 export default function PreviewComponent({ preview, setPreview }) {
   const [previewOpacity, setPreviewOpacity] = useState<number>(0);
   const [imgSize, setImgSize] = useState<{ w: number; h: number } | null>(null);
   return (
-    <div className="relative  mt-18">
+    <div className="bg-navy rounded-2xl shadow-xl p-2  mb-8 border border-slate-200  relative  mt-[25px]">
+      {PageHeader("sandboxIcon", "Sandbox")}
       {preview && (
         <div className="absolute top-[-44px]   z-5 border border-slate-200 ">
           <div className="flex items-center   ml-[200px]">

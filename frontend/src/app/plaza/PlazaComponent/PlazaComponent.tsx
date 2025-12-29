@@ -21,7 +21,8 @@ import CanvasComponent from "./CanvasComponent";
 import PlazaHeader from "./PlazaHeader";
 import PreviewComponent from "./PreviewComponent";
 import AdminPanel from "./AdminPanel";
-import PrjectsIcon from "@/components/icons/PrjectsIcon";
+
+import PageHeader from "./PageHeader";
 import "./plaza.scss";
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 const CreateNewProject = dynamic(() => import("./CreateNewProject"), {
@@ -398,7 +399,10 @@ export default function PlazaComponent() {
       } min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-slate-50 pb-[500px]`}
     >
       <div className={`${isPlaza() ? "container" : ""}`}>
-        <PlazaHeader />
+        <PlazaHeader
+          title={"Plaza Editor"}
+          description={"Build and manage your HTML/CSS projects"}
+        />
         <div ref={previewRef}>
           <PreviewComponent preview={preview} setPreview={setPreview} />
         </div>
@@ -427,20 +431,8 @@ export default function PlazaComponent() {
             ref={projectsRef}
             className="bg-navy rounded-2xl shadow-xl p-2 mt-2 mb-8 border border-slate-200 transition-all duration-200"
           >
-            <div className="flex items-center gap-3 mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
-                  <span className=" text-white">
-                    <PrjectsIcon />
-                  </span>
-                </div>
-                <h6 className=" font-bold text-slate-800">
-                  Your Ulon projects
-                </h6>
-              </div>
-            </div>
-
             {/*=========projects========*/}
+            {PageHeader("projectsIcon", "Your Ulon projects")}
             {loading ? (
               <Loading />
             ) : projects?.length === 0 ? (
