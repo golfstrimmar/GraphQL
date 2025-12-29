@@ -109,7 +109,7 @@ export default function PlazaComponent() {
   } = useQuery(FIND_PROJECT, {
     variables: { id: Number(pId) || null },
     skip: !pId,
-    fetchPolicy: "cache-and-network",
+    fetchPolicy: "cache-first",
     onError: (error) => {
       console.log("<===error.message===>", error.message);
       setModalMessage(`Error loading project: ${error.message}`);
@@ -369,6 +369,7 @@ export default function PlazaComponent() {
         : node.children,
     };
   };
+
   const renderNode = useMemo(
     () =>
       createRenderNode({

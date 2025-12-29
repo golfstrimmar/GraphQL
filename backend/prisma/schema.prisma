@@ -39,6 +39,8 @@ model Project {
   scssMixVar  String?
   createdAt DateTime @default(now())
   owner     User     @relation("UserProjects", fields: [ownerId], references: [id], onDelete: Cascade)
+  @@index([id])
+  @@index([ownerId])
   ownerId   Int
   @@unique([ownerId, name])
 }

@@ -426,17 +426,23 @@ li {
 }
 
 .tag-scale-pulse {
-  animation: tag-scale-pulse 0.9s ease-in-out infinite;
+  animation: tag-scale-pulse 0.5s ease-in-out infinite;
 }
 
 @keyframes tag-scale-pulse {
   0% {
     transform: scale(1);
+    background-color: red;
+    opacity: 0.3;
   }
   50% {
+    opacity: 1;
+    background-color: red;
     transform: scale(1.01); /* чуть увеличился */
   }
   100% {
+    opacity: 0.3;
+    background-color: red;
     transform: scale(1);
   }
 }

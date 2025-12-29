@@ -3,7 +3,8 @@ import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import removeNodeByKey from "@/utils/plaza/removeNodeByKey";
 import findNodeByKey from "@/utils/plaza/findNodeByKey";
-
+import handleDragStart from "./ForRender/handleDragStart";
+import validateHtmlStructure from "./ForRender/validateHtmlStructure";
 const createRenderNode = ({
   project,
   editMode,
@@ -17,10 +18,9 @@ const createRenderNode = ({
   setHtmlJson,
   resetAll,
 }: any) => {
-  // ⚙️♻️⚙️♻️⚙️♻️⚙️♻️⚙️♻️⚙️♻️⚙️♻️⚙️♻️⚙️
-  // ⚙️♻️⚙️♻️⚙️♻️⚙️♻️⚙️♻️⚙️♻️⚙️♻️⚙️♻️⚙️
-  // ⚙️♻️⚙️♻️⚙️♻️⚙️♻️⚙️♻️⚙️♻️⚙️♻️⚙️♻️⚙️
-
+  // =============
+  const dragHandlers = { setNodeToDragEl, setNodeToDrag };
+  // ----------------
   const deepClone = (obj: any) => {
     // Если в среде есть structuredClone, используем её — быстрее и точнее.
     if (typeof structuredClone === "function") return structuredClone(obj);
@@ -120,34 +120,16 @@ const createRenderNode = ({
 
     return node;
   };
-  // ⚙️♻️⚙️♻️⚙️♻️⚙️♻️⚙️♻️⚙️♻️⚙️♻️⚙️♻️⚙️
+  // =============
 
-  const handleDragStart = (e: React.DragEvent<HTMLElement>, node: any) => {
-    if (!editMode) return;
-    e.stopPropagation();
-    const target = e.currentTarget as HTMLElement;
-
-    const dragGhost = target.cloneNode(true) as HTMLElement;
-    dragGhost.style.position = "absolute";
-    dragGhost.style.top = "-9999px";
-    dragGhost.style.backgroundColor = "#4d6a92";
-    dragGhost.style.pointerEvents = "none";
-    document.body.appendChild(dragGhost);
-    e.dataTransfer.setDragImage(dragGhost, 0, 0);
-    setTimeout(() => document.body.removeChild(dragGhost), 0);
-
-    target.style.opacity = "0.3";
-    target.style.transition = "opacity 0.2s ease";
-
-    setNodeToDragEl(target);
-    setNodeToDrag(node);
-  };
+  // =============
   const handleDragOver = (e: React.DragEvent<HTMLElement>, node?: any) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!nodeToDrag && !node) return;
-    console.log("<====node====>", node);
     const el = e.currentTarget as HTMLElement;
+    el.style.opacity = "1";
+    if (!nodeToDrag && !node) return;
+
     let prev = el.previousElementSibling as HTMLElement | null;
     let next = el.nextElementSibling as HTMLElement | null;
 
@@ -158,12 +140,7 @@ const createRenderNode = ({
       next.style.opacity = "1";
       next.style.height = `${el.offsetHeight}px`;
     }
-    if (el.classList.contains("placeholder")) {
-      el.style.background =
-        "repeating-linear-gradient(45deg, black, black 4px, yellow 4px, yellow 8px)";
 
-      el.style.opacity = "1";
-    }
     if (nodeToDrag._key === node._key && prev && next) {
       el.style.background = "rgb(236, 236, 236, 0.3)";
       prev.style.opacity = "0";
@@ -171,6 +148,7 @@ const createRenderNode = ({
     }
   };
 
+  // =============
   const handleDragLeave = (e: React.DragEvent<HTMLElement>) => {
     const el = e.currentTarget as HTMLElement;
     const prev = el.previousElementSibling as HTMLElement | null;
@@ -189,16 +167,23 @@ const createRenderNode = ({
       }
     }, 0);
   };
+
+  // =============
+  const truncateText = (text: string, maxLength: number = 10) =>
+    text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
+  // =============
   const handleDropOnPlaceholder = (
     e: React.DragEvent<HTMLElement>,
     parentKey: string,
     siblingKey: string | null,
     type: "before" | "after",
   ) => {
+    const el = e.currentTarget as HTMLElement;
     e.preventDefault();
     e.stopPropagation();
+
     if (!nodeToDrag) return;
-    const el = e.currentTarget as HTMLElement;
+
     setTimeout(() => {
       el.style.opacity = "0";
     }, 0);
@@ -235,7 +220,10 @@ const createRenderNode = ({
         }
         return node;
       };
-
+      // if (!validateHtmlStructure(insertIntoParent(withoutDragged))) {
+      //   console.warn("Invalid HTML structure! Drop cancelled.");
+      //   return prevProject;
+      // }
       return insertIntoParent(withoutDragged);
     });
 
@@ -246,9 +234,11 @@ const createRenderNode = ({
     setNodeToDrag(null);
   };
 
+  // =============
   const handleDrop = (e: React.DragEvent<HTMLElement>, node: any) => {
     e.preventDefault();
     e.stopPropagation();
+
     if (!nodeToDrag) return;
     const el = e.currentTarget as HTMLElement;
     const prev = el.previousElementSibling as HTMLElement | null;
@@ -279,13 +269,26 @@ const createRenderNode = ({
       return;
     }
 
+    // ДО setProject:
+
     // ✅ Если узел сбрасывают на другой — добавить его в конец
     setProject((prevProject) => {
       if (!prevProject) return prevProject;
+
       const treeCopy = deepClone(prevProject);
       const cleaned = removeNodeByKey(treeCopy, nodeToDrag._key); // удаляем из старого места
       const toInsert = cloneNodeWithNewKeys(nodeToDrag); // создаем копию с новыми ключами
-      return addNodeToTargetByKey(cleaned, node._key, toInsert); // добавляем в конец
+      const res = addNodeToTargetByKey(cleaned, node._key, toInsert);
+      if (!validateHtmlStructure(res)) {
+        console.warn("Invalid HTML structure! Drop cancelled.");
+        el.classList.add("tag-scale-pulse");
+        setTimeout(() => {
+          el.classList.remove("tag-scale-pulse");
+        }, 1000);
+        console.log("<==✅✅✅=el===>", el);
+        return prevProject;
+      }
+      return res;
     });
 
     // Сброс состояния
@@ -295,11 +298,11 @@ const createRenderNode = ({
     }
     setNodeToDrag(null);
   };
+
+  // =============
   const parseInlineStyle = (styleString: string): React.CSSProperties => {
     if (!styleString) return {};
-    // добавляем свойство cursor: pointer
     const finalStyle = styleString + ";cursor: pointer;";
-
     return finalStyle.split(";").reduce((acc, rule) => {
       const [prop, value] = rule.split(":").map((s) => s.trim());
       if (prop && value) {
@@ -310,7 +313,7 @@ const createRenderNode = ({
     }, {} as React.CSSProperties);
   };
 
-  // ⚙️♻️⚙️♻️⚙️♻️⚙️♻️⚙️♻️⚙️♻️⚙️♻️⚙️♻️⚙️
+  // =============
   const renderNode = (node: ProjectData | string): JSX.Element | null => {
     if (!node) return null;
     if (typeof node === "string") {
@@ -348,7 +351,7 @@ const createRenderNode = ({
         }, 300);
       }
     };
-
+    // =============
     const handleSingleClick = () =>
       setOpenInfoKey((prev: any) => (prev === node._key ? null : node._key));
 
@@ -360,11 +363,13 @@ const createRenderNode = ({
       });
       setOpenInfoKey(null);
     };
+    // =============
     const getStyleProperty = (styleString: string, prop: string) => {
       if (!styleString) return "";
       const match = styleString.match(new RegExp(`${prop}\\s*:\\s*([^;]+);?`));
       return match ? match[1].trim() : "";
     };
+    // =============
     const isActive = openInfoKey === node._key;
     // ---------------- VOID ELEMENT ----------------
     if (isVoid) {
@@ -373,7 +378,11 @@ const createRenderNode = ({
           key={node._key}
           {...(node.attributes || {})}
           draggable={editMode}
-          onDragStart={editMode ? (e) => handleDragStart(e, node) : undefined}
+          onDragStart={
+            editMode
+              ? (e) => handleDragStart(e, node, editMode, dragHandlers)
+              : undefined
+          }
           onDragOver={editMode ? (e) => handleDragOver(e, node) : undefined}
           onDragLeave={editMode ? handleDragLeave : undefined}
           onDrop={editMode ? (e) => handleDrop(e, node, true) : undefined}
@@ -412,6 +421,9 @@ const createRenderNode = ({
                       "before",
                     )
                   }
+                  // style={{
+                  //   pointerEvents: "none",
+                  // }}
                 />,
               );
             }
@@ -434,6 +446,9 @@ const createRenderNode = ({
                       "after",
                     )
                   }
+                  // style={{
+                  //   pointerEvents: "none",
+                  // }}
                 />,
               );
             }
@@ -446,13 +461,18 @@ const createRenderNode = ({
         <Tag
           key={`${node._key}-${node.text}`}
           draggable={editMode}
-          onDragStart={editMode ? (e) => handleDragStart(e, node) : undefined}
+          onDragStart={
+            editMode
+              ? (e) => handleDragStart(e, node, editMode, dragHandlers)
+              : undefined
+          }
           onDragOver={editMode ? (e) => handleDragOver(e, node) : undefined}
           onDragLeave={editMode ? handleDragLeave : undefined}
           onDrop={editMode ? (e) => handleDrop(e, node, true) : undefined}
-          className={`${editMode ? "card" : node.class} render-tag relative ${
-            isActive ? "tag-scale-pulse" : ""
-          }`}
+          className={`${editMode ? "card" : node.class} render-tag relative
+
+
+          `}
           id={node.attributes?.id}
           htmlFor={node.attributes?.for}
           href={node.attributes?.href}
@@ -482,25 +502,31 @@ const createRenderNode = ({
             const editorStyle: React.CSSProperties = {
               padding: "0 18px",
               fontSize: "12px",
-
               position: "relative",
               transition: "opacity 0.2s ease, border 0.2s ease",
               overflow: "hidden",
               outline:
                 openInfoKey === node._key
-                  ? "1px solid  var(--blue-900)"
+                  ? "1px solid var(--blue-900)"
                   : "1px solid #aaa",
               background:
                 openInfoKey === node._key
                   ? "var(--blue-700)"
                   : getStyleProperty(node.style, "background"),
+
+              cursor: editMode ? "grab" : "default",
             };
 
             return { ...baseStyle, ...editorStyle };
           })()}
           onClick={handleNodeClick}
         >
-          {node.class === "baza" ? "baza" : editMode ? node.text : node.text}
+          {node.class === "baza"
+            ? "baza"
+            : editMode
+              ? truncateText(node.text)
+              : truncateText(node.text)}
+
           {children}
         </Tag>
       );

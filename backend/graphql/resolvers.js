@@ -35,10 +35,11 @@ export const resolvers = {
         include: { projects: true },
       }),
     findProject: (_, { id }) =>
-      prisma.project.findUnique({
-        where: { id: Number(id) },
-        include: { owner: true },
-      }),
+      prisma.project
+        .findUnique({
+          where: { id: Number(id) },
+        })
+        .then((project) => (project ? { ...project, owner: null } : null)),
     getAllProjectsByUser: (_, { userId }) =>
       prisma.project.findMany({ where: { ownerId: Number(userId) } }),
     jsonDocumentByName: async (_, { name }) => {
