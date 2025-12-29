@@ -66,6 +66,16 @@ export default function MobileAddStyle({
       const base = prev ?? "";
 
       let next = base;
+      if (foo.includes("&:hover")) {
+        if (base.includes(":hover")) return base;
+
+        const lastBraceIndex = base.lastIndexOf("}");
+        const insertPos =
+          lastBraceIndex >= 0 ? lastBraceIndex + 1 : base.length;
+        const next = base.slice(0, insertPos) + foo + "\n";
+        applyValue(next);
+        return next;
+      }
 
       if (foo.includes("background-color:")) {
         if (base.includes("background-color:")) {

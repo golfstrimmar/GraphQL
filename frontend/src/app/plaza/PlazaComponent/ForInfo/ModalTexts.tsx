@@ -17,6 +17,12 @@ type ProjectData = {
   attributes?: Record<string, string>; // ✅ сюда пойдут src, alt и т.п.
   children: ProjectData[] | string;
 };
+
+const defaultTexts = [
+  "Lorem ipsum ",
+  "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+];
+
 const ModalTexts = ({
   project,
   modalTextsOpen,
@@ -111,6 +117,24 @@ const ModalTexts = ({
           >
             <Image src="/svg/cross.svg" alt="close" width={20} height={20} />
           </button>
+          {defaultTexts.map((foo, index) => (
+            <div className="flex gap-4" key={index}>
+              <button
+                className="btn btn-empty text-white  px-2 bg-slate-50"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const updatedProject = updateNodeByKey(project, node._key, {
+                    text: foo,
+                  });
+                  setProject(updatedProject as ProjectData);
+                  setModalTextsOpen(false);
+                }}
+              >
+                {foo}
+              </button>
+            </div>
+          ))}
           {texts.map((foo, index) => (
             <div className="flex gap-4" key={index}>
               <button

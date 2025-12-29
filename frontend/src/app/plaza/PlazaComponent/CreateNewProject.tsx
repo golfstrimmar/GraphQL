@@ -72,13 +72,12 @@ const CreateNewProject = ({ ScssMixVar }) => {
       <div className=" ">
         <button
           onClick={() => setOpenCreate(!openCreate)}
-          className=" h-6 flex items-center gap-2 btn btn-primary"
+          className=" h-6 flex items-center gap-2 btn  btn-primary font-bold text-slate-800"
         >
           <span className="text-white mr-2">
             <CreateIcon />
           </span>
-
-          <h6 className="font-bold text-slate-800">Create new project</h6>
+          {!openCreate ? "Create new project" : "Close modal"}
         </button>
       </div>
       <AnimatePresence>
@@ -98,7 +97,7 @@ const CreateNewProject = ({ ScssMixVar }) => {
             />
             <button
               type="button"
-              className="btn  btn-primary  disabled:opacity-50"
+              className="btn  btn-primary font-bold text-slate-800  disabled:opacity-50"
               onClick={createNewProject}
               disabled={createLoading}
             >

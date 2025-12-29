@@ -81,18 +81,18 @@ const TextComponent: React.FC<TextComponentProps> = ({
 
       <p className={itemClass}>
         <span>Text:</span>
-        {texts && texts.length > 0 && setModalTextsOpen && (
-          <button
-            className="btn-teal  text-[12px]"
-            onClick={() =>
-              setModalTextsOpen(() => {
-                return !modalTextsOpen;
-              })
-            }
-          >
-            Texts
-          </button>
-        )}
+        {/*{texts && texts.length > 0 && setModalTextsOpen && (*/}
+        <button
+          className="btn-teal  text-[12px]"
+          onClick={() =>
+            setModalTextsOpen(() => {
+              return !modalTextsOpen;
+            })
+          }
+        >
+          Texts
+        </button>
+        {/*)}*/}
       </p>
 
       <textarea

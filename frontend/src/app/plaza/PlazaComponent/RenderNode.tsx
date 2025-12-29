@@ -250,6 +250,9 @@ const createRenderNode = ({
         next.style.opacity = "0";
       }, 0);
     }
+
+    console.log("<==✅✅✅=el===>", el);
+
     // ✅ Если узел сбрасывают на самого себя — клонировать рядом
 
     if (nodeToDrag._key === node._key) {
@@ -269,8 +272,6 @@ const createRenderNode = ({
       return;
     }
 
-    // ДО setProject:
-
     // ✅ Если узел сбрасывают на другой — добавить его в конец
     setProject((prevProject) => {
       if (!prevProject) return prevProject;
@@ -285,7 +286,7 @@ const createRenderNode = ({
         setTimeout(() => {
           el.classList.remove("tag-scale-pulse");
         }, 1000);
-        console.log("<==✅✅✅=el===>", el);
+
         return prevProject;
       }
       return res;
@@ -500,7 +501,7 @@ const createRenderNode = ({
             if (!editMode) return baseStyle;
 
             const editorStyle: React.CSSProperties = {
-              padding: "0 18px",
+              padding: "0 10px",
               fontSize: "12px",
               position: "relative",
               transition: "opacity 0.2s ease, border 0.2s ease",
@@ -514,7 +515,7 @@ const createRenderNode = ({
                   ? "var(--blue-700)"
                   : getStyleProperty(node.style, "background"),
 
-              cursor: editMode ? "grab" : "default",
+              // cursor: editMode ? "grab" : "default",
             };
 
             return { ...baseStyle, ...editorStyle };
@@ -522,7 +523,7 @@ const createRenderNode = ({
           onClick={handleNodeClick}
         >
           {node.class === "baza"
-            ? "BAZA"
+            ? "baza"
             : editMode
               ? truncateText(node.text)
               : truncateText(node.text)}

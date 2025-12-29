@@ -17,20 +17,7 @@ const SandboxСomponent: React.FC<SandboxComponentProps> = ({
   heightPreview = 300,
   widthPreview = 0,
 }) => {
-  const {
-    htmlJson,
-    user,
-    setModalMessage,
-    updateHtmlJson,
-    undo,
-    redo,
-    undoStack,
-    redoStack,
-    texts,
-    setTexts,
-    HTML,
-    SCSS,
-  } = useStateContext();
+  const { HTML, SCSS } = useStateContext();
 
   const pathname = usePathname();
   const isSandbox = () => pathname === "/sandbox";
@@ -54,6 +41,7 @@ const SandboxСomponent: React.FC<SandboxComponentProps> = ({
   useEffect(() => {
     console.log("<===HTML===>", HTML);
     if (!HTML) {
+      setPreviewHtml("");
       setHtml("");
       return;
     }
@@ -257,7 +245,7 @@ ${html}
         )}
         <div className="flex relative mt-[50px]">
           <button
-            className="btn btn-primary absolute top-[-30px] left-0 z-50"
+            className="btn  btn-primary font-bold text-slate-800 absolute top-[-30px] left-0 z-50"
             onClick={() => {
               setopenMonaco(!openMonaco);
             }}

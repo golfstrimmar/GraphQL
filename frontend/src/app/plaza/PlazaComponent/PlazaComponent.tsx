@@ -314,7 +314,7 @@ export default function PlazaComponent() {
         next.style.position = "absolute";
         next.style.top = `${tag.offsetTop}px`;
         next.style.left = `auto`;
-        next.style.left = `${tag.offsetLeft + tag.offsetWidth - 15}px`;
+        next.style.left = `${tag.offsetLeft + tag.offsetWidth - 10}px`;
         next.style.zIndex = "100";
         next.style.height = `${tag.offsetHeight}px`;
       }
@@ -409,22 +409,7 @@ export default function PlazaComponent() {
         <div ref={canvasRef}>
           <CanvasComponent project={project} renderNode={renderNode} />
         </div>
-        <AdminPanel
-          openAdmin={openAdmin}
-          setOpenAdmin={setOpenAdmin}
-          resetAll={resetAll}
-          editMode={editMode}
-          setEditMode={setEditMode}
-          previewRef={previewRef}
-          canvasRef={canvasRef}
-          projectsRef={projectsRef}
-        />
-        <InfoProject
-          project={project}
-          setProject={setProject}
-          setOpenInfoKey={setOpenInfoKey}
-          openInfoKey={openInfoKey}
-        />
+
         {/* ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨ */}
         {user && (
           <div
@@ -444,30 +429,25 @@ export default function PlazaComponent() {
               </div>
             ) : (
               <div className=" flex flex-wrap gap-2 mb-6 ">
-                {/*{projectId !== "" && (
+                {projectId !== "" && (
                   <button
-                    className="btn btn-empty mt-2 px-2"
+                    className="btn  btn-primary font-bold text-slate-800 mt-2 px-2"
                     type="button"
                     onClick={() => {
-                      setOpenAdmin(false);
                       setProject(null);
                       setScssMixVar("");
                       setProjectId("");
                       setOpenInfoKey(null);
                       setProjectName("");
                       setpId(null);
-                      setEditMode(false);
                       setNodeToDragEl(null);
                       setNodeToDrag(null);
-                      setModalTextsOpen(false);
-                      setOpenAdmin(false);
+                      resetHtmlJson();
                     }}
                   >
                     Quit active Project
                   </button>
-                )}*/}
-                {/*======= projects =======*/}
-                {/*======= projects =======*/}
+                )}
                 {/*======= projects =======*/}
                 {projects?.map((p) => (
                   <div key={p.id} className={`flex gap-2 w-full `}>
@@ -492,7 +472,7 @@ export default function PlazaComponent() {
                     {projectId && projectId !== "" && projectId === p.id && (
                       <div className="flex items-center gap-3">
                         <button
-                          className="btn btn-primary !py-0"
+                          className="btn  btn-primary font-bold text-slate-800 !py-0"
                           type="button"
                           onClick={() => updateTempProject()}
                         >
@@ -526,6 +506,23 @@ export default function PlazaComponent() {
           </div>
         )}
       </div>
+      {/*---общая панель выежает внизу.*/}
+      <AdminPanel
+        openAdmin={openAdmin}
+        setOpenAdmin={setOpenAdmin}
+        resetAll={resetAll}
+        editMode={editMode}
+        setEditMode={setEditMode}
+        previewRef={previewRef}
+        canvasRef={canvasRef}
+        projectsRef={projectsRef}
+      />
+      <InfoProject
+        project={project}
+        setProject={setProject}
+        setOpenInfoKey={setOpenInfoKey}
+        openInfoKey={openInfoKey}
+      />
     </section>
   );
 }
