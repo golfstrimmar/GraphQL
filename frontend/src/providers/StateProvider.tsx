@@ -147,7 +147,7 @@ export function StateProvider({
   // ------------------------ SYNC HTML JSON ------------------------
   useEffect(() => {
     if (typeof window === "undefined") return;
-    // console.log("<= 🟢 ==htmlJson=  🟢==>", htmlJson);
+    console.log("<= 🟢 ==htmlJson=  🟢==>", htmlJson);
     localStorage.setItem("htmlJson", JSON.stringify(htmlJson));
   }, [htmlJson]);
 

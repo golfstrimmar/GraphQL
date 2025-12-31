@@ -86,6 +86,9 @@
 
 #plaza-render-area {
   position: relative;
+  .card:first-child {
+    margin: 0 0 0 0 !important;
+  }
 }
 
 .layer-3d {

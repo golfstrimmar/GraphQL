@@ -298,7 +298,6 @@ function scssBlocksToString(blocks, indent = "") {
     .replace(/\s*}\s*/g, " } ") // и вокруг }
     .replace(/\s*;\s*/g, ";") // убрать пробелы вокруг ;
     .trim();
-  console.log("<==💥💥💥💥==cleaned==💥💥💥💥==>", cleaned);
   return cleaned;
 }
 // ---------------------
@@ -371,6 +370,7 @@ function removeDuplicateLiBlocks(str) {
   while (true) {
     const next = collapseOnce(str);
     if (next === str) return next;
+    console.log("<==🟢🟢🟢=next===>", next);
     str = next;
   }
 }
@@ -382,8 +382,8 @@ const jsonToHtml = (json) => {
   const nodes = json.children || [];
   const { html, scssBlocks, pug } = renderNodesAndCollectScss(nodes);
   const res = scssBlocksToString(scssBlocks);
-  const scss = removeDuplicateLiBlocks(res);
-  console.log("====💥💥💥FINAL SCSS💥💥💥====", scss);
+  const scss = removeDuplicateLiBlocks(res).replace(/li {/g, "&>li {");
+
   return { html, scss, pug };
 };
 

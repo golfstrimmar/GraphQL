@@ -170,7 +170,7 @@ const InfoProject: React.FC<InfoProjectProps> = ({
             className="bg-navy rounded shadow-xl p-1  border border-slate-200  bottom-0 right-0 transform min-w-[calc(100vw-80px)]  fixed  z-5000"
           >
             <div className="grid grid-cols-[repeat(3_,max-content)_1fr_2fr] relative rounded border-2 border-[var(--teal)] p-1 text-[#000] h-full">
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col mt-4 mr-2 gap-1 max-w-[140px]">
                 <Input
                   typeInput="text"
                   data="Project name"
@@ -178,7 +178,7 @@ const InfoProject: React.FC<InfoProjectProps> = ({
                   onChange={(e) => setNewProjectName(e.target.value)}
                 />
                 <button
-                  className="btn btn-teal"
+                  className="btn btn-teal text-[12px] text-white"
                   onClick={() => saveAsProject(node)}
                 >
                   {createLoading ? "Creating..." : "Save as project"}

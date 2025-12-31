@@ -253,7 +253,17 @@ export default function PlazaComponent() {
     setSCSS("");
     resetHtmlJson();
   };
+  const removeKeys = (node: ProjectNode | string): any => {
+    if (!node) return node;
+    if (typeof node === "string") return node;
 
+    const { _key, children, ...rest } = node; // удаляем _key
+    if (!_key) return;
+    return {
+      ...rest,
+      children: Array.isArray(children) ? children.map(removeKeys) : children,
+    };
+  };
   const buildGoogleFontsImport = () => {
     const uniqueFonts = Array.from(
       new Set(uniqueMixins.map((f) => f.fontFamily)),
@@ -320,17 +330,7 @@ export default function PlazaComponent() {
       }
     });
   };
-  const removeKeys = (node: ProjectNode | string): any => {
-    if (!node) return node;
-    if (typeof node === "string") return node;
 
-    const { _key, children, ...rest } = node; // удаляем _key
-    if (!_key) return;
-    return {
-      ...rest,
-      children: Array.isArray(children) ? children.map(removeKeys) : children,
-    };
-  };
   const updateTempProject = async () => {
     if (!projectId || !project) return;
 
@@ -355,7 +355,7 @@ export default function PlazaComponent() {
     if (!id) return;
     await removeProject({ variables: { projectId: id } });
     resetAll();
-    // setModalMessage("Project removed");
+    setModalMessage("Project removed");
   };
   const addRuntimeKeys = (node: ProjectData | string): ProjectData | string => {
     if (typeof node === "string") {
@@ -485,16 +485,16 @@ export default function PlazaComponent() {
                             Update
                           </span>
                         </button>
-                        <button
-                          className=" btn px-2 btn-allert min-w-[max-content]  gap-2"
-                          type="button"
-                          onClick={() => delProject(projectId)}
-                        >
-                          <span className="text-sm font-medium">Remove</span>
-                        </button>
                       </div>
                     )}
                     {/*=================*/}
+                    <button
+                      className=" btn px-2 btn-allert min-w-[max-content]  gap-2"
+                      type="button"
+                      onClick={() => delProject(p.id)}
+                    >
+                      <span className="text-sm font-medium">Remove</span>
+                    </button>
                   </div>
                 ))}
 

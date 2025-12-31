@@ -511,9 +511,11 @@ const createRenderNode = ({
                   ? "1px solid var(--blue-900)"
                   : "1px solid #aaa",
               background:
-                openInfoKey === node._key
-                  ? "var(--blue-700)"
-                  : getStyleProperty(node.style, "background"),
+                node.class === "baza"
+                  ? getStyleProperty(node.style, "background")
+                  : openInfoKey === node._key
+                    ? "var(--blue-700)"
+                    : getStyleProperty(node.style, "background"),
 
               // cursor: editMode ? "grab" : "default",
             };
@@ -527,7 +529,7 @@ const createRenderNode = ({
             : editMode
               ? truncateText(node.text)
               : truncateText(node.text)}*/}
-          {node.class === "baza" ? "baza" : editMode ? node.text : node.text}
+          {node.class === "baza" ? "BAZA" : node.text}
 
           {children}
         </Tag>
