@@ -105,51 +105,53 @@ const ModalTexts = ({
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.8, opacity: 0 }}
           transition={{ duration: 0.3, ease: [0.25, 0.8, 0.5, 1] }}
-          className=" flex flex-col justify-center items-center  gap-1  fixed top-0 right-0 w-[100vw] h-[100vh] z-5000  bg-slate-900"
+          className="   gap-1  fixed top-0 right-0 w-[100vw] h-[100vh] z-5000  p-[50px]  bg-slate-900 overflow-y-scroll"
         >
-          <button
-            className="absolute top-2 right-6"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setModalTextsOpen(false);
-            }}
-          >
-            <Image src="/svg/cross.svg" alt="close" width={20} height={20} />
-          </button>
-          {defaultTexts.map((foo, index) => (
-            <div className="flex gap-4" key={index}>
-              <button
-                className="btn btn-empty text-white  px-2 bg-slate-50"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  const updatedProject = updateNodeByKey(project, node._key, {
-                    text: foo,
-                  });
-                  setProject(updatedProject as ProjectData);
-                  setModalTextsOpen(false);
-                }}
-              >
-                {foo}
-              </button>
-            </div>
-          ))}
-          {texts.map((foo, index) => (
-            <div className="flex gap-4" key={index}>
-              <button
-                className="btn btn-empty text-white  px-2 bg-slate-50"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setTextFigma(foo);
-                }}
-              >
-                {foo.text}
-              </button>
-              <span className="text-white"> @include {foo.mixin}</span>
-            </div>
-          ))}
+          <div className="min-h-100vh flex flex-col justify-center items-center">
+            <button
+              className="absolute top-2 right-6"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setModalTextsOpen(false);
+              }}
+            >
+              <Image src="/svg/cross.svg" alt="close" width={20} height={20} />
+            </button>
+            {defaultTexts.map((foo, index) => (
+              <div className="flex gap-4" key={index}>
+                <button
+                  className="btn btn-empty text-white  px-2 bg-slate-50"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const updatedProject = updateNodeByKey(project, node._key, {
+                      text: foo,
+                    });
+                    setProject(updatedProject as ProjectData);
+                    setModalTextsOpen(false);
+                  }}
+                >
+                  {foo}
+                </button>
+              </div>
+            ))}
+            {texts.map((foo, index) => (
+              <div className="flex gap-4" key={index}>
+                <button
+                  className="btn btn-empty text-white  px-2 bg-slate-50"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setTextFigma(foo);
+                  }}
+                >
+                  {foo.text}
+                </button>
+                <span className="text-white"> @include {foo.mixin}</span>
+              </div>
+            ))}
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

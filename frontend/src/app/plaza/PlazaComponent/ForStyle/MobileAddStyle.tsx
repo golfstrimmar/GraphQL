@@ -17,6 +17,7 @@ import GridContainerPicker from "./GridContainerPicker";
 import CommonPropsPicker from "./CommonPropsPicker";
 import TextPropsPicker from "./TextPropsPicker";
 import PositionPropsPicker from "./PositionPropsPicker";
+import PresetsPicker from "./PresetsPicker";
 
 export default function MobileAddStyle({
   setStyleText,
@@ -204,6 +205,13 @@ export default function MobileAddStyle({
             </div>
 
             <div className="flex flex-col gap-2 mt-6">
+              {/*========Presets===========*/}
+              <div className={ItemClass}>
+                <span className="text-[var(--navy)] font-bold text-[14px]">
+                  Presets
+                </span>
+                <PresetsPicker toAdd={toAdd} />
+              </div>
               {/*========Common===========*/}
               <div className={ItemClass}>
                 <span className="text-[var(--navy)] font-bold text-[14px]">

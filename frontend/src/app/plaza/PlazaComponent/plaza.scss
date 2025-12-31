@@ -40,7 +40,7 @@
 }
 
 .card {
-  min-width: 10px !important;
+  min-width: 30px !important;
   min-height: 10px !important;
   /* max-width: max-content !important; */
   // max-height: 150px !important;
@@ -100,3 +100,17 @@
     box-shadow 0.2s;
   will-change: transform;
 }
+/* display: flex;
+flex-direction: column;
+gap: 16px;
+align-items: center;
+padding: 20px;
+border-radius: 10px;
+cursor: pointer;
+&: hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15);};
+border: 1px solid #7AB764;
+transition: all 0.2s ease-in-out; */
+
+/*
+[{"tag":"section","text":"section","class":"slotes","style":"background: rgb(220, 230, 220); padding: 2px 4px; border: 1px solid #adadad;","children":[{"tag":"div","text":"container","class":"container","style":"background: dodgerblue; padding: 2px 4px; border: 1px solid #adadad; ","children":[{"tag":"div","text":"slotes__wrap","class":"slotes__wrap","style":"background: rgb(226, 232, 240); padding: 2px 4px; border: 1px solid #adadad; ","children":[{"tag":"div","text":"slotes__title title","class":"slotes__title title","style":"background: rgb(226, 232, 240); padding: 2px 4px; border: 1px solid #adadad; ","children":[{"tag":"h2","text":"h2","class":"","style":"background: #f97316; padding: 2px 4px; border: 1px solid #adadad;","children":[]}]},{"tag":"ul","text":"slotes__cards","class":"slotes__cards cards","style":"background: #f97316;\npadding: 2px 4px;\nborder: 1px solid #adadad; \ndisplay: grid; \ngrid-template-columns: repeat(auto-fill, minmax(250px,1fr));","children":[{"tag":"li","text":"li","class":"cards__card card","style":"padding: 2px 4px;border: 1px solid #adadad;display: flex;flex-direction: column;gap: 16px;align-items: center;padding: 20px;border-radius: 10px;cursor: pointer;&:hover{ box-shadow: 0 4px 12px rgba(0,0,0,0.15);};border: 1px solid #7AB764;transition: all 0.2s ease-in-out;","children":[{"tag":"img","text":"","class":"","style":"max-width: 20px;max-height: 20px;","children":[],"attributes":{"alt":"placeholder image","src":"https://res.cloudinary.com/dke0nudcz/image/upload/v1753720705/link-svgrepo-com_fk1scy.svg"}},{"tag":"h3","text":"Lorem ipsum","class":"card__title","style":"background: #f59e0b; padding: 2px 4px; border: 1px solid #adadad;","children":[]},{"tag":"p","text":"Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.","class":"","style":"background: #22c55e; padding: 2px 4px; border: 1px solid #adadad;","children":[]},{"tag":"button","text":"button","class":"card__button","style":"background: #06b6d4; padding: 2px 4px; border: 1px solid #adadad;","children":[]}]}]}]}]}]}]
+*/

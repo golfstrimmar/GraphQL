@@ -38,11 +38,11 @@ export default function cleanConstructorScss(scss: string): string {
       .replace(/\.imgs\s*\{[^}]*img\s*\{\s*[^}]*\}[^}]*\}/g, "")
 
       // 4. Форматирование (экспорт)
-      .replace(/\s*\n\s*/g, " ")
-      .replace(/\s{2,}/g, " ")
-      .replace(/\s*{\s*/g, " { ")
-      .replace(/\s*}\s*/g, " } ")
-      .replace(/\s*;\s*/g, ";")
+      // .replace(/\s*\n\s*/g, " ")
+      // .replace(/\s{2,}/g, " ")
+      // .replace(/\s*{\s*/g, " { ")
+      // .replace(/\s*}\s*/g, " } ")
+      // .replace(/\s*;\s*/g, ";")
       .trim()
   );
 }

@@ -1,5 +1,3 @@
-import { experimental_taintObjectReference } from "react";
-
 const selfClosingTags = new Set([
   "area",
   "base",

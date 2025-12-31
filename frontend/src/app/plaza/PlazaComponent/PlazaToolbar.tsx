@@ -22,7 +22,7 @@ const PlazaToolbar: React.FC = ({
 
     window.scrollTo({
       top,
-      behavior: "smooth",
+      behavior: "auto",
     });
   };
 

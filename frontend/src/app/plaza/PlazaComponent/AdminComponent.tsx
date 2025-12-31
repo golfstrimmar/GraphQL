@@ -57,9 +57,9 @@ const TagsNamen4 = [
   { tag: "ul flex col", color: "powderblue" }, // teal
 ];
 const TagsNamen5 = [
-  { tag: "hero", color: "powderblue" }, // teal
-  { tag: "cards section", color: "powderblue" }, // teal
-  { tag: "sec", color: "powderblue" }, // teal
+  { tag: "SECTION", color: "powderblue" },
+  { tag: "HERO", color: "powderblue" },
+  { tag: "CARDS", color: "powderblue" },
 ];
 // =====================================
 
@@ -82,8 +82,8 @@ const AdminComponent = () => {
     updateHtmlJson((prev) => ({
       ...prev,
       children: [
-        ...(prev?.children ?? []),
         ...(Array.isArray(content) ? content : [content]),
+        ...(prev?.children ?? []),
       ],
     }));
   };

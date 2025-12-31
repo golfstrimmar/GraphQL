@@ -9,7 +9,6 @@ export function useHtmlFromJson() {
 
   const createHtml = useCallback(() => {
     if (!htmlJson) return;
-
     const { html } = jsonToHtml(htmlJson as any);
     setHTML(html);
   }, [htmlJson]);

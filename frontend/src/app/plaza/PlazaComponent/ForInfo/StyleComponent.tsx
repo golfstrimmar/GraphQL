@@ -126,11 +126,10 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
         }}
         value={cleanConstructorScss(styleText)}
         onChange={(e) => {
-          setStyleText(e.target.value); // только локальный стейт
+          setStyleText(e.target.value);
           adjustHeight(e.target);
         }}
         onInput={(e) => adjustHeight(e.target as HTMLTextAreaElement)}
-        style={{}}
         className="textarea-styles"
         placeholder=""
       />

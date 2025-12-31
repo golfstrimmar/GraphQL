@@ -34,7 +34,7 @@ export default function TextPropsPicker({
       {textProps.map((prop: TextPropValue) => (
         <button
           key={prop}
-          className="px-2 py-1 btn btn-empty text-[11px] max-w-[140px] truncate"
+          className="px-2 py-1 btn btn-empty text-[12px] max-w-[140px] truncate"
           onClick={() => toAdd(prop)}
           title={prop}
         >

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import findNodeByKey from "@/utils/plaza/findNodeByKey";
 import { motion, AnimatePresence } from "framer-motion";
 import СhevronRight from "@/components/icons/СhevronRight";
@@ -10,6 +10,10 @@ import TagComponent from "./ForInfo/TagComponent";
 import { useHtmlFromJson } from "@/hooks/useHtmlFromJson";
 import { useScssFromJson } from "@/hooks/useScssFromJson";
 import { useStateContext } from "@/providers/StateProvider";
+import { useMutation } from "@apollo/client";
+import { CREATE_PROJECT } from "@/apollo/mutations";
+import { GET_ALL_PROJECTS_BY_USER } from "@/apollo/queries";
+import Input from "@/components/ui/Input/Input";
 
 type ProjectData = {
   tag: string;
@@ -40,18 +44,31 @@ const InfoProject: React.FC<InfoProjectProps> = ({
 }) => {
   const { createHtml } = useHtmlFromJson();
   const { createSCSS } = useScssFromJson();
-  const { htmlJson } = useStateContext();
+  const { htmlJson, setModalMessage, user } = useStateContext();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const lastUpdateRef = useRef(0);
+  const [newProjectName, setNewProjectName] = useState<string>("");
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
-  const [lastUpdate, setLastUpdate] = useState(0);
+  const variables = useMemo(() => ({ userId: user?.id }), [user?.id]);
+  const [createProject, { loading: createLoading }] = useMutation(
+    CREATE_PROJECT,
+    {
+      refetchQueries: [{ query: GET_ALL_PROJECTS_BY_USER, variables }],
+      awaitRefetchQueries: true,
+    },
+  );
+
+  // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
   useEffect(() => {
     if (!htmlJson) return;
+
     const now = Date.now();
-    if (now - lastUpdate < 1000) return;
-    setLastUpdate(now);
+    if (now - lastUpdateRef.current < 1000) return;
+    lastUpdateRef.current = now;
+
     void createHtml();
     void createSCSS();
-  }, [htmlJson, createHtml, createSCSS, lastUpdate]);
+  }, [htmlJson, createHtml, createSCSS]);
   // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
   useEffect(() => {
     if (!openInfoKey) return;
@@ -96,6 +113,45 @@ const InfoProject: React.FC<InfoProjectProps> = ({
     el.style.height = `${el.scrollHeight}px`;
   };
   // ================================
+  const createNewProject = async (pro) => {
+    if (!newProjectName || !user) {
+      setModalMessage(" All fields are required.");
+      return;
+    }
+
+    const { _key, ...input } = pro;
+    const inputSave = {
+      tag: "div",
+      text: "",
+      class: "baza",
+      style:
+        "background: #9c9a9a; padding: 2px ; border: 1px solid #adadad;border-radius: 4px; min-height: 20px;",
+      children: [input],
+    };
+    try {
+      await createProject({
+        variables: {
+          ownerId: user.id,
+          name: newProjectName,
+          // data: htmlJson,
+          data: inputSave,
+          scssMixVar: "",
+        },
+      });
+
+      setModalMessage(`Project ${newProjectName} created.`);
+    } catch (error) {
+      setModalMessage("Failed to create project.");
+      console.error(error);
+    }
+  };
+  const saveAsProject = (pro: ProjectData) => {
+    if (!pro) return;
+    console.log("<==!pro!pro!pro!pro!pro===>", pro);
+    createNewProject(pro);
+    return project;
+  };
+  // ================================
   const infoProject = (node: ProjectData) => {
     if (!node) return;
     const itemClass =
@@ -112,7 +168,21 @@ const InfoProject: React.FC<InfoProjectProps> = ({
             transition={{ duration: 0.1, ease: [0.25, 0.8, 0.5, 1] }}
             className="bg-navy rounded shadow-xl p-1  border border-slate-200  bottom-0 right-0 transform min-w-[calc(100vw-80px)]  fixed  z-5000"
           >
-            <div className="grid grid-cols-[repeat(2_,max-content)_1fr_2fr] relative rounded border-2 border-[var(--teal)] p-1 text-[#000] h-full">
+            <div className="grid grid-cols-[repeat(3_,max-content)_1fr_2fr] relative rounded border-2 border-[var(--teal)] p-1 text-[#000] h-full">
+              <div className="flex flex-col gap-1">
+                <Input
+                  typeInput="text"
+                  data="Project name"
+                  value={newProjectName}
+                  onChange={(e) => setNewProjectName(e.target.value)}
+                />
+                <button
+                  className="btn btn-teal"
+                  onClick={() => saveAsProject(node)}
+                >
+                  {createLoading ? "Creating..." : "Save as project"}
+                </button>
+              </div>
               {/*===============Tag=================  */}
               <TagComponent
                 setProject={setProject}

@@ -11,7 +11,7 @@ export default function PreviewComponent({ preview, setPreview }) {
     <div className="bg-navy rounded-2xl shadow-xl p-2  mb-8 border border-slate-200  relative  mt-[25px]">
       {PageHeader("sandboxIcon", "Sandbox")}
       {preview && (
-        <div className="absolute top-[-44px]   z-5 border border-slate-200 ">
+        <div className="absolute top-[40px]   z-5 border border-slate-200 ">
           <div className="flex items-center   ml-[200px]">
             <button
               onClick={() => {

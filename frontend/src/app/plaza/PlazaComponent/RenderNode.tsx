@@ -522,11 +522,12 @@ const createRenderNode = ({
           })()}
           onClick={handleNodeClick}
         >
-          {node.class === "baza"
+          {/*{node.class === "baza"
             ? "baza"
             : editMode
               ? truncateText(node.text)
-              : truncateText(node.text)}
+              : truncateText(node.text)}*/}
+          {node.class === "baza" ? "baza" : editMode ? node.text : node.text}
 
           {children}
         </Tag>
