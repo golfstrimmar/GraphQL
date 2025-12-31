@@ -355,7 +355,7 @@ export default function PlazaComponent() {
     if (!id) return;
     await removeProject({ variables: { projectId: id } });
     resetAll();
-    setModalMessage("Project removed");
+    // setModalMessage("Project removed");
   };
   const addRuntimeKeys = (node: ProjectData | string): ProjectData | string => {
     if (typeof node === "string") {

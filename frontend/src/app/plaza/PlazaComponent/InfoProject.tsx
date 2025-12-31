@@ -139,7 +139,8 @@ const InfoProject: React.FC<InfoProjectProps> = ({
         },
       });
 
-      setModalMessage(`Project ${newProjectName} created.`);
+      // setModalMessage(`Project ${newProjectName} created.`);
+      setNewProjectName("");
     } catch (error) {
       setModalMessage("Failed to create project.");
       console.error(error);

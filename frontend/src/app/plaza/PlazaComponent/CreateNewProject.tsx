@@ -57,7 +57,7 @@ const CreateNewProject = ({ ScssMixVar }) => {
         },
       });
       setOpenCreate(false);
-      setModalMessage(`Project ${newProjectName} created.`);
+      // setModalMessage(`Project ${newProjectName} created.`);
       setNewProjectName("");
     } catch (error) {
       setModalMessage("Failed to create project.");
