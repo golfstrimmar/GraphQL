@@ -281,11 +281,11 @@ export default function PlazaComponent() {
 
     const mixins = uniqueMixins.map((el) => {
       return `@mixin ${el.mixin} {
-  font-family: "${el.fontFamily}", sans-serif;
-  font-weight: ${el.fontWeight};
-  font-size: ${el.fontSize};
-  color: ${el.color};
-}`;
+    font-family: "${el.fontFamily}", sans-serif;
+    font-weight: ${el.fontWeight};
+    font-size: ${el.fontSize};
+    color: ${el.color};
+  }`;
     });
 
     return mixins.join("\n\n");
