@@ -21,8 +21,8 @@ import CanvasComponent from "./CanvasComponent";
 import PlazaHeader from "./PlazaHeader";
 import PreviewComponent from "./PreviewComponent";
 import AdminPanel from "./AdminPanel";
+import ProjectsList from "./ForPlazaComponent/ProjectsList";
 
-import PageHeader from "./PageHeader";
 import "./plaza.scss";
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 const CreateNewProject = dynamic(() => import("./CreateNewProject"), {
@@ -417,7 +417,9 @@ export default function PlazaComponent() {
             className="bg-navy rounded-2xl shadow-xl p-2 mt-2 mb-8 border border-slate-200 transition-all duration-200"
           >
             {/*=========projects========*/}
-            {PageHeader("projectsIcon", "Your Ulon projects")}
+
+            <ProjectsList />
+
             {loading ? (
               <Loading />
             ) : projects?.length === 0 ? (
