@@ -83,7 +83,7 @@ export const typeDefs = gql`
     id: ID!
     name: String!
     data: JSON!
-    scssMixVar: String!
+    scssMixVar: String
     createdAt: String!
     owner: User!
   }

@@ -21,8 +21,7 @@ import CanvasComponent from "./CanvasComponent";
 import PlazaHeader from "./PlazaHeader";
 import PreviewComponent from "./PreviewComponent";
 import AdminPanel from "./AdminPanel";
-import ProjectsList from "./ForPlazaComponent/ProjectsList";
-
+import Bage from "@/components/ui/Bage/Bage";
 import "./plaza.scss";
 // ⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨⇨
 const CreateNewProject = dynamic(() => import("./CreateNewProject"), {
@@ -418,17 +417,10 @@ export default function PlazaComponent() {
           >
             {/*=========projects========*/}
 
-            <ProjectsList />
-
             {loading ? (
               <Loading />
             ) : projects?.length === 0 ? (
-              <div className="text-center py-6">
-                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl">📁</span>
-                </div>
-                <p className="text-slate-600 text-lg mb-6">No projects yet</p>
-              </div>
+              <Bage text="No projects yet" />
             ) : (
               <div className=" flex flex-wrap gap-2 mb-6 ">
                 {projectId !== "" && (

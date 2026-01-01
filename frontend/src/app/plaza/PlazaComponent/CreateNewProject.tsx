@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useStateContext } from "@/providers/StateProvider";
 import { useMutation } from "@apollo/client";
 import { CREATE_PROJECT } from "@/apollo/mutations";
@@ -25,10 +25,12 @@ type FigmaImageInput = {
   type: "RASTER";
   fileKey: string;
 };
-const CreateNewProject = ({ ScssMixVar }) => {
-  const { htmlJson, user, setModalMessage } = useStateContext();
+const CreateNewProject = () => {
+  const { htmlJson, user, setModalMessage, ScssMixVar } = useStateContext();
   const [newProjectName, setNewProjectName] = useState<string>("");
   const variables = useMemo(() => ({ userId: user?.id }), [user?.id]);
+  const projectsRef = useRef<HTMLDivElement | null>(null);
+
   const [createProject, { loading: createLoading }] = useMutation(
     CREATE_PROJECT,
     {
@@ -57,7 +59,7 @@ const CreateNewProject = ({ ScssMixVar }) => {
         },
       });
       setOpenCreate(false);
-      // setModalMessage(`Project ${newProjectName} created.`);
+      setModalMessage(`Project ${newProjectName} created.`);
       setNewProjectName("");
     } catch (error) {
       setModalMessage("Failed to create project.");
@@ -68,44 +70,45 @@ const CreateNewProject = ({ ScssMixVar }) => {
   return (
     <div className="createnewproject">
       <hr className="bordered-2 border-slate-200 mt-2 mb-4" />
-
-      <div className=" ">
-        <button
-          onClick={() => setOpenCreate(!openCreate)}
-          className=" h-6 flex items-center gap-2 btn  btn-primary font-bold text-slate-800"
-        >
-          <span className="text-white mr-2">
-            <CreateIcon />
-          </span>
-          {!openCreate ? "Create new project" : "Close modal"}
-        </button>
-      </div>
-      <AnimatePresence>
-        {openCreate && (
-          <motion.div
-            initial={{ height: 0, opacity: 0, y: -10 }}
-            animate={{ height: "auto", opacity: 1, y: 0 }}
-            exit={{ height: 0, opacity: 0, y: -10 }}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="grid grid-cols-[1fr_max-content] gap-2 w-full mt-4"
+      <div ref={projectsRef} className=" transition-all duration-200">
+        <div className=" ">
+          <button
+            onClick={() => setOpenCreate(!openCreate)}
+            className=" h-6 flex items-center gap-2 btn  btn-primary font-bold text-slate-800"
           >
-            <Input
-              typeInput="text"
-              data="Project name"
-              value={newProjectName}
-              onChange={(e) => setNewProjectName(e.target.value)}
-            />
-            <button
-              type="button"
-              className="btn  btn-primary font-bold text-slate-800  disabled:opacity-50"
-              onClick={createNewProject}
-              disabled={createLoading}
+            <span className="text-white mr-2">
+              <CreateIcon />
+            </span>
+            {!openCreate ? "Create new project" : "Close modal"}
+          </button>
+        </div>
+        <AnimatePresence>
+          {openCreate && (
+            <motion.div
+              initial={{ height: 0, opacity: 0, y: -10 }}
+              animate={{ height: "auto", opacity: 1, y: 0 }}
+              exit={{ height: 0, opacity: 0, y: -10 }}
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+              className="grid grid-cols-[1fr_max-content] gap-2 w-full mt-4"
             >
-              {createLoading ? "Creating..." : "Create Project"}
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              <Input
+                typeInput="text"
+                data="Project name"
+                value={newProjectName}
+                onChange={(e) => setNewProjectName(e.target.value)}
+              />
+              <button
+                type="button"
+                className="btn  btn-primary font-bold text-slate-800  disabled:opacity-50"
+                onClick={createNewProject}
+                disabled={createLoading}
+              >
+                {createLoading ? "Creating..." : "Create Project"}
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 };

@@ -63,6 +63,3 @@ export default function CanvasComponent({ project, renderNode }) {
     </div>
   );
 }
-// [{"tag":"div","text":"flex row","class":"","style":"display: grid;\nbackground: rgb(226, 232, 240);\npadding: 2px 4px;\nborder: 1px solid #adadad;","children":[{"tag":"div","text":"div","class":"","style":"background: rgb(226, 232, 240); padding: 2px 4px; border: 1px solid #adadad; ","children":[]},{"tag":"div","text":"div","class":"","style":"background: rgb(226, 232, 240); padding: 2px 4px; border: 1px solid #adadad; ","children":[]}]}]
-//
-//   [{"tag":"ul","text":"ul","class":"","style":"background: #f97316;\npadding: 2px 4px;\nborder: 1px solid #adadad;","children":[{"tag":"li","text":"li","class":"","style":"background: #eab308; padding: 2px 4px; border: 1px solid #adadad;","children":[]}]}]
