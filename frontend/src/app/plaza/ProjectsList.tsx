@@ -3,7 +3,7 @@ import client from "@/apollo/apolloClient";
 import { GET_ALL_PROJECTS_BY_USER } from "@/apollo/queries";
 import PageHeader from "./PlazaComponent/PageHeader";
 import Project from "./Project";
-import CreateNewProject from "./PlazaComponent/CreateNewProject";
+import CreateNewProject from "./CreateNewProject";
 import Bage from "@/components/ui/Bage/Bage";
 import CanvasComponent from "./CanvasComponent";
 type UserFromCookie = {

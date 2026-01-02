@@ -82,6 +82,8 @@ interface StateContextType {
   ScssMixVar: string;
   setScssMixVar: React.Dispatch<React.SetStateAction<string>>;
   resetHtmlJson: () => void;
+  flagRemProject: boolean;
+  setFlagRemProject: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const StateContext = createContext<StateContextType | null>(null);
@@ -107,6 +109,7 @@ export function StateProvider({
   const [SCSS, setSCSS] = useState<string>("");
   const [preview, setPreview] = useState<Preview | null>(null);
   const [ScssMixVar, setScssMixVar] = useState<string>("");
+  const [flagRemProject, setFlagRemProject] = useState<boolean>(false);
 
   const { data: usersData, subscribeToMore: subscribeToUsers } = useQuery(
     GET_USERS,
@@ -249,6 +252,7 @@ export function StateProvider({
     setUndoStack((stack) => [...stack, JSON.parse(JSON.stringify(htmlJson))]);
     setHtmlJson(next);
   };
+  // --------------------
 
   return (
     <StateContext.Provider
@@ -283,6 +287,8 @@ export function StateProvider({
         isModalOpen: open,
         setIsModalOpen: setOpen,
         resetHtmlJson,
+        flagRemProject,
+        setFlagRemProject,
         showModal: (msg, duration = 2000) => setModalMessage(msg),
       }}
     >

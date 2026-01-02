@@ -5,7 +5,7 @@ import { FIND_PROJECT } from "@/apollo/queries";
 import { useStateContext } from "@/providers/StateProvider";
 
 export default function ButtonRenderProject({ project }) {
-  const { setModalMessage, setHtmlJson } = useStateContext();
+  const { setModalMessage, setHtmlJson, updateHtmlJson } = useStateContext();
   const [
     loadProject,
     { data: dataProject, loading: loadingProject, error: errorProject },
@@ -19,10 +19,12 @@ export default function ButtonRenderProject({ project }) {
       const result = data.findProject.data;
       if (!result) return;
       console.log("<=== result ===>", result);
-      setHtmlJson((prev) => ({
-        ...prev,
-        children: [...(prev.children ?? []), ...result],
-      }));
+      updateHtmlJson((prev) => {
+        return {
+          ...prev,
+          children: [...(prev.children ?? []), ...result],
+        };
+      });
     },
     onError: () => {
       console.log("<=== errorProject ===>", errorProject);

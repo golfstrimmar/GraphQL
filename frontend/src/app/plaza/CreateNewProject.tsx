@@ -39,7 +39,13 @@ const CreateNewProject = () => {
       awaitRefetchQueries: true,
     },
   );
+  let projectData: any[] = [];
 
+  if (Array.isArray(htmlJson)) {
+    projectData = htmlJson;
+  } else if (htmlJson?.children) {
+    projectData = Array.isArray(htmlJson.children) ? htmlJson.children : [];
+  }
   const createNewProject = async () => {
     if (!newProjectName || !user) {
       setModalMessage(" All fields are required.");
@@ -55,7 +61,7 @@ const CreateNewProject = () => {
         variables: {
           ownerId: user.id,
           name: newProjectName,
-          data: htmlJson,
+          data: projectData,
           scssMixVar: ScssMixVar,
         },
       });
