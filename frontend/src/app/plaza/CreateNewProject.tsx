@@ -91,26 +91,28 @@ const CreateNewProject = () => {
   return (
     <div className="createnewproject">
       <hr className="bordered-2 border-slate-200 mt-2 mb-4" />
-      <div ref={projectsRef} className=" transition-all duration-200">
-        <div className=" ">
-          <button
-            onClick={() => setOpenCreate(!openCreate)}
-            className=" h-6 flex items-center gap-2 btn  btn-primary font-bold text-slate-800"
-          >
-            <span className="text-white mr-2">
-              <CreateIcon />
-            </span>
-            {!openCreate ? "Create new project" : "Close modal"}
-          </button>
-        </div>
+      <div
+        ref={projectsRef}
+        className="flex items-center gap-4 min-h-[40px]  transition-all duration-200"
+      >
+        <button
+          onClick={() => setOpenCreate(!openCreate)}
+          className=" h-6 flex items-center gap-2 btn  btn-primary font-bold text-slate-800"
+        >
+          <span className="text-white mr-2">
+            <CreateIcon />
+          </span>
+
+          {!openCreate ? "⇨" : "⇦"}
+        </button>
         <AnimatePresence>
           {openCreate && (
             <motion.div
-              initial={{ height: 0, opacity: 0, y: -10 }}
-              animate={{ height: "auto", opacity: 1, y: 0 }}
-              exit={{ height: 0, opacity: 0, y: -10 }}
+              initial={{ width: 0, opacity: 0, x: 10 }}
+              animate={{ width: "auto", opacity: 1, x: 0 }}
+              exit={{ width: 0, opacity: 0, x: 10 }}
               transition={{ duration: 0.2, ease: "easeInOut" }}
-              className="grid grid-cols-[1fr_max-content] gap-2 w-full mt-4"
+              className="grid grid-cols-[1fr_max-content] gap-2 flex-1"
             >
               <Input
                 typeInput="text"

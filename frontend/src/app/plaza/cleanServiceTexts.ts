@@ -85,7 +85,7 @@ function cleanServiceTexts(htmlJson: any[], updateFn: (next: any[]) => void) {
     ? htmlJson.map(walk)
     : [walk(htmlJson)];
 
-  updateFn(cleaned[0]);
+  updateFn(cleaned);
 }
 
 export default cleanServiceTexts;

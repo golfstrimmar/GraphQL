@@ -172,12 +172,17 @@
   &::placeholder {
     opacity: 0;
   }
+  &:focus,
+  &:hover {
+    border-color: var(--teal) !important;
+  }
+  &:focus-visible {
+    outline: 2px solid var(--teal) !important;
+  }
 }
 .input-field textarea,
 .input-field input {
-  &:focus {
-    border-color: #007bff !important;
-  }
+  &:focus-visible + label,
   &:focus + label,
   &:valid + label,
   &:hover + label {
