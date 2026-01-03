@@ -18,20 +18,15 @@ type HtmlNode = {
   attributes?: Record<string, any>;
 };
 
-type FigmaImageInput = {
-  fileName: string;
-  filePath: string;
-  nodeId: string;
-  imageRef: string;
-  type: "RASTER";
-  fileKey: string;
-};
+type HtmlNodeWithKey = HtmlNode & { _key?: string };
+
 const CreateNewProject = () => {
   const { htmlJson, user, setModalMessage, ScssMixVar } = useStateContext();
   const [newProjectName, setNewProjectName] = useState<string>("");
   const projectsRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
-
+  const [openCreate, setOpenCreate] = useState<boolean>(false);
+  // ------
   const [createProject, { loading: createLoading }] = useMutation(
     CREATE_PROJECT,
     {
@@ -39,29 +34,46 @@ const CreateNewProject = () => {
       awaitRefetchQueries: true,
     },
   );
+  // ------
   let projectData: any[] = [];
-
   if (Array.isArray(htmlJson)) {
     projectData = htmlJson;
-  } else if (htmlJson?.children) {
-    projectData = Array.isArray(htmlJson.children) ? htmlJson.children : [];
   }
+  // ------
+  function stripKeys(
+    tree: HtmlNodeWithKey | HtmlNodeWithKey[],
+  ): HtmlNode | HtmlNode[] {
+    const stripNode = (node: HtmlNodeWithKey): HtmlNode => ({
+      tag: node.tag,
+      class: node.class,
+      text: node.text,
+      style: node.style,
+      attributes: node.attributes,
+      children: node.children ? node.children.map(stripNode) : [],
+    });
+
+    return Array.isArray(tree) ? tree.map(stripNode) : stripNode(tree);
+  }
+  // ------
+
   const createNewProject = async () => {
     if (!newProjectName || !user) {
       setModalMessage(" All fields are required.");
       return;
     }
-    if (!htmlJson || !htmlJson.children || htmlJson.children.length === 0) {
+
+    if (!htmlJson) {
       setModalMessage(" Data fields are required.");
       return;
     }
 
+    const dataWithoutKeys = stripKeys(projectData);
     try {
       await createProject({
         variables: {
           ownerId: user.id,
           name: newProjectName,
-          data: projectData,
+          data: dataWithoutKeys,
           scssMixVar: ScssMixVar,
         },
       });
@@ -74,7 +86,8 @@ const CreateNewProject = () => {
       console.error(error);
     }
   };
-  const [openCreate, setOpenCreate] = useState<boolean>(false);
+  // ------
+
   return (
     <div className="createnewproject">
       <hr className="bordered-2 border-slate-200 mt-2 mb-4" />

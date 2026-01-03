@@ -469,7 +469,7 @@ const createRenderNode = ({
           }
           onDragOver={editMode ? (e) => handleDragOver(e, node) : undefined}
           onDragLeave={editMode ? handleDragLeave : undefined}
-          onDrop={editMode ? (e) => handleDrop(e, node, true) : undefined}
+          onDrop={editMode ? (e) => handleDrop(e, node) : undefined}
           className={`${editMode ? "card" : node.class} render-tag relative
 
 

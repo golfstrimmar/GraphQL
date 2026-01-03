@@ -90,7 +90,12 @@
     margin: 0 0 0 0 !important;
   }
 }
-
+.baza {
+  background: var(--lightest-slate);
+  color: var(--teal);
+  border: 2px solid var(--teal);
+  min-height: 20px;
+}
 .layer-3d {
   /* Имитация 3D слоев через наклон и смещение */
   transform: perspective(600px) rotateX(16deg) translateZ(var(--z, 0px))
@@ -106,7 +111,7 @@
 .renderedNode {
   min-width: 30px !important;
   min-height: 10px !important;
-  background: rgb(236, 236, 236);
+  background: var(--white);
   box-shadow:
     rgba(0, 0, 0, 0.1) 0px 4px 6px,
     rgba(0, 0, 0, 0.1) 0px -4px 6px,
@@ -116,6 +121,9 @@
   padding: 5px;
   color: black;
   cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  transition: all 0.2s ease-in-out;
   img {
     max-height: 50px !important;
   }

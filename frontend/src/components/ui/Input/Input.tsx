@@ -61,7 +61,7 @@ const Input: React.FC<InputProps> = ({
   }, [value, typeInput]);
 
   return (
-    <div className="input-field input-field--ui">
+    <div className="input-field input-field--ui relative">
       {typeInput === "textarea" ? (
         <textarea
           id={id}
@@ -93,11 +93,13 @@ const Input: React.FC<InputProps> = ({
           disabled={disabled}
           className={`${classInput} ${
             activ ? "bg-emerald-400" : ""
-          } cursor-pointer border rounded px-1 border-emerald-900`}
+          }  cursor-pointer border rounded px-1 border-emerald-900`}
           required
         />
       )}
-      <label htmlFor={data}>{data}</label>
+      <label className="relative " htmlFor={data}>
+        {data}
+      </label>
     </div>
   );
 };

@@ -122,29 +122,32 @@ export function StateProvider({
   });
 
   // ------------------------ INIT HTML JSON ------------------------
-  const getInitialHtmlJson = (): HtmlNode[] => {
-    if (typeof window === "undefined") return [];
-    const stored = localStorage.getItem("htmlJson");
-    if (stored && stored !== "[]") return JSON.parse(stored);
-    const initialJson = jsonData?.jsonDocumentByName?.content[0] || [];
-    localStorage.setItem("htmlJson", JSON.stringify(initialJson));
-    return initialJson;
-  };
+  // const getInitialHtmlJson = (): HtmlNode[] => {
+  //   if (typeof window === "undefined") return [];
+  //   const stored = localStorage.getItem("htmlJson");
+  //   if (stored && stored !== "[]") return JSON.parse(stored);
+  //   const initialJson = jsonData?.jsonDocumentByName?.content[0] || [];
+  //   console.log("<= 🟢 ==initialJson=  🟢==>", initialJson);
+  //   localStorage.setItem("htmlJson", JSON.stringify(initialJson));
+  //   return initialJson;
+  // };
 
-  useEffect(() => {
-    if (!jsonData) return;
-    setHtmlJson(getInitialHtmlJson());
-  }, [jsonData]);
+  // useEffect(() => {
+  //   // if (!jsonData) return;
+  //   // const toHtmlJson: HtmlNode = getInitialHtmlJson();
+  //   setHtmlJson([]);
+  // }, [jsonData]);
 
   const resetHtmlJson = () => {
     setUndoStack([]);
     setRedoStack([]);
-    if (jsonData?.jsonDocumentByName?.content[0]) {
-      const initialJson = jsonData.jsonDocumentByName.content[0];
-      setHtmlJson(JSON.parse(JSON.stringify(initialJson)));
-    } else {
-      setHtmlJson([]);
-    }
+    // if (jsonData?.jsonDocumentByName?.content[0]) {
+    //   const initialJson = jsonData.jsonDocumentByName.content[0];
+
+    //   setHtmlJson(JSON.parse(JSON.stringify(initialJson)));
+    // } else {
+    setHtmlJson([]);
+    // }
   };
 
   // ------------------------ SYNC HTML JSON ------------------------

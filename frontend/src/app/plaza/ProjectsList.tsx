@@ -38,9 +38,6 @@ export default async function ProjectsList() {
   });
   const projects = data?.getAllProjectsByUser ?? [];
   // 🔹🔹🔹🔹🔹🔹🔹🔹🔹
-  if (projects?.length === 0) {
-    return <Bage text="No projects yet" />;
-  }
 
   return (
     <>
@@ -52,6 +49,7 @@ export default async function ProjectsList() {
             projects.map((project) => {
               return <Project project={project} key={project.id} />;
             })}
+          {projects?.length === 0 && <Bage text="No projects yet" />}
         </div>
 
         <CreateNewProject />
