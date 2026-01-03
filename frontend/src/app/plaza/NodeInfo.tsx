@@ -10,19 +10,17 @@ import TagComponent from "./ForInfo/TagComponent";
 import { useHtmlFromJson } from "@/hooks/useHtmlFromJson";
 import { useScssFromJson } from "@/hooks/useScssFromJson";
 import { useStateContext } from "@/providers/StateProvider";
-import { useMutation } from "@apollo/client";
-import { CREATE_PROJECT } from "@/apollo/mutations";
-import { GET_ALL_PROJECTS_BY_USER } from "@/apollo/queries";
-import Input from "@/components/ui/Input/Input";
 import CreateIcon from "@/components/icons/CreateIcon";
 import { useRouter } from "next/navigation";
-type ProjectData = {
+
+type HtmlNode = {
   tag: string;
   text: string;
   class: string;
   style: string;
-  attributes?: Record<string, string>; // ✅ сюда пойдут src, alt и т.п.
-  children: ProjectData[] | string;
+  attributes?: Record<string, string>;
+  _key?: string;
+  children: HtmlNode[] | string;
 };
 
 interface InfoProjectProps {
@@ -38,70 +36,38 @@ interface InfoProjectProps {
   setProject: React.Dispatch<React.SetStateAction<ProjectData>>;
 }
 const NodeInfo: React.FC<InfoProjectProps> = ({
-  NodeToSend,
   openInfoModal,
   setOpenInfoModal,
-  setNodeToSend,
-  flagRemProjec,
 }) => {
   const router = useRouter();
-  const { setModalMessage, user, flagReset } = useStateContext();
+  const { activeKey, htmlJson } = useStateContext();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const [newProjectName, setNewProjectName] = useState<string>("");
   const [Open, setOpen] = useState<boolean>(false);
+  const [NodeToSend, setNodeToSend] = useState<HtmlNode | null>(null);
+  // -------------
 
+  // -------------
   useEffect(() => {
-    if (!flagReset) return;
-    setNodeToSend("");
-    setOpenInfoModal(false);
-  }, [flagReset]);
-
-  const [createProject, { loading: createLoading }] = useMutation(
-    CREATE_PROJECT,
-    {
-      refetchQueries: [GET_ALL_PROJECTS_BY_USER],
-      awaitRefetchQueries: true,
-    },
-  );
-  const projectData: ProjectData[] = [NodeToSend];
-  const createNewProject = async () => {
-    if (!newProjectName || !user) {
-      setModalMessage(" All fields are required.");
-      return;
-    }
-    if (!NodeToSend) {
-      setModalMessage(" Data fields are required.");
+    console.log("<==!!!=activeKey===>", activeKey);
+    if (!activeKey) {
+      setNodeToSend("");
+      setOpenInfoModal(false);
       return;
     }
 
-    try {
-      await createProject({
-        variables: {
-          ownerId: user.id,
-          name: newProjectName,
-          data: projectData,
-        },
-      });
-      router.refresh();
-
-      setModalMessage(`Project ${newProjectName} created.`);
-      setNewProjectName("");
-    } catch (error) {
-      setModalMessage("Failed to create project.");
-      console.error(error);
+    const node = findNodeByKey(htmlJson, activeKey);
+    if (node) {
+      setNodeToSend(node);
     }
-  };
-  useEffect(() => {
-    if (!NodeToSend) return;
-    console.log("<===NodeToSend===>", NodeToSend);
-  }, [NodeToSend]);
+  }, [activeKey]);
+  // -------------
 
   const itemStyle =
     "flex flex-col items-start justify-center p-2 m-1 border border-gray-300 rounded bg-gray-100 text-sm";
 
   return (
     <AnimatePresence mode="wait">
-      {openInfoModal && (
+      {activeKey && (
         <motion.div
           key="info-project"
           initial={{ y: 100, opacity: 0 }}
@@ -110,43 +76,7 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
           transition={{ duration: 0.1, ease: [0.25, 0.8, 0.5, 1] }}
           className="bg-navy rounded shadow-xl p-1  border border-slate-200  bottom-0 right-0 transform w-[calc(100vw-20px)]  fixed  z-5000"
         >
-          <div className="grid grid-cols-[repeat(3_,max-content)_1fr_2fr] relative rounded border-2 border-[var(--teal)] p-1 text-[#000] h-full">
-            <div className="flex flex-col gap-1 mt-2">
-              <button
-                onClick={() => setOpen(!Open)}
-                className=" h-6 flex items-center gap-1 btn  btn-primary font-bold text-slate-800"
-              >
-                {!Open ? "⇨" : "⇦"}
-                <span className="text-white ">
-                  <CreateIcon />
-                </span>
-              </button>
-              <AnimatePresence mode="wait">
-                {Open && (
-                  <motion.form
-                    key="info-project"
-                    initial={{ scale: 0.3, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.3, opacity: 0 }}
-                    transition={{ duration: 0.1, ease: [0.25, 0.8, 0.5, 1] }}
-                    className="flex flex-col mt-2  gap-1 max-w-[140px]"
-                  >
-                    <Input
-                      typeInput="text"
-                      data="Project name"
-                      value={newProjectName}
-                      onChange={(e) => setNewProjectName(e.target.value)}
-                    />
-                    <button
-                      className="btn btn-teal text-[12px] text-white"
-                      onClick={() => createNewProject()}
-                    >
-                      {createLoading ? "Creating..." : "Save"}
-                    </button>
-                  </motion.form>
-                )}
-              </AnimatePresence>
-            </div>
+          <div className="grid grid-cols-[repeat(3_,max-content)_1fr] relative rounded border-2 border-[var(--teal)] p-1 text-[#000] h-full">
             {/*<button
               onClick={() => setOpenInfoModal(false)}
               className="absolute  -top-3 border   bg-slate-200 hover:bg-slate-300 transition-all duration-200   btn-teal w-[90%] left-[50%] translate-x-[-50%] !p-0.5"
@@ -159,6 +89,149 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
             <p className={itemStyle}>{NodeToSend?.class}</p>
             <p className={itemStyle}>{NodeToSend?.text}</p>
             <p className={itemStyle}>{NodeToSend?.style}</p>
+            {/*===============Tag=================
+            <TagComponent
+              setProject={setProject}
+              node={node}
+              updateNodeByKey={updateNodeByKey}
+              itemClass={itemClass}
+            />
+            <ClassComponent
+              project={project}
+              setProject={setProject}
+              node={node}
+              updateNodeByKey={updateNodeByKey}
+              itemClass={itemClass}
+            />
+            <StyleComponent
+              project={project}
+              setProject={setProject}
+              node={node}
+              updateNodeByKey={updateNodeByKey}
+              itemClass={itemClass}
+            />
+            <TextComponent
+              project={project}
+              setProject={setProject}
+              node={node}
+              updateNodeByKey={updateNodeByKey}
+              itemClass={itemClass}
+            />
+            {node?.tag === "img" && (
+              <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-10  flex flex-col relative ">
+                <p className={itemClass}>
+                  <span>Src:</span>
+                </p>
+                <textarea
+                  value={node?.attributes?.src || ""}
+                  ref={(el) => {
+                    if (!el) return;
+                    textareaRef.current = el;
+                    adjustHeight(el);
+                  }}
+                  onChange={(e) => {
+                    const updatedProject = updateNodeByKey(
+                      project,
+                      node._key,
+                      {
+                        attributes: { src: e.target.value },
+                      },
+                    );
+                    setProject(updatedProject as ProjectData);
+                  }}
+                  className="textarea-styles"
+                  placeholder=""
+                />
+              </div>
+            )}
+            {node?.tag === "input" && (
+              <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-10  flex flex-col relative ">
+                <p className={itemClass}>
+                  <span>Id:</span>
+                </p>
+                <textarea
+                  value={node?.attributes?.id || ""}
+                  onChange={(e) => {
+                    const updatedProject = updateNodeByKey(
+                      project,
+                      node._key,
+                      {
+                        attributes: { id: e.target.value },
+                      },
+                    );
+                    setProject(updatedProject as ProjectData);
+                  }}
+                  className="textarea-styles"
+                  placeholder=""
+                />
+              </div>
+            )}
+            {node?.tag === "label" && (
+              <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-10  flex flex-col relative ">
+                <p className={itemClass}>
+                  <span>For:</span>
+                </p>
+                <textarea
+                  value={node?.attributes?.for || ""}
+                  onChange={(e) => {
+                    const updatedProject = updateNodeByKey(
+                      project,
+                      node._key,
+                      {
+                        attributes: { for: e.target.value },
+                      },
+                    );
+                    setProject(updatedProject as ProjectData);
+                  }}
+                  className="textarea-styles"
+                  placeholder=""
+                />
+              </div>
+            )}{" "}
+            {node?.tag === "a" && (
+              <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-10  flex flex-col relative ">
+                <p className={itemClass}>
+                  <span>Href:</span>
+                </p>
+                <textarea
+                  value={node?.attributes?.href || ""}
+                  onChange={(e) => {
+                    const updatedProject = updateNodeByKey(
+                      project,
+                      node._key,
+                      {
+                        attributes: { href: e.target.value },
+                      },
+                    );
+                    setProject(updatedProject as ProjectData);
+                  }}
+                  className="textarea-styles"
+                  placeholder=""
+                />
+              </div>
+            )}{" "}
+            {node?.tag === "a" && (
+              <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-10  flex flex-col relative ">
+                <p className={itemClass}>
+                  <span>Rel:</span>
+                </p>
+                <textarea
+                  value={node?.attributes?.rel || ""}
+                  onChange={(e) => {
+                    const updatedProject = updateNodeByKey(
+                      project,
+                      node._key,
+                      {
+                        attributes: { rel: e.target.value },
+                      },
+                    );
+                    setProject(updatedProject as ProjectData);
+                  }}
+                  className="textarea-styles"
+                  placeholder=""
+                />
+              </div>
+              )}*/}
           </div>
         </motion.div>
       )}

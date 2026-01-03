@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PageHeader from "./PlazaComponent/PageHeader";
 import { useStateContext } from "@/providers/StateProvider";
 import ClearIcon from "@/components/icons/ClearIcon";
@@ -31,11 +31,13 @@ type HtmlNode = {
 
 type Tree = HtmlNode | HtmlNode[];
 
+// 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹
+// 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹
 export default function CanvasComponent() {
   const [openInfoModal, setOpenInfoModal] = useState<boolean>(false);
-  const [NodeToSend, setNodeToSend] = useState<string>("");
   const [dragKey, setDragKey] = useState<string | null>(null);
   const [clickTimeout, setClickTimeout] = useState<NodeJS.Timeout | null>(null);
+
   const {
     htmlJson,
     resetHtmlJson,
@@ -44,30 +46,27 @@ export default function CanvasComponent() {
     undoStack,
     redoStack,
     updateHtmlJson,
-    setFlagReset,
+    activeKey,
+    setActiveKey,
   } = useStateContext();
 
   const resetAll = () => {
-    setFlagReset(true);
     resetHtmlJson();
+    setActiveKey(null);
+    setDragKey(null);
   };
 
   // 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹
-  // --------------------
   const handleDrop = (
     e: React.DragEvent<HTMLElement>,
     targetNode: any | null,
   ) => {
     e.preventDefault();
     e.stopPropagation();
-
+    setActiveKey(null);
     const el = e.currentTarget as HTMLElement;
-    setTimeout(() => {
-      if (!el.classList.contains("baza")) {
-        el.style.background = "var(--white)";
-      }
-    }, 0);
-
+    el.style.background = "var(--white)";
+    el.style.opacity = "1";
     const sourceKey = e.dataTransfer.getData("text/plain") || dragKey;
     if (!sourceKey) return;
 
@@ -153,36 +152,30 @@ export default function CanvasComponent() {
       e.stopPropagation();
       if (!node) return;
       const el = e.currentTarget as HTMLElement;
-      if (el.classList.contains("baza")) {
-        el.style.background = "var(--light-slate)";
-      } else {
-        el.style.opacity = "1";
-        el.style.background = "var(--teal-light)";
-      }
+      el.style.background = "var(--teal-navi)";
+      el.style.opacity = "1";
     };
     // -----------
     const handleDragLeave = (e: React.DragEvent<HTMLElement>) => {
       e.preventDefault();
       e.stopPropagation();
       const el = e.currentTarget as HTMLElement;
-      setTimeout(() => {
-        if (!el.classList.contains("baza")) {
-          el.style.background = "var(--white)";
-        }
-      }, 0);
+      el.style.background = "var(--white)";
+      el.style.opacity = "1";
     };
 
     // ------------
     const handleClick = (e: React.MouseEvent<HTMLElement>, node: any) => {
       e.stopPropagation();
+      const el = e.currentTarget as HTMLElement;
       if (clickTimeout) {
         clearTimeout(clickTimeout);
         setClickTimeout(null);
         handleDoubleClick(e, node);
       } else {
         const timeout = setTimeout(() => {
-          setNodeToSend(node);
-          setOpenInfoModal((prev) => !prev);
+          setActiveKey((prev) => (prev === node._key ? null : node._key));
+          setOpenInfoModal(true);
           setClickTimeout(null);
         }, 250);
         setClickTimeout(timeout);
@@ -204,8 +197,8 @@ export default function CanvasComponent() {
         if (!withoutSource) return withoutSource;
         return withoutSource;
       });
-      setFlagReset(true);
     };
+    // --------------------
 
     return (
       <Tag
@@ -218,12 +211,15 @@ export default function CanvasComponent() {
         htmlFor={node.attributes?.for}
         href={node.attributes?.href}
         rel={node.attributes?.rel}
-        className={`renderedNode  ${node.class}`}
-        style={typeof node.style === "string" ? undefined : node.style}
+        className={`renderedNode  ${node.class} `}
+        style={{
+          ...(typeof node.style === "string" ? {} : node.style),
+          ...(activeKey === node._key ? { background: "var(--teal)" } : {}),
+        }}
         onClick={(e) => handleClick(e, node)}
         draggable={true}
       >
-        {/*{node.class === "baza" ? "BAZA" : node.text}*/}
+        {/*{node._key}*/}
         {node.class === "baza" ? "" : node.text}
         {children}
       </Tag>
@@ -297,8 +293,6 @@ export default function CanvasComponent() {
       <NodeInfo
         openInfoModal={openInfoModal}
         setOpenInfoModal={setOpenInfoModal}
-        NodeToSend={NodeToSend}
-        setNodeToSend={setNodeToSend}
       />
     </div>
   );

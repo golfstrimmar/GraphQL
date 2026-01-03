@@ -91,11 +91,12 @@
   }
 }
 .baza {
-  background: var(--lightest-slate);
-  color: var(--teal);
-  border: 2px solid var(--teal);
   min-height: 20px;
   padding: 10px 0;
+  margin: 0 0 0 0;
+  color: var(--teal) !important;
+  background: var(--slate-500) !important;
+  outline: 2px solid var(--slate) !important;
 }
 .layer-3d {
   /* Имитация 3D слоев через наклон и смещение */
@@ -127,11 +128,5 @@
   transition: all 0.2s ease-in-out;
   img {
     max-height: 50px !important;
-  }
-  &.baza {
-    margin: 0 0 0 0;
-    color: var(--teal);
-    background: var(--lightest-slate);
-    border: 2px solid var(--teal);
   }
 }

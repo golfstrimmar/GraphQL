@@ -82,8 +82,8 @@ interface StateContextType {
   ScssMixVar: string;
   setScssMixVar: React.Dispatch<React.SetStateAction<string>>;
   resetHtmlJson: () => void;
-  flagReset: boolean;
-  setFlagReset: React.Dispatch<React.SetStateAction<boolean>>;
+  activeKey: string | null;
+  setActiveKey: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 const StateContext = createContext<StateContextType | null>(null);
@@ -109,8 +109,7 @@ export function StateProvider({
   const [SCSS, setSCSS] = useState<string>("");
   const [preview, setPreview] = useState<Preview | null>(null);
   const [ScssMixVar, setScssMixVar] = useState<string>("");
-  const [flagReset, setFlagReset] = useState<boolean>(false);
-
+  const [activeKey, setActiveKey] = useState<string | null>(null);
   const { data: usersData, subscribeToMore: subscribeToUsers } = useQuery(
     GET_USERS,
     { fetchPolicy: "cache-and-network" },
@@ -127,15 +126,6 @@ export function StateProvider({
     setRedoStack([]);
     setHtmlJson([]);
   };
-
-  // ------------------------ flagRemProject ------------------------
-  useEffect(() => {
-    if (!flagReset) return;
-    const id = setTimeout(() => {
-      setFlagReset(false);
-    }, 200);
-    return () => clearTimeout(id);
-  }, [flagReset]);
 
   // ------------------------ SYNC HTML JSON ------------------------
   useEffect(() => {
@@ -277,8 +267,8 @@ export function StateProvider({
         isModalOpen: open,
         setIsModalOpen: setOpen,
         resetHtmlJson,
-        flagReset,
-        setFlagReset,
+        activeKey,
+        setActiveKey,
         showModal: (msg, duration = 2000) => setModalMessage(msg),
       }}
     >

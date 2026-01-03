@@ -8,27 +8,12 @@ import Input from "@/components/ui/Input/Input";
 import CreateIcon from "@/components/icons/CreateIcon";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-
-type HtmlNode = {
-  tag: string;
-  class?: string;
-  text?: string;
-  style?: string;
-  children?: HtmlNode[];
-  attributes?: Record<string, any>;
-};
-
-type HtmlNodeWithKey = HtmlNode & { _key?: string };
+import { removeKeys } from "./removeKeys";
 
 const CreateNewProject = () => {
-  const {
-    htmlJson,
-    user,
-    setModalMessage,
-    ScssMixVar,
-    setFlagReset,
-    flagReset,
-  } = useStateContext();
+  const { htmlJson, user, setModalMessage, ScssMixVar, activeKey } =
+    useStateContext();
+
   const [newProjectName, setNewProjectName] = useState<string>("");
   const projectsRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
@@ -42,24 +27,41 @@ const CreateNewProject = () => {
     },
   );
   // ------
-  let projectData: any[] = [];
-  if (Array.isArray(htmlJson)) {
-    projectData = htmlJson;
-  }
+  useEffect(() => {
+    if (!activeKey) {
+      setOpenCreate(false);
+      return;
+    }
+    setOpenCreate(true);
+  }, [activeKey]);
   // ------
-  function stripKeys(
-    tree: HtmlNodeWithKey | HtmlNodeWithKey[],
-  ): HtmlNode | HtmlNode[] {
-    const stripNode = (node: HtmlNodeWithKey): HtmlNode => ({
-      tag: node.tag,
-      class: node.class,
-      text: node.text,
-      style: node.style,
-      attributes: node.attributes,
-      children: node.children ? node.children.map(stripNode) : [],
-    });
+  function findNodeByKey(
+    tree: HtmlNode | HtmlNode[] | null,
+    key: string | null,
+  ): HtmlNode | null {
+    if (!tree || !key) return null;
 
-    return Array.isArray(tree) ? tree.map(stripNode) : stripNode(tree);
+    const dfs = (node: HtmlNode): HtmlNode | null => {
+      if (node._key === key) return node;
+
+      if (Array.isArray(node.children)) {
+        for (const child of node.children) {
+          const found = dfs(child);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+
+    if (Array.isArray(tree)) {
+      for (const root of tree) {
+        const found = dfs(root);
+        if (found) return found;
+      }
+      return null;
+    }
+
+    return dfs(tree);
   }
   // ------
 
@@ -74,7 +76,15 @@ const CreateNewProject = () => {
       return;
     }
 
-    const dataWithoutKeys = stripKeys(projectData);
+    let DataProject = [];
+    if (!activeKey) {
+      DataProject = htmlJson;
+    } else {
+      const node = findNodeByKey(htmlJson, activeKey);
+      DataProject = node ? [node] : [];
+    }
+
+    const dataWithoutKeys = removeKeys(DataProject);
     try {
       await createProject({
         variables: {
@@ -84,8 +94,8 @@ const CreateNewProject = () => {
           scssMixVar: ScssMixVar,
         },
       });
+
       router.refresh();
-      setFlagReset(true);
       setOpenCreate(false);
       setModalMessage(`Project ${newProjectName} created.`);
       setNewProjectName("");
