@@ -82,8 +82,8 @@ interface StateContextType {
   ScssMixVar: string;
   setScssMixVar: React.Dispatch<React.SetStateAction<string>>;
   resetHtmlJson: () => void;
-  flagRemProject: boolean;
-  setFlagRemProject: React.Dispatch<React.SetStateAction<boolean>>;
+  flagReset: boolean;
+  setFlagReset: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const StateContext = createContext<StateContextType | null>(null);
@@ -109,7 +109,7 @@ export function StateProvider({
   const [SCSS, setSCSS] = useState<string>("");
   const [preview, setPreview] = useState<Preview | null>(null);
   const [ScssMixVar, setScssMixVar] = useState<string>("");
-  const [flagRemProject, setFlagRemProject] = useState<boolean>(false);
+  const [flagReset, setFlagReset] = useState<boolean>(false);
 
   const { data: usersData, subscribeToMore: subscribeToUsers } = useQuery(
     GET_USERS,
@@ -122,33 +122,20 @@ export function StateProvider({
   });
 
   // ------------------------ INIT HTML JSON ------------------------
-  // const getInitialHtmlJson = (): HtmlNode[] => {
-  //   if (typeof window === "undefined") return [];
-  //   const stored = localStorage.getItem("htmlJson");
-  //   if (stored && stored !== "[]") return JSON.parse(stored);
-  //   const initialJson = jsonData?.jsonDocumentByName?.content[0] || [];
-  //   console.log("<= 🟢 ==initialJson=  🟢==>", initialJson);
-  //   localStorage.setItem("htmlJson", JSON.stringify(initialJson));
-  //   return initialJson;
-  // };
-
-  // useEffect(() => {
-  //   // if (!jsonData) return;
-  //   // const toHtmlJson: HtmlNode = getInitialHtmlJson();
-  //   setHtmlJson([]);
-  // }, [jsonData]);
-
   const resetHtmlJson = () => {
     setUndoStack([]);
     setRedoStack([]);
-    // if (jsonData?.jsonDocumentByName?.content[0]) {
-    //   const initialJson = jsonData.jsonDocumentByName.content[0];
-
-    //   setHtmlJson(JSON.parse(JSON.stringify(initialJson)));
-    // } else {
     setHtmlJson([]);
-    // }
   };
+
+  // ------------------------ flagRemProject ------------------------
+  useEffect(() => {
+    if (!flagReset) return;
+    const id = setTimeout(() => {
+      setFlagReset(false);
+    }, 200);
+    return () => clearTimeout(id);
+  }, [flagReset]);
 
   // ------------------------ SYNC HTML JSON ------------------------
   useEffect(() => {
@@ -290,8 +277,8 @@ export function StateProvider({
         isModalOpen: open,
         setIsModalOpen: setOpen,
         resetHtmlJson,
-        flagRemProject,
-        setFlagRemProject,
+        flagReset,
+        setFlagReset,
         showModal: (msg, duration = 2000) => setModalMessage(msg),
       }}
     >

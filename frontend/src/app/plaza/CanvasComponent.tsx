@@ -35,6 +35,7 @@ export default function CanvasComponent() {
   const [openInfoModal, setOpenInfoModal] = useState<boolean>(false);
   const [NodeToSend, setNodeToSend] = useState<string>("");
   const [dragKey, setDragKey] = useState<string | null>(null);
+  const [clickTimeout, setClickTimeout] = useState<NodeJS.Timeout | null>(null);
   const {
     htmlJson,
     resetHtmlJson,
@@ -43,12 +44,60 @@ export default function CanvasComponent() {
     undoStack,
     redoStack,
     updateHtmlJson,
+    setFlagReset,
   } = useStateContext();
+
   const resetAll = () => {
+    setFlagReset(true);
     resetHtmlJson();
   };
 
   // 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹
+  // --------------------
+  const handleDrop = (
+    e: React.DragEvent<HTMLElement>,
+    targetNode: any | null,
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const el = e.currentTarget as HTMLElement;
+    setTimeout(() => {
+      if (!el.classList.contains("baza")) {
+        el.style.background = "var(--white)";
+      }
+    }, 0);
+
+    const sourceKey = e.dataTransfer.getData("text/plain") || dragKey;
+    if (!sourceKey) return;
+
+    updateHtmlJson((prevTree: any) => {
+      if (!prevTree) return prevTree;
+
+      const { tree: withoutSource, removed } = removeNodeByKey(
+        prevTree,
+        sourceKey,
+      );
+      if (!removed) return prevTree;
+
+      // дроп на baza → кладём в корень
+      if (!targetNode || el.classList.contains("baza")) {
+        const asArray = Array.isArray(withoutSource)
+          ? withoutSource
+          : [withoutSource];
+        return [...asArray, removed];
+      }
+
+      // обычный дроп в узел с ключом
+      if (!targetNode._key) return prevTree;
+
+      return addNodeToTargetByKey(withoutSource, targetNode._key, removed);
+    });
+
+    setDragKey(null);
+  };
+
+  // --------------------
   const renderNode = (node: any) => {
     if (!node) return null;
     if (typeof node === "string") {
@@ -122,44 +171,41 @@ export default function CanvasComponent() {
         }
       }, 0);
     };
-    // --------------------
-    const handleDrop = (e: React.DragEvent<HTMLElement>, targetNode: any) => {
-      e.preventDefault();
+
+    // ------------
+    const handleClick = (e: React.MouseEvent<HTMLElement>, node: any) => {
       e.stopPropagation();
+      if (clickTimeout) {
+        clearTimeout(clickTimeout);
+        setClickTimeout(null);
+        handleDoubleClick(e, node);
+      } else {
+        const timeout = setTimeout(() => {
+          setNodeToSend(node);
+          setOpenInfoModal((prev) => !prev);
+          setClickTimeout(null);
+        }, 250);
+        setClickTimeout(timeout);
+      }
+    };
 
-      const el = e.currentTarget as HTMLElement;
-      setTimeout(() => {
-        if (!el.classList.contains("baza")) {
-          el.style.background = "var(--white)";
-        }
-      }, 0);
+    const handleDoubleClick = (e: React.MouseEvent<HTMLElement>, node) => {
+      e.stopPropagation();
+      if (!node._key) return;
+      const sourceKey = node._key;
+      if (!sourceKey) return;
 
-      const sourceKey = e.dataTransfer.getData("text/plain") || dragKey;
-      if (!sourceKey || !targetNode?._key) return;
       updateHtmlJson((prevTree: any) => {
         if (!prevTree) return prevTree;
-
-        // 1) вырезаем узел
         const { tree: withoutSource, removed } = removeNodeByKey(
           prevTree,
           sourceKey,
         );
-        if (!removed) return prevTree;
-
-        // 2) вставляем в children целевого
-        const newTree = addNodeToTargetByKey(
-          withoutSource,
-          targetNode._key,
-          removed,
-        );
-
-        return newTree;
+        if (!withoutSource) return withoutSource;
+        return withoutSource;
       });
-
-      setDragKey(null);
+      setFlagReset(true);
     };
-
-    // ------------
 
     return (
       <Tag
@@ -174,11 +220,7 @@ export default function CanvasComponent() {
         rel={node.attributes?.rel}
         className={`renderedNode  ${node.class}`}
         style={typeof node.style === "string" ? undefined : node.style}
-        onClick={(e) => {
-          e.stopPropagation();
-          setNodeToSend(node);
-          setOpenInfoModal(!openInfoModal);
-        }}
+        onClick={(e) => handleClick(e, node)}
         draggable={true}
       >
         {/*{node.class === "baza" ? "BAZA" : node.text}*/}
@@ -211,7 +253,7 @@ export default function CanvasComponent() {
               resetAll();
             }}
           >
-            <ClearIcon />
+            <ClearIcon width={10} height={10} />
           </button>
           <button
             className="btn-teal   disabled:opacity-50"
@@ -219,7 +261,7 @@ export default function CanvasComponent() {
             onClick={undo}
             disabled={undoStack.length === 0}
           >
-            <СhevronLeft width={12} height={14} />
+            <СhevronLeft width={10} height={10} />
           </button>
           <button
             className="btn-teal    disabled:opacity-50 "
@@ -227,14 +269,14 @@ export default function CanvasComponent() {
             onClick={redo}
             disabled={redoStack.length === 0}
           >
-            <СhevronRight width={12} height={14} />
+            <СhevronRight width={10} height={10} />
           </button>
           <button
             className="btn-teal  flex items-center  !gap-2 "
             type="button"
             onClick={() => handleClean()}
           >
-            <ClearIcon />
+            <ClearIcon width={10} height={10} />
             <p className="!text-[12px] !lh-0">servises texts</p>
           </button>
         </div>
@@ -243,7 +285,14 @@ export default function CanvasComponent() {
         id="plaza-render-area"
         className="flex flex-col gap-2 mb-2 relative text-[#000] rounded overflow-hidden"
       >
-        <div className="baza">{renderContent}</div>
+        <div
+          className="baza"
+          draggable={true}
+          onDrop={(e) => handleDrop(e, null)}
+          onDragOver={(e) => e.preventDefault()}
+        >
+          {renderContent}
+        </div>
       </div>
       <NodeInfo
         openInfoModal={openInfoModal}

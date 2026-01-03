@@ -21,7 +21,14 @@ type HtmlNode = {
 type HtmlNodeWithKey = HtmlNode & { _key?: string };
 
 const CreateNewProject = () => {
-  const { htmlJson, user, setModalMessage, ScssMixVar } = useStateContext();
+  const {
+    htmlJson,
+    user,
+    setModalMessage,
+    ScssMixVar,
+    setFlagReset,
+    flagReset,
+  } = useStateContext();
   const [newProjectName, setNewProjectName] = useState<string>("");
   const projectsRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
@@ -78,6 +85,7 @@ const CreateNewProject = () => {
         },
       });
       router.refresh();
+      setFlagReset(true);
       setOpenCreate(false);
       setModalMessage(`Project ${newProjectName} created.`);
       setNewProjectName("");

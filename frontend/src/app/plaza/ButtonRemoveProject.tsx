@@ -12,8 +12,7 @@ import { useMutation } from "@apollo/client";
 import { REMOVE_PROJECT } from "@/apollo/mutations";
 import { GET_ALL_PROJECTS_BY_USER } from "@/apollo/queries";
 export default function ButtonRemoveProject({ id }) {
-  const { setModalMessage, flagRemProject, setFlagRemProject } =
-    useStateContext();
+  const { setModalMessage, setFlagReset } = useStateContext();
   const router = useRouter();
 
   const [removeProject] = useMutation(REMOVE_PROJECT, {
@@ -27,7 +26,7 @@ export default function ButtonRemoveProject({ id }) {
     if (data) {
       console.log("<===data removeProject===>", data);
       setModalMessage("Project removed");
-      setFlagRemProject(!flagRemProject);
+      setFlagReset(true);
       router.refresh();
     }
   };

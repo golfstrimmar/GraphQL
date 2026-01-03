@@ -45,16 +45,16 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
   flagRemProjec,
 }) => {
   const router = useRouter();
-  const { setModalMessage, user, flagRemProject } = useStateContext();
+  const { setModalMessage, user, flagReset } = useStateContext();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [newProjectName, setNewProjectName] = useState<string>("");
   const [Open, setOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!flagRemProject) return;
+    if (!flagReset) return;
     setNodeToSend("");
     setOpenInfoModal(false);
-  }, [flagRemProject]);
+  }, [flagReset]);
 
   const [createProject, { loading: createLoading }] = useMutation(
     CREATE_PROJECT,
