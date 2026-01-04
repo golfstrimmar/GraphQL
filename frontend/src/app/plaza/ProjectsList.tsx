@@ -5,7 +5,7 @@ import PageHeader from "./PlazaComponent/PageHeader";
 import Project from "./Project";
 import CreateNewProject from "./CreateNewProject";
 import Bage from "@/components/ui/Bage/Bage";
-import CanvasComponent from "./CanvasComponent";
+
 type UserFromCookie = {
   id: string;
   email: string;
@@ -41,7 +41,6 @@ export default async function ProjectsList() {
 
   return (
     <>
-      <CanvasComponent />
       <div className="bg-navy rounded-2xl shadow-xl p-2   border border-slate-200  relative  mt-[25px]">
         {PageHeader("projectsIcon", "Your Ulon projects")}
         <div className=" flex flex-col flex-wrap gap-2 mb-6 ">

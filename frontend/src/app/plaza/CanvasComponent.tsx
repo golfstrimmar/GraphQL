@@ -1,19 +1,14 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import PageHeader from "./PlazaComponent/PageHeader";
 import { useStateContext } from "@/providers/StateProvider";
-import ClearIcon from "@/components/icons/ClearIcon";
-import EditModeIcon from "@/components/icons/EditModeIcon";
-import СhevronLeft from "@/components/icons/СhevronLeft";
-import СhevronRight from "@/components/icons/СhevronRight";
-import SundboxIcon from "@/components/icons/SundboxIcon";
 import Loading from "@/components/ui/Loading/Loading";
 import voidTags from "./voidTags";
 import dynamic from "next/dynamic";
-import cleanServiceTexts from "./cleanServiceTexts";
 import addNodeToTargetByKey from "./addNodeToTargetByKey";
 import removeNodeByKey from "./removeNodeByKey";
-
+import validateHtmlStructure from "./validateHtmlStructure";
+import duplicateNodeAfter from "./duplicateNodeAfter";
 const NodeInfo = dynamic(() => import("./NodeInfo"), {
   ssr: false,
   loading: () => <Loading />,
@@ -35,26 +30,16 @@ type Tree = HtmlNode | HtmlNode[];
 // 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹
 export default function CanvasComponent() {
   const [openInfoModal, setOpenInfoModal] = useState<boolean>(false);
-  const [dragKey, setDragKey] = useState<string | null>(null);
   const [clickTimeout, setClickTimeout] = useState<NodeJS.Timeout | null>(null);
 
   const {
     htmlJson,
-    resetHtmlJson,
-    undo,
-    redo,
-    undoStack,
-    redoStack,
     updateHtmlJson,
     activeKey,
     setActiveKey,
+    dragKey,
+    setDragKey,
   } = useStateContext();
-
-  const resetAll = () => {
-    resetHtmlJson();
-    setActiveKey(null);
-    setDragKey(null);
-  };
 
   // 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹
   const handleDrop = (
@@ -66,11 +51,15 @@ export default function CanvasComponent() {
     setActiveKey(null);
 
     const el = e.currentTarget as HTMLElement;
+
     el.style.background = "var(--white)";
     el.style.opacity = "1";
     const sourceKey = e.dataTransfer.getData("text/plain") || dragKey;
     if (!sourceKey) return;
-
+    document.querySelectorAll(".renderedNode").forEach((el) => {
+      (el as HTMLElement).style.opacity = "1";
+      (el as HTMLElement).style.transition = "";
+    });
     updateHtmlJson((prevTree: any) => {
       if (!prevTree) return prevTree;
 
@@ -79,7 +68,10 @@ export default function CanvasComponent() {
         sourceKey,
       );
       if (!removed) return prevTree;
-
+      // 🔹 Если дропнули на самого себя → дублируем
+      if (targetNode && targetNode._key === sourceKey) {
+        return duplicateNodeAfter(prevTree, sourceKey);
+      }
       // дроп на baza → кладём в корень
       if (!targetNode || el.classList.contains("baza")) {
         const asArray = Array.isArray(withoutSource)
@@ -90,14 +82,23 @@ export default function CanvasComponent() {
 
       // обычный дроп в узел с ключом
       if (!targetNode._key) return prevTree;
+      const res = addNodeToTargetByKey(withoutSource, targetNode._key, removed);
+      if (!validateHtmlStructure(res)) {
+        console.warn("Invalid HTML structure! Drop cancelled.");
+        el.classList.add("tag-scale-pulse");
+        setTimeout(() => {
+          el.classList.remove("tag-scale-pulse");
+        }, 1000);
 
-      return addNodeToTargetByKey(withoutSource, targetNode._key, removed);
+        return prevTree;
+      }
+      return res;
     });
 
     setDragKey(null);
   };
 
-  // --------------------
+  // 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹
   const renderNode = (node: any) => {
     if (!node) return null;
     if (typeof node === "string") {
@@ -108,15 +109,6 @@ export default function CanvasComponent() {
     if (!Tag) return null;
 
     const isVoid = voidTags.includes(node.tag);
-
-    if (isVoid) {
-      return (
-        <Tag
-          key={node._key ?? crypto.randomUUID()}
-          {...(node.attributes || {})}
-        />
-      );
-    }
 
     const children = Array.isArray(node.children)
       ? node.children.map((child: any, idx: number) => (
@@ -152,6 +144,7 @@ export default function CanvasComponent() {
       e.preventDefault();
       e.stopPropagation();
       if (!node) return;
+      if (node._key === dragKey) return;
       const el = e.currentTarget as HTMLElement;
       el.style.background = "var(--teal-navi)";
       el.style.opacity = "1";
@@ -160,6 +153,7 @@ export default function CanvasComponent() {
     const handleDragLeave = (e: React.DragEvent<HTMLElement>) => {
       e.preventDefault();
       e.stopPropagation();
+      if (node._key === dragKey) return;
       const el = e.currentTarget as HTMLElement;
       el.style.background = "var(--white)";
       el.style.opacity = "1";
@@ -237,7 +231,25 @@ export default function CanvasComponent() {
     };
 
     // --------------------
-    // --------------------
+    if (isVoid) {
+      return (
+        <Tag
+          key={node._key ?? crypto.randomUUID()}
+          {...(node.attributes || {})}
+          onClick={(e) => handleClick(e, node)}
+          onDragStart={(e) => handleDragStart(e, node)}
+          onDragOver={(e) => handleDragOver(e, node)}
+          onDrop={(e) => handleDrop(e, node)}
+          className={`renderedNode  ${node.class} `}
+          style={{
+            ...parseInlineStyle(node.style),
+            pointerEvents: "auto",
+            cursor: "pointer",
+          }}
+        />
+      );
+    }
+
     // --------------------
     return (
       <Tag
@@ -268,51 +280,11 @@ export default function CanvasComponent() {
       ))
     : renderNode(htmlJson);
 
-  const handleClean = () => {
-    cleanServiceTexts(htmlJson, updateHtmlJson);
-  };
   // 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹
   return (
     <div className="bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 relative mt-[25px] ">
       {PageHeader("canvasIcon", "Canvas")}
 
-      {renderContent && (
-        <div className="flex items-center gap-1 mb-1">
-          <button
-            className="btn btn-allert !py-1"
-            type="button"
-            onClick={() => {
-              resetAll();
-            }}
-          >
-            <ClearIcon width={10} height={10} />
-          </button>
-          <button
-            className="btn-teal   disabled:opacity-50"
-            type="button"
-            onClick={undo}
-            disabled={undoStack.length === 0}
-          >
-            <СhevronLeft width={10} height={10} />
-          </button>
-          <button
-            className="btn-teal    disabled:opacity-50 "
-            type="button"
-            onClick={redo}
-            disabled={redoStack.length === 0}
-          >
-            <СhevronRight width={10} height={10} />
-          </button>
-          <button
-            className="btn-teal  flex items-center  !gap-2 "
-            type="button"
-            onClick={() => handleClean()}
-          >
-            <ClearIcon width={10} height={10} />
-            <p className="!text-[12px] !lh-0">servises texts</p>
-          </button>
-        </div>
-      )}
       <div
         id="plaza-render-area"
         className="flex flex-col gap-2 mb-2 relative text-[#000] rounded overflow-hidden"

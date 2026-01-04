@@ -74,14 +74,6 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
   useEffect(() => {
     setStyleText(node?.style ? formatStyleForDisplay(node.style) : "");
   }, [node?._key, node?.style]);
-
-  // const handleStyleChange = (newValue: string) => {
-  //   setStyleText(newValue);
-  //   const id = setTimeout(() => {
-  //     updateNodeByKey(node._key, { style: newValue });
-  //   }, 1000);
-  //   return () => clearTimeout(id);
-  // };
   useEffect(() => {
     if (!node?._key) return;
 

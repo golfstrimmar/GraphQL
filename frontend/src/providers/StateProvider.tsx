@@ -84,6 +84,8 @@ interface StateContextType {
   resetHtmlJson: () => void;
   activeKey: string | null;
   setActiveKey: React.Dispatch<React.SetStateAction<string | null>>;
+  dragKey: string | null;
+  setDragKey: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 const StateContext = createContext<StateContextType | null>(null);
@@ -110,6 +112,7 @@ export function StateProvider({
   const [preview, setPreview] = useState<Preview | null>(null);
   const [ScssMixVar, setScssMixVar] = useState<string>("");
   const [activeKey, setActiveKey] = useState<string | null>(null);
+  const [dragKey, setDragKey] = useState<string | null>(null);
   const { data: usersData, subscribeToMore: subscribeToUsers } = useQuery(
     GET_USERS,
     { fetchPolicy: "cache-and-network" },
@@ -269,6 +272,8 @@ export function StateProvider({
         resetHtmlJson,
         activeKey,
         setActiveKey,
+        dragKey,
+        setDragKey,
         showModal: (msg, duration = 2000) => setModalMessage(msg),
       }}
     >

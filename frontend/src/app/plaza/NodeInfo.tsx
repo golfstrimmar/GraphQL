@@ -78,6 +78,10 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
     });
   };
   // ================================
+  const adjustHeight = (el: HTMLTextAreaElement) => {
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  };
   const itemStyle =
     "flex flex-col items-start justify-center p-2 m-1 border border-gray-300 rounded bg-gray-100 text-sm";
   const itemClass =
@@ -91,21 +95,9 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
           transition={{ duration: 0.1, ease: [0.25, 0.8, 0.5, 1] }}
-          className="bg-navy rounded shadow-xl p-1  border border-slate-200  bottom-0 right-0 transform w-[calc(100vw-20px)]  fixed  z-5000"
+          className="bg-navy rounded shadow-xl p-1  border border-slate-200  bottom-0 left-0 transform w-[calc(100vw-10px)]  fixed  z-5000"
         >
           <div className="grid grid-cols-[repeat(3_,max-content)_1fr] relative rounded border-2 border-[var(--teal)] p-1 text-[#000] h-full">
-            {/*<button
-              onClick={() => setOpenInfoModal(false)}
-              className="absolute  -top-3 border   bg-slate-200 hover:bg-slate-300 transition-all duration-200   btn-teal w-[90%] left-[50%] translate-x-[-50%] !p-0.5"
-            >
-              <div className="w-full h-4  center border-2 border-[var(--teal)] rounded bg-[var(--teal-light)]">
-                <СhevronRight width={10} height={10} />
-              </div>
-            </button>*/}
-            <p className={itemStyle}>{NodeToSend?.tag}</p>
-            <p className={itemStyle}>{NodeToSend?.class}</p>
-            <p className={itemStyle}>{NodeToSend?.text}</p>
-            <p className={itemStyle}>{NodeToSend?.style}</p>
             {/*===============Tag=================*/}
             <TagComponent
               node={NodeToSend}
@@ -130,34 +122,29 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
               itemClass={itemClass}
               updateNodeByKey={updateNodeByKey}
             />
-            {/*  {node?.tag === "img" && (
+            {NodeToSend?.tag === "img" && (
               <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-10  flex flex-col relative ">
                 <p className={itemClass}>
                   <span>Src:</span>
                 </p>
                 <textarea
-                  value={node?.attributes?.src || ""}
+                  value={NodeToSend?.attributes?.src || ""}
                   ref={(el) => {
                     if (!el) return;
                     textareaRef.current = el;
                     adjustHeight(el);
                   }}
                   onChange={(e) => {
-                    const updatedProject = updateNodeByKey(
-                      project,
-                      node._key,
-                      {
-                        attributes: { src: e.target.value },
-                      },
-                    );
-                    setProject(updatedProject as ProjectData);
+                    updateNodeByKey(NodeToSend._key, {
+                      attributes: { src: e.target.value },
+                    });
                   }}
                   className="textarea-styles"
                   placeholder=""
                 />
               </div>
             )}
-            {node?.tag === "input" && (
+            {/* {node?.tag === "input" && (
               <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-10  flex flex-col relative ">
                 <p className={itemClass}>
                   <span>Id:</span>

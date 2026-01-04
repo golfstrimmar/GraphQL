@@ -129,4 +129,29 @@
   img {
     max-height: 50px !important;
   }
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 1;
+}
+
+img.renderedNode {
+  pointer-events: auto !important;
+  cursor: pointer;
+  max-height: 50px !important;
+  max-width: 50px !important;
+}
+.img-container {
+  width: 60px !important;
+  height: 80px !important;
+  .imgs {
+    width: 50px !important;
+    height: 50px !important;
+    top: 100%;
+    left: 50%;
+    transform: translate(-50%, -100%);
+    img {
+      width: 50px !important;
+      height: 50px !important;
+    }
+  }
 }

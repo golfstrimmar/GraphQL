@@ -2,6 +2,7 @@
 import React from "react";
 
 const presetsProps = [
+  " display: flex; flex-direction: row; align-items: center;  gap: 10px;",
   " display: flex; flex-direction: column; align-items: center;  gap: 10px;",
   " display: grid; grid-template-columns: repeat(auto-fill, minmax(250px,1fr)); align-items: center;  gap: 10px;",
   " display: grid; grid-template-columns: repeat(3, 1fr); align-items: center;  gap: 10px;",

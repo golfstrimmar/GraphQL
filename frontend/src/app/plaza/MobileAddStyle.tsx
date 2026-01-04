@@ -119,7 +119,7 @@ export default function MobileAddStyle({
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.1, transition: { duration: 0.2 } }}
           transition={{ duration: 0.2 }}
-          className="modalmessage py-4 fixed inset-0 z-[7000] flex items-center justify-center bg-black/60 backdrop-blur-lg w-[100vw] min-h-[100vh]"
+          className=" py-4 fixed inset-0 z-[7000] flex items-center justify-center bg-black/60 backdrop-blur-lg !left-0  w-[100vw] min-h-[100vh]"
           onClick={(e) => {
             e.stopPropagation();
             if (!(e.target as HTMLElement).closest(".modal-inner")) {
