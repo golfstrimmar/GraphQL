@@ -64,6 +64,7 @@ export default function CanvasComponent() {
     e.preventDefault();
     e.stopPropagation();
     setActiveKey(null);
+
     const el = e.currentTarget as HTMLElement;
     el.style.background = "var(--white)";
     el.style.opacity = "1";
@@ -187,7 +188,7 @@ export default function CanvasComponent() {
       if (!node._key) return;
       const sourceKey = node._key;
       if (!sourceKey) return;
-
+      setActiveKey(null);
       updateHtmlJson((prevTree: any) => {
         if (!prevTree) return prevTree;
         const { tree: withoutSource, removed } = removeNodeByKey(
@@ -199,7 +200,45 @@ export default function CanvasComponent() {
       });
     };
     // --------------------
+    const parseInlineStyle = (styleString: string): React.CSSProperties => {
+      if (!styleString) return {};
+      const finalStyle = styleString + ";cursor: pointer;";
+      return finalStyle.split(";").reduce((acc, rule) => {
+        const [prop, value] = rule.split(":").map((s) => s.trim());
+        if (prop && value) {
+          const jsProp = prop.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+          (acc as any)[jsProp] = value;
+        }
+        return acc;
+      }, {} as React.CSSProperties);
+    };
+    // --------------------
+    const getNodeStyle = (node: NodeToSend, activeKey: string) => {
+      // 1️⃣ Парсим оригинальный стиль
+      const parsedStyle = parseInlineStyle(node.style);
 
+      // 2️⃣ Базовые layout стили
+      const baseLayout = Object.fromEntries(
+        Object.entries(parsedStyle).filter(([key]) =>
+          /^(display|flex|grid|justify|align)/i.test(key),
+        ),
+      );
+
+      // 3️⃣ Активный стиль
+      const activeStyle =
+        activeKey === node._key ? { background: "var(--teal)" } : {};
+
+      // 4️⃣ ✅ Объединяем ВСЕ
+      return {
+        ...baseLayout, // Layout
+        ...(typeof node.style === "string" ? {} : node.style), // Inline
+        ...activeStyle, // Активный сверху!
+      };
+    };
+
+    // --------------------
+    // --------------------
+    // --------------------
     return (
       <Tag
         onDragStart={(e) => handleDragStart(e, node)}
@@ -212,10 +251,7 @@ export default function CanvasComponent() {
         href={node.attributes?.href}
         rel={node.attributes?.rel}
         className={`renderedNode  ${node.class} `}
-        style={{
-          ...(typeof node.style === "string" ? {} : node.style),
-          ...(activeKey === node._key ? { background: "var(--teal)" } : {}),
-        }}
+        style={getNodeStyle(node, activeKey)}
         onClick={(e) => handleClick(e, node)}
         draggable={true}
       >

@@ -3,10 +3,10 @@ import React, { useEffect, useState, useRef, useMemo } from "react";
 import findNodeByKey from "@/utils/plaza/findNodeByKey";
 import { motion, AnimatePresence } from "framer-motion";
 import СhevronRight from "@/components/icons/СhevronRight";
-import StyleComponent from "./ForInfo/StyleComponent";
-import ClassComponent from "./ForInfo/ClassComponent";
-import TextComponent from "./ForInfo/TextComponent";
-import TagComponent from "./ForInfo/TagComponent";
+import StyleComponent from "./StyleComponent";
+import ClassComponent from "./ClassComponent";
+import TextComponent from "./TextComponent";
+import TagComponent from "./TagComponent";
 import { useHtmlFromJson } from "@/hooks/useHtmlFromJson";
 import { useScssFromJson } from "@/hooks/useScssFromJson";
 import { useStateContext } from "@/providers/StateProvider";
@@ -40,7 +40,7 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
   setOpenInfoModal,
 }) => {
   const router = useRouter();
-  const { activeKey, htmlJson } = useStateContext();
+  const { activeKey, htmlJson, updateHtmlJson } = useStateContext();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [Open, setOpen] = useState<boolean>(false);
   const [NodeToSend, setNodeToSend] = useState<HtmlNode | null>(null);
@@ -60,11 +60,28 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
       setNodeToSend(node);
     }
   }, [activeKey]);
-  // -------------
-
+  // ================================
+  const updateNodeByKey = (key: string, changes: Partial<HtmlNode>) => {
+    updateHtmlJson((prev) => {
+      const updateRecursively = (nodes: HtmlNode[]): HtmlNode[] => {
+        return nodes.map((node) => {
+          if (node._key === key) {
+            return { ...node, ...changes };
+          }
+          if (Array.isArray(node.children)) {
+            return { ...node, children: updateRecursively(node.children) };
+          }
+          return node;
+        });
+      };
+      return updateRecursively(prev);
+    });
+  };
+  // ================================
   const itemStyle =
     "flex flex-col items-start justify-center p-2 m-1 border border-gray-300 rounded bg-gray-100 text-sm";
-
+  const itemClass =
+    "absolute top-[-30px] !font-bold  inline-flex items-center gap-2 z-30 py-1 min-h-[26px] text-white w-[max-content]";
   return (
     <AnimatePresence mode="wait">
       {activeKey && (
@@ -89,35 +106,31 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
             <p className={itemStyle}>{NodeToSend?.class}</p>
             <p className={itemStyle}>{NodeToSend?.text}</p>
             <p className={itemStyle}>{NodeToSend?.style}</p>
-            {/*===============Tag=================
+            {/*===============Tag=================*/}
             <TagComponent
-              setProject={setProject}
-              node={node}
-              updateNodeByKey={updateNodeByKey}
+              node={NodeToSend}
               itemClass={itemClass}
+              updateNodeByKey={updateNodeByKey}
             />
+            {/*===============Class=================*/}
             <ClassComponent
-              project={project}
-              setProject={setProject}
-              node={node}
-              updateNodeByKey={updateNodeByKey}
+              node={NodeToSend}
               itemClass={itemClass}
+              updateNodeByKey={updateNodeByKey}
             />
+            {/*===============Style=================*/}
             <StyleComponent
-              project={project}
-              setProject={setProject}
-              node={node}
-              updateNodeByKey={updateNodeByKey}
+              node={NodeToSend}
               itemClass={itemClass}
+              updateNodeByKey={updateNodeByKey}
             />
+            {/*===============Tag=================*/}
             <TextComponent
-              project={project}
-              setProject={setProject}
-              node={node}
-              updateNodeByKey={updateNodeByKey}
+              node={NodeToSend}
               itemClass={itemClass}
+              updateNodeByKey={updateNodeByKey}
             />
-            {node?.tag === "img" && (
+            {/*  {node?.tag === "img" && (
               <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-10  flex flex-col relative ">
                 <p className={itemClass}>
                   <span>Src:</span>
