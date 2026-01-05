@@ -4,6 +4,7 @@ import { GET_FIGMA_PROJECTS_BY_USER } from "@/apollo/queries";
 import FigmaProjectsList from "./FigmaProjectsList";
 import PlazaHeader from "@/app/plaza/PlazaHeader";
 import Bage from "@/components/ui/Bage/Bage";
+import ModalCreateFigmaProject from "./ModalCreateFigmaProject";
 
 type UserFromCookie = {
   id: string;
@@ -29,13 +30,14 @@ const FigmaProjects = async () => {
   const projects = data?.figmaProjectsByUser ?? [];
   return (
     <div className="container">
-      <div className="flex flex-col gap-2 mb-2 mt-[100px]">
+      <div className="flex flex-col gap-2 mb-2 mt-[100px] min-h-[100vh]">
         <PlazaHeader
           title="Figma Design Projects"
           description="Extract and manage your design system"
         />
 
         <FigmaProjectsList figmaProjects={projects} />
+        <ModalCreateFigmaProject />
       </div>
     </div>
   );
