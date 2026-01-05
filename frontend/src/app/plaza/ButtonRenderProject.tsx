@@ -4,8 +4,8 @@ import { useMutation, useLazyQuery } from "@apollo/client";
 import { FIND_PROJECT } from "@/apollo/queries";
 import { UPDATE_PROJECT } from "@/apollo/mutations";
 import { useStateContext } from "@/providers/StateProvider";
-import { ensureNodeKeys } from "./ensureNodeKeys";
-import { removeKeys } from "./removeKeys";
+import { ensureNodeKeys } from "./utils/ensureNodeKeys";
+import { removeKeys } from "./utils/removeKeys";
 
 type ProjectData = {
   tag: string;

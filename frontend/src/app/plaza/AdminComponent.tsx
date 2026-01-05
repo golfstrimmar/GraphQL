@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import Input from "@/components/ui/Input/Input";
 import { useQuery } from "@apollo/client";
 import { GET_JSON_DOCUMENT } from "@/apollo/queries";
-import { ensureNodeKeys } from "./ensureNodeKeys";
+import { ensureNodeKeys } from "./utils/ensureNodeKeys";
 import ServicesButtons from "./ServicesButtons";
 
 const TagsNamen1 = [

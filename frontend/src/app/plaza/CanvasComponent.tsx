@@ -1,15 +1,15 @@
 "use client";
 import React, { useState } from "react";
-import PageHeader from "./PlazaComponent/PageHeader";
+import PageHeader from "./PageHeader";
 import { useStateContext } from "@/providers/StateProvider";
 import Loading from "@/components/ui/Loading/Loading";
-import voidTags from "./voidTags";
+import voidTags from "./utils/voidTags";
 import dynamic from "next/dynamic";
-import addNodeToTargetByKey from "./addNodeToTargetByKey";
-import removeNodeByKey from "./removeNodeByKey";
-import validateHtmlStructure from "./validateHtmlStructure";
-import applyDropByOverlay from "./applyDropByOverlay";
-import duplicateNodeAfter from "./duplicateNodeAfter";
+import addNodeToTargetByKey from "./utils/addNodeToTargetByKey";
+import removeNodeByKey from "./utils/removeNodeByKey";
+import validateHtmlStructure from "./utils/validateHtmlStructure";
+import applyDropByOverlay from "./utils/applyDropByOverlay";
+import duplicateNodeAfter from "./utils/duplicateNodeAfter";
 
 const NodeInfo = dynamic(() => import("./NodeInfo"), {
   ssr: false,

@@ -9,7 +9,7 @@ import React, {
 import { useStateContext } from "@/providers/StateProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import NormalizeSCSS from "./NormalizeSCSS";
+import NormalizeSCSS from "./utils/NormalizeSCSS";
 import ColorPicker from "./ColorPicker";
 import DisplayPicker from "./DisplayPicker";
 import FlexContainerPicker from "./FlexContainerPicker";

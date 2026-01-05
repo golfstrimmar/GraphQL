@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { useStateContext } from "@/providers/StateProvider";
-import cleanServiceTexts from "./cleanServiceTexts";
+import cleanServiceTexts from "./utils/cleanServiceTexts";
 import ClearIcon from "@/components/icons/ClearIcon";
 import СhevronLeft from "@/components/icons/СhevronLeft";
 import СhevronRight from "@/components/icons/СhevronRight";

@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import client from "@/apollo/apolloClient";
 import { GET_ALL_PROJECTS_BY_USER } from "@/apollo/queries";
-import PageHeader from "./PlazaComponent/PageHeader";
+import PageHeader from "./PageHeader";
 import Project from "./Project";
 import CreateNewProject from "./CreateNewProject";
 import Bage from "@/components/ui/Bage/Bage";

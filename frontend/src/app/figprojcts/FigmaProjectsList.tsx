@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useStateContext } from "@/providers/StateProvider";
 import Loading from "@/components/ui/Loading/Loading";
 import { REMOVE_FIGMA_PROJECT } from "@/apollo/mutations";
-import PageHeader from "@/app/plaza/PlazaComponent/PageHeader";
+import PageHeader from "@/app/plaza/PageHeader";
 import dynamic from "next/dynamic";
 const ModalCreateFigmaProject = dynamic(
   () => import("./ModalCreateFigmaProject"),

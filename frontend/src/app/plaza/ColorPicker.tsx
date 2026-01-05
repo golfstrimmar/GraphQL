@@ -1,5 +1,5 @@
 "use client";
-import Colors from "./Colors";
+import Colors from "./utils/Colors";
 
 interface ColorGroup {
   neutral: "neutral";

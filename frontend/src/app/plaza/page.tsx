@@ -1,5 +1,5 @@
 import ProjectsList from "./ProjectsList";
-import PlazaHeader from "@/app/plaza/PlazaComponent/PlazaHeader";
+import PlazaHeader from "./PlazaHeader";
 import CanvasComponent from "./CanvasComponent";
 import AdminComponent from "./AdminComponent";
 import "./plaza.scss";

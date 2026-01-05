@@ -8,7 +8,7 @@ import Input from "@/components/ui/Input/Input";
 import CreateIcon from "@/components/icons/CreateIcon";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { removeKeys } from "./removeKeys";
+import { removeKeys } from "./utils/removeKeys";
 
 const CreateNewProject = () => {
   const { htmlJson, user, setModalMessage, ScssMixVar, activeKey } =

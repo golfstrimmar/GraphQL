@@ -2,7 +2,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import Loading from "@/components/ui/Loading/Loading";
-import cleanConstructorScss from "./cleanConstructorScss";
+import cleanConstructorScss from "./utils/cleanConstructorScss";
 
 const MobileAddStyle = dynamic(() => import("./MobileAddStyle"), {
   ssr: false,
