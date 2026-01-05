@@ -1,9 +1,14 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { useStateContext } from "@/providers/StateProvider";
 
-const RenderTextStyles = () => {
-  const { texts, setModalMessage } = useStateContext();
+const RenderTextStyles = ({ textNodes }: { textNodes: string[] }) => {
+  const { texts, setModalMessage, setTexts } = useStateContext();
+  useEffect(() => {
+    if (!textNodes) return;
+    setTexts(textNodes);
+  }, [textNodes]);
+
   if (texts.length === 0) return null;
   const toFontFamily = (fam: string): string => `"${fam}", sans-serif`;
   return (

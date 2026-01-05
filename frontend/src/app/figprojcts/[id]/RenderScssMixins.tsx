@@ -2,8 +2,8 @@
 import React from "react";
 import { useStateContext } from "@/providers/StateProvider";
 
-const RenderScssMixins = ({ texts, colors }) => {
-  const { setModalMessage } = useStateContext();
+const RenderScssMixins = ({ colors }) => {
+  const { texts, setModalMessage } = useStateContext();
   if (texts.length === 0) return null;
   const uniqueMixins = Object.values(
     texts.reduce<Record<string, TextNode>>((acc, el) => {
@@ -11,6 +11,7 @@ const RenderScssMixins = ({ texts, colors }) => {
       if (!acc[key]) {
         acc[key] = el;
       }
+
       return acc;
     }, {}),
   );
