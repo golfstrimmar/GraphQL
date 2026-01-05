@@ -18,32 +18,9 @@
   }
 }
 
-.placeholder {
-  /* pointer-events: none; */
-  // outline: 1px dashed #105fd4;
-  // outline: 1px dashed rgb(6, 77, 185);
-  background: repeating-linear-gradient(
-    45deg,
-    black,
-    black 4px,
-    yellow 4px,
-    yellow 8px
-  );
-  min-height: 10px;
-  min-width: 10px;
-  opacity: 0;
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: -1000000;
-}
-
-.card {
+/*.card {
   min-width: 30px !important;
   min-height: 10px !important;
-  /* max-width: max-content !important; */
-  // max-height: 150px !important;
   background: rgb(236, 236, 236);
   box-shadow:
     rgba(0, 0, 0, 0.1) 0px 4px 6px,
@@ -53,13 +30,13 @@
   margin: 10px;
   color: black;
   cursor: pointer;
-  /* cursor:
+  cursor:
     url(/svg/red-dot.svg) 5 5,
-    auto !important; */
+    auto !important;
   img {
     max-height: 50px !important;
   }
-}
+} */
 
 .nextafterButton {
   transition: all 0.2s ease-in-out;
@@ -90,14 +67,7 @@
     margin: 0 0 0 0 !important;
   }
 }
-.baza {
-  min-height: 20px;
-  padding: 10px 0;
-  margin: 0 0 0 0;
-  color: var(--teal) !important;
-  background: var(--slate-500) !important;
-  outline: 2px solid var(--slate) !important;
-}
+
 .layer-3d {
   /* Имитация 3D слоев через наклон и смещение */
   transform: perspective(600px) rotateX(16deg) translateZ(var(--z, 0px))
@@ -110,9 +80,10 @@
     box-shadow 0.2s;
   will-change: transform;
 }
+
 .renderedNode {
   min-width: 30px !important;
-  min-height: 10px !important;
+  min-height: 25px !important;
   background: var(--white);
   box-shadow:
     rgba(0, 0, 0, 0.1) 0px 4px 6px,
@@ -132,6 +103,18 @@
   pointer-events: auto !important;
   position: relative;
   z-index: 1;
+  &.container {
+    margin: 5px !important;
+  }
+}
+
+.baza {
+  min-height: 20px;
+  padding: 10px;
+  margin: 0 0 0 0;
+  color: var(--teal) !important;
+  background: var(--slate-500) !important;
+  outline: 2px solid var(--slate) !important;
 }
 
 img.renderedNode {
@@ -140,6 +123,7 @@ img.renderedNode {
   max-height: 50px !important;
   max-width: 50px !important;
 }
+
 .img-container {
   width: 60px !important;
   height: 80px !important;

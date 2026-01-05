@@ -1,3 +1,22 @@
+const regenerateKeysDeep = (node: any): any => {
+  if (!node || typeof node === "string") return node;
+
+  const cloned = {
+    ...node,
+    _key: crypto.randomUUID(),
+  };
+
+  if (Array.isArray(node.children)) {
+    cloned.children = node.children.map((child: any) =>
+      regenerateKeysDeep(child),
+    );
+  } else {
+    cloned.children = node.children;
+  }
+
+  return cloned;
+};
+
 const duplicateNodeAfter = (tree: any, key: string): any => {
   const walk = (nodes: any): any => {
     if (!Array.isArray(nodes)) return nodes;
@@ -21,10 +40,7 @@ const duplicateNodeAfter = (tree: any, key: string): any => {
 
       // 🎯 Если нашли нужный узел — вставляем его клон сразу после
       if (node._key === key) {
-        const clone = {
-          ...nextNode,
-          _key: crypto.randomUUID(), // новый ключ
-        };
+        const clone = regenerateKeysDeep(nextNode); // новый key и для всех детей
         result.push(clone);
       }
     }
