@@ -38,6 +38,30 @@ export default async function FigmaProjectPage({
             <Bage text="Login required" />
           </div>
         )}
+        {/* Breadcrumbs */}
+        <nav aria-label="Breadcrumb" className="mb-4 text-sm text-slate-500">
+          <ol className="flex items-center gap-1">
+            <li>
+              <Link href="/" className="hover:text-slate-700 hover:underline">
+                Home
+              </Link>
+            </li>
+            <li className="px-1 text-slate-400">/</li>
+            <li>
+              <Link
+                href="/figprojcts"
+                className="hover:text-slate-700 hover:underline"
+              >
+                Figma projects
+              </Link>
+            </li>
+            <li className="px-1 text-slate-400">/</li>
+            <li className="text-slate-700 font-medium truncate max-w-[200px]">
+              {project?.name || "Project"}
+            </li>
+          </ol>
+        </nav>
+
         <div className="flex items-end   gap-1  bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 mb-4">
           <span>Fgma project: </span>
           <h3 className=" text-gray-800 ">{project?.name}</h3>

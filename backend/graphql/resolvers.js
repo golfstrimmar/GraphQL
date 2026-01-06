@@ -210,16 +210,29 @@ export const resolvers = {
       }
     },
     createFigmaProject: async (_parent, { ownerId, name, fileCache }) => {
-      const project = await prisma.figmaProject.create({
-        data: {
-          ownerId: Number(ownerId),
-          name,
-          fileCache,
-          fileCacheUpdatedAt: new Date(),
-        },
-        include: { owner: true },
+      const exists = await prisma.figmaProject.findUnique({
+        where: { name },
       });
-      return project;
+
+      if (exists) {
+        throw new Error(`FigmaProject with id ${id} already exists`);
+      }
+
+      try {
+        const project = await prisma.figmaProject.create({
+          data: {
+            ownerId: Number(ownerId),
+            name,
+            fileCache,
+            fileCacheUpdatedAt: new Date(),
+          },
+          include: { owner: true },
+        });
+        return project;
+      } catch (error) {
+        console.error("Failed to create FigmaProject:", error);
+        throw new Error("Failed to create FigmaProject");
+      }
     },
     updateFigmaProject: async (_parent, { figmaProjectId, images }) => {
       const id = Number(figmaProjectId);

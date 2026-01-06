@@ -182,18 +182,4 @@
 }
 .input-field textarea,
 .input-field input {
-  &:focus-visible + label,
-  &:focus + label,
-  &:valid + label,
-  &:hover + label {
-    top: 0%;
-    transform: translateY(-50%) !important;
-    left: 5px !important;
-    top: 0% !important;
-    padding: 1px 3px !important;
-    background-color: aliceblue !important;
-    left: 10px !important;
-    pointer-events: none;
-    z-index: -1;
-  }
 }

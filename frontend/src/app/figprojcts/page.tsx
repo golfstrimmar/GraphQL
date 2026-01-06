@@ -13,21 +13,40 @@ type UserFromCookie = {
   createdAt: string;
 };
 
+// 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹
+
 const FigmaProjects = async () => {
   const cookieStore = await cookies();
   const userCookie = cookieStore.get("user")?.value ?? null;
-
   if (!userCookie) {
-    return <Bage text="Please, login to see Projects" />;
+    return (
+      <div className="container">
+        <div className="flex flex-col gap-2 mb-2 mt-[100px] min-h-[100vh]">
+          <PlazaHeader
+            title="Figma Design Projects"
+            description="Extract and manage your design system"
+          />{" "}
+          <Bage text="Please, login to see Projects" />{" "}
+        </div>
+      </div>
+    );
   }
   const user = JSON.parse(userCookie) as UserFromCookie;
+  let projects = [];
+  try {
+    const { data } = await client.query({
+      query: GET_FIGMA_PROJECTS_BY_USER,
+      variables: { userId: user.id },
+      fetchPolicy: "network-only",
+    });
 
-  const { data } = await client.query({
-    query: GET_FIGMA_PROJECTS_BY_USER,
-    variables: { userId: user.id },
-    fetchPolicy: "network-only",
-  });
-  const projects = data?.figmaProjectsByUser ?? [];
+    if (data.figmaProjectsByUser) {
+      projects = data?.figmaProjectsByUser ?? [];
+    }
+  } catch (err: any) {
+    console.log("Failed to fetch projects:", err.message);
+  }
+
   return (
     <div className="container">
       <div className="flex flex-col gap-2 mb-2 mt-[100px] min-h-[100vh]">
@@ -35,7 +54,6 @@ const FigmaProjects = async () => {
           title="Figma Design Projects"
           description="Extract and manage your design system"
         />
-
         <FigmaProjectsList figmaProjects={projects} />
         <ModalCreateFigmaProject />
       </div>

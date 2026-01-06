@@ -27,7 +27,6 @@ export default function ModalCreateClient({ modalOpen, setModalOpen }) {
       setModalMessage("All fields are required.");
       return;
     }
-    console.log("<===createFigmaProject===>", user.id, name, file);
     const text = await file.text();
 
     // 2. Парсим JSON
@@ -94,7 +93,7 @@ export default function ModalCreateClient({ modalOpen, setModalOpen }) {
               </button>*/}
             <form
               onSubmit={handleSubmit}
-              className="modal-content flex flex-col  bg-white p-6 rounded-lg w-full gap-4"
+              className="modal-content flex flex-col  bg-slate-400 p-6 rounded-lg w-full gap-4"
             >
               <div className="flex flex-col gap-2">
                 <input
@@ -110,14 +109,43 @@ export default function ModalCreateClient({ modalOpen, setModalOpen }) {
                 </div>
                 <label
                   htmlFor="figma-json-file"
-                  className=" px-[10px] py-1 text-[12px] rounded  cursor-pointer  text-[#193756]"
-                  style={{
-                    border: `1px solid ${hover ? "#007bff" : "rgb(173, 173, 173)"}`,
-                  }}
-                  onMouseEnter={() => setHover(true)}
-                  onMouseLeave={() => setHover(false)}
+                  className="inline-flex items-center justify-center gap-2 px-6 py-2 text-sm font-medium rounded-xl transition-all duration-200 cursor-pointer shadow-sm bg-slate-100 hover:bg-slate-300"
                 >
-                  {file ? "Change file" : "Choose file"}
+                  {file ? (
+                    <>
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                        />
+                      </svg>
+                      Change file
+                    </>
+                  ) : (
+                    <>
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                        />
+                      </svg>
+                      Choose file
+                    </>
+                  )}
                 </label>
               </div>
               <Input
@@ -139,7 +167,11 @@ export default function ModalCreateClient({ modalOpen, setModalOpen }) {
                 <button
                   className="btn btn-allert"
                   type="button"
-                  onClick={() => setModalOpen(false)}
+                  onClick={() => {
+                    setFile(null);
+                    setName("");
+                    setModalOpen(false);
+                  }}
                 >
                   Cancel
                 </button>

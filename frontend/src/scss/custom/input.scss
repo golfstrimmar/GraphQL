@@ -18,7 +18,6 @@
     height: 40px !important;
     cursor: pointer;
     position: relative;
-    background: var(--lightest-navy) !important;
     transition: all 0.2s;
     border: 1px solid rgb(173, 173, 173);
     border-radius: 5px;
@@ -57,7 +56,6 @@
       }
     }
     &.modalInput {
-      background: white !important;
       & + label {
         color: #193756 !important;
       }
@@ -67,17 +65,13 @@
       opacity: 0;
     }
 
-    &:hover {
-      border: 1px solid #007bff;
-    }
-
     &:hover + label {
-      color: #007bff;
+      color: var(--teal);
     }
 
     &:focus,
     &:valid {
-      border: 1px solid #007bff !important;
+      border: 2px solid var(--teal) !important;
     }
   }
 
@@ -130,18 +124,41 @@
     input[type="search"],
     input[type="number"],
     input[type="tel"] {
-      & + label {
+      background: var(--slate-100) !important;
+      /* & + label {
         // color: #193756 !important;
         font-size: 12px;
-      }
+      } */
 
       &:focus + label,
       &:valid + label {
         top: 0% !important;
         z-index: 10;
-        background-color: aliceblue !important;
         border-radius: 4px;
-        color: #007bff;
+
+        background-color: white !important;
+      }
+
+      & + label {
+        padding: 2px 3px;
+        line-height: 1;
+        border-radius: 4px;
+        font-family: var(--font-inter);
+        font-size: 12px;
+        font-weight: 400;
+        z-index: 10;
+        border-radius: 4px;
+        color: var(--navy);
+        z-index: 4;
+      }
+      &:focus-visible,
+      &:focus,
+      &:valid,
+      &:hover {
+        background-color: var(--slate-300) !important;
+        & + label {
+          color: var(--teal);
+        }
       }
     }
   }
