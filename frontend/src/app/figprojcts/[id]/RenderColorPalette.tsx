@@ -7,8 +7,8 @@ type Props = {
 };
 
 /**
- * Individual color item - memoized so it only re-renders when its `color` prop changes
- * It consumes the context locally so the parent can remain stable.
+ * Отдельный элемент цвета — мемоизирован, чтобы перерисовываться только при изменении пропа `color`.
+ * Потребляет контекст локально, чтобы родитель оставался стабильным.
  */
 const ColorItem: React.FC<{ color: string }> = memo(({ color }) => {
   const { setModalMessage } = useStateContext();
@@ -50,14 +50,14 @@ const ColorItem: React.FC<{ color: string }> = memo(({ color }) => {
 ColorItem.displayName = "ColorItem";
 
 /**
- * RenderColorPalette - memoized parent component
- * - maps colors -> ColorItem using useMemo to avoid recreating the array on every render
- * - uses color string as key to avoid index-based re-renders
+ * `RenderColorPalette` — мемоизированный родительский компонент
+ * - отображает `colors` как список `ColorItem`, используя `useMemo`, чтобы не пересоздавать массив при каждом рендере
+ * - использует строку цвета в качестве `key`, чтобы избежать перерисовок из‑за индексных ключей
  */
 const RenderColorPalette: React.FC<Props> = ({ colors }) => {
   if (!colors || colors.length === 0) return null;
 
-  // memoize the rendered list so it only changes when `colors` changes
+  // мемоизируем отрендеренный список, чтобы он менялся только при изменении `colors`
   const items = useMemo(
     () => colors.map((value) => <ColorItem key={value} color={value} />),
     [colors],

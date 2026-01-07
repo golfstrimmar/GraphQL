@@ -7,6 +7,7 @@ import RenderColorPalette from "./RenderColorPalette";
 import RenderTypography from "./RenderTypography";
 import RenderScssMixins from "./RenderScssMixins";
 import RenderTextStyles from "./RenderTextStyles";
+import ImageUploader from "./ImageUploader";
 import Link from "next/link";
 export default async function FigmaProjectPage({
   params,
@@ -14,7 +15,6 @@ export default async function FigmaProjectPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  console.log("<===id===>", id);
   const cookieStore = await cookies();
   const userCookie = cookieStore.get("user")?.value ?? null;
   if (!userCookie) {
@@ -28,7 +28,7 @@ export default async function FigmaProjectPage({
 
   const project = data?.getFigmaProjectData ?? [];
 
-  console.log("<===project===>", project);
+  console.log("<== 🔹 🔹 🔹 🔹=project===>", project);
 
   return (
     <div className="container">
@@ -72,10 +72,12 @@ export default async function FigmaProjectPage({
             Transform to ULON Project
           </Link>
         </div>
+        <ImageUploader project={project} />
         <RenderColorPalette colors={project.colors} />
         <RenderTypography fonts={project.fonts} />
         <RenderScssMixins colors={project.colors} />
         <RenderTextStyles textNodes={project.textNodes} />
+        {/**/}
       </div>
     </div>
   );

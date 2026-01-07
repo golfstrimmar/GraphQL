@@ -84,6 +84,7 @@ const RenderColorVars: React.FC<RenderColorVarsProps> = ({ colorsTo }) => {
       colorsTo.map((foo) => (
         <ColorVarItem key={foo} value={foo} onCopy={onCopy} />
       )),
+
     [colorsTo, onCopy],
   );
 

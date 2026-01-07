@@ -14,9 +14,10 @@ type TextNode = {
 const toFontFamily = (fam: string) => `"${fam}", sans-serif`;
 
 /**
- * Single text style row. Memoized to avoid re-renders when props are stable.
- * Receives copy handlers from the parent to avoid consuming context repeatedly.
+ * Одна строка с текстовым стилем. Мемоизирована, чтобы избежать повторных рендеров при неизменных props.
+ * Получает обработчики копирования от родителя, чтобы не обращаться к контексту каждый раз.
  */
+
 const TextStyleItem: React.FC<{
   node: TextNode;
   onCopyText: (text: string) => void;
@@ -76,11 +77,12 @@ const TextStyleItem: React.FC<{
 TextStyleItem.displayName = "TextStyleItem";
 
 /**
- * RenderTextStyles - memoized parent.
- * - Sets texts into context when `textNodes` prop changes.
- * - Stabilizes copy handlers with useCallback and passes them to memoized children.
- * - Avoids index keys by building a composite stable key from node content.
+ * `RenderTextStyles` — мемоизированный родитель.
+ * - Помещает тексты в контекст при изменении пропа `textNodes`.
+ * - Стабилизирует обработчики копирования с помощью `useCallback` и передаёт их мемоизированным дочерним компонентам.
+ * - Избегает индексных ключей, формируя составной стабильный ключ на основе содержимого узла.
  */
+
 const RenderTextStyles: React.FC<{ textNodes?: TextNode[] }> = ({
   textNodes,
 }) => {

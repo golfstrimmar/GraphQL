@@ -15,7 +15,7 @@ interface RenderScssMixinsProps {
 }
 
 /**
- * Utility: build stable mapping of color value -> variable name
+ * Утилита: построить стабильное отображение значения цвета -> имени переменной
  */
 const buildColorVars = (colors?: string[]) => {
   if (!colors || colors.length === 0) return [];
@@ -26,8 +26,8 @@ const buildColorVars = (colors?: string[]) => {
 };
 
 /**
- * Single mixin card - memoized to avoid re-renders when props are stable.
- * Does not consume context directly; actions (copy) are provided by parent.
+ * Одна карточка миксина — мемоизирована, чтобы избегать перерендеров при стабильных пропсах.
+ * Не использует контекст напрямую; действия (копирование) предоставляет родитель.
  */
 const MixinItem: React.FC<{
   mixinKey: string;
@@ -69,7 +69,7 @@ const MixinItem: React.FC<{
 MixinItem.displayName = "MixinItem";
 
 /**
- * Copy all button - memoized; parent provides copy handler and current items text.
+ * Кнопка «Копировать всё» — мемоизирована; родитель передаёт обработчик копирования и текст текущих элементов.
  */
 const CopyAllButton: React.FC<{
   text: string;
@@ -93,16 +93,16 @@ const CopyAllButton: React.FC<{
 CopyAllButton.displayName = "CopyAllButton";
 
 /**
- * Main component - memoized export. Computes unique mixins and SCSS strings
- * using useMemo, and memoizes handlers with useCallback.
+ * Главный компонент — мемоизированный экспорт. Вычисляет уникальные миксины и SCSS-строки
+ * с помощью `useMemo` и мемоизирует обработчики через `useCallback`.
  */
 const RenderScssMixins: React.FC<RenderScssMixinsProps> = ({ colors }) => {
   const { texts, setModalMessage } = useStateContext();
 
-  // If texts not available or empty, nothing to render
+  // Если тексты недоступны или пусты — нечего рендерить
   const textNodes = (texts as unknown as TextNode[]) ?? [];
 
-  // unique mixins deduped by mixin name
+  // уникальные миксины, дедуплированные по имени миксина
   const uniqueMixins = useMemo(() => {
     const acc: Record<string, TextNode> = {};
     for (const el of textNodes) {
@@ -114,7 +114,7 @@ const RenderScssMixins: React.FC<RenderScssMixinsProps> = ({ colors }) => {
 
   const colorVars = useMemo(() => buildColorVars(colors), [colors]);
 
-  // fast lookup for value -> varName
+  // быстрый поиск value -> varName
   const getVarName = useCallback(
     (colorValue: string) => {
       const found = colorVars.find((v) => v.value === colorValue);
@@ -123,7 +123,7 @@ const RenderScssMixins: React.FC<RenderScssMixinsProps> = ({ colors }) => {
     [colorVars],
   );
 
-  // prepare scss mixins text for "Copy All"
+  // подготавливаем текст всех миксинов для «Копировать всё»
   const allMixinsText = useMemo(() => {
     const mixinStrings = uniqueMixins.map((el) => {
       const colorVariable = getVarName(el.color);
@@ -137,7 +137,7 @@ const RenderScssMixins: React.FC<RenderScssMixinsProps> = ({ colors }) => {
     return mixinStrings.join("\n\n");
   }, [uniqueMixins, getVarName]);
 
-  // single mixin copy handler
+  // обработчик копирования одного миксина
   const onCopyMixin = useCallback(
     (text: string) => {
       if (!navigator?.clipboard) {
@@ -152,7 +152,7 @@ const RenderScssMixins: React.FC<RenderScssMixinsProps> = ({ colors }) => {
     [setModalMessage],
   );
 
-  // copy all handler
+  // обработчик копирования всех миксинов
   const onCopyAll = useCallback(
     (text: string) => {
       if (!navigator?.clipboard || !text) {

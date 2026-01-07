@@ -16,7 +16,8 @@ const uploadFigmaImagesToCloudinary = async (_, { projectId }) => {
 
   const { id, figmaImages } = project;
 
-  // 🧠 1️⃣ Check if there are already saved RASTER images
+  // 🧠 1️⃣ Проверяем, есть ли уже сохранённые растровые (RASTER) изображения
+
   const existingRASTERImages = figmaImages.filter(
     (img) => img.type === "RASTER",
   );

@@ -49,7 +49,7 @@ const uploadFigmaSvgsToCloudinary = async (_, { projectId }) => {
   const { id, fileKey, token, figmaImages } = project;
   const headers = { "X-Figma-Token": token };
 
-  // 🧠 1️⃣ Check if there are already saved SVG images
+  // 🧠 1️⃣ Проверяем, есть ли уже сохранённые SVG-изображения
   const existingVectors = figmaImages.filter((img) => img.type === "VECTOR");
   if (existingVectors.length > 0) {
     console.log(
