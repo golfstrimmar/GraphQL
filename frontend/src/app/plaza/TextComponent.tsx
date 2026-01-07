@@ -1,7 +1,13 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { useStateContext } from "@/providers/StateProvider";
-import ModalTexts from "./ModalTexts";
+import dynamic from "next/dynamic";
+import Loading from "@/components/ui/Loading/Loading";
+const ModalTexts = dynamic(() => import("./ModalTexts"), {
+  ssr: false,
+  loading: () => <Loading />,
+});
+
 type NodeToSend = {
   _key: string;
   tag: string;
@@ -40,7 +46,7 @@ const TextComponent: React.FC<TextComponentProps> = ({
 
   useEffect(() => {
     if (!texts) return;
-    console.log("<===texts===>", texts);
+    console.log("<=🟢🟢🟢==texts===>", texts);
   }, [texts]);
 
   const handleTextChange = (newValue: string) => {
@@ -52,19 +58,20 @@ const TextComponent: React.FC<TextComponentProps> = ({
   };
   return (
     <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-10  flex flex-col relative ">
-      {/*{modalTextsOpen && (
+      {modalTextsOpen && (
         <ModalTexts
           node={node}
-          project={project}
           modalTextsOpen={modalTextsOpen}
           setModalTextsOpen={setModalTextsOpen}
-          setProject={setProject}
+          updateNodeByKey={updateNodeByKey}
+          handleTextChange={handleTextChange}
+          textValue={textValue}
         />
       )}
-   */}
+
       <p className={itemClass}>
         <span>Text:</span>
-        {texts && texts.length > 0 && setModalTextsOpen && (
+        {texts && texts.length > 0 && (
           <button
             className="btn-teal  text-[12px]"
             onClick={() =>

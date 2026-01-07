@@ -24,13 +24,13 @@ const TagComponent: React.FC<TagComponentProps> = ({
   updateNodeByKey,
 }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const [tagValue, setTagValue] = useState(node.tag);
+  const [tagValue, setTagValue] = useState("");
 
   useEffect(() => {
-    if (!node.tag) return;
-    console.log("<===node.tag===>", node.tag);
-    setTagValue(node.tag);
-  }, [node.tag]);
+    console.log("<===node===>", node);
+    if (!node) return;
+    setTagValue(node?.tag);
+  }, [node]);
 
   const handleTagChange = (newValue: string) => {
     setTagValue(newValue);

@@ -189,8 +189,8 @@ export default function CanvasComponent() {
     const mouseY = e.clientY;
     const h = rect.height;
 
-    const topZone = rect.top + h * 0.25;
-    const bottomZone = rect.top + h * 0.75;
+    const topZone = rect.top + h * 0.15;
+    const bottomZone = rect.top + h * 0.85;
 
     let mode: OverlayMode;
     if (mouseY < topZone) mode = "before";

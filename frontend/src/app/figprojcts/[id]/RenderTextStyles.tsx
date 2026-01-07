@@ -94,6 +94,11 @@ const RenderTextStyles: React.FC<{ textNodes?: TextNode[] }> = ({
     setTexts(textNodes);
   }, [textNodes, setTexts]);
 
+  useEffect(() => {
+    if (!texts) return;
+    console.log("<=🟢🟢🟢==texts===>", texts);
+  }, [texts]);
+
   const nodes = texts ?? [];
 
   const onCopyText = useCallback(
