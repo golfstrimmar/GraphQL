@@ -16,6 +16,7 @@ import removeFigmaProject from "../mutations/removeFigmaProject.js";
 // import extractAndSaveColors from "../mutations/extractAndSaveColors.js";
 // import extractAndSaveFonts from "../mutations/extractAndSaveFonts.js";
 import uploadFigmaJsonProject from "../mutations/uploadFigmaJsonProject.js";
+import createFigmaProject from "../mutations/createFigmaProject.js";
 // ----
 import { GraphQLUpload } from "graphql-upload";
 // ----
@@ -209,31 +210,7 @@ export const resolvers = {
         throw new Error("Image upload failed.");
       }
     },
-    createFigmaProject: async (_parent, { ownerId, name, fileCache }) => {
-      const exists = await prisma.figmaProject.findUnique({
-        where: { name },
-      });
 
-      if (exists) {
-        throw new Error(`FigmaProject with id ${id} already exists`);
-      }
-
-      try {
-        const project = await prisma.figmaProject.create({
-          data: {
-            ownerId: Number(ownerId),
-            name,
-            fileCache,
-            fileCacheUpdatedAt: new Date(),
-          },
-          include: { owner: true },
-        });
-        return project;
-      } catch (error) {
-        console.error("Failed to create FigmaProject:", error);
-        throw new Error("Failed to create FigmaProject");
-      }
-    },
     updateFigmaProject: async (_parent, { figmaProjectId, images }) => {
       const id = Number(figmaProjectId);
       console.log("↔↔↔ updateFigmaProject where id =", id);
@@ -313,6 +290,7 @@ export const resolvers = {
     // extractAndSaveColors,
     // extractAndSaveFonts,
     uploadFigmaJsonProject,
+    createFigmaProject,
   },
   User: {
     projects: (parent) =>

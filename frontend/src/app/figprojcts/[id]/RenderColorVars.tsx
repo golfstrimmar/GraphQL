@@ -5,18 +5,18 @@ import { useStateContext } from "@/providers/StateProvider";
 interface RenderColorVarsProps {
   colorsTo: string[];
 }
-
+// ------------------------
 const extractRgb = (colorVar: string): string | null => {
   if (!colorVar) return null;
   const match = colorVar.match(/rgb\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\)/);
   return match ? match[0] : null;
 };
-
+// ------------------------
 type ColorVarItemProps = {
   value: string;
   onCopy: (value: string) => void;
 };
-
+// ------------------------
 const ColorVarItem: React.FC<ColorVarItemProps> = memo(({ value, onCopy }) => {
   const bgColor = useMemo(() => extractRgb(value), [value]);
 
@@ -47,9 +47,17 @@ const ColorVarItem: React.FC<ColorVarItemProps> = memo(({ value, onCopy }) => {
 });
 ColorVarItem.displayName = "ColorVarItem";
 
-const RenderColorVars: React.FC<RenderColorVarsProps> = ({ colorsTo }) => {
+// ------------------------
+const RenderColorVars: React.FC<RenderColorVarsProps> = ({ colors }) => {
   const { setModalMessage } = useStateContext();
-
+  // -------------------
+  const colorsTo = useMemo(() => {
+    if (colors.length > 0) {
+      return colors.map((color, index) => `$color-${index + 1}: ${color};`);
+    }
+    return [];
+  }, [colors]);
+  // -------------------
   const onCopy = useCallback(
     (value: string) => {
       if (!navigator?.clipboard) {
@@ -63,7 +71,7 @@ const RenderColorVars: React.FC<RenderColorVarsProps> = ({ colorsTo }) => {
     },
     [setModalMessage],
   );
-
+  // -------------------
   const copyAll = useCallback(() => {
     if (!colorsTo || colorsTo.length === 0) return;
     if (!navigator?.clipboard) {
@@ -76,9 +84,9 @@ const RenderColorVars: React.FC<RenderColorVarsProps> = ({ colorsTo }) => {
       .then(() => setModalMessage?.("All variables copied!"))
       .catch(() => setModalMessage?.("Failed to copy variables"));
   }, [colorsTo, setModalMessage]);
-
+  // -------------------
   if (!colorsTo || colorsTo.length === 0) return null;
-
+  // -------------------
   const items = useMemo(
     () =>
       colorsTo.map((foo) => (
@@ -87,7 +95,7 @@ const RenderColorVars: React.FC<RenderColorVarsProps> = ({ colorsTo }) => {
 
     [colorsTo, onCopy],
   );
-
+  // -------------------
   return (
     <div className="mb-4 p-2 bg-navy rounded-xl border border-slate-200">
       <div className="flex items-center justify-between mb-6">

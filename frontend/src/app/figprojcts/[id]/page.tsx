@@ -4,8 +4,9 @@ import { redirect } from "next/navigation";
 import { GET_FIGMA_PROJECT_DATA } from "@/apollo/queries";
 import Bage from "@/components/ui/Bage/Bage";
 import RenderColorPalette from "./RenderColorPalette";
+import RenderColorVars from "./RenderColorVars";
 import RenderTypography from "./RenderTypography";
-import RenderScssMixins from "./RenderScssMixins";
+import RenderTextMixins from "./RenderTextMixins";
 import RenderTextStyles from "./RenderTextStyles";
 import ImageUploader from "./ImageUploader";
 import Link from "next/link";
@@ -28,7 +29,7 @@ export default async function FigmaProjectPage({
 
   const project = data?.getFigmaProjectData ?? [];
 
-  console.log("<== 🔹 🔹 🔹 🔹=project===>", project);
+  console.log("<== 🔹 🔹 🔹 🔹=project=🔹 🔹 🔹 🔹==>", project);
 
   return (
     <div className="container">
@@ -74,8 +75,9 @@ export default async function FigmaProjectPage({
         </div>
         <ImageUploader project={project} />
         <RenderColorPalette colors={project.colors} />
+        <RenderColorVars colors={project.colors} />
         <RenderTypography fonts={project.fonts} />
-        <RenderScssMixins colors={project.colors} />
+        <RenderTextMixins colors={project.colors} />
         <RenderTextStyles textNodes={project.textNodes} />
         {/**/}
       </div>

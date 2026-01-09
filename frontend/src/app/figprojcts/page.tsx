@@ -25,8 +25,8 @@ const FigmaProjects = async () => {
           <PlazaHeader
             title="Figma Design Projects"
             description="Extract and manage your design system"
-          />{" "}
-          <Bage text="Please, login to see Projects" />{" "}
+          />
+          <Bage text="Please, login to see Projects" />
         </div>
       </div>
     );
