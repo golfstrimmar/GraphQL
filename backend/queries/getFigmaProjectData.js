@@ -8,6 +8,7 @@ const getFigmaProjectData = async (_, { projectId }) => {
     where: { id: Number(projectId) },
     include: { owner: true, figmaImages: true },
   });
+
   if (!project) throw new Error("Project not found");
 
   // Если данные уже есть в колонках — просто вернуть
@@ -22,7 +23,6 @@ const getFigmaProjectData = async (_, { projectId }) => {
       : project.fileCache;
 
   const { colors, fonts, textNodes } = extractFigmaData(realJsonContent);
-
   project = await prisma.figmaProject.update({
     where: { id: project.id },
     data: {

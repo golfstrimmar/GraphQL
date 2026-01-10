@@ -29,7 +29,7 @@ export default async function FigmaProjectPage({
 
   const project = data?.getFigmaProjectData ?? [];
 
-  console.log("<== 🔹 🔹 🔹 🔹=project=🔹 🔹 🔹 🔹==>", project);
+  // console.log("<== 🔹 🔹 🔹 🔹=project=🔹 🔹 🔹 🔹==>", project);
 
   return (
     <div className="container">
@@ -64,7 +64,7 @@ export default async function FigmaProjectPage({
         </nav>
 
         <div className="flex items-end   gap-1  bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 mb-4">
-          <span>Fgma project: </span>
+          <span>Figma project: </span>
           <h3 className=" text-gray-800 ">{project?.name}</h3>
           <Link
             href={`/plaza`}
