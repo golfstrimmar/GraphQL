@@ -18,7 +18,7 @@
     height: 40px !important;
     cursor: pointer;
     position: relative;
-    transition: all 0.2s;
+    transition: all 0.2s ease-in-out;
     border: 1px solid rgb(173, 173, 173);
     border-radius: 5px;
     padding: 0px 10px 0px !important;
@@ -27,24 +27,13 @@
 
     & + label {
       position: absolute !important;
+      pointer-events: none !important;
       top: 50%;
       transform: translateY(-50%);
       left: 10px !important;
       transition: all 0.2s;
       font-size: 12px;
       color: white;
-      z-index: 10 !important;
-      // z-index: 1;
-      // font-style: italic;
-      // font-size: 14px;
-      // background: #193756;
-      // color: transparent !important;
-      // white-space: nowrap;
-      // padding: 2px 3px;
-      // line-height: 1;
-      // border-radius: 4px;
-      // opacity: 0;
-
       &::after {
         position: absolute !important;
         top: 50% !important;
@@ -125,20 +114,6 @@
     input[type="number"],
     input[type="tel"] {
       background: var(--slate-100) !important;
-      /* & + label {
-        // color: #193756 !important;
-        font-size: 12px;
-      } */
-
-      &:focus + label,
-      &:valid + label {
-        top: 0% !important;
-        z-index: 10;
-        border-radius: 4px;
-
-        background-color: white !important;
-      }
-
       & + label {
         padding: 2px 3px;
         line-height: 1;
@@ -146,10 +121,9 @@
         font-family: var(--font-inter);
         font-size: 12px;
         font-weight: 400;
-        z-index: 10;
         border-radius: 4px;
         color: var(--navy);
-        z-index: 4;
+        z-index: 2;
       }
       &:focus-visible,
       &:focus,
@@ -158,6 +132,16 @@
         background-color: var(--slate-300) !important;
         & + label {
           color: var(--teal);
+          top: -5% !important;
+          font-family: var(--font-inter);
+          z-index: 2;
+          left: 10px !important;
+          font-size: 12px;
+          font-weight: 400;
+          background-color: white !important;
+          &::after {
+            font-size: 12px !important;
+          }
         }
       }
     }

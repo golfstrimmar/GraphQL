@@ -11,6 +11,9 @@ import { useRouter } from "next/navigation";
 import { useMutation } from "@apollo/client";
 import { REMOVE_PROJECT } from "@/apollo/mutations";
 import { GET_ALL_PROJECTS_BY_USER } from "@/apollo/queries";
+import Spinner from "@/components/icons/Spinner";
+import RemoveIcon from "@/components/icons/RemoveIcon";
+
 export default function ButtonRemoveProject({ id }) {
   const { setModalMessage } = useStateContext();
   const router = useRouter();
@@ -33,13 +36,11 @@ export default function ButtonRemoveProject({ id }) {
   // 🔹🔹🔹🔹🔹🔹🔹🔹🔹
   return (
     <button
-      className=" btn px-2 btn-allert min-w-[max-content]  gap-2"
+      className=" btn px-2 btn-allert  min-h-[28px] min-w-[36px] "
       type="button"
       onClick={() => delProject(id)}
     >
-      <span className="text-sm font-medium">
-        {loading ? "...Removing" : "Remove"}{" "}
-      </span>
+      {loading ? <Spinner /> : <RemoveIcon width={24} height={24} />}
     </button>
   );
 }

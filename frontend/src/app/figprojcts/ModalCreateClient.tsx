@@ -6,6 +6,7 @@ import { useMutation, useQuery, useLazyQuery } from "@apollo/client";
 import { AnimatePresence, motion } from "framer-motion";
 import Input from "@/components/ui/Input/Input";
 import { CREATE_FIGMA_PROJECT } from "@/apollo/mutations";
+import Spinner from "@/components/icons/Spinner";
 // 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹
 export default function ModalCreateClient({ modalOpen, setModalOpen }) {
   const router = useRouter();
@@ -162,7 +163,7 @@ export default function ModalCreateClient({ modalOpen, setModalOpen }) {
                   type="submit"
                   disabled={loading}
                 >
-                  {loading ? "Saving..." : "Save"}
+                  {loading ? <Spinner /> : "Save"}
                 </button>
                 <button
                   className="btn btn-allert"

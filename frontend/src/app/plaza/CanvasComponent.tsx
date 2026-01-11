@@ -10,35 +10,16 @@ import removeNodeByKey from "./utils/removeNodeByKey";
 import validateHtmlStructure from "./utils/validateHtmlStructure";
 import applyDropByOverlay from "./utils/applyDropByOverlay";
 import duplicateNodeAfter from "./utils/duplicateNodeAfter";
+import { OverlayState, HtmlNode } from "@/types/HtmlNode";
 
 const NodeInfo = dynamic(() => import("./NodeInfo"), {
   ssr: false,
   loading: () => <Loading />,
 });
 
-type HtmlNode = {
-  tag: string;
-  text: string;
-  class: string;
-  style: string;
-  attributes?: Record<string, string>;
-  _key?: string;
-  children: HtmlNode[] | string;
-};
-
 type Tree = HtmlNode | HtmlNode[];
 
-type OverlayMode = "before" | "after" | "inside";
-
-type OverlayState = {
-  visible: boolean;
-  mode: OverlayMode;
-  top: number;
-  left: number;
-  width: number;
-  parentKey: string | "__ROOT__";
-  siblingKey: string | null; // для inside можно хранить сам node._key
-};
+// ============🔹🟢🔹🟢
 export default function CanvasComponent() {
   const [openInfoModal, setOpenInfoModal] = useState<boolean>(false);
   const [clickTimeout, setClickTimeout] = useState<NodeJS.Timeout | null>(null);

@@ -19,7 +19,7 @@ const ModalCreateFigmaProject = () => {
       >
         {!modalOpen ? (
           <span className="text-white mr-2">
-            <CreateIcon />
+            <CreateIcon width={16} height={16} />
           </span>
         ) : null}
 

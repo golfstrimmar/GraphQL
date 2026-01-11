@@ -9,7 +9,7 @@ import CreateIcon from "@/components/icons/CreateIcon";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { removeKeys } from "./utils/removeKeys";
-
+import Spinner from "@/components/icons/Spinner";
 const CreateNewProject = () => {
   const { htmlJson, user, setModalMessage, ScssMixVar, activeKey } =
     useStateContext();
@@ -117,8 +117,8 @@ const CreateNewProject = () => {
           onClick={() => setOpenCreate(!openCreate)}
           className=" h-6 flex items-center gap-2 btn  btn-primary font-bold text-slate-800"
         >
-          <span className="text-white mr-2">
-            <CreateIcon />
+          <span className=" mr-2 text-slate-800">
+            <CreateIcon width={18} height={18} />
           </span>
 
           {!openCreate ? "⇨" : "⇦"}
@@ -144,7 +144,11 @@ const CreateNewProject = () => {
                 onClick={createNewProject}
                 disabled={createLoading}
               >
-                {createLoading ? "Creating..." : "Create Project"}
+                {createLoading ? (
+                  <Spinner />
+                ) : (
+                  <CreateIcon width={24} height={24} />
+                )}
               </button>
             </motion.div>
           )}

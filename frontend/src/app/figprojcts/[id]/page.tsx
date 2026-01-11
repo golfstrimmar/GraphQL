@@ -10,6 +10,8 @@ import RenderTextMixins from "./RenderTextMixins";
 import RenderTextStyles from "./RenderTextStyles";
 import ImageUploader from "./ImageUploader";
 import Link from "next/link";
+import { TransformToUlonButton } from "./TransformToUlonButton";
+
 export default async function FigmaProjectPage({
   params,
 }: {
@@ -29,7 +31,7 @@ export default async function FigmaProjectPage({
 
   const project = data?.getFigmaProjectData ?? [];
 
-  // console.log("<== 🔹 🔹 🔹 🔹=project=🔹 🔹 🔹 🔹==>", project);
+  console.log("<== 🔹 🔹 🔹 🔹=project=🔹 🔹 🔹 🔹==>", project);
 
   return (
     <div className="container">
@@ -39,6 +41,7 @@ export default async function FigmaProjectPage({
             <Bage text="Login required" />
           </div>
         )}
+        <TransformToUlonButton fileCache={project.fileCache} />
         {/* Breadcrumbs */}
         <nav aria-label="Breadcrumb" className="mb-4 text-sm text-slate-500">
           <ol className="flex items-center gap-1">

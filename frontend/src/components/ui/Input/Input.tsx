@@ -1,6 +1,6 @@
 "use client";
 import React, { RefObject, useRef, useLayoutEffect } from "react";
-import "./input.scss";
+// import "./input.scss";
 
 interface InputProps {
   typeInput:

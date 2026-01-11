@@ -1,8 +1,8 @@
 const Spinner: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
     fill="currentColor"
-    height={props?.height || 24}
-    width={props?.width || 24}
+    height={props?.height || 18}
+    width={props?.width || 18}
     viewBox="0 0 32 32"
     xmlns="http://www.w3.org/2000/svg"
   >

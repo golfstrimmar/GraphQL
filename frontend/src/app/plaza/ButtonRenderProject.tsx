@@ -6,7 +6,7 @@ import { UPDATE_PROJECT } from "@/apollo/mutations";
 import { useStateContext } from "@/providers/StateProvider";
 import { ensureNodeKeys } from "./utils/ensureNodeKeys";
 import { removeKeys } from "./utils/removeKeys";
-
+import Spinner from "@/components/icons/Spinner";
 type ProjectData = {
   tag: string;
   text: string;
@@ -68,20 +68,20 @@ export default function ButtonRenderProject({
   return (
     <>
       <button
-        className="project-item max-w-[200px]"
+        className="project-item max-w-[200px] flex justify-center"
         onClick={() => addToHtmlJson()}
         type="button"
       >
-        {loadingProject ? "...loading" : project?.name}
+        {loadingProject ? <Spinner /> : project?.name}
       </button>
       <button
-        className="btn btn-empty mx-2 p-1 text-[12px]"
+        className="btn btn-empty mx-2 p-1 text-[12px] flex justify-center"
         onClick={() => {
           updateProject();
         }}
         type="button"
       >
-        {updateProjectLoading ? "...loading" : "Update"}
+        {updateProjectLoading ? <Spinner /> : "Update"}
       </button>
     </>
   );
