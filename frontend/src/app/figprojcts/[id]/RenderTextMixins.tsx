@@ -1,7 +1,7 @@
 "use client";
 import React, { memo, useMemo, useCallback } from "react";
 import { useStateContext } from "@/providers/StateProvider";
-
+import BlockHeader from "./BlockHeader";
 type TextNode = {
   mixin: string;
   fontFamily: string;
@@ -83,7 +83,7 @@ const CopyAllButton: React.FC<{
   return (
     <button
       onClick={handle}
-      className="px-4 py-2 bg-blue-500 text-white text-xs font-medium rounded-lg hover:bg-blue-600 transition-colors shadow-sm"
+      className="btn btn-teal h-[max-content]"
       type="button"
     >
       Copy All
@@ -169,14 +169,8 @@ const RenderScssMixins: React.FC<RenderScssMixinsProps> = ({ colors }) => {
 
   return (
     <div className="bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 mb-4">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <div className="p-1 bg-gradient-to-br from-pink-500 to-orange-500 rounded-lg flex items-center justify-center">
-            <span>{"{ }"}</span>
-          </div>
-          <h5 className="font-bold text-slate-800">Text Mixins</h5>
-        </div>
-
+      <div className="flex  justify-between ">
+        <BlockHeader icon={"🎨"} text="Text Mixins" />
         <CopyAllButton text={allMixinsText} onCopyAll={onCopyAll} />
       </div>
 

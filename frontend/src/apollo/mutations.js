@@ -226,11 +226,11 @@ export const REMOVE_FIGMA_IMAGE = gql`
       figmaImageId: $figmaImageId
     ) {
       id
-      figmaImages {
-        fileName
-        filePath
-      }
-      fileCache
+      fileName
+      filePath
+      imageRef
+      figmaProjectId
+      type
     }
   }
 `;

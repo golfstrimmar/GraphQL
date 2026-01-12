@@ -98,3 +98,9 @@ AdminComponent цветные кнопки добавления тэгов
 PlazaToolbar три кнопки перехода по странице
 
 StyleComponent --> MobileAddStyle
+
+
+
+
+import Spinner from "@/components/icons/Spinner";
+<Spinner />

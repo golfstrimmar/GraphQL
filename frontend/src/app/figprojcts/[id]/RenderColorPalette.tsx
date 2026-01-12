@@ -1,7 +1,7 @@
 "use client";
 import React, { memo, useCallback, useMemo } from "react";
 import { useStateContext } from "@/providers/StateProvider";
-
+import BlockHeader from "./BlockHeader";
 type Props = {
   colors: string[];
 };
@@ -65,12 +65,7 @@ const RenderColorPalette: React.FC<Props> = ({ colors }) => {
 
   return (
     <div className="bg-navy rounded-2xl shadow-xl p-2 mb-4 border border-slate-200">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="p-1 bg-gradient-to-br from-pink-500 to-orange-500 rounded-lg flex items-center justify-center">
-          <span>🎨</span>
-        </div>
-        <h5 className="text-2xl font-bold text-slate-800">Color Palette</h5>
-      </div>
+      <BlockHeader icon={"🎨"} text="Color Palette" />
       <div className="flex flex-wrap gap-2" role="list">
         {items}
       </div>

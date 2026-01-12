@@ -187,7 +187,7 @@ export const typeDefs = gql`
     uploadFigmaSvgsToCloudinary(projectId: ID!): [FigmaImage!]!
     uploadDesignFile(file: Upload!): UploadedResult!
     traceImageFromFig(imageName: String!, archiveBuffer: Upload!): TracedSVG!
-    removeFigmaImage(figmaImageId: ID!, figmaProjectId: ID!): FigmaProject!
+    removeFigmaImage(figmaImageId: ID!, figmaProjectId: ID!): FigmaImage!
     uploadFigmaJsonProject(
       ownerId: ID!
       name: String!

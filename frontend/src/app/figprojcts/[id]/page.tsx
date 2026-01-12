@@ -41,7 +41,7 @@ export default async function FigmaProjectPage({
             <Bage text="Login required" />
           </div>
         )}
-        <TransformToUlonButton fileCache={project.fileCache} />
+
         {/* Breadcrumbs */}
         <nav aria-label="Breadcrumb" className="mb-4 text-sm text-slate-500">
           <ol className="flex items-center gap-1">
@@ -69,14 +69,10 @@ export default async function FigmaProjectPage({
         <div className="flex items-end   gap-1  bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 mb-4">
           <span>Figma project: </span>
           <h3 className=" text-gray-800 ">{project?.name}</h3>
-          <Link
-            href={`/plaza`}
-            className="btn btn-empty px-2 self-end ml-auto !text-[var(--teal)]"
-          >
-            Transform to ULON Project
-          </Link>
+          <TransformToUlonButton fileCache={project.fileCache} />
         </div>
         <ImageUploader project={project} />
+
         <RenderColorPalette colors={project.colors} />
         <RenderColorVars colors={project.colors} />
         <RenderTypography fonts={project.fonts} />

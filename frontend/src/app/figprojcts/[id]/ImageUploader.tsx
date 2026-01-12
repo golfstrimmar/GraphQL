@@ -20,7 +20,7 @@ import Image from "next/image";
 import Loading from "@/components/ui/Loading/Loading";
 import returnCurentImages from "./imageNodes";
 import { ensureNodeKeys } from "@/app/plaza/utils/ensureNodeKeys";
-
+import Spinner from "@/components/icons/Spinner";
 interface ImageFile {
   file?: File;
   id?: number;
@@ -117,13 +117,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ project }) => {
             ? [prev]
             : [];
 
-        // на всякий случай убираем старые img-container
-        const withoutOldImages = safePrevArray.filter(
-          (node) => !(node.tag === "div" && node.text === "img-container"),
-        );
-
-        const result = [...withoutOldImages, ...res];
-        return ensureNodeKeys(result);
+        return ensureNodeKeys(res);
       });
     }
 
@@ -163,7 +157,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ project }) => {
             previewUrl: URL.createObjectURL(targetFile),
           };
         });
-
+        setIsNewImages(true);
         setImageFiles((prev) => [...prev, ...newImageFiles]);
         event.target.value = "";
       }
@@ -189,6 +183,44 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ project }) => {
           setModalMessage("Error removing image");
           return;
         }
+
+        console.log("<===data===>", data.removeFigmaImage.imageRef);
+        const imageRef = data.removeFigmaImage.imageRef;
+
+        updateHtmlJson((prev: HtmlNode[] | HtmlNode | null) => {
+          if (!prev) return prev;
+
+          const nodes = Array.isArray(prev) ? prev : [prev];
+
+          const hasImageRefDeep = (node: HtmlNode): boolean => {
+            const attrs = node.attributes ?? {};
+            const selfHasRef = Object.values(attrs).some(
+              (val) => typeof val === "string" && val.includes(imageRef),
+            );
+
+            if (selfHasRef) return true;
+
+            return (node.children ?? []).some(hasImageRefDeep);
+          };
+
+          const walk = (node: HtmlNode): HtmlNode | null => {
+            // если это img-container и внутри есть удалённая картинка — выкидываем весь контейнер
+            if (node.class === "img-container" && hasImageRefDeep(node)) {
+              return null;
+            }
+
+            const children = node.children
+              ?.map(walk)
+              .filter(Boolean) as HtmlNode[];
+
+            return { ...node, children };
+          };
+
+          const cleaned = nodes.map(walk).filter(Boolean) as HtmlNode[];
+
+          return cleaned;
+        });
+
         router.refresh();
         setModalMessage("Image removed successfully");
       }
@@ -295,6 +327,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ project }) => {
         <h5 className="font-bold text-slate-800">Images</h5>
       </div>
 
+      {/*input добавления Images*/}
       <div className="flex items-center gap-2">
         <label htmlFor="image-upload" className="btn-teal">
           <EditModeIcon />
@@ -308,6 +341,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ project }) => {
           onChange={(e) => handleFileChange(e, false)}
           className="hidden -z-2 absolute opacity-0"
         />
+
         {!preview && (
           <>
             <label htmlFor="image-Preview-upload" className="btn-teal">
@@ -326,6 +360,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ project }) => {
         )}
       </div>
 
+      {/*ображение preview*/}
       {preview && (
         <div className="border-slate-400 mt-2 w-[max-content] bg-slate-200 relative rounded-lg p-2 border text-center group">
           <img
@@ -346,13 +381,15 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ project }) => {
         </div>
       )}
 
+      {/*кнопка довления картинки ели есть новые*/}
       {imageFiles.length > 0 && isNewImages && (
         <button
           className="btn-teal mt-2"
           type="button"
           onClick={handleSaveProjectWithImages}
         >
-          {uploadLoading && <p>Loading ...</p>}
+          {uploadLoading && <Spinner />}
+
           {!uploadLoading && (
             <>
               <EditModeIcon />
@@ -368,12 +405,13 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ project }) => {
         </button>
       )}
 
+      {/*отображение всех картинок*/}
       {imageFiles.length > 0 && (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] mt-2 gap-4">
           {imageFiles.map((img, index) => (
             <div
               key={img.previewUrl || img.name || index}
-              className="border-slate-200 bg-slate-100 relative rounded-lg p-2 border text-center flex flex-col items-center justify-center group"
+              className={`${img?.file && isNewImages ? "bg-[var(--teal-light)]" : "bg-white"} border-slate-200 relative rounded-lg p-2 border text-center flex flex-col items-center justify-center group`}
             >
               <img
                 src={img.previewUrl}

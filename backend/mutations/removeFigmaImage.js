@@ -24,13 +24,8 @@ const removeFigmaImage = async (_parent, { figmaProjectId, figmaImageId }) => {
     where: { id: image.id },
   });
 
-  // 4. Возвращаем обновлённый проект с оставшимися картинками
-  return prisma.figmaProject.findUnique({
-    where: { id: projectId },
-    include: {
-      figmaImages: true,
-    },
-  });
+  // 4. Возвращаем  картинку
+  return image;
 };
 
 export default removeFigmaImage;

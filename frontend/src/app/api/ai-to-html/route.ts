@@ -17,6 +17,7 @@ if (!GROQ_API_KEY) {
 
 export const maxDuration = 30;
 
+// ----🔹🟢------
 export async function POST(req: NextRequest) {
   try {
     const figmaJson = (await req.json()) as FigmaExport;
@@ -32,18 +33,75 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+// ===  упрощение дерева без картинок ===
+function slimNode(node: any): SlimNode | null {
+  const imageLikeTypes = ["VECTOR", "ELLIPSE", "RECTANGLE", "IMAGE"];
 
-async function generateHtmlNodesFromFigma(
-  figma: FigmaExport,
-): Promise<HtmlNode[]> {
+  if (imageLikeTypes.includes(node.type)) {
+    return null;
+  }
+
+  const children = node.children?.map(slimNode).filter(Boolean) ?? [];
+
+  const isText = node.type === "TEXT";
+  const isFrameLike = ["FRAME", "GROUP", "COMPONENT", "INSTANCE"].includes(
+    node.type,
+  );
+
+  if (!isText && !children.length) {
+    return null;
+  }
+
+  const res: SlimNode = {
+    name: node.name,
+    type: node.type,
+  };
+
+  if (isText) {
+    res.content = node.content;
+    res.styles = {
+      text: {
+        size: node.styles?.text?.size,
+      },
+    };
+  }
+
+  if (isFrameLike) {
+    res.size = node.size;
+  }
+
+  if (children.length) {
+    res.children = children;
+  }
+
+  return res;
+}
+
+// ===  нарезка по верхним children ===
+function chunkChildren(root: SlimNode, maxChildrenPerChunk = 8): SlimNode[] {
+  const children = root.children ?? [];
+  if (!children.length) return [root];
+
+  const chunks: SlimNode[] = [];
+
+  for (let i = 0; i < children.length; i += maxChildrenPerChunk) {
+    chunks.push({
+      ...root,
+      children: children.slice(i, i + maxChildrenPerChunk),
+    });
+  }
+
+  return chunks;
+}
+
+// ===  вынесен один вызов Groq  ===
+async function callGroq(payload: {
+  structure: any;
+  designTokens: any;
+}): Promise<HtmlNode[]> {
   if (!GROQ_API_KEY) {
     throw new Error("GROQ_API_KEY is missing");
   }
-
-  const payload = {
-    structure: figma.structure,
-    designTokens: figma.designTokens,
-  };
 
   const systemPrompt = `
 Ты помощник для генерации черновой структуры веб-страницы из Figma JSON.
@@ -79,53 +137,101 @@ Figma JSON:
 ${JSON.stringify(payload, null, 2)}
 `;
 
-  const response = await fetch(
-    "https://api.groq.com/openai/v1/chat/completions",
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${GROQ_API_KEY}`,
-        "Content-Type": "application/json",
+  const body = {
+    model: "llama-3.1-8b-instant",
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
+    ],
+    temperature: 0.1,
+  };
+
+  let attempt = 0;
+  const maxRetries = 1;
+
+  while (true) {
+    const response = await fetch(
+      "https://api.groq.com/openai/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${GROQ_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
       },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile", // проверь точное имя модели в консоли Groq
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-        temperature: 0.1,
-      }),
-    },
-  );
+    );
 
-  if (!response.ok) {
-    const err = await response.text();
-    console.error("Groq API error:", err);
-    throw new Error("Groq API error");
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error("Groq API error status:", response.status);
+      console.error("Groq API error body:", errText);
+
+      if (response.status === 429 && attempt < maxRetries) {
+        attempt += 1;
+        await new Promise((r) => setTimeout(r, 3000));
+        continue;
+      }
+
+      throw new Error(`Groq API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    const text: string =
+      data.choices?.[0]?.message?.content ?? data.choices?.[0]?.text ?? "";
+
+    console.log("=== Groq raw text ===", text);
+
+    const cleaned = text
+      .trim()
+      .replace(/^```json\s*/i, "")
+      .replace(/^```/i, "")
+      .replace(/```$/i, "");
+
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(cleaned);
+    } catch (e) {
+      console.error("Failed to parse Groq JSON:", e, cleaned);
+      // не валим весь запрос, а возвращаем пустой результат для этого чанка
+      return [];
+    }
+
+    // если это один объект, а не массив — оборачиваем
+    if (!Array.isArray(parsed)) {
+      console.warn("Groq output is not an array, wrapping into array");
+      parsed = [parsed];
+    }
+
+    return parsed as HtmlNode[];
+  }
+}
+
+// ===  ===
+async function generateHtmlNodesFromFigma(
+  figma: FigmaExport,
+): Promise<HtmlNode[]> {
+  // 1) упрощаем figma.structure (без картинок)
+  const slimRoot = slimNode(figma.structure);
+  if (!slimRoot) return [];
+
+  // 2) режем по верхним children
+  const chunks = chunkChildren(slimRoot, 8);
+
+  const allNodes: HtmlNode[] = [];
+
+  // 3) для каждого чанка делаем ТОТ ЖЕ вызов Groq
+  for (const chunk of chunks) {
+    const payload = {
+      structure: chunk,
+      designTokens: figma.designTokens,
+    };
+
+    const nodes = await callGroq(payload);
+    allNodes.push(...nodes);
   }
 
-  const data = await response.json();
-
-  const text: string =
-    data.choices?.[0]?.message?.content ?? data.choices?.[0]?.text ?? "";
-
-  let parsed: HtmlNode[];
-  console.log("=== Groq raw text ===", text);
-  const cleaned = text
-    .trim()
-    .replace(/^```json\s*/i, "")
-    .replace(/^```\s*/i, "")
-    .replace(/```$/i, "");
-
-  try {
-    parsed = JSON.parse(cleaned);
-  } catch (e) {
-    console.error("Failed to parse Groq JSON:", e, cleaned);
-    throw new Error("Groq returned invalid JSON");
-  }
-  if (!Array.isArray(parsed)) {
-    throw new Error("Groq output is not an array");
-  }
-
-  return parsed;
+  // 4) возвращаем один плоский массив
+  return allNodes;
 }

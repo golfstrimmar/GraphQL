@@ -1,7 +1,7 @@
 "use client";
 import React, { memo, useCallback, useMemo } from "react";
 import { useStateContext } from "@/providers/StateProvider";
-
+import BlockHeader from "./BlockHeader";
 interface RenderColorVarsProps {
   colorsTo: string[];
 }
@@ -98,16 +98,11 @@ const RenderColorVars: React.FC<RenderColorVarsProps> = ({ colors }) => {
   // -------------------
   return (
     <div className="mb-4 p-2 bg-navy rounded-xl border border-slate-200">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <div className="p-1 bg-gradient-to-br from-pink-500 to-orange-500 rounded-lg flex items-center justify-center">
-            <span>🎨</span>
-          </div>
-          <h5 className="font-bold text-slate-800">Color Variables</h5>
-        </div>
+      <div className="flex justify-between ">
+        <BlockHeader icon={"🎨"} text="Color Variables" />
         <button
           onClick={copyAll}
-          className="px-4 py-2 bg-blue-500 text-white text-xs font-medium rounded-lg hover:bg-blue-600 transition-colors shadow-sm"
+          className="btn btn-teal h-[max-content]"
           type="button"
         >
           Copy All

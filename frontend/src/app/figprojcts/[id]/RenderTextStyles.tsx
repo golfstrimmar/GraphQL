@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, memo, useCallback, useMemo } from "react";
 import { useStateContext } from "@/providers/StateProvider";
+import BlockHeader from "./BlockHeader";
 
 type TextNode = {
   text: string;
@@ -152,13 +153,7 @@ const RenderTextStyles: React.FC<{ textNodes?: TextNode[] }> = ({
 
   return (
     <div className="bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 mb-4">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="p-1 bg-gradient-to-br from-pink-500 to-orange-500 rounded-lg flex items-center justify-center">
-          <span>🧻</span>
-        </div>
-        <h5 className="text-2xl font-bold text-slate-800">Text Styles</h5>
-      </div>
-
+      <BlockHeader icon={"🧻"} text="Text Styles" />
       <div className="space-y-3" role="list">
         {items}
       </div>

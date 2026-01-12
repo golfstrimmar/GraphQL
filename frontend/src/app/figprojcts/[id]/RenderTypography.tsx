@@ -1,15 +1,12 @@
 "use client";
 import React from "react";
+import BlockHeader from "./BlockHeader";
+
 const RenderTypography = ({ fonts }) => {
   if (!fonts || Object.keys(fonts).length === 0) return null;
   return (
     <div className="bg-navy rounded-2xl shadow-xl p-2  mb-4 border border-slate-200">
-      <div className="flex items-center gap-3 mb-6">
-        <div className=" p-1 bg-gradient-to-br from-pink-500 to-orange-500 rounded-lg flex items-center justify-center">
-          <span>Aa</span>
-        </div>
-        <h5 className=" font-bold text-slate-800">Typography</h5>
-      </div>
+      <BlockHeader icon={"Aa"} text="Typography" />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {Object.entries(fonts).map(([key, fontObj]) => (
           <div

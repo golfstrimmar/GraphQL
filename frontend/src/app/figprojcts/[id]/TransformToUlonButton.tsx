@@ -6,7 +6,7 @@ import { useStateContext } from "@/providers/StateProvider";
 import type { HtmlNode } from "@/types/HtmlNode";
 
 export function TransformToUlonButton({ fileCache }: { fileCache: any }) {
-  const { updateHtmlJson } = useStateContext();
+  const { updateHtmlJson, setModalMessage } = useStateContext();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   useEffect(() => {
@@ -24,6 +24,7 @@ export function TransformToUlonButton({ fileCache }: { fileCache: any }) {
 
       if (!res.ok) {
         console.error("ai-to-html failed");
+        setModalMessage("Ai to html failed");
         return;
       }
 
