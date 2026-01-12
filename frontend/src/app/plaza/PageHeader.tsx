@@ -1,6 +1,7 @@
 import ProjectsIcon from "@/components/icons/ProjectsIcon";
 import WorkerIcon from "@/components/icons/WorkerIcon";
 import SundboxIcon from "@/components/icons/SundboxIcon";
+import PreviewIcon from "@/components/icons/PreviewIcon";
 
 type PageHeaderProps = {
   iconName: string;
@@ -16,6 +17,7 @@ function PageHeader(iconName, title) {
             {iconName === "projectsIcon" ? <ProjectsIcon /> : null}
             {iconName === "canvasIcon" ? <WorkerIcon /> : null}
             {iconName === "sandboxIcon" ? <SundboxIcon /> : null}
+            {iconName === "PreviewIcon" ? <PreviewIcon /> : null}
           </span>
         </div>
         <h6 className="font-bold text-slate-800">{title}</h6>

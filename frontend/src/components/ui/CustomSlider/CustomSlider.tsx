@@ -99,6 +99,35 @@ const CustomSlider: React.FC<CustomSliderProps> = ({
 
   return (
     <div className={customClass || ""}>
+      <div className="mb-1 flex justify-between text-[10px] text-slate-500">
+        <span
+          className={
+            value === 0.1
+              ? "text-[var(--teal)] font-bold bg-[var(--teal-light)] p-1 h-6 rounded-full text-center "
+              : "p-2"
+          }
+        >
+          10%
+        </span>
+        <span
+          className={
+            value === 1
+              ? "text-[var(--teal)] font-bold bg-[var(--teal-light)] p-1 h-6 rounded-full text-center "
+              : "p-2"
+          }
+        >
+          100%
+        </span>
+        <span
+          className={
+            value === max
+              ? "text-[var(--teal)] font-bold bg-[var(--teal-light)] p-1  h-6 rounded-full text-center "
+              : ""
+          }
+        >
+          {max}00%
+        </span>
+      </div>
       <div
         ref={trackRef}
         className="relative h-2 rounded-full bg-slate-200 cursor-pointer"

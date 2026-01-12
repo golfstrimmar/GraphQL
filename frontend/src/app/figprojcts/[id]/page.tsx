@@ -11,7 +11,9 @@ import RenderTextStyles from "./RenderTextStyles";
 import ImageUploader from "./ImageUploader";
 import Link from "next/link";
 import { TransformToUlonButton } from "./TransformToUlonButton";
+import ToPlaza from "./ToPlaza";
 
+// 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹
 export default async function FigmaProjectPage({
   params,
 }: {
@@ -66,10 +68,16 @@ export default async function FigmaProjectPage({
           </ol>
         </nav>
 
-        <div className="flex items-end   gap-1  bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 mb-4">
-          <span>Figma project: </span>
-          <h3 className=" text-gray-800 ">{project?.name}</h3>
-          <TransformToUlonButton fileCache={project.fileCache} />
+        <div className="flex items-end justify-between  gap-1  bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 mb-4">
+          <div className="flex items-center gap-1">
+            <span className="">Figma project: </span>
+            <h3 className="!text-[var(--teal)]">{project?.name}</h3>
+          </div>
+
+          <div className="flex justify-end">
+            <ToPlaza />
+            <TransformToUlonButton fileCache={project.fileCache} />
+          </div>
         </div>
         <ImageUploader project={project} />
 

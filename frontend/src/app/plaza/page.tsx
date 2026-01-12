@@ -2,6 +2,7 @@ import ProjectsList from "./ProjectsList";
 import PlazaHeader from "./PlazaHeader";
 import CanvasComponent from "./CanvasComponent";
 import AdminComponent from "./AdminComponent";
+import PreviewComponent from "./PreviewComponent";
 import "./plaza.scss";
 export default function Plaza() {
   return (
@@ -11,6 +12,8 @@ export default function Plaza() {
           title={"Plaza Editor"}
           description={"Build and manage your HTML/CSS projects"}
         />
+
+        <PreviewComponent />
         <CanvasComponent />
         <ProjectsList />
         <div className="fixed bottom-0 left-0 w-full border-t-2 border-[var(--teal)] z-50">

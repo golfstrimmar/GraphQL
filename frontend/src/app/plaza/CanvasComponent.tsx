@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PageHeader from "./PageHeader";
 import { useStateContext } from "@/providers/StateProvider";
 import Loading from "@/components/ui/Loading/Loading";
@@ -32,6 +32,7 @@ export default function CanvasComponent() {
     setActiveKey,
     dragKey,
     setDragKey,
+    preview,
   } = useStateContext();
 
   // ---------- утилиты ----------

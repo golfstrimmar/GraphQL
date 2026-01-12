@@ -114,13 +114,28 @@ body,
   }
 }
 
-/* h2 {
-  font-size: 1rem;
-  font-weight: bold;
+/* ширина / высота полосы */
+.custom-scrollbar {
+  scrollbar-width: auto; /* для Firefox */
+  scrollbar-color: #64748b transparent;
 }
 
-.container {
-  margin: 0 auto;
-  max-width: 1200px;
-  padding: 0 1rem;
-} */
+/* Chrome/Safari/Edge */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px; /* вертикальный */
+  height: 8px; /* горизонтальный */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent; /* фон трека */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #64748b; /* цвет бегунка */
+  border-radius: 9999px;
+  border: 2px solid transparent; /* «узкий» бегунок */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #0f172a;
+}

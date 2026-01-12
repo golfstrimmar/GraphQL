@@ -4,15 +4,13 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useStateContext } from "@/providers/StateProvider";
 import type { HtmlNode } from "@/types/HtmlNode";
+import { ensureNodeKeys } from "@/app/plaza/utils/ensureNodeKeys";
 
 export function TransformToUlonButton({ fileCache }: { fileCache: any }) {
   const { updateHtmlJson, setModalMessage } = useStateContext();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  useEffect(() => {
-    if (!fileCache) return;
-    console.log("<===fileCache===>", fileCache);
-  }, [fileCache]);
+
   const handleClick = () => {
     startTransition(async () => {
       const res = await fetch("/api/ai-to-html", {
@@ -20,7 +18,6 @@ export function TransformToUlonButton({ fileCache }: { fileCache: any }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(fileCache),
       });
-      console.log("<=🛑🛑🛑==res===>", res);
 
       if (!res.ok) {
         console.error("ai-to-html failed");
@@ -29,7 +26,11 @@ export function TransformToUlonButton({ fileCache }: { fileCache: any }) {
       }
 
       const data: { nodes: HtmlNode[] } = await res.json();
-      updateHtmlJson(data.nodes);
+      console.log("<=🛑🛑🛑=====>", data.nodes);
+      const resultToJsonHtml = ensureNodeKeys(data.nodes);
+      updateHtmlJson((prev: HtmlNode[]) => {
+        return [...prev, ...resultToJsonHtml];
+      });
       router.push("/plaza");
     });
   };
