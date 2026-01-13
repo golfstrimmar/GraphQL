@@ -3,10 +3,10 @@ import React, { useEffect, useState, useRef, useMemo } from "react";
 import findNodeByKey from "@/utils/plaza/findNodeByKey";
 import { motion, AnimatePresence } from "framer-motion";
 import СhevronRight from "@/components/icons/СhevronRight";
-import StyleComponent from "./StyleComponent";
-import ClassComponent from "./ClassComponent";
-import TextComponent from "./TextComponent";
-import TagComponent from "./TagComponent";
+import StyleComponent from "./forNodeInfo/StyleComponent";
+import ClassComponent from "./forNodeInfo/ClassComponent";
+import TextComponent from "./forNodeInfo/TextComponent";
+import TagComponent from "./forNodeInfo/TagComponent";
 import { useHtmlFromJson } from "@/hooks/useHtmlFromJson";
 import { useScssFromJson } from "@/hooks/useScssFromJson";
 import { useStateContext } from "@/providers/StateProvider";
@@ -59,7 +59,7 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
     if (node) {
       setNodeToSend(node);
     }
-  }, [activeKey]);
+  }, [activeKey, htmlJson]);
   // ================================
   const updateNodeByKey = (key: string, changes: Partial<HtmlNode>) => {
     updateHtmlJson((prev) => {

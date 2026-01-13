@@ -47,7 +47,15 @@ type Preview = {
   type: "VECTOR" | "RASTER" | "OTHER";
   __typename: "FigmaImage";
 };
-
+type TextNodeWithStyle = {
+  color: string;
+  fontFamily: string;
+  fontSize: string;
+  fontWeight: string;
+  mixin: string;
+  text: string;
+  __typename: "TextNodeWithStyle";
+};
 interface StateContextType {
   htmlJson: HtmlNode[];
   setHtmlJson: React.Dispatch<React.SetStateAction<HtmlNode[]>>;
@@ -104,7 +112,7 @@ export function StateProvider({
   const [modalMessage, setModalMessage] = useState<string>("");
   const [open, setOpen] = useState<boolean>(false);
   const [colors, setColors] = useState<string[]>([]);
-  const [texts, setTexts] = useState<string[]>([]);
+  const [texts, setTexts] = useState<TextNodeWithStyle[]>([]);
   const [undoStack, setUndoStack] = useState<HtmlNode[][]>([]);
   const [redoStack, setRedoStack] = useState<HtmlNode[][]>([]);
   const [HTML, setHTML] = useState<string>("");
