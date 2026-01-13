@@ -8,6 +8,28 @@ type FigmaExport = {
   structure: any;
   summary: any;
 };
+type SlimTextStyles = {
+  size?: number;
+  color?: { r: number; g: number; b: number; a?: number };
+  fontFamily?: string;
+  fontWeight?: number | string;
+  lineHeightPx?: number;
+  lineHeightPercent?: number;
+  letterSpacing?: number;
+  textAlignHorizontal?: "LEFT" | "CENTER" | "RIGHT" | "JUSTIFIED";
+  textAlignVertical?: "TOP" | "CENTER" | "BOTTOM";
+};
+
+type SlimNode = {
+  name: string;
+  type: string;
+  content?: string;
+  styles?: {
+    text?: SlimTextStyles;
+  };
+  size?: { width: number; height: number };
+  children?: SlimNode[];
+};
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
@@ -59,9 +81,23 @@ function slimNode(node: any): SlimNode | null {
 
   if (isText) {
     res.content = node.content;
+
+    const textStyle = node.styles?.text ?? {};
+
     res.styles = {
       text: {
-        size: node.styles?.text?.size,
+        size: textStyle.size ?? textStyle.fontSize,
+        color: textStyle.color ?? node.fills?.[0]?.color,
+        fontFamily: textStyle.fontFamily,
+        fontWeight: textStyle.fontWeight,
+        lineHeightPx: textStyle.lineHeightPx ?? textStyle.lineHeight?.value,
+        lineHeightPercent:
+          textStyle.lineHeightPercent ?? textStyle.lineHeight?.percent,
+        letterSpacing: textStyle.letterSpacing,
+        textAlignHorizontal:
+          textStyle.textAlignHorizontal ?? node.textAlignHorizontal,
+        textAlignVertical:
+          textStyle.textAlignVertical ?? node.textAlignVertical,
       },
     };
   }
@@ -104,31 +140,55 @@ async function callGroq(payload: {
   }
 
   const systemPrompt = `
-Ты помощник для генерации черновой структуры веб-страницы из Figma JSON.
+    Ты помощник для генерации черновой структуры веб-страницы из Figma JSON.
+    Твоя задача: анализировать JSON-структуру одного фрейма Figma (structure + designTokens)
+    и возвращать массив HtmlNode, описывающих HTML-структуру для этого фрейма.
 
-Твоя задача: анализировать JSON-структуру одного фрейма Figma (structure + designTokens)
-и возвращать массив HtmlNode, описывающих HTML-структуру для этого фрейма.
+    ФОРМАТ HtmlNode:
+      {
+        "tag": "section" | "div" | "header" | "footer" | "main" | "article" | "aside" |
+                "h1" | "h2" | "h3" | "p" | "ul" | "ol" | "li" | "button" | "a" | "span",
+        "text": "строка текста или пустая строка",
+        "class": "строка css-классов (может быть пустой)",
+        "style": "строка inline-стилей (может быть пустой)",
+        "children": [ ...HtmlNode... ]
+      }
 
-ФОРМАТ HtmlNode:
-{
-  "tag": "section" | "div" | "header" | "footer" | "main" | "article" | "aside" |
-          "h1" | "h2" | "h3" | "p" | "ul" | "ol" | "li" | "button" | "a" | "span",
-  "text": "строка текста или пустая строка",
-  "class": "строка css-классов (может быть пустой)",
-  "style": "строка inline-стилей (может быть пустой)",
+    ТРЕБОВАНИЯ:
 
-  "attributes": { "href": "...", "id": "..." }, // необязательно
-  "children": [ ...HtmlNode... ] // массив таких же объектов
-}
+    - Верни ТОЛЬКО JSON-массив HtmlNode (без комментариев, лишнего текста и оберток).
+    - Не добавляй никаких других полей, кроме перечисленных.
+    - Не используй children как строку, только массив HtmlNode.
+    - Структура должна быть семантичной (заголовки → h1/h2/h3, текст → p, логичные section/article).
+    - Опирайся на размеры текста (designTokens, свойства size) и контент, чтобы выбирать теги и иерархию.
+    - Для текстовых узлов используй ВСЮ доступную информацию из styles.text и designTokens,
+      чтобы заполнять style. Преобразуй поля следующим образом, если они есть:
+        - size → font-size: {size}px;
+        - fontWeight → font-weight: {fontWeight};
+        - fontFamily → font-family: "{fontFamily}";
+        - lineHeightPx → line-height: {lineHeightPx}px;
+        - letterSpacing → letter-spacing: {letterSpacing}px;
+        - color (r,g,b,a в диапазоне 0..1) → color: rgba(r*255, g*255, b*255, a или 1);
+        - textAlignHorizontal LEFT/CENTER/RIGHT/JUSTIFIED → text-align: left/center/right/justify;
+    - Если какое-то свойство отсутствует во входных данных, не выдумывай его и не добавляй в style.
+    - Используй классы в духе BEM (например, "hero", "hero__header", "hero-card", "hero-card__title").
 
-ТРЕБОВАНИЯ:
-- Верни ТОЛЬКО JSON-массив HtmlNode (без комментариев, лишнего текста и оберток).
-- Не добавляй никаких других полей, кроме перечисленных.
-- Не используй children как строку, только массив HtmlNode.
-- Структура должна быть семантичной (заголовки → h1/h2/h3, текст → p, логичные section/article).
-- Опирайся на размеры текста (designTokens, свойства size) и контент, чтобы выбирать теги и иерархию.
-- Используй классы в духе BEM (например, "benefits", "benefits__header", "benefit-card", "benefit-card__title").
-`;
+    В итоговых JSON-массивах HtmlNode[] не должно быть лишних полей, кроме перечисленных.
+    Поле attributes должно быть ТОЛЬКО у тегов <a>, <button>, <img>, <input>, <textarea>.
+    Если тэг не <a>, <button>, <img>, <input> или <textarea> — не добавляй attributes вообще.
+
+    Пример:
+    Ожидаемый HtmlNode:
+
+      {
+        "tag": "h1",
+        "text": "Hello world",
+        "class": "hero__title",
+        "style": "font-size: 24px; font-weight: 700; font-family: \\"Inter\\"; line-height: 32px; letter-spacing: 0px; color: rgba(0, 0, 0, 1); text-align: center;",
+        "children": []
+      }
+
+  `;
 
   const userPrompt = `
 Вот Figma JSON фрейма. Сгенерируй черновую структуру HtmlNode[] по правилам выше.

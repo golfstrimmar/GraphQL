@@ -10,7 +10,7 @@ import RenderTextMixins from "./RenderTextMixins";
 import RenderTextStyles from "./RenderTextStyles";
 import ImageUploader from "./ImageUploader";
 import Link from "next/link";
-import { TransformToUlonButton } from "./TransformToUlonButton";
+import { AiToUlonButton } from "./AiToUlonButton";
 import ToPlaza from "./ToPlaza";
 
 // 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹
@@ -76,11 +76,10 @@ export default async function FigmaProjectPage({
 
           <div className="flex justify-end">
             <ToPlaza />
-            <TransformToUlonButton fileCache={project.fileCache} />
+            <AiToUlonButton fileCache={project.fileCache} />
           </div>
         </div>
         <ImageUploader project={project} />
-
         <RenderColorPalette colors={project.colors} />
         <RenderColorVars colors={project.colors} />
         <RenderTypography fonts={project.fonts} />
