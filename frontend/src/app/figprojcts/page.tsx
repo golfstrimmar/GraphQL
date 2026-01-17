@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import client from "@/apollo/apolloClient";
 import { GET_FIGMA_PROJECTS_BY_USER } from "@/apollo/queries";
 import FigmaProjectsList from "./FigmaProjectsList";
-import PlazaHeader from "@/app/plaza/PlazaHeader";
+import PlazaHeader from "@/components/PlazaHeader";
 import Bage from "@/components/ui/Bage/Bage";
 import ModalCreateFigmaProject from "./ModalCreateFigmaProject";
 

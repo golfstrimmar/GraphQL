@@ -4,7 +4,6 @@ export function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
   const isProtectedPath =
-    pathname.startsWith("/plaza") ||
     pathname.startsWith("/design") ||
     pathname.startsWith("/profile") ||
     pathname.startsWith("/figprojcts");

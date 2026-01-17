@@ -7,7 +7,7 @@ import { useStateContext } from "@/providers/StateProvider";
 import startScssContent from "../SandboxComponent/startScssContent";
 import { formatScss } from "@/utils/sandboxFormatters";
 import formatHtml from "@/utils/formatHtml";
-import PlazaHeader from "@/app/plaza/PlazaHeader";
+import PlazaHeader from "@/components/PlazaHeader";
 interface SandboxComponentProps {
   heightPreview?: number;
   widthPreview?: number;

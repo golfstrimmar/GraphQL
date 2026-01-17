@@ -104,3 +104,6 @@ StyleComponent --> MobileAddStyle
 
 import Spinner from "@/components/icons/Spinner";
 <Spinner />
+
+===================================🔹 🔹 groq
+https://console.groq.com/keys

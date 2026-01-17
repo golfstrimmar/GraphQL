@@ -1,11 +1,27 @@
-"use client";
-import React, { useEffect } from "react";
+import { cookies } from "next/headers";
 import transformData from "@/hooks/useTransformData";
 import Image from "next/image";
-import { useStateContext } from "@/providers/StateProvider";
 import ButtonRemoveUser from "@/components/ButtonRemoveUser/ButtonRemoveUser";
-export default function Login() {
-  const { user, setUser, setModalMessage } = useStateContext();
+import PlazaHeader from "@/components/PlazaHeader";
+import Bage from "@/components/ui/Bage/Bage";
+
+export default async function Profile() {
+  const cookieStore = await cookies();
+  const userCookie = cookieStore.get("user")?.value ?? null;
+  if (!userCookie) {
+    return (
+      <div className="container">
+        <div className="flex flex-col gap-2 mb-2 mt-[100px] min-h-[100vh]">
+          <PlazaHeader
+            title="Figma Design Projects"
+            description="Extract and manage your design system"
+          />
+          <Bage text="Please, login to see Projects" />
+        </div>
+      </div>
+    );
+  }
+  const user = JSON.parse(userCookie) as UserFromCookie;
   return (
     <div>
       {user && (

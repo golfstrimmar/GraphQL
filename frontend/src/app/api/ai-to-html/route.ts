@@ -1,201 +1,215 @@
-// app/api/figma-to-html/route.ts
+// app/api/figma-section-to-html/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import type { HtmlNode } from "@/types/HtmlNode";
 
-type FigmaExport = {
-  metadata: any;
-  designTokens: any;
-  structure: any;
-  summary: any;
-};
-type SlimTextStyles = {
-  size?: number;
-  color?: { r: number; g: number; b: number; a?: number };
-  fontFamily?: string;
-  fontWeight?: number | string;
-  lineHeightPx?: number;
-  lineHeightPercent?: number;
-  letterSpacing?: number;
-  textAlignHorizontal?: "LEFT" | "CENTER" | "RIGHT" | "JUSTIFIED";
-  textAlignVertical?: "TOP" | "CENTER" | "BOTTOM";
-};
+interface HtmlNode {
+  tag: string;
+  text: string;
+  class: string;
+  style: string;
+  children: HtmlNode[];
+}
 
-type SlimNode = {
+interface FigmaNode {
+  id: string;
   name: string;
   type: string;
-  content?: string;
-  styles?: {
-    text?: SlimTextStyles;
+  visible?: boolean;
+  children?: FigmaNode[];
+  characters?: string;
+
+  style?: {
+    fontFamily?: string;
+    fontWeight?: number | string;
+    fontSize?: number;
+    lineHeightPx?: number;
+    letterSpacing?: number;
+    textAlignHorizontal?: "LEFT" | "CENTER" | "RIGHT" | "JUSTIFIED";
+    textAlignVertical?: "TOP" | "CENTER" | "BOTTOM";
+    fills?: Array<{
+      type: string;
+      color?: { r: number; g: number; b: number; a: number };
+    }>;
   };
-  size?: { width: number; height: number };
-  children?: SlimNode[];
+
+  fills?: Array<{
+    type: string;
+    color?: { r: number; g: number; b: number; a: number };
+  }>;
+
+  absoluteBoundingBox?: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+}
+
+type SectionNode = {
+  id: string;
+  name: string;
+  type: string;
+  children?: SectionNode[];
+  characters?: string;
+  style?: FigmaNode["style"];
+  box?: FigmaNode["absoluteBoundingBox"];
 };
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
-
-if (!GROQ_API_KEY) {
-  console.warn("GROQ_API_KEY is not set in environment variables");
-}
-
 export const maxDuration = 30;
 
-// ----🔹🟢------
+// ===== HTTP handler =====
 export async function POST(req: NextRequest) {
-  try {
-    const figmaJson = (await req.json()) as FigmaExport;
+  console.log("🔹  → HTML started");
 
-    const nodes = await generateHtmlNodesFromFigma(figmaJson);
-
-    return NextResponse.json({ nodes }, { status: 200 });
-  } catch (error) {
-    console.error("figma-to-html error", error);
+  if (!GROQ_API_KEY) {
     return NextResponse.json(
-      { error: "Failed to generate HTML structure" },
+      { error: "GROQ_API_KEY is not configured" },
+      { status: 500 },
+    );
+  }
+
+  try {
+    const figmaJson = await req.json();
+    const root = figmaJson.document || figmaJson.structure || figmaJson;
+
+    if (!root) {
+      return NextResponse.json(
+        { nodes: [], message: "No root node in Figma JSON" },
+        { status: 200 },
+      );
+    }
+
+    // 1) Находим нужную ноду по id
+    const targetId = "986:2714";
+    const section = findNodeById(root, targetId);
+    if (!section) {
+      return NextResponse.json(
+        { nodes: [], message: `Node ${targetId} not found` },
+        { status: 200 },
+      );
+    }
+
+    console.log("Using section:", section.name, section.id);
+
+    // 2) Упрощаем только эту секцию (с текстами и стилями)
+    const compact = compactSection(section);
+
+    // 3) Гоним компактную секцию в Groq
+    const htmlNodes = await callGroqWithSection(compact);
+
+    return NextResponse.json(
+      {
+        nodes: htmlNodes,
+        count: htmlNodes.length,
+        message: `Generated ${htmlNodes.length} HtmlNode from section ${targetId}`,
+      },
+      { status: 200 },
+    );
+  } catch (error) {
+    console.error("figma-section-to-html error", error);
+    return NextResponse.json(
+      { error: "Failed to generate HTML from section" },
       { status: 500 },
     );
   }
 }
-// ===  упрощение дерева без картинок ===
-function slimNode(node: any): SlimNode | null {
-  const imageLikeTypes = ["VECTOR", "ELLIPSE", "RECTANGLE", "IMAGE"];
 
-  if (imageLikeTypes.includes(node.type)) {
-    return null;
+// ===== helpers =====
+
+// Рекурсивный поиск ноды по id
+function findNodeById(node: FigmaNode, id: string): FigmaNode | null {
+  if (!node || typeof node !== "object") return null;
+  if (node.id === id) return node;
+
+  if (node.children) {
+    for (const child of node.children) {
+      const found = findNodeById(child, id);
+      if (found) return found;
+    }
   }
 
-  const children = node.children?.map(slimNode).filter(Boolean) ?? [];
+  return null;
+}
 
-  const isText = node.type === "TEXT";
-  const isFrameLike = ["FRAME", "GROUP", "COMPONENT", "INSTANCE"].includes(
-    node.type,
-  );
-
-  if (!isText && !children.length) {
-    return null;
-  }
-
-  const res: SlimNode = {
+// Упрощаем секцию: только структура + тексты + базовые стили
+function compactSection(node: FigmaNode): SectionNode {
+  const compact: SectionNode = {
+    id: node.id,
     name: node.name,
     type: node.type,
   };
 
-  if (isText) {
-    res.content = node.content;
+  if (node.characters?.trim()) {
+    compact.characters = node.characters.trim();
+  }
 
-    const textStyle = node.styles?.text ?? {};
-
-    res.styles = {
-      text: {
-        size: textStyle.size ?? textStyle.fontSize,
-        color: textStyle.color ?? node.fills?.[0]?.color,
-        fontFamily: textStyle.fontFamily,
-        fontWeight: textStyle.fontWeight,
-        lineHeightPx: textStyle.lineHeightPx ?? textStyle.lineHeight?.value,
-        lineHeightPercent:
-          textStyle.lineHeightPercent ?? textStyle.lineHeight?.percent,
-        letterSpacing: textStyle.letterSpacing,
-        textAlignHorizontal:
-          textStyle.textAlignHorizontal ?? node.textAlignHorizontal,
-        textAlignVertical:
-          textStyle.textAlignVertical ?? node.textAlignVertical,
-      },
+  if (node.style) {
+    compact.style = {
+      fontFamily: node.style.fontFamily,
+      fontWeight: node.style.fontWeight,
+      fontSize: node.style.fontSize,
+      lineHeightPx: node.style.lineHeightPx,
+      letterSpacing: node.style.letterSpacing,
+      textAlignHorizontal: node.style.textAlignHorizontal,
+      textAlignVertical: node.style.textAlignVertical,
+      fills: node.style.fills,
     };
   }
 
-  if (isFrameLike) {
-    res.size = node.size;
+  if (node.absoluteBoundingBox) {
+    compact.box = node.absoluteBoundingBox;
   }
 
-  if (children.length) {
-    res.children = children;
+  if (node.children && node.children.length) {
+    compact.children = node.children.map(compactSection);
   }
 
-  return res;
+  return compact;
 }
 
-// ===  нарезка по верхним children ===
-function chunkChildren(root: SlimNode, maxChildrenPerChunk = 8): SlimNode[] {
-  const children = root.children ?? [];
-  if (!children.length) return [root];
-
-  const chunks: SlimNode[] = [];
-
-  for (let i = 0; i < children.length; i += maxChildrenPerChunk) {
-    chunks.push({
-      ...root,
-      children: children.slice(i, i + maxChildrenPerChunk),
-    });
-  }
-
-  return chunks;
-}
-
-// ===  вынесен один вызов Groq  ===
-async function callGroq(payload: {
-  structure: any;
-  designTokens: any;
-}): Promise<HtmlNode[]> {
-  if (!GROQ_API_KEY) {
-    throw new Error("GROQ_API_KEY is missing");
-  }
+// Вызов Groq по одной секции
+async function callGroqWithSection(section: SectionNode): Promise<HtmlNode[]> {
+  if (!GROQ_API_KEY) throw new Error("GROQ_API_KEY is missing");
 
   const systemPrompt = `
-    Ты помощник для генерации черновой структуры веб-страницы из Figma JSON.
-    Твоя задача: анализировать JSON-структуру одного фрейма Figma (structure + designTokens)
-    и возвращать массив HtmlNode, описывающих HTML-структуру для этого фрейма.
+Ты помощник, который по фрагменту Figma-секции (type/name/children/characters/style/box)
+создаёт HTML-структуру блока с карточками.
 
-    ФОРМАТ HtmlNode:
-      {
-        "tag": "section" | "div" | "header" | "footer" | "main" | "article" | "aside" |
-                "h1" | "h2" | "h3" | "p" | "ul" | "ol" | "li" | "button" | "a" | "span",
-        "text": "строка текста или пустая строка",
-        "class": "строка css-классов (может быть пустой)",
-        "style": "строка inline-стилей (может быть пустой)",
-        "children": [ ...HtmlNode... ]
-      }
+Входной JSON описывает одну секцию:
+- type: FRAME/GROUP/TEXT/RECTANGLE и т.п.
+- name: название ноды (может подсказать тип блока/карточки)
+- characters: текст (если это текстовая нода)
+- style: базовые текстовые стили (fontSize, fontWeight, textAlignHorizontal, fills)
+- box: absoluteBoundingBox (x/y/width/height), чтобы понимать порядок/колонки
+- children: вложенные ноды.
 
-    ТРЕБОВАНИЯ:
+Нужно вернуть массив HtmlNode (JSON):
+[
+  {
+    "tag": "section" | "div" | "header" | "footer" | "main" | "article" | "aside" |
+            "h1" | "h2" | "h3" | "p" | "ul" | "ol" | "li" | "button" | "a" | "span",
+    "text": "строка текста",
+    "class": "строка css-классов (может быть пустой)",
+    "style": "строка inline-стилей (может быть пустой)",
+    "children": [ ... HtmlNode ... ]
+  }
+]
 
-    - Верни ТОЛЬКО JSON-массив HtmlNode (без комментариев, лишнего текста и оберток).
-    - Не добавляй никаких других полей, кроме перечисленных.
-    - Не используй children как строку, только массив HtmlNode.
-    - Структура должна быть семантичной (заголовки → h1/h2/h3, текст → p, логичные section/article).
-    - Опирайся на размеры текста (designTokens, свойства size) и контент, чтобы выбирать теги и иерархию.
-    - Для текстовых узлов используй ВСЮ доступную информацию из styles.text и designTokens,
-      чтобы заполнять style. Преобразуй поля следующим образом, если они есть:
-        - size → font-size: {size}px;
-        - fontWeight → font-weight: {fontWeight};
-        - fontFamily → font-family: "{fontFamily}";
-        - lineHeightPx → line-height: {lineHeightPx}px;
-        - letterSpacing → letter-spacing: {letterSpacing}px;
-        - color (r,g,b,a в диапазоне 0..1) → color: rgba(r*255, g*255, b*255, a или 1);
-        - textAlignHorizontal LEFT/CENTER/RIGHT/JUSTIFIED → text-align: left/center/right/justify;
-    - Если какое-то свойство отсутствует во входных данных, не выдумывай его и не добавляй в style.
-    - Используй классы в духе BEM (например, "hero", "hero__header", "hero-card", "hero-card__title").
-
-    В итоговых JSON-массивах HtmlNode[] не должно быть лишних полей, кроме перечисленных.
-    Поле attributes должно быть ТОЛЬКО у тегов <a>, <button>, <img>, <input>, <textarea>.
-    Если тэг не <a>, <button>, <img>, <input> или <textarea> — не добавляй attributes вообще.
-
-    Пример:
-    Ожидаемый HtmlNode:
-
-      {
-        "tag": "h1",
-        "text": "Hello world",
-        "class": "hero__title",
-        "style": "font-size: 24px; font-weight: 700; font-family: \\"Inter\\"; line-height: 32px; letter-spacing: 0px; color: rgba(0, 0, 0, 1); text-align: center;",
-        "children": []
-      }
-
-  `;
+ТРЕБОВАНИЯ:
+- Верни ТОЛЬКО JSON-массив (без комментариев, без Markdown).
+- Сохраняй смысл оригинального текста (characters).
+- Используй name/type/box, чтобы понять где карточка, где заголовок, где список.
+- Можно немного упрощать структуру (меньше вложенности, чем в Figma), но не терять ключевые тексты.
+- class и style можешь генерировать свободно (card, card-title, card-body и т.п.).
+`.trim();
 
   const userPrompt = `
-Вот Figma JSON фрейма. Сгенерируй черновую структуру HtmlNode[] по правилам выше.
 
-Figma JSON:
-${JSON.stringify(payload, null, 2)}
-`;
+Сгенерируй HtmlNode[] по правилам выше.
+986:2714
+SECTION:
+${JSON.stringify(section)}
+`.trim();
 
   const body = {
     model: "llama-3.1-8b-instant",
@@ -206,92 +220,45 @@ ${JSON.stringify(payload, null, 2)}
     temperature: 0.1,
   };
 
-  let attempt = 0;
-  const maxRetries = 1;
-
-  while (true) {
-    const response = await fetch(
-      "https://api.groq.com/openai/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${GROQ_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
+  const response = await fetch(
+    "https://api.groq.com/openai/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${GROQ_API_KEY}`,
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify(body),
+    },
+  );
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error("Groq API error status:", response.status);
-      console.error("Groq API error body:", errText);
-
-      if (response.status === 429 && attempt < maxRetries) {
-        attempt += 1;
-        await new Promise((r) => setTimeout(r, 3000));
-        continue;
-      }
-
-      throw new Error(`Groq API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-
-    const text: string =
-      data.choices?.[0]?.message?.content ?? data.choices?.[0]?.text ?? "";
-
-    console.log("=== Groq raw text ===", text);
-
-    const cleaned = text
-      .trim()
-      .replace(/^```json\s*/i, "")
-      .replace(/^```/i, "")
-      .replace(/```$/i, "");
-
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(cleaned);
-    } catch (e) {
-      console.error("Failed to parse Groq JSON:", e, cleaned);
-      // не валим весь запрос, а возвращаем пустой результат для этого чанка
-      return [];
-    }
-
-    // если это один объект, а не массив — оборачиваем
-    if (!Array.isArray(parsed)) {
-      console.warn("Groq output is not an array, wrapping into array");
-      parsed = [parsed];
-    }
-
-    return parsed as HtmlNode[];
-  }
-}
-
-// ===  ===
-async function generateHtmlNodesFromFigma(
-  figma: FigmaExport,
-): Promise<HtmlNode[]> {
-  // 1) упрощаем figma.structure (без картинок)
-  const slimRoot = slimNode(figma.structure);
-  if (!slimRoot) return [];
-
-  // 2) режем по верхним children
-  const chunks = chunkChildren(slimRoot, 8);
-
-  const allNodes: HtmlNode[] = [];
-
-  // 3) для каждого чанка делаем ТОТ ЖЕ вызов Groq
-  for (const chunk of chunks) {
-    const payload = {
-      structure: chunk,
-      designTokens: figma.designTokens,
-    };
-
-    const nodes = await callGroq(payload);
-    allNodes.push(...nodes);
+  if (!response.ok) {
+    const errText = await response.text();
+    console.error("Groq API error status:", response.status);
+    console.error("Groq API error body:", errText);
+    throw new Error(`Groq API error: ${response.status}`);
   }
 
-  // 4) возвращаем один плоский массив
-  return allNodes;
+  const data = await response.json();
+
+  const text: string =
+    data.choices?.[0]?.message?.content ?? data.choices?.[0]?.text ?? "";
+
+  const cleaned = text
+    .trim()
+    .replace(/^```json\s*/i, "")
+    .replace(/^```/i, "")
+    .replace(/```$/i, "");
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(cleaned);
+  } catch (e) {
+    console.error("Failed to parse Groq JSON:", e, cleaned);
+    return [];
+  }
+
+  if (!Array.isArray(parsed)) parsed = [parsed];
+
+  return parsed as HtmlNode[];
 }

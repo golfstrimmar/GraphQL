@@ -30,7 +30,7 @@ const createFigmaProject = async (_, { ownerId, name, fileCache }) => {
     console.log("=== 🔹🔹🔹===FigmaProject created:", project);
     return project;
   } catch (error) {
-    console.error("Failed to create FigmaProject:", error);
+    console.error("=== 🚨🚨🚨 ===Failed to create FigmaProject:", error);
     throw new Error("Failed to create FigmaProject");
   }
 };

@@ -22,7 +22,10 @@ const getFigmaProjectData = async (_, { projectId }) => {
       ? JSON.parse(project.fileCache)
       : project.fileCache;
 
+  // ВАЖНО: небольшой срез, чтобы увидеть структуру
+  const sample = JSON.stringify(realJsonContent, null, 2).slice(0, 3000);
   const { colors, fonts, textNodes } = extractFigmaData(realJsonContent);
+
   project = await prisma.figmaProject.update({
     where: { id: project.id },
     data: {

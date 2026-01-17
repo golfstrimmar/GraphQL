@@ -1,5 +1,5 @@
 import ProjectsList from "./ProjectsList";
-import PlazaHeader from "./PlazaHeader";
+import PlazaHeader from "@/components/PlazaHeader";
 import CanvasComponent from "./CanvasComponent";
 import AdminComponent from "./AdminComponent";
 import PreviewComponent from "./PreviewComponent";

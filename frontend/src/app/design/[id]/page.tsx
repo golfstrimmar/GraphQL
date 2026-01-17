@@ -33,7 +33,7 @@ export default async function FigmaProjectPage({
 
   const project = data?.getFigmaProjectData ?? [];
 
-  console.log("<== 🔹 🔹 🔹 🔹=project=🔹 🔹 🔹 🔹==>", project);
+  // console.log("<== 🔹 🔹 🔹 🔹=project=🔹 🔹 🔹 🔹==>", project);
 
   return (
     <div className="container">
@@ -55,10 +55,10 @@ export default async function FigmaProjectPage({
             <li className="px-1 text-slate-400">/</li>
             <li>
               <Link
-                href="/figprojcts"
+                href="/design"
                 className="hover:text-slate-700 hover:underline"
               >
-                Figma projects
+                Design Figma projects
               </Link>
             </li>
             <li className="px-1 text-slate-400">/</li>
