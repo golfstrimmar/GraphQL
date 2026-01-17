@@ -30,6 +30,7 @@ const Navbar: React.FC = () => {
     // { title: "Figma", path: "/figma" },
     { title: "Plaza", path: "/plaza" },
     { title: "Sandbox", path: "/sandbox" },
+    { title: "Design", path: "/design" },
     // { title: "Register", path: "/register" },
     // { title: "Login", path: "/login" },
     // { title: "ClassAdder", path: "/classadder" },

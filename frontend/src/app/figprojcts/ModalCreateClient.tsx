@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useMutation, useQuery, useLazyQuery } from "@apollo/client";
 import { AnimatePresence, motion } from "framer-motion";
 import Input from "@/components/ui/Input/Input";
-import { CREATE_FIGMA_PROJECT } from "@/apollo/mutations";
+import { CREATE_DESIGN } from "@/apollo/mutations";
 import Spinner from "@/components/icons/Spinner";
 // 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹
 export default function ModalCreateClient({ modalOpen, setModalOpen }) {
@@ -13,9 +13,10 @@ export default function ModalCreateClient({ modalOpen, setModalOpen }) {
   const { user, setModalMessage } = useStateContext();
   const [file, setFile] = useState<File | null>(null);
   const [name, setName] = useState<string>("");
+  const [figmaUrl, setFigmaUrl] = useState<string>("");
   const [hover, setHover] = useState(false);
   //   // -----------------------
-  const [createFigmaProject, { loading }] = useMutation(CREATE_FIGMA_PROJECT, {
+  const [createDesigne, { loading }] = useMutation(CREATE_DESIGN, {
     onCompleted: () => {
       setModalMessage("Figma Project created successfully");
     },
@@ -24,36 +25,39 @@ export default function ModalCreateClient({ modalOpen, setModalOpen }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (file === null || name === "") {
+    if (user === null || name === "" || figmaUrl === "") {
       setModalMessage("All fields are required.");
       return;
     }
-    const text = await file.text();
 
     // 2. Парсим JSON
-    let json;
-    try {
-      json = JSON.parse(text);
-    } catch (e) {
-      console.error("Invalid JSON file", e);
-      setModalMessage("Invalid JSON file");
-      return;
-    }
+    // let json;
+    // try {
+    //   json = JSON.parse(text);
+    // } catch (e) {
+    //   console.error("Invalid JSON file", e);
+    //   setModalMessage("Invalid JSON file");
+    //   return;
+    // }
 
     try {
-      const { data } = await createFigmaProject({
+      const { data } = await createDesigne({
         variables: {
           ownerId: user?.id,
           name: name,
-          fileCache: json,
+          figmaUrl: figmaUrl,
         },
       });
 
-      if (data.createFigmaProject) {
+      if (data.createDesigne) {
+        console.log(
+          `Figma Project ${data.createDesigne.name} created successfully`,
+          data.createDesigne.name,
+        );
         setModalOpen(false);
         router.refresh();
         setName("");
-        setFile(null);
+        setFigmaUrl("");
       }
     } catch (err: any) {
       setModalOpen(false);
@@ -155,6 +159,14 @@ export default function ModalCreateClient({ modalOpen, setModalOpen }) {
                 data="Project Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                classInput="modalInput"
+              />
+              <Input
+                typeInput="text"
+                id="name"
+                data="FigmaUrl"
+                value={figmaUrl}
+                onChange={(e) => setFigmaUrl(e.target.value)}
                 classInput="modalInput"
               />
               <div className="flex gap-2">

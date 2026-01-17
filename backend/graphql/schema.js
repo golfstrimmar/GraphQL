@@ -194,6 +194,7 @@ export const typeDefs = gql`
       jsonContent: JSON!
     ): FigmaProject!
     uploadImage(file: Upload!): ImageUploadResponse!
+    createDesign(ownerId: ID!, name: String!, figmaUrl: String!): FigmaProject!
   }
 
   type Subscription {

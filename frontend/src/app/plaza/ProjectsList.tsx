@@ -33,7 +33,7 @@ export default async function ProjectsList() {
   const user: UserFromCookie = JSON.parse(userCookie);
   const { data } = await client.query({
     query: GET_ALL_PROJECTS_BY_USER,
-    variables: { userId: user.id },
+    variables: { userId: user?.id },
     fetchPolicy: "network-only",
   });
   const projects = data?.getAllProjectsByUser ?? [];

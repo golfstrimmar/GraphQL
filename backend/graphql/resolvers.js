@@ -17,6 +17,7 @@ import removeFigmaProject from "../mutations/removeFigmaProject.js";
 // import extractAndSaveFonts from "../mutations/extractAndSaveFonts.js";
 import uploadFigmaJsonProject from "../mutations/uploadFigmaJsonProject.js";
 import createFigmaProject from "../mutations/createFigmaProject.js";
+import createDesign from "../mutations/createDesign.js";
 // ----
 import { GraphQLUpload } from "graphql-upload";
 // ----
@@ -291,6 +292,7 @@ export const resolvers = {
     // extractAndSaveFonts,
     uploadFigmaJsonProject,
     createFigmaProject,
+    createDesign,
   },
   User: {
     projects: (parent) =>

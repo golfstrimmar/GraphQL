@@ -133,23 +133,33 @@ export const REMOVE_PROJECT = gql`
     removeProject(projectId: $projectId)
   }
 `;
-export const CREATE_FIGMA_PROJECT = gql`
-  mutation CreateFigmaProject(
-    $ownerId: ID!
-    $name: String!
-    $fileCache: JSON!
-  ) {
-    createFigmaProject(ownerId: $ownerId, name: $name, fileCache: $fileCache) {
+
+export const CREATE_DESIGN = gql`
+  mutation CreateDesign($ownerId: ID!, $name: String!, $figmaUrl: String!) {
+    createDesign(ownerId: $ownerId, name: $name, figmaUrl: $figmaUrl) {
       id
       name
-      fileCache
-      owner {
-        id
-        name
-      }
     }
   }
 `;
+
+// export const CREATE_FIGMA_PROJECT = gql`
+//   mutation CreateFigmaProject(
+//     $ownerId: ID!
+//     $name: String!
+//     $fileCache: JSON!
+//   ) {
+//     createFigmaProject(ownerId: $ownerId, name: $name, fileCache: $fileCache) {
+//       id
+//       name
+//       fileCache
+//       owner {
+//         id
+//         name
+//       }
+//     }
+//   }
+// `;
 export const UPLOAD_FIGMA_JSON_PROJECT = gql`
   mutation uploadFigmaJsonProject(
     $ownerId: ID!

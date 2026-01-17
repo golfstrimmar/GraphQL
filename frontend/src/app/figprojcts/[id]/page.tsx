@@ -22,9 +22,9 @@ export default async function FigmaProjectPage({
   const { id } = await params;
   const cookieStore = await cookies();
   const userCookie = cookieStore.get("user")?.value ?? null;
-  if (!userCookie) {
-    redirect("/login");
-  }
+  // if (!userCookie) {
+  //   redirect("/login");
+  // }
   const { data, loading, error } = await client.query({
     query: GET_FIGMA_PROJECT_DATA,
     variables: { projectId: id },

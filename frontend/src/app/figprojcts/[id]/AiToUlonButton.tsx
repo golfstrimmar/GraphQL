@@ -46,6 +46,85 @@ export function AiToUlonButton({ fileCache }: { fileCache: any }) {
       children: node.children?.map(cleanNode) ?? [],
     };
   };
+
+  // извлекаем все вхождения color-подобных значений из style
+  const extractColorsFromStyle = (style: string): string[] => {
+    const colors: string[] = [];
+
+    // rgb(...) / rgba(...)
+    const rgbRegex = /(rgb[a]?\([^;]+?\))/gi;
+    let m: RegExpExecArray | null;
+    while ((m = rgbRegex.exec(style)) !== null) {
+      colors.push(m[1]);
+    }
+
+    // hex типа #adadad или #aaa
+    const hexRegex = /(#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}))/g;
+    while ((m = hexRegex.exec(style)) !== null) {
+      colors.push(m[1]);
+    }
+
+    return colors;
+  };
+
+  // заменяем конкретное значение цвета на переменную
+  const replaceColorInStyle = (
+    style: string,
+    from: string,
+    to: string,
+  ): string =>
+    style.replace(
+      new RegExp(from.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"),
+      to,
+    );
+  const extractAndReplaceColors = (
+    nodes: HtmlNode[],
+  ): { nodes: HtmlNode[]; colors: ColorVar[] } => {
+    const colorMap = new Map<string, string>(); // value -> $color-N
+
+    const getColorVarName = (value: string): string => {
+      if (colorMap.has(value)) return colorMap.get(value)!;
+      const idx = colorMap.size + 1;
+      const name = `$color-${idx}`;
+      colorMap.set(value, name);
+      return name;
+    };
+
+    const processNode = (node: HtmlNode): HtmlNode => {
+      let next: HtmlNode = { ...node };
+
+      if (next.style) {
+        const foundColors = extractColorsFromStyle(next.style);
+
+        let newStyle = next.style;
+
+        for (const color of foundColors) {
+          const varName = getColorVarName(color);
+          newStyle = replaceColorInStyle(newStyle, color, varName);
+        }
+
+        next = { ...next, style: newStyle };
+      }
+
+      if (next.children && next.children.length) {
+        next = {
+          ...next,
+          children: next.children.map(processNode),
+        };
+      }
+
+      return next;
+    };
+
+    const processedNodes = nodes.map(processNode);
+
+    const colors: ColorVar[] = Array.from(colorMap.entries()).map(
+      ([value, name]) => ({ name, value }),
+    );
+
+    return { nodes: processedNodes, colors };
+  };
+
   // ------------------------------
   const handleClick = () => {
     startTransition(async () => {
@@ -62,15 +141,17 @@ export function AiToUlonButton({ fileCache }: { fileCache: any }) {
       }
 
       const data: { nodes: HtmlNode[] } = await res.json();
-
+      console.log("<==🔹🔹🔹=data===>", data);
       const cleaned = data.nodes.map((node) => {
         return cleanNode(node);
       });
       console.log("<==🔹🔹🔹=cleaned ===>", cleaned);
-
-      // const resultToJsonHtml = ensureNodeKeys(cleaned);
-      // updateHtmlJson((prev: HtmlNode[]) => [...prev, ...resultToJsonHtml]);
-      // router.push("/plaza");
+      const { nodes: withColorVars, colors } = extractAndReplaceColors(cleaned);
+      console.log("<=🔹=withColorVars===>", withColorVars);
+      console.log("<=🔹==colors===>", colors);
+      const resultToJsonHtml = ensureNodeKeys(cleaned);
+      updateHtmlJson((prev: HtmlNode[]) => [...prev, ...resultToJsonHtml]);
+      router.push("/plaza");
     });
   };
   // ---// ---// ---// ---// ---// ---
