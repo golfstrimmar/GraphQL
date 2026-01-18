@@ -16,6 +16,8 @@ interface ClassComponentProps {
   itemClass: string;
   updateNodeByKey: (key: string, changes: Partial<NodeToSend>) => void;
 }
+
+//🔹🟢🔹🟢🔹🟢🔹🟢
 const ClassComponent: React.FC<ClassComponentProps> = ({
   node,
   itemClass,
@@ -78,9 +80,78 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
   }, [classText, node?._key]);
 
   // ================================
+  //  Parent Class
+  // утилита: рекурсивно пробегаем по дереву и обновляем классы
+  function addParentToChildrenClasses(
+    node: NodeToSend,
+    parentClass: string,
+  ): NodeToSend {
+    const prefix = "__";
+
+    const transformClass = (cls: string): string => {
+      if (!cls) return cls;
+
+      // если нескольких классов нет — простая версия
+      const parts = cls.split(/\s+/).filter(Boolean);
+
+      const transformed = parts.map((part) => {
+        // интересует только классы начинающиеся с "__"
+        if (part.startsWith(prefix)) {
+          const childPart = part.slice(prefix.length);
+          // если уже содержит parentClass__, не трогаем
+          if (childPart.startsWith(parentClass + "__")) return part;
+          return `${parentClass}__${childPart}`;
+        }
+        return part;
+      });
+
+      return transformed.join(" ");
+    };
+
+    const newNode: NodeToSend = {
+      ...node,
+      class: transformClass(node.class),
+    };
+
+    if (Array.isArray(node.children)) {
+      newNode.children = node.children.map((child) =>
+        addParentToChildrenClasses(child, parentClass),
+      );
+    }
+
+    return newNode;
+  }
+
+  const handleParentClass = () => {
+    if (node.tag !== "section") return;
+
+    const sectionClass = node.class?.trim();
+    if (!sectionClass) return;
+
+    // можно взять первый класс как "класс секции"
+    const parentClass = sectionClass.split(/\s+/)[0];
+
+    // строим новый node с обновлёнными children
+    const updatedNode = addParentToChildrenClasses(node, parentClass);
+
+    // обновляем ноду целиком по ключу
+    updateNodeByKey(node._key, {
+      children: updatedNode.children,
+    });
+  };
+
+  // ================================
   return (
     <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-10  flex flex-col relative   ">
-      <p className={itemClass}>Class:</p>
+      <p className={itemClass}>
+        <span>Class:</span>
+        <button
+          className="btn-teal text-[12px] "
+          onClick={() => handleParentClass()}
+        >
+          Add parent class
+        </button>
+      </p>
       <input
         ref={(el) => {
           if (!el) return;

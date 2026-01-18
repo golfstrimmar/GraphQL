@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useRef } from "react";
 import { useStateContext } from "@/providers/StateProvider";
-import PageHeader from "./PageHeader";
+import PageHeader from "../frontend/src/app/plaza/PageHeader";
 import CustomSlider from "@/components/ui/CustomSlider/CustomSlider";
 
 export default function PreviewComponent() {
@@ -21,7 +21,7 @@ export default function PreviewComponent() {
     <>
       <div className="bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 relative mt-[25px]">
         {PageHeader("PreviewIcon", "Preview")}
-        {/*<div className="mt-4 mb-2">
+        <div className="mt-4 mb-2">
           <CustomSlider
             value={scale}
             min={0.1}
@@ -29,11 +29,25 @@ export default function PreviewComponent() {
             step={0.1}
             onChange={setScale}
           />
-        </div>*/}
+        </div>
       </div>
 
       {preview && (
-        <div className="max-w-[100vw] max-h-[500px] overflow-auto custom-scrollbar"></div>
+        <div className="max-w-[100vw] max-h-[500px] overflow-auto custom-scrollbar">
+          <img
+            ref={imgRef}
+            src={preview.filePath}
+            alt="Preview"
+            onLoad={handleImgLoad}
+            style={{
+              width: scaledWidth ? `${scaledWidth}px` : "auto",
+              height: "auto",
+              display: "block",
+              maxWidth: "none", // критично: разрешаем > 100%
+            }}
+            className="preview-img"
+          />
+        </div>
       )}
     </>
   );

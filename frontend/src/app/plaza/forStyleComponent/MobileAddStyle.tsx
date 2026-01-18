@@ -23,6 +23,7 @@ export default function MobileAddStyle({
   setStyleText,
   openMobile,
   setOpenMobile,
+  nodeStyle,
 }) {
   const {} = useStateContext();
   const [addingScss, setAddingScss] = useState<string>("");
@@ -65,6 +66,8 @@ export default function MobileAddStyle({
   const toAdd = (foo: string) => {
     setAddingScss((prev) => {
       const base = prev ?? "";
+      console.log("<===base===>", base);
+      console.log("<===foo===>", foo);
 
       let next = base;
       if (foo.includes("&:hover")) {
@@ -94,7 +97,7 @@ export default function MobileAddStyle({
         }
         next = base + foo + "\n";
       }
-
+      console.log("<===next===>", next);
       applyValue(next);
       return next;
     });

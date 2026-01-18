@@ -106,6 +106,7 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
           setStyleText={setStyleText}
           openMobile={openMobile}
           setOpenMobile={setOpenMobile}
+          nodeStyle={JSON.stringify(node?.style)}
         />
       )}
       <p className={itemClass}>

@@ -97,7 +97,7 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
           transition={{ duration: 0.1, ease: [0.25, 0.8, 0.5, 1] }}
           className="bg-navy rounded shadow-xl p-1  border border-slate-200  bottom-0 left-0 transform w-[calc(100vw-10px)]  fixed  z-5000"
         >
-          <div className="grid grid-cols-[repeat(3_,max-content)_1fr] relative rounded border-2 border-[var(--teal)] p-1 text-[#000] h-full">
+          <div className="grid grid-cols-[repeat(2_,max-content)_1fr_1fr] relative rounded border-2 border-[var(--teal)] p-1 text-[#000] h-full">
             {/*===============Tag=================*/}
             <TagComponent
               node={NodeToSend}
