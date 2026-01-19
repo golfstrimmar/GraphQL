@@ -6,6 +6,7 @@ import PlazaHeader from "@/components/PlazaHeader";
 // import Link from "next/link";
 import Bage from "@/components/ui/Bage/Bage";
 import DesignColors from "./DesignColors";
+import DesignFonts from "./DesignFonts";
 
 // --- 🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
 export default async function Design({
@@ -44,6 +45,7 @@ export default async function Design({
           }
         />
         <DesignColors />
+        <DesignFonts />
       </div>
     </div>
   );
