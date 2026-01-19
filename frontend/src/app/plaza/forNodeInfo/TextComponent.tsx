@@ -50,7 +50,6 @@ const TextComponent: React.FC<TextComponentProps> = ({
   }, [texts]);
 
   const handleTextChange = (newValue: string) => {
-    setTextValue(newValue);
     const id = setTimeout(() => {
       updateNodeByKey(node._key, { text: newValue });
     }, 1000);
@@ -84,6 +83,78 @@ const TextComponent: React.FC<TextComponentProps> = ({
             Texts
           </button>
         )}
+        <button
+          className="btn-teal"
+          onClick={() => {
+            setTextValue("Lorem");
+            const id = setTimeout(() => {
+              updateNodeByKey(node._key, { text: "Lorem" });
+            }, 100);
+            return () => clearTimeout(id);
+          }}
+        >
+          Lorem 1
+        </button>
+        <button
+          className="btn-teal"
+          onClick={() => {
+            setTextValue("Lorem ipsum dolor sit amet.");
+            const id = setTimeout(() => {
+              updateNodeByKey(node._key, {
+                text: "Lorem ipsum dolor sit amet.",
+              });
+            }, 100);
+            return () => clearTimeout(id);
+          }}
+        >
+          Lorem 5
+        </button>
+        <button
+          className="btn-teal"
+          onClick={() => {
+            setTextValue(
+              "Lorem ipsum dolor sit amet consectetur adipisicing elit. Alias reiciendis consequatur iure neque praesentium iste.",
+            );
+            const id = setTimeout(() => {
+              updateNodeByKey(node._key, {
+                text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Alias reiciendis consequatur iure neque praesentium iste.",
+              });
+            }, 100);
+            return () => clearTimeout(id);
+          }}
+        >
+          Lorem 15
+        </button>
+        <button
+          className="btn-teal"
+          onClick={() => {
+            setTextValue(
+              "Lorem ipsum dolor sit amet consectetur adipisicing elit. Tenetur consequuntur adipisci nulla velit mollitia cum quis, cumque reprehenderit natus illum doloribus consectetur ipsam iste quisquam!",
+            );
+            const id = setTimeout(() => {
+              updateNodeByKey(node._key, {
+                text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Tenetur consequuntur adipisci nulla velit mollitia cum quis, cumque reprehenderit natus illum doloribus consectetur ipsam iste quisquam!",
+              });
+            }, 100);
+            return () => clearTimeout(id);
+          }}
+        >
+          Lorem 25
+        </button>
+        <button
+          className="btn-teal"
+          onClick={() => {
+            setTextValue("");
+            const id = setTimeout(() => {
+              updateNodeByKey(node._key, {
+                text: "",
+              });
+            }, 100);
+            return () => clearTimeout(id);
+          }}
+        >
+          🧹
+        </button>
       </p>
 
       <textarea
@@ -93,7 +164,14 @@ const TextComponent: React.FC<TextComponentProps> = ({
           adjustHeight(el);
         }}
         value={textValue}
-        onChange={(e) => handleTextChange(e.target.value)}
+        onChange={(e) => {
+          e.preventDefault();
+          setTextValue(e.target.value);
+          const id = setTimeout(() => {
+            updateNodeByKey(node._key, { text: e.target.value });
+          }, 2000);
+          return () => clearTimeout(id);
+        }}
         className="textarea-styles"
       />
     </div>

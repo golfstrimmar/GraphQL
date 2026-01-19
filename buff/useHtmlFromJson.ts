@@ -1,17 +1,19 @@
 "use client";
 
 import { useCallback } from "react";
-import jsonToHtml from "@/utils/plaza/jsonToHtml";
+import jsonToHtml from "@/app/plaza/utils/jsonToHtml";
 import { useStateContext } from "@/providers/StateProvider";
 
 export function useHtmlFromJson() {
-  const { htmlJson, setHTML } = useStateContext();
+  const { htmlJson, setHTML, setSCSS } = useStateContext();
 
   const createHtml = useCallback(() => {
     if (!htmlJson) return;
-    const { html } = jsonToHtml(htmlJson as any);
+
+    const { html, scss, pug } = jsonToHtml(htmlJson as any);
     setHTML(html);
-  }, [htmlJson]);
+    setSCSS(scss);
+  }, [htmlJson, setHTML, setSCSS]);
 
   return { createHtml };
 }

@@ -11,6 +11,7 @@ import { useHtmlFromJson } from "@/hooks/useHtmlFromJson";
 import { useScssFromJson } from "@/hooks/useScssFromJson";
 import { useStateContext } from "@/providers/StateProvider";
 import CreateIcon from "@/components/icons/CreateIcon";
+import CloseIcon from "@/components/icons/CloseIcon";
 import { useRouter } from "next/navigation";
 
 type HtmlNode = {
@@ -35,9 +36,12 @@ interface InfoProjectProps {
   project: ProjectData;
   setProject: React.Dispatch<React.SetStateAction<ProjectData>>;
 }
+
+// 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹
 const NodeInfo: React.FC<InfoProjectProps> = ({
   openInfoModal,
   setOpenInfoModal,
+  setActiveKey,
 }) => {
   const router = useRouter();
   const { activeKey, htmlJson, updateHtmlJson } = useStateContext();
@@ -97,6 +101,12 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
           transition={{ duration: 0.1, ease: [0.25, 0.8, 0.5, 1] }}
           className="bg-navy rounded shadow-xl p-1  border border-slate-200  bottom-0 left-0 transform w-[calc(100vw-10px)]  fixed  z-5000"
         >
+          <button
+            className="btn btn-empty absolute top-2 right-2 px-2 py-1 z-10"
+            onClick={() => setActiveKey(null)}
+          >
+            <CloseIcon width={16} height={16} />
+          </button>
           <div className="grid grid-cols-[repeat(2_,max-content)_1fr_1fr] relative rounded border-2 border-[var(--teal)] p-1 text-[#000] h-full">
             {/*===============Tag=================*/}
             <TagComponent

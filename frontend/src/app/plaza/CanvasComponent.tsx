@@ -403,6 +403,7 @@ export default function CanvasComponent() {
       <NodeInfo
         openInfoModal={openInfoModal}
         setOpenInfoModal={setOpenInfoModal}
+        setActiveKey={setActiveKey}
       />
     </div>
   );

@@ -314,7 +314,7 @@ function removeDuplicateLiBlocks(str) {
   while (true) {
     const next = collapseOnce(str);
     if (next === str) return next;
-    console.log("<==🟢🟢🟢=next===>", next);
+
     str = next;
   }
 }
@@ -323,11 +323,10 @@ function removeDuplicateLiBlocks(str) {
 // ---------------------
 
 const jsonToHtml = (json) => {
-  const nodes = json.children || [];
+  const nodes = json || [];
   const { html, scssBlocks, pug } = renderNodesAndCollectScss(nodes);
   const res = scssBlocksToString(scssBlocks);
   const scss = removeDuplicateLiBlocks(res).replace(/li {/g, "&>li {");
-
   return { html, scss, pug };
 };
 
