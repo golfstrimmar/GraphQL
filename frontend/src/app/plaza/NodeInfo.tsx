@@ -102,10 +102,10 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
           className="bg-navy rounded shadow-xl p-1  border border-slate-200  bottom-0 left-0 transform w-[calc(100vw-10px)]  fixed  z-5000"
         >
           <button
-            className="btn btn-empty absolute top-2 right-2 px-2 py-1 z-10"
+            className="btn btn-empty absolute top-2 left-2 px-2 py-0.5 z-10"
             onClick={() => setActiveKey(null)}
           >
-            <CloseIcon width={16} height={16} />
+            <CloseIcon width={12} height={12} />
           </button>
           <div className="grid grid-cols-[repeat(2_,max-content)_1fr_1fr] relative rounded border-2 border-[var(--teal)] p-1 text-[#000] h-full">
             {/*===============Tag=================*/}

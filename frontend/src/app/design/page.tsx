@@ -1,10 +1,12 @@
 import { cookies } from "next/headers";
 import client from "@/apollo/apolloClient";
 import { redirect } from "next/navigation";
+import PlazaHeader from "@/components/PlazaHeader";
+// import { GET_FIGMA_PROJECT_DATA } from "@/apollo/queries";
+// import Link from "next/link";
 import Bage from "@/components/ui/Bage/Bage";
-import FigmaProjectsList from "./FigmaProjectsList";
-import CreateDesign from "./CreateDesign";
-import { GET_FIGMA_PROJECTS_BY_USER } from "@/apollo/queries";
+import DesignColors from "./DesignColors";
+
 // --- 🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
 export default async function Design({
   params,
@@ -18,31 +20,30 @@ export default async function Design({
     redirect("/login");
   }
 
-  const user = JSON.parse(userCookie) as UserFromCookie;
-  let projects = [];
-  try {
-    const { data } = await client.query({
-      query: GET_FIGMA_PROJECTS_BY_USER,
-      variables: { userId: user.id },
-      fetchPolicy: "network-only",
-    });
+  // const { data, loading, error } = await client.query({
+  //   query: GET_FIGMA_PROJECT_DATA,
+  //   variables: { projectId: id },
+  //   fetchPolicy: "network-only",
+  // });
 
-    if (data.figmaProjectsByUser) {
-      projects = data?.figmaProjectsByUser ?? [];
-    }
-  } catch (err: any) {
-    console.log("Failed to fetch projects:", err.message);
-  }
+  // const project = data?.getFigmaProjectData ?? [];
+  // console.log("<== 🔹 🔹 🔹 🔹=project=🔹 🔹 🔹 🔹==>", project);
+
   return (
     <div className="container">
-      <div className="p-4 mt-[60px] mb-8 w-full min-h-[100vh]">
+      <div className="p-4 mt-[60px] mb-8 w-full">
         {!userCookie && (
           <div className="mt-[100px]">
             <Bage text="Login required" />
           </div>
         )}
-        <FigmaProjectsList figmaProjects={projects} />
-        <CreateDesign />
+        <PlazaHeader
+          title={"Design System"}
+          description={
+            "Define and maintain the visual language of your product."
+          }
+        />
+        <DesignColors />
       </div>
     </div>
   );

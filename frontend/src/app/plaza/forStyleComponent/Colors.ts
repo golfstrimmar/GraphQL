@@ -35,18 +35,12 @@ export const Colors: ColorItem[] = [
   { color: "cornsilk", value: "cornsilk", group: "neutral" },
   { color: "gainsboro", value: "gainsboro", group: "neutral" },
   { color: "lightgray", value: "lightgray", group: "neutral" },
-  { color: "lightgrey", value: "lightgrey", group: "neutral" },
   { color: "silver", value: "silver", group: "neutral" },
   { color: "darkgray", value: "darkgray", group: "neutral" },
-  { color: "darkgrey", value: "darkgrey", group: "neutral" },
   { color: "gray", value: "gray", group: "neutral" },
-  { color: "grey", value: "grey", group: "neutral" },
   { color: "dimgray", value: "dimgray", group: "neutral" },
-  { color: "dimgrey", value: "dimgrey", group: "neutral" },
   { color: "slategray", value: "slategray", group: "neutral" },
-  { color: "slategrey", value: "slategrey", group: "neutral" },
   { color: "darkslategray", value: "darkslategray", group: "neutral" },
-  { color: "darkslategrey", value: "darkslategrey", group: "neutral" },
   { color: "black", value: "black", group: "neutral" },
 
   // reds
