@@ -7,6 +7,10 @@ import СhevronLeft from "@/components/icons/СhevronLeft";
 import СhevronRight from "@/components/icons/СhevronRight";
 import MakeHtmlButton from "./MakeHtmlButton";
 import HtmlToJsonButton from "./HtmlToJsonButton";
+import ProjectsIcon from "@/components/icons/ProjectsIcon";
+import WorkerIcon from "@/components/icons/WorkerIcon";
+import SundboxIcon from "@/components/icons/SundboxIcon";
+import PreviewIcon from "@/components/icons/PreviewIcon";
 // 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹
 export default function ServicesButtons() {
   const {
@@ -72,6 +76,47 @@ export default function ServicesButtons() {
       </button>
       <MakeHtmlButton />
       <HtmlToJsonButton />
+
+      <hr className="border-2-[var(--grey-40)]  w-[25px] rotate-90" />
+      <button
+        className="btn-teal "
+        type="button"
+        onClick={() => {
+          const el = document.getElementById("preview-section");
+          if (el) {
+            const y = el.getBoundingClientRect().top + window.scrollY - 80;
+            window.scrollTo({ top: y, behavior: "smooth" });
+          }
+        }}
+      >
+        <PreviewIcon width={18} height={18} />
+      </button>
+      <button
+        className="btn-teal "
+        type="button"
+        onClick={() => {
+          const el = document.getElementById("canvas-section");
+          if (el) {
+            const y = el.getBoundingClientRect().top + window.scrollY - 80;
+            window.scrollTo({ top: y, behavior: "smooth" });
+          }
+        }}
+      >
+        <WorkerIcon width={16} height={16} />
+      </button>
+      <button
+        className="btn-teal "
+        type="button"
+        onClick={() => {
+          const el = document.getElementById("projects-section");
+          if (el) {
+            const y = el.getBoundingClientRect().top + window.scrollY - 80;
+            window.scrollTo({ top: y, behavior: "smooth" });
+          }
+        }}
+      >
+        <ProjectsIcon width={16} height={16} />
+      </button>
     </div>
   );
 }

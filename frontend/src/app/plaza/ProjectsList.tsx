@@ -41,7 +41,10 @@ export default async function ProjectsList() {
 
   return (
     <>
-      <div className="bg-navy rounded-2xl shadow-xl p-2   border border-slate-200  relative  mt-[25px]">
+      <div
+        id="projects-section"
+        className="bg-navy rounded-2xl shadow-xl p-2   border border-slate-200  relative  mt-[25px]"
+      >
         {PageHeader("projectsIcon", "Your Ulon projects")}
         <div className=" flex flex-col flex-wrap gap-2 mb-6 ">
           {projects.length > 0 &&

@@ -125,7 +125,10 @@ export default function PreviewComponent() {
   // ------------------------
   return (
     <>
-      <div className="bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 relative mt-[25px] mb-4">
+      <div
+        id="preview-section"
+        className="bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 relative mt-[25px] mb-4"
+      >
         {PageHeader("PreviewIcon", "Preview")}
 
         {/*<div className="mt-4 mb-2">

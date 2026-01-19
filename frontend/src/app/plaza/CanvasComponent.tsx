@@ -367,7 +367,10 @@ export default function CanvasComponent() {
   // ---------- JSX ----------
 
   return (
-    <div className="bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 relative mt-[25px] ">
+    <div
+      id="canvas-section"
+      className="bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 relative mt-[25px] "
+    >
       {PageHeader("canvasIcon", "Canvas")}
 
       <div
