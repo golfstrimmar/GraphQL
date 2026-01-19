@@ -3,20 +3,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import "@/components/ModalMessage/ModalMessage.scss";
 import CloseIcon from "@/components/icons/CloseIcon";
-
-const GOOGLE_FONTS = [
-  { family: "Inter", weights: [400, 600] },
-  { family: "Roboto", weights: [400, 700] },
-  { family: "Open Sans", weights: [400, 600] },
-  { family: "Lato", weights: [400, 700] },
-  { family: "Montserrat", weights: [400, 700] },
-  { family: "Poppins", weights: [400, 600] },
-  { family: "Source Sans Pro", weights: [400, 700] },
-  { family: "Nunito", weights: [400, 700] },
-  { family: "Raleway", weights: [400, 700] },
-  { family: "Merriweather", weights: [400, 700] },
-];
-
+import "./design.scss";
 type FontSlot = {
   id: string;
   label: string;
@@ -31,13 +18,28 @@ type FontOptionProps = {
   updateSlot: (id: string, patch: Partial<FontSlot>) => void;
   setOpen: (open: boolean) => void;
 };
+// ----------
+const GOOGLE_FONTS = [
+  { family: "Inter", weights: [300, 400, 500, 600, 700, 800] },
+  { family: "Roboto", weights: [300, 400, 500, 600, 700, 800] },
+  { family: "Open Sans", weights: [300, 400, 500, 600, 700, 800] },
+  { family: "Lato", weights: [300, 400, 500, 600, 700, 800] },
+  { family: "Montserrat", weights: [300, 400, 500, 600, 700, 800] },
+  { family: "Poppins", weights: [300, 400, 500, 600, 700, 800] },
+  { family: "Source Sans Pro", weights: [300, 400, 500, 600, 700, 800] },
+  { family: "Nunito", weights: [300, 400, 500, 600, 700, 800] },
+  { family: "Raleway", weights: [300, 400, 500, 600, 700, 800] },
+  { family: "Merriweather", weights: [300, 400, 500, 600, 700, 800] },
+  { family: "Lobster", weights: [300, 400, 500, 600, 700, 800] },
+];
 
+// ----------
 function buildGoogleImport(family: string, weights: number[] = [400, 700]) {
   const familyParam = family.replace(/ /g, "+");
   const weightsParam = weights.join(";");
   return `@import url("https://fonts.googleapis.com/css2?family=${familyParam}:wght@${weightsParam}&display=swap");`;
 }
-
+// ----------
 function renderFontOption({
   slot,
   currentFont,
@@ -46,7 +48,6 @@ function renderFontOption({
   setOpen,
 }: FontOptionProps) {
   const isActive = currentFont === slot.id;
-
   return (
     <div className="mb-3">
       <button
@@ -59,18 +60,27 @@ function renderFontOption({
         }}
         style={isActive ? { border: "1px solid #ccc" } : {}}
       >
-        <span className="w-6 h-6 inline-flex items-center justify-center rounded-full border border-slate-600">
+        <span className="w-6 h-6 inline-flex items-center justify-center rounded-full border border-slate-600 text-xs p-1">
           {slot.label.replace("font", "F")}
         </span>
-        <span className="text-left">
-          <div className="text-xs text-gray-400">{slot.label}</div>
-          <div
-            className="text-sm"
-            style={slot.family ? { fontFamily: slot.family } : {}}
-          >
-            {slot.family || "Не выбран"}
-          </div>
-        </span>
+
+        <div className="text-xs text-gray-400">
+          {slot.label}: {slot.family || "Not selected"}
+        </div>
+
+        <div
+          className="text-sm ml-4"
+          style={slot.family ? { fontFamily: slot.family } : {}}
+        >
+          {slot.family && (
+            <p
+              className="!text-[24px]"
+              style={slot.family ? { fontFamily: slot.family } : {}}
+            >
+              The quick brown fox jumps over the lazy dog
+            </p>
+          )}
+        </div>
       </button>
 
       <textarea
@@ -90,6 +100,7 @@ function renderFontOption({
 // --- 🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
 export default function DesignFonts() {
   const [CurrentFontSlot, setCurrentFontSlot] = useState<string>("");
+  const [open, setOpen] = useState<boolean>(false);
 
   const [slots, setSlots] = useState<FontSlot[]>([
     { id: "font1", label: "font1", family: "", importString: "" },
@@ -98,8 +109,6 @@ export default function DesignFonts() {
     { id: "font4", label: "font4", family: "", importString: "" },
     { id: "font5", label: "font5", family: "", importString: "" },
   ]);
-
-  const [open, setOpen] = useState<boolean>(false);
 
   const updateSlot = (id: string, patch: Partial<FontSlot>) => {
     setSlots((prev) => prev.map((s) => (s.id === id ? { ...s, ...patch } : s)));
@@ -116,7 +125,7 @@ export default function DesignFonts() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.3, ease: [0.25, 0.8, 0.5, 1] }}
-            className="w-[100vw] modalmessage h-[100vh] fixed top-0 left-0 flex justify-center items-center bg-[rgba(0,0,0,.95)] z-1000 p-4"
+            className="w-[100vw] modalmessage h-[100vh] fixed top-0 left-0 flex justify-center  bg-[rgba(0,0,0,.95)] z-1000 p-4"
           >
             <button
               className="absolute top-2 right-2 cursor-pointer"
@@ -125,11 +134,11 @@ export default function DesignFonts() {
               <CloseIcon width={24} height={24} />
             </button>
 
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] mt-4 w-full gap-2">
+            <div className="flex flex-col mt-4 w-full gap-2">
               {GOOGLE_FONTS.map((font) => (
                 <button
                   key={font.family}
-                  className="btn !py-1 !px-2 rounded !justify-start text-left"
+                  className="btn !py-1 !px-2 rounded  "
                   onClick={() => {
                     if (CurrentFontSlot) {
                       updateSlot(CurrentFontSlot, {
@@ -145,7 +154,10 @@ export default function DesignFonts() {
                   }}
                 >
                   <div className="text-xs text-gray-400">{font.family}</div>
-                  <div className="text-sm" style={{ fontFamily: font.family }}>
+                  <div
+                    className="text-sm ml-4"
+                    style={{ fontFamily: font.family }}
+                  >
                     The quick brown fox jumps over the lazy dog
                   </div>
                 </button>
@@ -156,7 +168,6 @@ export default function DesignFonts() {
       </AnimatePresence>
 
       <div className="mt-4">
-        <h6 className="text-xs text-gray-400 mb-2">Font slots</h6>
         {slots.map((slot) =>
           renderFontOption({
             slot,
