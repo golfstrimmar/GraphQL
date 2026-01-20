@@ -30,7 +30,9 @@ model User {
   picture       String?
   projects      Project[]      @relation("UserProjects")
   figmaProjects FigmaProject[] @relation("UserFigmaProjects")
+  designSystems DesignSystem[]
 }
+
 
 model Project {
   id        Int      @id @default(autoincrement())
@@ -62,13 +64,13 @@ model FigmaProject {
 }
 
 
-model Font {
-  id        Int      @id @default(autoincrement())
-  name      String
-  scss      String
-  texts     String[] // Postgres array (или JSON, если на SQLite)
-  createdAt DateTime @default(now())
-}
+// model Font {
+//   id        Int      @id @default(autoincrement())
+//   name      String
+//   scss      String
+//   texts     String[] // Postgres array (или JSON, если на SQLite)
+//   createdAt DateTime @default(now())
+// }
 
 
 model ColorVariable {
@@ -103,4 +105,53 @@ model JsonDocument {
   name      String   @unique
   content   Json
   createdAt DateTime @default(now())
+}
+
+model Background {
+  id              Int           @id @default(autoincrement())
+  background      String
+  value           String
+
+  designSystem    DesignSystem? @relation(fields: [designSystemId], references: [id], onDelete: Cascade)
+  designSystemId  Int?
+
+  @@index([designSystemId])
+}
+
+model Color {
+  id              Int           @id @default(autoincrement())
+  color           String
+  value           String
+
+  designSystem    DesignSystem? @relation(fields: [designSystemId], references: [id], onDelete: Cascade)
+  designSystemId  Int?
+
+  @@index([designSystemId])
+}
+
+model Font {
+  id              Int           @id @default(autoincrement())
+  font            String
+  value           String
+
+  designSystem    DesignSystem? @relation(fields: [designSystemId], references: [id], onDelete: Cascade)
+  designSystemId  Int?
+
+  @@index([designSystemId])
+}
+
+model DesignSystem {
+  id          Int          @id @default(autoincrement())
+  name        String
+
+  backgrounds Background[]
+  colors      Color[]
+  fonts       Font[]
+
+  createdAt   DateTime     @default(now())
+
+  creatorId   Int
+  creator     User         @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+  @@unique([creatorId, name], name: "creatorId_name")
 }

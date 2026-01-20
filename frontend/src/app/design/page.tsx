@@ -5,8 +5,8 @@ import PlazaHeader from "@/components/PlazaHeader";
 // import { GET_FIGMA_PROJECT_DATA } from "@/apollo/queries";
 // import Link from "next/link";
 import Bage from "@/components/ui/Bage/Bage";
-import DesignColors from "./DesignColors";
-import DesignFonts from "./DesignFonts";
+
+import AdinDesinSystem from "./AdinDesinSystem";
 
 // --- 🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
 export default async function Design({
@@ -44,8 +44,7 @@ export default async function Design({
             "Define and maintain the visual language of your product."
           }
         />
-        <DesignColors />
-        <DesignFonts />
+        <AdinDesinSystem />
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useStateContext } from "@/providers/StateProvider";
 import { Colors } from "@/app/plaza/forStyleComponent/Colors";
 import { motion, AnimatePresence } from "framer-motion";
@@ -119,6 +119,7 @@ function renderColorOption({
 // --- 🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
 export default function DesignColors() {
   const {} = useStateContext();
+  const [backgrounds, setBackgrounds] = useState<string[]>([]);
 
   // background tokens
   const [CurrentBG, setCurrentBG] = useState<string>("");
@@ -128,7 +129,7 @@ export default function DesignColors() {
   const [background4, setbackground4] = useState<string>("");
   const [background5, setbackground5] = useState<string>("");
 
-  // text color tokens (color1..color5)
+  // text color tokens
   const [CurrentColor, setCurrentColor] = useState<string>("");
   const [color1, setColor1] = useState<string>("");
   const [color2, setColor2] = useState<string>("");
@@ -242,7 +243,25 @@ export default function DesignColors() {
     color9: setColor9,
     color10: setColor10,
   };
+  // -----------
+  useEffect(() => {
+    console.log("<===background1===>", background1);
+    console.log("<===background2===>", background2);
+    console.log("<===background3===>", background3);
+    console.log("<===background4===>", background4);
+    console.log("<===background5===>", background5);
 
+    setBackgrounds((prev) => {
+      return {
+        background1 !== "" ? background1 : prev,
+        background2 !== "" ? background2 : prev,
+        background3 !== "" ? background3 : prev,
+        background4 !== "" ? background4 : prev,
+        background5 !== "" ? background5 : prev,
+      };
+    });
+  }, [background1]);
+  // -----------
   return (
     <div className="bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 relative mt-[25px] ">
       <h5 className="text-sm text-gray-400">Select color scheme</h5>
@@ -297,6 +316,7 @@ export default function DesignColors() {
         )}
       </AnimatePresence>
 
+      {/*------Background colors--------*/}
       <div className="mt-4">
         <h6 className="text-xs text-gray-400 mb-2">Background colors</h6>
         {bgOptions.map((opt) =>
@@ -316,6 +336,7 @@ export default function DesignColors() {
         )}
       </div>
 
+      {/*------Сolors--------*/}
       <div className="mt-6">
         <h6 className="text-xs text-gray-400 mb-2">Сolors</h6>
         {colorOptions.map((opt) =>

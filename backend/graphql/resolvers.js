@@ -18,6 +18,9 @@ import removeFigmaProject from "../mutations/removeFigmaProject.js";
 import uploadFigmaJsonProject from "../mutations/uploadFigmaJsonProject.js";
 import createFigmaProject from "../mutations/createFigmaProject.js";
 import createDesign from "../mutations/createDesign.js";
+import createDesignSystem from "../mutations/createDesignSystem.js";
+import getDesignSystem from "../queries/getDesignSystem.js";
+import getDesignSystemsByUser from "../queries/getDesignSystemsByUser.js";
 // ----
 import { GraphQLUpload } from "graphql-upload";
 // ----
@@ -56,6 +59,8 @@ export const resolvers = {
       });
     },
     getFigmaProjectData,
+    getDesignSystem,
+    getDesignSystemsByUser,
   },
   Mutation: {
     createUser: async (_, { name, email, password }) => {
@@ -293,6 +298,7 @@ export const resolvers = {
     uploadFigmaJsonProject,
     createFigmaProject,
     createDesign,
+    createDesignSystem,
   },
   User: {
     projects: (parent) =>

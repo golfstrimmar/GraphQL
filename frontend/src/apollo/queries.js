@@ -122,3 +122,46 @@ export const GET_FIGMA_PROJECT_DATA = gql`
     }
   }
 `;
+
+export const GET_DESIGN_SYSTEMS_BY_USER = gql`
+  query getDesignSystemsByUser($userId: ID!) {
+    getDesignSystemsByUser(userId: $userId) {
+      id
+      name
+      backgrounds {
+        background
+        value
+      }
+      colors {
+        color
+        value
+      }
+      fonts {
+        font
+        value
+      }
+    }
+  }
+`;
+
+// Получить дизайн-систему по ID
+export const GET_DESIGN_SYSTEM = gql`
+  query getDesignSystem($id: ID!) {
+    getDesignSystem(id: $id) {
+      id
+      name
+      backgrounds {
+        background
+        value
+      }
+      colors {
+        color
+        value
+      }
+      fonts {
+        font
+        value
+      }
+    }
+  }
+`;

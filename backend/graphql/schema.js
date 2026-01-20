@@ -140,12 +140,45 @@ export const typeDefs = gql`
     id: ID!
     name: String!
   }
+  input BackgroundInput {
+    background: String!
+    value: String!
+  }
+
+  input ColorInput {
+    color: String!
+    value: String!
+  }
+
+  input FontInput {
+    font: String!
+    value: String!
+  }
+
+  type Background {
+    id: ID!
+    background: String!
+    value: String!
+  }
+
+  type Color {
+    id: ID!
+    color: String!
+    value: String!
+  }
 
   type Font {
     id: ID!
+    font: String!
+    value: String!
+  }
+
+  type DesignSystem {
+    id: ID!
     name: String!
-    scss: String!
-    texts: [String!]!
+    backgrounds: [Background!]!
+    colors: [Color!]!
+    fonts: [Font!]!
     createdAt: String!
   }
 
@@ -157,6 +190,8 @@ export const typeDefs = gql`
     figmaProject(id: ID!): FigmaProject
     figmaProjectsByUser(userId: ID!): [FigmaProject!]!
     getFigmaProjectData(projectId: ID!): FigmaProject!
+    getDesignSystemsByUser(userId: ID!): [DesignSystem!]!
+    getDesignSystem(id: ID!): DesignSystem!
   }
 
   type Mutation {
@@ -195,6 +230,13 @@ export const typeDefs = gql`
     ): FigmaProject!
     uploadImage(file: Upload!): ImageUploadResponse!
     createDesign(ownerId: ID!, name: String!, figmaUrl: String!): FigmaProject!
+    createDesignSystem(
+      ownerId: ID!
+      name: String!
+      backgrounds: [BackgroundInput!]!
+      colors: [ColorInput!]!
+      fonts: [FontInput!]!
+    ): DesignSystem!
   }
 
   type Subscription {

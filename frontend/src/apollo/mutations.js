@@ -294,3 +294,43 @@ export const TRACE_IMAGE_MUTATION = gql`
     }
   }
 `;
+
+export const CREATE_DESIGN_SYSTEM = gql`
+  mutation createDesignSystem(
+    $ownerId: ID!
+    $name: String!
+    $backgrounds: [BackgroundInput!]!
+    $colors: [ColorInput!]!
+    $fonts: [FontInput!]!
+  ) {
+    createDesignSystem(
+      ownerId: $ownerId
+      name: $name
+      backgrounds: $backgrounds
+      colors: $colors
+      fonts: $fonts
+    ) {
+      id
+      name
+      createdAt
+
+      backgrounds {
+        id
+        background
+        value
+      }
+
+      colors {
+        id
+        color
+        value
+      }
+
+      fonts {
+        id
+        font
+        value
+      }
+    }
+  }
+`;
