@@ -6,7 +6,7 @@ import PlazaHeader from "@/components/PlazaHeader";
 // import Link from "next/link";
 import Bage from "@/components/ui/Bage/Bage";
 
-import AdinDesinSystem from "./AdinDesinSystem";
+import AdminDesinSystem from "./AdminDesinSystem";
 
 // --- 🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
 export default async function Design({
@@ -44,7 +44,7 @@ export default async function Design({
             "Define and maintain the visual language of your product."
           }
         />
-        <AdinDesinSystem />
+        <AdminDesinSystem />
       </div>
     </div>
   );

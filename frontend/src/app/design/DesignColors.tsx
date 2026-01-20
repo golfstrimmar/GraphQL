@@ -5,7 +5,7 @@ import { Colors } from "@/app/plaza/forStyleComponent/Colors";
 import { motion, AnimatePresence } from "framer-motion";
 import "@/components/ModalMessage/ModalMessage.scss";
 import CloseIcon from "@/components/icons/CloseIcon";
-
+import ClearIcon from "@/components/icons/ClearIcon";
 type ColorItem = {
   color: string;
   value: string;
@@ -117,35 +117,49 @@ function renderColorOption({
 }
 
 // --- 🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
-export default function DesignColors() {
+type DesignColorsProps = {
+  background1: string;
+  background2: string;
+  background3: string;
+  background4: string;
+  background5: string;
+  setBackground1: (v: string) => void;
+  setBackground2: (v: string) => void;
+  setBackground3: (v: string) => void;
+  setBackground4: (v: string) => void;
+  setBackground5: (v: string) => void;
+};
+
+export default function DesignColors({
+  background1,
+  background2,
+  background3,
+  background4,
+  background5,
+  setBackground1,
+  setBackground2,
+  setBackground3,
+  setBackground4,
+  setBackground5,
+}: DesignColorsProps) {
   const {} = useStateContext();
-  const [backgrounds, setBackgrounds] = useState<string[]>([]);
 
-  // background tokens
-  const [CurrentBG, setCurrentBG] = useState<string>("");
-  const [background1, setbackground1] = useState<string>("");
-  const [background2, setbackground2] = useState<string>("");
-  const [background3, setbackground3] = useState<string>("");
-  const [background4, setbackground4] = useState<string>("");
-  const [background5, setbackground5] = useState<string>("");
+  const [CurrentBG, setCurrentBG] = useState("");
+  const [CurrentColor, setCurrentColor] = useState("");
 
-  // text color tokens
-  const [CurrentColor, setCurrentColor] = useState<string>("");
-  const [color1, setColor1] = useState<string>("");
-  const [color2, setColor2] = useState<string>("");
-  const [color3, setColor3] = useState<string>("");
-  const [color4, setColor4] = useState<string>("");
-  const [color5, setColor5] = useState<string>("");
-  const [color6, setColor6] = useState<string>("");
-  const [color7, setColor7] = useState<string>("");
-  const [color8, setColor8] = useState<string>("");
-  const [color9, setColor9] = useState<string>("");
-  const [color10, setColor10] = useState<string>("");
+  const [color1, setColor1] = useState("");
+  const [color2, setColor2] = useState("");
+  const [color3, setColor3] = useState("");
+  const [color4, setColor4] = useState("");
+  const [color5, setColor5] = useState("");
+  const [color6, setColor6] = useState("");
+  const [color7, setColor7] = useState("");
+  const [color8, setColor8] = useState("");
+  const [color9, setColor9] = useState("");
+  const [color10, setColor10] = useState("");
 
-  // общий модал
-  const [open, setOpen] = useState<boolean>(false);
+  const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<"bg" | "color">("bg");
-
   const colorGroups = [
     {
       name: "neutral",
@@ -182,33 +196,41 @@ export default function DesignColors() {
       id: "background1",
       label: "background1",
       value: background1,
-      setter: setbackground1,
+      setter: setBackground1,
     },
     {
       id: "background2",
       label: "background2",
       value: background2,
-      setter: setbackground2,
+      setter: setBackground2,
     },
     {
       id: "background3",
       label: "background3",
       value: background3,
-      setter: setbackground3,
+      setter: setBackground3,
     },
     {
       id: "background4",
       label: "background4",
       value: background4,
-      setter: setbackground4,
+      setter: setBackground4,
     },
     {
       id: "background5",
       label: "background5",
       value: background5,
-      setter: setbackground5,
+      setter: setBackground5,
     },
   ];
+
+  const bgSetters: Record<string, (v: string) => void> = {
+    background1: setBackground1,
+    background2: setBackground2,
+    background3: setBackground3,
+    background4: setBackground4,
+    background5: setBackground5,
+  };
 
   const colorOptions = [
     { id: "color1", label: "color1", value: color1, setter: setColor1 },
@@ -223,14 +245,6 @@ export default function DesignColors() {
     { id: "color10", label: "color10", value: color10, setter: setColor10 },
   ];
 
-  const bgSetters: Record<string, (v: string) => void> = {
-    background1: setbackground1,
-    background2: setbackground2,
-    background3: setbackground3,
-    background4: setbackground4,
-    background5: setbackground5,
-  };
-
   const textSetters: Record<string, (v: string) => void> = {
     color1: setColor1,
     color2: setColor2,
@@ -243,28 +257,25 @@ export default function DesignColors() {
     color9: setColor9,
     color10: setColor10,
   };
-  // -----------
-  useEffect(() => {
-    console.log("<===background1===>", background1);
-    console.log("<===background2===>", background2);
-    console.log("<===background3===>", background3);
-    console.log("<===background4===>", background4);
-    console.log("<===background5===>", background5);
 
-    setBackgrounds((prev) => {
-      return {
-        background1 !== "" ? background1 : prev,
-        background2 !== "" ? background2 : prev,
-        background3 !== "" ? background3 : prev,
-        background4 !== "" ? background4 : prev,
-        background5 !== "" ? background5 : prev,
-      };
-    });
-  }, [background1]);
   // -----------
   return (
     <div className="bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 relative mt-[25px] ">
-      <h5 className="text-sm text-gray-400">Select color scheme</h5>
+      <div className="flex gap-4 items-center">
+        <h5 className="text-sm text-gray-400">Color scheme</h5>
+        <button
+          className="btn btn-empty p-1"
+          onClick={() => {
+            setBackground1("");
+            setBackground2("");
+            setBackground3("");
+            setBackground4("");
+            setBackground5("");
+          }}
+        >
+          <ClearIcon width={16} height={16} />
+        </button>
+      </div>
 
       <AnimatePresence>
         {open && (
