@@ -1,9 +1,6 @@
 import { cookies } from "next/headers";
-import client from "@/apollo/apolloClient";
 import { redirect } from "next/navigation";
 import PlazaHeader from "@/components/PlazaHeader";
-// import { GET_FIGMA_PROJECT_DATA } from "@/apollo/queries";
-// import Link from "next/link";
 import Bage from "@/components/ui/Bage/Bage";
 
 import AdminDesinSystem from "./AdminDesinSystem";
@@ -20,15 +17,6 @@ export default async function Design({
   if (!userCookie) {
     redirect("/login");
   }
-
-  // const { data, loading, error } = await client.query({
-  //   query: GET_FIGMA_PROJECT_DATA,
-  //   variables: { projectId: id },
-  //   fetchPolicy: "network-only",
-  // });
-
-  // const project = data?.getFigmaProjectData ?? [];
-  // console.log("<== 🔹 🔹 🔹 🔹=project=🔹 🔹 🔹 🔹==>", project);
 
   return (
     <div className="container">

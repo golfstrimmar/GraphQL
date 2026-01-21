@@ -1,8 +1,8 @@
 const RemoveIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
     fill="currentColor"
-    height={props?.height}
-    width={props?.width}
+    height={`${props?.height}px`}
+    width={`${props?.width}px`}
     viewBox="0 0 24 24"
     xmlns="http://www.w3.org/2000/svg"
   >

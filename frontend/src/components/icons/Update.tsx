@@ -1,9 +1,9 @@
-const Update: React.FC<React.SVGProps<SVGSVGElement>> = () => (
+const Update: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
     fill="currentColor"
-    height="76px"
-    width="76px"
-    viewBox="0 0 120 120"
+    height={`${props?.height}px`}
+    width={`${props?.width}px`}
+    viewBox="0 0 25 25"
     xmlns="http://www.w3.org/2000/svg"
   >
     <path

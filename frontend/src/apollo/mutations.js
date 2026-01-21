@@ -334,3 +334,29 @@ export const CREATE_DESIGN_SYSTEM = gql`
     }
   }
 `;
+export const UPDATE_DESIGN_SYSTEM = gql`
+  mutation updateDesignSystem(
+    $id: ID!
+    $ownerId: ID!
+    $backgrounds: [BackgroundInput!]!
+    $colors: [ColorInput!]!
+    $fonts: [FontInput!]!
+  ) {
+    updateDesignSystem(
+      id: $id
+      ownerId: $ownerId
+      backgrounds: $backgrounds
+      colors: $colors
+      fonts: $fonts
+    ) {
+      id
+      name
+    }
+  }
+`;
+
+export const REMOVE_DESIGN_SYSTEM = gql`
+  mutation RemoveDesignSystem($id: ID!) {
+    removeDesignSystem(id: $id)
+  }
+`;

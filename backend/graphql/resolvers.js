@@ -21,6 +21,8 @@ import createDesign from "../mutations/createDesign.js";
 import createDesignSystem from "../mutations/createDesignSystem.js";
 import getDesignSystem from "../queries/getDesignSystem.js";
 import getDesignSystemsByUser from "../queries/getDesignSystemsByUser.js";
+import updateDesignSystem from "../mutations/updateDesignSystem.js";
+import removeDesignSystem from "../mutations/removeDesignSystem.js";
 // ----
 import { GraphQLUpload } from "graphql-upload";
 // ----
@@ -299,6 +301,8 @@ export const resolvers = {
     createFigmaProject,
     createDesign,
     createDesignSystem,
+    updateDesignSystem,
+    removeDesignSystem,
   },
   User: {
     projects: (parent) =>

@@ -1,8 +1,8 @@
-const EditModeIcon: React.FC<React.SVGProps<SVGSVGElement>> = () => (
+const EditModeIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
     fill="currentColor"
-    height="18px"
-    width="18px"
+    height={`${props?.height}px`}
+    width={`${props?.width}px`}
     viewBox="0 0 399.07 399.07"
     xmlns="http://www.w3.org/2000/svg"
   >

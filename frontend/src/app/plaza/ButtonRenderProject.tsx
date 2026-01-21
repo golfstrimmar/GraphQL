@@ -68,7 +68,7 @@ export default function ButtonRenderProject({
   return (
     <>
       <button
-        className="project-item max-w-[200px] flex justify-center"
+        className="project-item min-w-[200px] text-[12px] flex justify-center"
         onClick={() => addToHtmlJson()}
         type="button"
       >

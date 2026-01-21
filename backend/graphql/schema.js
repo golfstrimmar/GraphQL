@@ -237,6 +237,14 @@ export const typeDefs = gql`
       colors: [ColorInput!]!
       fonts: [FontInput!]!
     ): DesignSystem!
+    updateDesignSystem(
+      id: ID!
+      ownerId: ID!
+      backgrounds: [BackgroundInput!]!
+      colors: [ColorInput!]!
+      fonts: [FontInput!]!
+    ): DesignSystem!
+    removeDesignSystem(id: ID!): ID!
   }
 
   type Subscription {

@@ -4,12 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import "@/components/ModalMessage/ModalMessage.scss";
 import CloseIcon from "@/components/icons/CloseIcon";
 import "./design.scss";
-type FontSlot = {
-  id: string;
-  label: string;
-  family: string;
-  importString: string;
-};
+import type { FontSlot } from "./ListDesignSystems";
 
 type FontOptionProps = {
   slot: FontSlot;
@@ -18,7 +13,7 @@ type FontOptionProps = {
   updateSlot: (id: string, patch: Partial<FontSlot>) => void;
   setOpen: (open: boolean) => void;
 };
-// ----------
+
 const GOOGLE_FONTS = [
   { family: "Inter", weights: [300, 400, 500, 600, 700, 800] },
   { family: "Roboto", weights: [300, 400, 500, 600, 700, 800] },
@@ -33,13 +28,12 @@ const GOOGLE_FONTS = [
   { family: "Lobster", weights: [300, 400, 500, 600, 700, 800] },
 ];
 
-// ----------
 function buildGoogleImport(family: string, weights: number[] = [400, 700]) {
   const familyParam = family.replace(/ /g, "+");
   const weightsParam = weights.join(";");
   return `@import url("https://fonts.googleapis.com/css2?family=${familyParam}:wght@${weightsParam}&display=swap");`;
 }
-// ----------
+
 function renderFontOption({
   slot,
   currentFont,
@@ -49,7 +43,7 @@ function renderFontOption({
 }: FontOptionProps) {
   const isActive = currentFont === slot.id;
   return (
-    <div className="mb-3">
+    <div className="mb-1">
       <button
         key={slot.id}
         type="button"
@@ -84,8 +78,8 @@ function renderFontOption({
       </button>
 
       <textarea
-        className="mt-1 w-full text-[10px] bg-slate-900 text-slate-200 rounded px-2 py-1 overflow-x-auto resize-none"
-        rows={2}
+        className="mt-1 w-full text-[10px] bg-slate-900 text-slate-200 rounded px-2 py-0.5 overflow-x-auto resize-none"
+        rows={1}
         value={
           slot.importString ||
           (slot.family ? buildGoogleImport(slot.family) : "")
@@ -97,27 +91,17 @@ function renderFontOption({
   );
 }
 
-// --- 🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
-export default function DesignFonts() {
+type DesignFontsProps = {
+  slots: FontSlot[];
+  updateSlot: (id: string, patch: Partial<FontSlot>) => void;
+};
+
+export default function DesignFonts({ slots, updateSlot }: DesignFontsProps) {
   const [CurrentFontSlot, setCurrentFontSlot] = useState<string>("");
   const [open, setOpen] = useState<boolean>(false);
 
-  const [slots, setSlots] = useState<FontSlot[]>([
-    { id: "font1", label: "font1", family: "", importString: "" },
-    { id: "font2", label: "font2", family: "", importString: "" },
-    { id: "font3", label: "font3", family: "", importString: "" },
-    { id: "font4", label: "font4", family: "", importString: "" },
-    { id: "font5", label: "font5", family: "", importString: "" },
-  ]);
-
-  const updateSlot = (id: string, patch: Partial<FontSlot>) => {
-    setSlots((prev) => prev.map((s) => (s.id === id ? { ...s, ...patch } : s)));
-  };
-
   return (
-    <div className="bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 relative mt-[25px] ">
-      <h5 className="text-sm text-gray-400">Select fonts</h5>
-
+    <div className="bg-[var(--lightest-navy)] rounded-2xl shadow-xl p-2 border border-slate-200 relative mt-[5px]  ">
       <AnimatePresence>
         {open && (
           <motion.div
@@ -138,7 +122,7 @@ export default function DesignFonts() {
               {GOOGLE_FONTS.map((font) => (
                 <button
                   key={font.family}
-                  className="btn !py-1 !px-2 rounded  "
+                  className="btn !py-1 !px-2 rounded"
                   onClick={() => {
                     if (CurrentFontSlot) {
                       updateSlot(CurrentFontSlot, {
@@ -167,7 +151,7 @@ export default function DesignFonts() {
         )}
       </AnimatePresence>
 
-      <div className="mt-4">
+      <div className="mt-1 grid grid-cols-2 gap-x-2">
         {slots.map((slot) =>
           renderFontOption({
             slot,

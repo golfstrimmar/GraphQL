@@ -1,11 +1,20 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useStateContext } from "@/providers/StateProvider";
 import { Colors } from "@/app/plaza/forStyleComponent/Colors";
 import { motion, AnimatePresence } from "framer-motion";
 import "@/components/ModalMessage/ModalMessage.scss";
 import CloseIcon from "@/components/icons/CloseIcon";
-import ClearIcon from "@/components/icons/ClearIcon";
+
+type ColorGroup =
+  | "neutral"
+  | "red"
+  | "orange"
+  | "yellow"
+  | "green"
+  | "blue"
+  | "purple";
+
 type ColorItem = {
   color: string;
   value: string;
@@ -32,6 +41,34 @@ type ColorOptionProps = {
   setOpen: (open: boolean) => void;
 };
 
+type BackgroundState = {
+  background1: string;
+  background2: string;
+  background3: string;
+  background4: string;
+  background5: string;
+};
+
+type ColorState = {
+  color1: string;
+  color2: string;
+  color3: string;
+  color4: string;
+  color5: string;
+  color6: string;
+  color7: string;
+  color8: string;
+  color9: string;
+  color10: string;
+};
+
+type DesignColorsProps = {
+  backgrounds: BackgroundState;
+  colors: ColorState;
+  setBackground: (key: keyof BackgroundState, value: string) => void;
+  setColor: (key: keyof ColorState, value: string) => void;
+};
+
 function renderBgOption({
   id,
   label,
@@ -47,7 +84,7 @@ function renderBgOption({
     <button
       key={id}
       type="button"
-      className="btn p-1 mr-2 flex items-center gap-2"
+      className="btn p-1 mr-2 flex items-center gap-2 text-xs"
       onClick={() => {
         setCurrentBG(id);
         setOpen(true);
@@ -55,7 +92,7 @@ function renderBgOption({
       style={isActive ? { border: "1px solid #ccc" } : {}}
     >
       <span
-        className="w-6 h-6 inline-block rounded-full"
+        className="w-6 h-6  inline-block rounded-full"
         style={value ? { background: value } : {}}
       />
       <span>
@@ -88,7 +125,7 @@ function renderColorOption({
     <button
       key={id}
       type="button"
-      className="btn p-1 mr-2 flex items-center gap-2"
+      className="btn p-1 mr-2 flex items-center gap-2 "
       onClick={() => {
         setCurrentColor(id);
         setOpen(true);
@@ -96,12 +133,12 @@ function renderColorOption({
       style={isActive ? { border: "1px solid #ccc" } : {}}
     >
       <span
-        className="w-6 h-6 inline-flex items-center justify-center rounded-full border border-slate-600"
+        className="w-6 h-6 inline-flex items-center justify-center rounded-full border border-slate-600 "
         style={{ color: value || "#ffffff" }}
       >
         A
       </span>
-      <span>
+      <span className="text-xs">
         {label}: {value}
       </span>
 
@@ -116,50 +153,20 @@ function renderColorOption({
   );
 }
 
-// --- 🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
-type DesignColorsProps = {
-  background1: string;
-  background2: string;
-  background3: string;
-  background4: string;
-  background5: string;
-  setBackground1: (v: string) => void;
-  setBackground2: (v: string) => void;
-  setBackground3: (v: string) => void;
-  setBackground4: (v: string) => void;
-  setBackground5: (v: string) => void;
-};
-
 export default function DesignColors({
-  background1,
-  background2,
-  background3,
-  background4,
-  background5,
-  setBackground1,
-  setBackground2,
-  setBackground3,
-  setBackground4,
-  setBackground5,
+  backgrounds,
+  colors,
+  setBackground,
+  setColor,
 }: DesignColorsProps) {
   const {} = useStateContext();
 
   const [CurrentBG, setCurrentBG] = useState("");
   const [CurrentColor, setCurrentColor] = useState("");
 
-  const [color1, setColor1] = useState("");
-  const [color2, setColor2] = useState("");
-  const [color3, setColor3] = useState("");
-  const [color4, setColor4] = useState("");
-  const [color5, setColor5] = useState("");
-  const [color6, setColor6] = useState("");
-  const [color7, setColor7] = useState("");
-  const [color8, setColor8] = useState("");
-  const [color9, setColor9] = useState("");
-  const [color10, setColor10] = useState("");
-
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<"bg" | "color">("bg");
+
   const colorGroups = [
     {
       name: "neutral",
@@ -192,91 +199,28 @@ export default function DesignColors({
   ];
 
   const bgOptions = [
-    {
-      id: "background1",
-      label: "background1",
-      value: background1,
-      setter: setBackground1,
-    },
-    {
-      id: "background2",
-      label: "background2",
-      value: background2,
-      setter: setBackground2,
-    },
-    {
-      id: "background3",
-      label: "background3",
-      value: background3,
-      setter: setBackground3,
-    },
-    {
-      id: "background4",
-      label: "background4",
-      value: background4,
-      setter: setBackground4,
-    },
-    {
-      id: "background5",
-      label: "background5",
-      value: background5,
-      setter: setBackground5,
-    },
-  ];
-
-  const bgSetters: Record<string, (v: string) => void> = {
-    background1: setBackground1,
-    background2: setBackground2,
-    background3: setBackground3,
-    background4: setBackground4,
-    background5: setBackground5,
-  };
+    { id: "background1", label: "background1" },
+    { id: "background2", label: "background2" },
+    { id: "background3", label: "background3" },
+    { id: "background4", label: "background4" },
+    { id: "background5", label: "background5" },
+  ] as const;
 
   const colorOptions = [
-    { id: "color1", label: "color1", value: color1, setter: setColor1 },
-    { id: "color2", label: "color2", value: color2, setter: setColor2 },
-    { id: "color3", label: "color3", value: color3, setter: setColor3 },
-    { id: "color4", label: "color4", value: color4, setter: setColor4 },
-    { id: "color5", label: "color5", value: color5, setter: setColor5 },
-    { id: "color6", label: "color6", value: color6, setter: setColor6 },
-    { id: "color7", label: "color7", value: color7, setter: setColor7 },
-    { id: "color8", label: "color8", value: color8, setter: setColor8 },
-    { id: "color9", label: "color9", value: color9, setter: setColor9 },
-    { id: "color10", label: "color10", value: color10, setter: setColor10 },
-  ];
+    { id: "color1", label: "color1" },
+    { id: "color2", label: "color2" },
+    { id: "color3", label: "color3" },
+    { id: "color4", label: "color4" },
+    { id: "color5", label: "color5" },
+    { id: "color6", label: "color6" },
+    { id: "color7", label: "color7" },
+    { id: "color8", label: "color8" },
+    { id: "color9", label: "color9" },
+    { id: "color10", label: "color10" },
+  ] as const;
 
-  const textSetters: Record<string, (v: string) => void> = {
-    color1: setColor1,
-    color2: setColor2,
-    color3: setColor3,
-    color4: setColor4,
-    color5: setColor5,
-    color6: setColor6,
-    color7: setColor7,
-    color8: setColor8,
-    color9: setColor9,
-    color10: setColor10,
-  };
-
-  // -----------
   return (
-    <div className="bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 relative mt-[25px] ">
-      <div className="flex gap-4 items-center">
-        <h5 className="text-sm text-gray-400">Color scheme</h5>
-        <button
-          className="btn btn-empty p-1"
-          onClick={() => {
-            setBackground1("");
-            setBackground2("");
-            setBackground3("");
-            setBackground4("");
-            setBackground5("");
-          }}
-        >
-          <ClearIcon width={16} height={16} />
-        </button>
-      </div>
-
+    <div className="bg-[var(--lightest-navy)] rounded-2xl shadow-xl p-2 border border-slate-200 relative grid grid-cols-2 ">
       <AnimatePresence>
         {open && (
           <motion.div
@@ -296,18 +240,24 @@ export default function DesignColors({
             <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] mt-4 w-full">
               {colorGroups.map((group) => (
                 <div key={group.name} className="flex flex-col gap-0">
-                  {group.colors.map((color: ColorItem) => (
+                  {group.colors.map((color) => (
                     <button
                       key={color.color}
                       className="btn font-bold !py-0.5 !px-1 rounded !justify-start"
                       style={{ color: color.value }}
                       onClick={() => {
                         if (mode === "bg" && CurrentBG) {
-                          bgSetters[CurrentBG]?.(color.value);
+                          setBackground(
+                            CurrentBG as keyof BackgroundState,
+                            color.value,
+                          );
                           setCurrentBG("");
                         }
                         if (mode === "color" && CurrentColor) {
-                          textSetters[CurrentColor]?.(color.value);
+                          setColor(
+                            CurrentColor as keyof ColorState,
+                            color.value,
+                          );
                           setCurrentColor("");
                         }
                         setOpen(false);
@@ -327,41 +277,39 @@ export default function DesignColors({
         )}
       </AnimatePresence>
 
-      {/*------Background colors--------*/}
-      <div className="mt-4">
-        <h6 className="text-xs text-gray-400 mb-2">Background colors</h6>
+      {/* Background colors */}
+      <div className="mt-1">
         {bgOptions.map((opt) =>
           renderBgOption({
             id: opt.id,
             label: opt.label,
-            value: opt.value,
+            value: backgrounds[opt.id],
             currentBG: CurrentBG,
             setCurrentBG: (id) => {
               setMode("bg");
               setCurrentBG(id);
               setOpen(true);
             },
-            onChange: opt.setter,
+            onChange: (val) => setBackground(opt.id, val),
             setOpen,
           }),
         )}
       </div>
 
-      {/*------Сolors--------*/}
-      <div className="mt-6">
-        <h6 className="text-xs text-gray-400 mb-2">Сolors</h6>
+      {/* Colors */}
+      <div className="mt-1">
         {colorOptions.map((opt) =>
           renderColorOption({
             id: opt.id,
             label: opt.label,
-            value: opt.value,
+            value: colors[opt.id],
             currentColor: CurrentColor,
             setCurrentColor: (id) => {
               setMode("color");
               setCurrentColor(id);
               setOpen(true);
             },
-            onChange: opt.setter,
+            onChange: (val) => setColor(opt.id, val),
             setOpen,
           }),
         )}
