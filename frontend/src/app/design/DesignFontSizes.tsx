@@ -24,12 +24,8 @@ const labels: { key: keyof FontSizeState; label: string }[] = [
   { key: "fontSizeHeader6", label: "H6 font-size" },
 ];
 
+// ----🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢----
 export default function DesignFontSizes({ fontSizes, setFontSize }: Props) {
-  useEffect(() => {
-    if (!fontSizes) return;
-    console.log("<===fontSizes===>", fontSizes);
-  }, [fontSizes]);
-
   return (
     <div className="grid grid-cols-2 gap-2">
       {labels.map(({ key, label }) => (

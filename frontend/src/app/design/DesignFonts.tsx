@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import "@/components/ModalMessage/ModalMessage.scss";
 import CloseIcon from "@/components/icons/CloseIcon";
@@ -29,7 +29,10 @@ const GOOGLE_FONTS = [
   { family: "Lobster", weights: [300, 400, 500, 600, 700, 800] },
 ];
 
-function buildGoogleImport(family: string, weights: number[] = [400, 700]) {
+function buildGoogleImport(
+  family: string,
+  weights: number[] = [300, 400, 500, 600, 700, 800],
+) {
   const familyParam = family.replace(/ /g, "+");
   const weightsParam = weights.join(";");
   return `@import url("https://fonts.googleapis.com/css2?family=${familyParam}:wght@${weightsParam}&display=swap");`;
@@ -77,12 +80,11 @@ function renderFontOption({
           )}
         </div>
       </button>
-
       <textarea
         className="mt-1 w-full text-[10px] bg-slate-900 text-slate-200 rounded px-2 py-0.5 overflow-x-auto resize-none"
         rows={1}
         value={
-          slot.importString ||
+          slot?.importString ||
           (slot.family ? buildGoogleImport(slot.family) : "")
         }
         placeholder='@import url("https://fonts.googleapis.com/...");'
@@ -97,6 +99,7 @@ type DesignFontsProps = {
   updateSlot: (id: string, patch: Partial<FontSlot>) => void;
 };
 
+// ----🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢----
 export default function DesignFonts({ slots, updateSlot }: DesignFontsProps) {
   const [CurrentFontSlot, setCurrentFontSlot] = useState<string>("");
   const [open, setOpen] = useState<boolean>(false);
@@ -128,10 +131,7 @@ export default function DesignFonts({ slots, updateSlot }: DesignFontsProps) {
                     if (CurrentFontSlot) {
                       updateSlot(CurrentFontSlot, {
                         family: font.family,
-                        importString: buildGoogleImport(
-                          font.family,
-                          font.weights,
-                        ),
+                        importString: buildGoogleImport(font.family),
                       });
                       setCurrentFontSlot("");
                     }

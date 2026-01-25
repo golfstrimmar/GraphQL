@@ -99,15 +99,18 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
           transition={{ duration: 0.1, ease: [0.25, 0.8, 0.5, 1] }}
-          className="bg-navy rounded shadow-xl p-1  border border-slate-200  bottom-0 left-0 transform w-[calc(100vw-10px)]  fixed  z-5000"
+          className="bg-[var(--navi-admin)]   p-1 pt-8   bottom-0 left-0 transform w-[calc(100vw-10px)] min-h-[170px]  fixed  z-5000"
+          style={{
+            borderTop: "3px solid var(--teal)",
+          }}
         >
           <button
-            className="btn btn-empty absolute top-2 left-2 px-2 py-0.5 z-10"
+            className="btn btn-primary w-[calc(100%-10px)] absolute top-2 left-1 !px-2 !py-0.5 z-10"
             onClick={() => setActiveKey(null)}
           >
             <CloseIcon width={12} height={12} />
           </button>
-          <div className="grid grid-cols-[repeat(2_,max-content)_1fr_1fr] relative rounded border-2 border-[var(--teal)] p-1 text-[#000] h-full">
+          <div className="grid grid-cols-[repeat(2_,max-content)_1fr_1fr] relative rounded border-2 border-[var(--teal)] p-1  text-[#000] h-full">
             {/*===============Tag=================*/}
             <TagComponent
               node={NodeToSend}

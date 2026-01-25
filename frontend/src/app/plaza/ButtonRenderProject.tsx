@@ -4,7 +4,7 @@ import { useMutation, useLazyQuery } from "@apollo/client";
 import { FIND_PROJECT } from "@/apollo/queries";
 import { UPDATE_PROJECT } from "@/apollo/mutations";
 import { useStateContext } from "@/providers/StateProvider";
-import { ensureNodeKeys } from "./utils/ensureNodeKeys";
+import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
 import { removeKeys } from "./utils/removeKeys";
 import Spinner from "@/components/icons/Spinner";
 type ProjectData = {

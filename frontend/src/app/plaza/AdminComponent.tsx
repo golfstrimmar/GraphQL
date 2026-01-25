@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import Input from "@/components/ui/Input/Input";
 import { useQuery } from "@apollo/client";
 import { GET_JSON_DOCUMENT } from "@/apollo/queries";
-import { ensureNodeKeys } from "./utils/ensureNodeKeys";
+import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
 import ServicesButtons from "./ServicesButtons";
 
 const TagsNamen1 = [
@@ -25,11 +25,11 @@ const TagsNamen1 = [
   { tag: "nav", color: "#14b8a6" }, // teal
 
   { tag: "h1", color: "#ef4444" }, // red
-  { tag: "h2", color: "#f97316" }, // orange
-  { tag: "h3", color: "#f59e0b" }, // amber
-  { tag: "h4", color: "#eab308" }, // yellow
-  { tag: "h5", color: "#84cc16" }, // lime
-  { tag: "h6", color: "#22c55e" }, // green
+  { tag: "h2", color: "#ef4444" },
+  { tag: "h3", color: "#ef4444" },
+  { tag: "h4", color: "#ef4444" },
+  { tag: "h5", color: "#ef4444" },
+  { tag: "h6", color: "#ef4444" },
 ];
 const TagsNamen2 = [
   { tag: "input", color: "#3b82f6" }, // blue

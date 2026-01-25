@@ -39,7 +39,7 @@ const TagComponent: React.FC<TagComponentProps> = ({
 
   // 🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢
   return (
-    <div className="bg-white flex flex-col relative rounded max-h-[min-content] mt-10">
+    <div className="bg-white flex flex-col relative rounded max-h-[min-content] mt-6">
       <p className={itemClass}>Tag:</p>
       <input
         ref={inputRef}

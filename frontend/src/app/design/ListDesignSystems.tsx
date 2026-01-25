@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DesignColors from "./DesignColors";
 import Spinner from "@/components/icons/Spinner";
 import { useStateContext } from "@/providers/StateProvider";
@@ -13,7 +13,8 @@ import dynamic from "next/dynamic";
 import ClearIcon from "@/components/icons/ClearIcon";
 import DesignTypography from "./DesignTypography";
 import DesignFontSizes from "./DesignFontSizes";
-
+import { generateHeaderNodesFromDS } from "./generateHeaderNodesFromDS";
+import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
 const ModalCreateDesignSystem = dynamic(
   () => import("./ModalCreateDesignSystem"),
   { ssr: false, loading: () => <Loading /> },
@@ -57,7 +58,7 @@ type FontSizeState = {
 
 // ====🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
 export default function ListDesignSystems({ designSystems }) {
-  const { setModalMessage } = useStateContext();
+  const { setModalMessage, updateHtmlJson } = useStateContext();
   const [modalCreateOpen, setModalCreateOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string>("");
   const DEFAULT_BACKGROUNDS: BackgroundState = {
@@ -116,6 +117,22 @@ export default function ListDesignSystems({ designSystems }) {
   const updateFontSlot = (id: string, patch: Partial<FontSlot>) => {
     setFonts((prev) => prev.map((s) => (s.id === id ? { ...s, ...patch } : s)));
   };
+
+  // ---------------
+  useEffect(() => {
+    if (!colors) return;
+    console.log("<===colors===>", colors);
+  }, [colors]);
+  useEffect(() => {
+    if (!fonts) return;
+    console.log("<===fonts===>", fonts);
+  }, [fonts]);
+  useEffect(() => {
+    if (!fontSizes) return;
+    console.log("<===fontSizes===>", fontSizes);
+  }, [fontSizes]);
+
+  // ---------------
   function buildBackgrounds() {
     return Object.entries(backgrounds)
       .filter(([, value]) => value)
@@ -155,6 +172,7 @@ export default function ListDesignSystems({ designSystems }) {
     setColors(DEFAULT_COLORS);
     setFonts(DEFAULT_FONTS);
     setFontSizes(DEFAULT_FONT_SIZES);
+    // updateHtmlJson([]);
   };
 
   const [loadDesignSystem, { loading: loadingDesignSystem }] = useLazyQuery(
@@ -195,7 +213,7 @@ export default function ListDesignSystems({ designSystems }) {
             return {
               ...slot,
               family: found.value,
-              importString: slot.importString, // можешь сюда засунуть buildGoogleImport(found.value) если хочешь
+              importString: slot.importString,
             };
           }),
         );
@@ -216,6 +234,18 @@ export default function ListDesignSystems({ designSystems }) {
     },
   );
 
+  // -- 🧪-- 🧪-- 🧪-- 🧪 если htmlJson пустой → генерим h1–h6 из текущей DS
+  useEffect(() => {
+    if (!selectedId || !colors) return;
+    updateHtmlJson((prev: any) => {
+      if (prev && Array.isArray(prev) && prev.length > 0) return prev;
+      const content = generateHeaderNodesFromDS(colors, fonts, fontSizes);
+      const resultWithKeys = ensureNodeKeys(content) as ProjectData[];
+      return resultWithKeys;
+    });
+  }, [selectedId, colors]);
+
+  // --------------------
   return (
     <div>
       <button

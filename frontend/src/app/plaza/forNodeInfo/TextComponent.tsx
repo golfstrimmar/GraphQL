@@ -56,7 +56,7 @@ const TextComponent: React.FC<TextComponentProps> = ({
     return () => clearTimeout(id);
   };
   return (
-    <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-10  flex flex-col relative ">
+    <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-6  flex flex-col relative ">
       {modalTextsOpen && (
         <ModalTexts
           node={node}

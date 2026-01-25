@@ -115,12 +115,12 @@ export default function PreviewComponent() {
     ${HTML || ""}
   `;
 
-  const handleImgLoad = () => {
-    if (!imgRef.current) return;
-    setNaturalWidth(imgRef.current.naturalWidth);
-  };
+  // const handleImgLoad = () => {
+  //   if (!imgRef.current) return;
+  //   setNaturalWidth(imgRef.current.naturalWidth);
+  // };
 
-  const scaledWidth = naturalWidth ? naturalWidth * scale : undefined;
+  // const scaledWidth = naturalWidth ? naturalWidth * scale : undefined;
 
   // ------------------------
   return (

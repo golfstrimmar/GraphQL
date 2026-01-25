@@ -100,7 +100,7 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
   }, [node?.style]);
   // ================================
   return (
-    <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-10  flex flex-col relative ">
+    <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-6  flex flex-col relative ">
       {openMobile && (
         <MobileAddStyle
           setStyleText={setStyleText}

@@ -142,10 +142,10 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
 
   // ================================
   return (
-    <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-10  flex flex-col relative   ">
+    <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-6  flex flex-col relative   ">
       <p className={itemClass}>
         <span>Class:</span>
-        {node.tag === "section" && (
+        {node?.tag === "section" && (
           <button
             className="btn-teal text-[12px] "
             onClick={() => handleParentClass()}

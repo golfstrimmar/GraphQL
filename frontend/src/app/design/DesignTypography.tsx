@@ -30,15 +30,9 @@ type Props = {
   fontSizes: FontSizeState;
 };
 
+// ----🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢----
+
 export default function DesignTypography({ colors, fonts, fontSizes }: Props) {
-  useEffect(() => {
-    if (!colors) return;
-    console.log("<===colors===>", colors);
-  }, [colors]);
-  useEffect(() => {
-    if (!fontSizes) return;
-    console.log("<===fontSizes===>", fontSizes);
-  }, [fontSizes]);
   const SLOT_TYPOGRAPHY = [
     {
       tag: "h1",

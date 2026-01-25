@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useStateContext } from "@/providers/StateProvider";
 import { Colors } from "@/app/plaza/forStyleComponent/Colors";
 import { motion, AnimatePresence } from "framer-motion";
@@ -157,6 +157,7 @@ function renderColorOption({
   );
 }
 
+// ----🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢----
 export default function DesignColors({
   backgrounds,
   colors,
