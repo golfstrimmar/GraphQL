@@ -8,7 +8,7 @@ import { useQuery } from "@apollo/client";
 import { GET_JSON_DOCUMENT } from "@/apollo/queries";
 import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
 import ServicesButtons from "./ServicesButtons";
-
+import { applyDSHeadersToTree } from "@/app/plaza/utils/applyDSHeadersToTree";
 const TagsNamen1 = [
   { tag: "a", color: "#3b82f6" }, // blue
   { tag: "button", color: "#06b6d4" }, // cyan
@@ -74,7 +74,17 @@ type ProjectData = {
 // =====================================
 
 const AdminComponent = () => {
-  const { updateHtmlJson } = useStateContext();
+  const {
+    updateHtmlJson,
+    backgrounds,
+    setBackgrounds,
+    colors,
+    setColors,
+    fonts,
+    setFonts,
+    fontSizes,
+    setFontSizes,
+  } = useStateContext();
   const [name, setName] = useState<string | null>(null);
 
   const { refetch: refetchJson } = useQuery(GET_JSON_DOCUMENT, {
@@ -90,9 +100,15 @@ const AdminComponent = () => {
     const content = data?.jsonDocumentByName?.content;
     if (!content) return;
     const resultWithKeys = ensureNodeKeys(content) as ProjectData[];
+    const withDS = applyDSHeadersToTree(
+      resultWithKeys,
+      colors,
+      fonts,
+      fontSizes,
+    );
     updateHtmlJson((prev) => [
       ...prev,
-      ...(Array.isArray(resultWithKeys) ? resultWithKeys : [resultWithKeys]),
+      ...(Array.isArray(withDS) ? withDS : [withDS]),
     ]);
   };
 

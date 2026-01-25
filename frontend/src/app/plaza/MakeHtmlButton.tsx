@@ -9,7 +9,7 @@ export default function MakeHtmlButton() {
   const { htmlJson, setHTML, setSCSS, setModalMessage } = useStateContext();
 
   const handleClick = async () => {
-    if (!htmlJson) return;
+    if (!htmlJson || htmlJson.length === 0) return;
 
     setLoading(true);
 

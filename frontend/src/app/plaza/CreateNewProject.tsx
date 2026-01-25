@@ -111,45 +111,43 @@ const CreateNewProject = () => {
       <hr className="bordered-2 border-slate-200 mt-2 mb-4" />
       <div
         ref={projectsRef}
-        className="flex items-center gap-4 min-h-[40px]  transition-all duration-200"
+        className="flex flex-col  gap-4 min-h-[40px]  transition-all duration-200"
       >
         <button
           onClick={() => setOpenCreate(!openCreate)}
           className=" h-6 flex items-center gap-2 btn  btn-primary font-bold text-slate-800"
         >
-          <span className=" mr-2 text-slate-800">
+          {/*<span className=" mr-2 text-slate-800">
             <CreateIcon width={18} height={18} />
-          </span>
+          </span>*/}
 
-          {!openCreate ? "⇨" : "⇦"}
+          {!openCreate ? "Save as new Ulon project" : "⇧"}
         </button>
         <AnimatePresence>
           {openCreate && (
             <motion.div
-              initial={{ width: 0, opacity: 0, x: 10 }}
-              animate={{ width: "auto", opacity: 1, x: 0 }}
-              exit={{ width: 0, opacity: 0, x: 10 }}
+              initial={{ height: 0, opacity: 0, y: -10 }}
+              animate={{ height: "auto", opacity: 1, y: 0 }}
+              exit={{ height: 0, opacity: 0, y: -10 }}
               transition={{ duration: 0.2, ease: "easeInOut" }}
-              className="grid grid-cols-[1fr_max-content] gap-2 flex-1"
+              className="w-full  flex-1 bg-slate-400 p-1 rounded-lg"
             >
-              <Input
-                typeInput="text"
-                data="Project name"
-                value={newProjectName}
-                onChange={(e) => setNewProjectName(e.target.value)}
-              />
-              <button
-                type="button"
-                className="btn  btn-primary font-bold text-slate-800  disabled:opacity-50"
-                onClick={createNewProject}
-                disabled={createLoading}
-              >
-                {createLoading ? (
-                  <Spinner />
-                ) : (
-                  <CreateIcon width={24} height={24} />
-                )}
-              </button>
+              <form className="w-full">
+                <Input
+                  typeInput="text"
+                  data="Project name"
+                  value={newProjectName}
+                  onChange={(e) => setNewProjectName(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="btn  btn-primary font-bold text-slate-800  disabled:opacity-50 mt-2"
+                  onClick={createNewProject}
+                  disabled={createLoading}
+                >
+                  {createLoading ? <Spinner /> : "Save"}
+                </button>
+              </form>
             </motion.div>
           )}
         </AnimatePresence>

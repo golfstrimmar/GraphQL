@@ -159,13 +159,10 @@ function renderColorOption({
 
 // ----🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢----
 export default function DesignColors({
-  backgrounds,
-  colors,
-  setBackground,
   setColor,
+  setBackground,
 }: DesignColorsProps) {
-  const {} = useStateContext();
-
+  const { backgrounds, colors } = useStateContext();
   const [CurrentBG, setCurrentBG] = useState("");
   const [CurrentColor, setCurrentColor] = useState("");
 

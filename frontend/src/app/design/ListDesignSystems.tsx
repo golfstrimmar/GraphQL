@@ -15,6 +15,8 @@ import DesignTypography from "./DesignTypography";
 import DesignFontSizes from "./DesignFontSizes";
 import { generateHeaderNodesFromDS } from "./generateHeaderNodesFromDS";
 import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
+import DesigntTextNodes from "./DesigntTextNodes";
+
 const ModalCreateDesignSystem = dynamic(
   () => import("./ModalCreateDesignSystem"),
   { ssr: false, loading: () => <Loading /> },
@@ -58,7 +60,18 @@ type FontSizeState = {
 
 // ====🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
 export default function ListDesignSystems({ designSystems }) {
-  const { setModalMessage, updateHtmlJson } = useStateContext();
+  const {
+    setModalMessage,
+    updateHtmlJson,
+    backgrounds,
+    setBackgrounds,
+    colors,
+    setColors,
+    fonts,
+    setFonts,
+    fontSizes,
+    setFontSizes,
+  } = useStateContext();
   const [modalCreateOpen, setModalCreateOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string>("");
   const DEFAULT_BACKGROUNDS: BackgroundState = {
@@ -96,12 +109,6 @@ export default function ListDesignSystems({ designSystems }) {
     fontSizeHeader5: "",
     fontSizeHeader6: "",
   };
-
-  const [backgrounds, setBackgrounds] =
-    useState<BackgroundState>(DEFAULT_BACKGROUNDS);
-  const [colors, setColors] = useState<ColorState>(DEFAULT_COLORS);
-  const [fonts, setFonts] = useState<FontSlot[]>(DEFAULT_FONTS);
-  const [fontSizes, setFontSizes] = useState<FontSizeState>(DEFAULT_FONT_SIZES);
 
   const setFontSize = (key: keyof FontSizeState, value: string) => {
     setFontSizes((prev) => ({ ...prev, [key]: value }));
@@ -331,6 +338,11 @@ export default function ListDesignSystems({ designSystems }) {
           Typography
         </h6>
         <DesignTypography colors={colors} fonts={fonts} fontSizes={fontSizes} />
+        <h6 className="text-sm text-gray-400 mt-6 mb-1">
+          <span className="bg-[var(--teal)] w-2 h-2 rounded-full"></span> Text
+          Nodes
+        </h6>
+        <DesigntTextNodes />
       </div>
     </div>
   );
