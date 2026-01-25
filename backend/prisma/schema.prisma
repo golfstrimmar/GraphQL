@@ -140,14 +140,25 @@ model Font {
   @@index([designSystemId])
 }
 
+model FontSize {
+  id              Int           @id @default(autoincrement())
+  fontSize        String
+  value           String
+
+  designSystem    DesignSystem? @relation(fields: [designSystemId], references: [id], onDelete: Cascade)
+  designSystemId  Int?
+
+  @@index([designSystemId])
+}
+
 model DesignSystem {
-  id          Int          @id @default(autoincrement())
+  id              Int           @id @default(autoincrement())
   name        String
 
   backgrounds Background[]
   colors      Color[]
   fonts       Font[]
-
+  fontSizes   FontSize[]
   createdAt   DateTime     @default(now())
 
   creatorId   Int

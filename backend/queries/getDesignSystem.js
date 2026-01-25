@@ -11,6 +11,7 @@ const getDesignSystem = async (_, { id }) => {
       backgrounds: true,
       colors: true,
       fonts: true,
+      fontSizes: true,
     },
   });
 

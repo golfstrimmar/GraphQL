@@ -50,12 +50,12 @@ type BackgroundState = {
 };
 
 type ColorState = {
-  color1: string;
-  color2: string;
-  color3: string;
-  color4: string;
-  color5: string;
-  color6: string;
+  headers1color: string;
+  headers2color: string;
+  headers3color: string;
+  headers4color: string;
+  headers5color: string;
+  headers6color: string;
   color7: string;
   color8: string;
   color9: string;
@@ -145,7 +145,11 @@ function renderColorOption({
       <input
         type="color"
         value={value || "#ffffff"}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => {
+          onChange(e.target.value);
+          setCurrentColor("");
+          setOpen(false);
+        }}
         onClick={(e) => e.stopPropagation()}
         className="h-6 w-10 cursor-pointer"
       />
@@ -207,12 +211,12 @@ export default function DesignColors({
   ] as const;
 
   const colorOptions = [
-    { id: "color1", label: "color1" },
-    { id: "color2", label: "color2" },
-    { id: "color3", label: "color3" },
-    { id: "color4", label: "color4" },
-    { id: "color5", label: "color5" },
-    { id: "color6", label: "color6" },
+    { id: "headers1color", label: "headers1color" },
+    { id: "headers2color", label: "headers2color" },
+    { id: "headers3color", label: "headers3color" },
+    { id: "headers4color", label: "headers4color" },
+    { id: "headers5color", label: "headers5color" },
+    { id: "headers6color", label: "headers6color" },
     { id: "color7", label: "color7" },
     { id: "color8", label: "color8" },
     { id: "color9", label: "color9" },

@@ -15,6 +15,7 @@ export default function ModalCreateDesignSystem({
   buildBackgrounds,
   buildColors,
   buildFonts,
+  buildFontSizes,
 }) {
   const { user, setModalMessage } = useStateContext();
   const router = useRouter();
@@ -75,6 +76,7 @@ export default function ModalCreateDesignSystem({
                     backgrounds: buildBackgrounds(),
                     colors: buildColors(),
                     fonts: buildFonts(),
+                    fontSizes: buildFontSizes(),
                   },
                 });
               }}

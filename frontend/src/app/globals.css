@@ -14,6 +14,12 @@
   --teal-navi: #059b78;
   --teal-light: #64ffdb86;
   --red: #ff0000;
+  --headers1color: #000;
+  --headers2color: #000;
+  --headers3color: #000;
+  --headers4color: #000;
+  --headers5color: #000;
+  --headers6color: #000;
 }
 
 body {

@@ -2,7 +2,7 @@ import prisma from "../prisma/client.js";
 
 const updateDesignSystem = async (
   _,
-  { id, ownerId, backgrounds, colors, fonts },
+  { id, ownerId, backgrounds, colors, fonts, fontSizes },
 ) => {
   if (!ownerId || !id) {
     throw new Error("ownerId and id are required");
@@ -37,6 +37,10 @@ const updateDesignSystem = async (
       where: { designSystemId: systemId },
     });
 
+    await prisma.fontSize.deleteMany({
+      where: { designSystemId: systemId },
+    });
+
     // 3. Обновляем систему и создаём новые записи
     const designSystem = await prisma.designSystem.update({
       where: { id: systemId },
@@ -61,11 +65,18 @@ const updateDesignSystem = async (
             value: f.value,
           })),
         },
+        fontSizes: {
+          create: fontSizes.map((fs) => ({
+            fontSize: fs.fontSize,
+            value: fs.value,
+          })),
+        },
       },
       include: {
         backgrounds: true,
         colors: true,
         fonts: true,
+        fontSizes: true,
         creator: true,
       },
     });

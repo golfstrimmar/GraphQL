@@ -19,6 +19,7 @@ export default function UpdateDesignSystem({
   buildBackgrounds,
   buildColors,
   buildFonts,
+  buildFontSizes,
 }) {
   const { user, setModalMessage } = useStateContext();
   const router = useRouter();
@@ -47,6 +48,7 @@ export default function UpdateDesignSystem({
             backgrounds: buildBackgrounds(),
             colors: buildColors(),
             fonts: buildFonts(),
+            fontSizes: buildFontSizes(),
           },
         });
       }}

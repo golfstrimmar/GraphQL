@@ -7,6 +7,7 @@ import "./design.scss";
 import type { FontSlot } from "./ListDesignSystems";
 
 type FontOptionProps = {
+  key: string;
   slot: FontSlot;
   currentFont: string;
   setCurrentFont: (id: string) => void;
@@ -35,6 +36,7 @@ function buildGoogleImport(family: string, weights: number[] = [400, 700]) {
 }
 
 function renderFontOption({
+  key,
   slot,
   currentFont,
   setCurrentFont,
@@ -43,9 +45,8 @@ function renderFontOption({
 }: FontOptionProps) {
   const isActive = currentFont === slot.id;
   return (
-    <div className="mb-1">
+    <div className="mb-1" key={key}>
       <button
-        key={slot.id}
         type="button"
         className="btn p-1 mr-2 flex items-center gap-2"
         onClick={() => {
@@ -54,8 +55,8 @@ function renderFontOption({
         }}
         style={isActive ? { border: "1px solid #ccc" } : {}}
       >
-        <span className="w-6 h-6 inline-flex items-center justify-center rounded-full border border-slate-600 text-xs p-1">
-          {slot.label.replace("font", "F")}
+        <span className="!min-w-6 !min-h-6 inline-flex items-center justify-center rounded-full border border-slate-600 text-xs p-1">
+          F
         </span>
 
         <div className="text-xs text-gray-400">
@@ -162,6 +163,7 @@ export default function DesignFonts({ slots, updateSlot }: DesignFontsProps) {
             },
             updateSlot,
             setOpen,
+            key: slot.id,
           }),
         )}
       </div>

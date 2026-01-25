@@ -155,6 +155,11 @@ export const typeDefs = gql`
     value: String!
   }
 
+  input FontSizeInput {
+    fontSize: String!
+    value: String!
+  }
+
   type Background {
     id: ID!
     background: String!
@@ -173,12 +178,19 @@ export const typeDefs = gql`
     value: String!
   }
 
+  type FontSize {
+    id: ID!
+    fontSize: String!
+    value: String!
+  }
+
   type DesignSystem {
     id: ID!
     name: String!
     backgrounds: [Background!]!
     colors: [Color!]!
     fonts: [Font!]!
+    fontSizes: [FontSize!]!
     createdAt: String!
   }
 
@@ -236,6 +248,7 @@ export const typeDefs = gql`
       backgrounds: [BackgroundInput!]!
       colors: [ColorInput!]!
       fonts: [FontInput!]!
+      fontSizes: [FontSizeInput!]!
     ): DesignSystem!
     updateDesignSystem(
       id: ID!
@@ -243,6 +256,7 @@ export const typeDefs = gql`
       backgrounds: [BackgroundInput!]!
       colors: [ColorInput!]!
       fonts: [FontInput!]!
+      fontSizes: [FontSizeInput!]!
     ): DesignSystem!
     removeDesignSystem(id: ID!): ID!
   }

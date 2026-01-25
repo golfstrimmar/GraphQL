@@ -302,6 +302,7 @@ export const CREATE_DESIGN_SYSTEM = gql`
     $backgrounds: [BackgroundInput!]!
     $colors: [ColorInput!]!
     $fonts: [FontInput!]!
+    $fontSizes: [FontSizeInput!]!
   ) {
     createDesignSystem(
       ownerId: $ownerId
@@ -309,6 +310,7 @@ export const CREATE_DESIGN_SYSTEM = gql`
       backgrounds: $backgrounds
       colors: $colors
       fonts: $fonts
+      fontSizes: $fontSizes
     ) {
       id
       name
@@ -331,6 +333,12 @@ export const CREATE_DESIGN_SYSTEM = gql`
         font
         value
       }
+
+      fontSizes {
+        id
+        fontSize
+        value
+      }
     }
   }
 `;
@@ -341,6 +349,7 @@ export const UPDATE_DESIGN_SYSTEM = gql`
     $backgrounds: [BackgroundInput!]!
     $colors: [ColorInput!]!
     $fonts: [FontInput!]!
+    $fontSizes: [FontSizeInput!]!
   ) {
     updateDesignSystem(
       id: $id
@@ -348,6 +357,7 @@ export const UPDATE_DESIGN_SYSTEM = gql`
       backgrounds: $backgrounds
       colors: $colors
       fonts: $fonts
+      fontSizes: $fontSizes
     ) {
       id
       name

@@ -162,6 +162,10 @@ export const GET_DESIGN_SYSTEM = gql`
         font
         value
       }
+      fontSizes {
+        fontSize
+        value
+      }
     }
   }
 `;

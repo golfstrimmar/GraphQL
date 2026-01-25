@@ -11,7 +11,9 @@ import UpdateDesignSystem from "./UpdateDesignSystem";
 import DesignFonts from "./DesignFonts";
 import dynamic from "next/dynamic";
 import ClearIcon from "@/components/icons/ClearIcon";
-import { divide } from "lodash";
+import DesignTypography from "./DesignTypography";
+import DesignFontSizes from "./DesignFontSizes";
+
 const ModalCreateDesignSystem = dynamic(
   () => import("./ModalCreateDesignSystem"),
   { ssr: false, loading: () => <Loading /> },
@@ -26,23 +28,33 @@ type BackgroundState = {
 };
 
 type ColorState = {
-  color1: string;
-  color2: string;
-  color3: string;
-  color4: string;
-  color5: string;
-  color6: string;
+  headers1color: string;
+  headers2color: string;
+  headers3color: string;
+  headers4color: string;
+  headers5color: string;
+  headers6color: string;
   color7: string;
   color8: string;
   color9: string;
   color10: string;
 };
 export type FontSlot = {
-  id: string; // "font1", "font2" — используется в UI
+  id: string; // "headersfont", "font2" — используется в UI
   label: string; // подпись в UI
   family: string; // имя шрифта (Inter, Roboto) — это и есть value для базы
   importString: string; // строка @import, только для фронта
 };
+
+type FontSizeState = {
+  fontSizeHeader1: string;
+  fontSizeHeader2: string;
+  fontSizeHeader3: string;
+  fontSizeHeader4: string;
+  fontSizeHeader5: string;
+  fontSizeHeader6: string;
+};
+
 // ====🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
 export default function ListDesignSystems({ designSystems }) {
   const { setModalMessage } = useStateContext();
@@ -56,28 +68,43 @@ export default function ListDesignSystems({ designSystems }) {
     background5: "",
   };
   const DEFAULT_COLORS: ColorState = {
-    color1: "",
-    color2: "",
-    color3: "",
-    color4: "",
-    color5: "",
-    color6: "",
+    headers1color: "",
+    headers2color: "",
+    headers3color: "",
+    headers4color: "",
+    headers5color: "",
+    headers6color: "",
     color7: "",
     color8: "",
     color9: "",
     color10: "",
   };
   const DEFAULT_FONTS: FontSlot[] = [
-    { id: "font1", label: "font1", family: "", importString: "" },
-    { id: "font2", label: "font2", family: "", importString: "" },
-    { id: "font3", label: "font3", family: "", importString: "" },
-    { id: "font4", label: "font4", family: "", importString: "" },
-    { id: "font5", label: "font5", family: "", importString: "" },
+    { id: "headers1font", label: "headers1font", family: "", importString: "" },
+    { id: "headers2font", label: "headers2font", family: "", importString: "" },
+    { id: "headers3font", label: "headers3font", family: "", importString: "" },
+    { id: "headers4font", label: "headers4font", family: "", importString: "" },
+    { id: "headers5font", label: "headers5font", family: "", importString: "" },
+    { id: "headers6font", label: "headers6font", family: "", importString: "" },
   ];
+  const DEFAULT_FONT_SIZES: FontSizeState = {
+    fontSizeHeader1: "",
+    fontSizeHeader2: "",
+    fontSizeHeader3: "",
+    fontSizeHeader4: "",
+    fontSizeHeader5: "",
+    fontSizeHeader6: "",
+  };
+
   const [backgrounds, setBackgrounds] =
     useState<BackgroundState>(DEFAULT_BACKGROUNDS);
   const [colors, setColors] = useState<ColorState>(DEFAULT_COLORS);
   const [fonts, setFonts] = useState<FontSlot[]>(DEFAULT_FONTS);
+  const [fontSizes, setFontSizes] = useState<FontSizeState>(DEFAULT_FONT_SIZES);
+
+  const setFontSize = (key: keyof FontSizeState, value: string) => {
+    setFontSizes((prev) => ({ ...prev, [key]: value }));
+  };
 
   const setBackground = (key: keyof BackgroundState, value: string) => {
     setBackgrounds((prev) => ({ ...prev, [key]: value }));
@@ -114,11 +141,20 @@ export default function ListDesignSystems({ designSystems }) {
         value: f.family,
       }));
   }
+  function buildFontSizes() {
+    return Object.entries(fontSizes)
+      .filter(([, value]) => value)
+      .map(([fontSize, value]) => ({
+        fontSize,
+        value: value as string,
+      }));
+  }
 
   const resetAll = () => {
     setBackgrounds(DEFAULT_BACKGROUNDS);
     setColors(DEFAULT_COLORS);
     setFonts(DEFAULT_FONTS);
+    setFontSizes(DEFAULT_FONT_SIZES);
   };
 
   const [loadDesignSystem, { loading: loadingDesignSystem }] = useLazyQuery(
@@ -132,6 +168,7 @@ export default function ListDesignSystems({ designSystems }) {
         const bgs = system.backgrounds ?? [];
         const cls = system.colors ?? [];
         const fts = system.fonts ?? [];
+        const fss = system.fontSizes ?? [];
         setBackgrounds((prev) => {
           const next = { ...prev };
           bgs.forEach((bg: any) => {
@@ -162,6 +199,15 @@ export default function ListDesignSystems({ designSystems }) {
             };
           }),
         );
+        setFontSizes((prev) => {
+          const next = { ...prev };
+          fss.forEach((fs: any) => {
+            if (fs.fontSize in next) {
+              (next as any)[fs.fontSize] = fs.value;
+            }
+          });
+          return next;
+        });
       },
       onError: (error) => {
         console.error(error);
@@ -184,6 +230,7 @@ export default function ListDesignSystems({ designSystems }) {
         buildBackgrounds={buildBackgrounds}
         buildColors={buildColors}
         buildFonts={buildFonts}
+        buildFontSizes={buildFontSizes}
       />
       <div className="flex flex-col gap-2  w-full mt-[30px] bg-navy rounded-2xl shadow-xl p-2   border border-slate-200 ">
         {designSystems.length === 0 && (
@@ -214,6 +261,7 @@ export default function ListDesignSystems({ designSystems }) {
                 buildBackgrounds={buildBackgrounds}
                 buildColors={buildColors}
                 buildFonts={buildFonts}
+                buildFontSizes={buildFontSizes}
               />
 
               <RemoveDesignSystem id={system.id} resetAll={resetAll} />
@@ -242,6 +290,17 @@ export default function ListDesignSystems({ designSystems }) {
           <span className="bg-[var(--teal)] w-2 h-2 rounded-full"></span> Fonts
         </h6>
         <DesignFonts slots={fonts} updateSlot={updateFontSlot} />
+        <h6 className="text-sm text-gray-400 mt-6 mb-1">
+          <span className="bg-[var(--teal)] w-2 h-2 rounded-full"></span> Font
+          Sizes
+        </h6>
+        <DesignFontSizes fontSizes={fontSizes} setFontSize={setFontSize} />
+
+        <h6 className="text-sm text-gray-400 mt-6 mb-1">
+          <span className="bg-[var(--teal)] w-2 h-2 rounded-full"></span>{" "}
+          Typography
+        </h6>
+        <DesignTypography colors={colors} fonts={fonts} fontSizes={fontSizes} />
       </div>
     </div>
   );
