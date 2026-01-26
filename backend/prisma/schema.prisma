@@ -64,13 +64,6 @@ model FigmaProject {
 }
 
 
-// model Font {
-//   id        Int      @id @default(autoincrement())
-//   name      String
-//   scss      String
-//   texts     String[] // Postgres array (или JSON, если на SQLite)
-//   createdAt DateTime @default(now())
-// }
 
 
 model ColorVariable {
@@ -107,58 +100,22 @@ model JsonDocument {
   createdAt DateTime @default(now())
 }
 
-model Background {
+
+model DesignTexts {
   id              Int           @id @default(autoincrement())
-  background      String
-  value           String
+  classText           String
+  styleText           String
 
   designSystem    DesignSystem? @relation(fields: [designSystemId], references: [id], onDelete: Cascade)
   designSystemId  Int?
 
   @@index([designSystemId])
 }
-
-model Color {
-  id              Int           @id @default(autoincrement())
-  color           String
-  value           String
-
-  designSystem    DesignSystem? @relation(fields: [designSystemId], references: [id], onDelete: Cascade)
-  designSystemId  Int?
-
-  @@index([designSystemId])
-}
-
-model Font {
-  id              Int           @id @default(autoincrement())
-  font            String
-  value           String
-
-  designSystem    DesignSystem? @relation(fields: [designSystemId], references: [id], onDelete: Cascade)
-  designSystemId  Int?
-
-  @@index([designSystemId])
-}
-
-model FontSize {
-  id              Int           @id @default(autoincrement())
-  fontSize        String
-  value           String
-
-  designSystem    DesignSystem? @relation(fields: [designSystemId], references: [id], onDelete: Cascade)
-  designSystemId  Int?
-
-  @@index([designSystemId])
-}
-
 model DesignSystem {
   id              Int           @id @default(autoincrement())
   name        String
+  designTexts DesignTexts[]
 
-  backgrounds Background[]
-  colors      Color[]
-  fonts       Font[]
-  fontSizes   FontSize[]
   createdAt   DateTime     @default(now())
 
   creatorId   Int

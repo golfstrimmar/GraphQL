@@ -1,58 +1,101 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useStateContext } from "@/providers/StateProvider";
-import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
 import inlineStyleStringToObject from "@/app/design/inlineStyleStringToObject";
 import ClearIcon from "@/components/icons/ClearIcon";
 import { Colors } from "@/app/plaza/forStyleComponent/Colors";
 import { motion, AnimatePresence } from "framer-motion";
 
-type HtmlNode = {
-  tag: string;
-  text?: string;
-  class?: string;
-  style?: string;
-  attributes?: Record<string, string>;
-  children?: HtmlNode[] | string;
-  _key?: string;
-};
-
 type Text = {
   class: string;
   style: string; // строка для HTML/экспорта
-  reactStyle: React.CSSProperties; // объект для JSX
+  reactStyle: React.CSSProperties; // объект для JSX здесь
   content: string;
 };
-
+type designText = {
+  class: string;
+  style: string;
+};
 const BASE_STYLE = "padding: 2px 4px; border: 1px solid #adadad;";
 const CONTENT = "The quick brown fox jumps over the lazy dog.";
 
 const DEFAULTS = [
-  "font-size:12px;  color:var(--grey-100); font-weight:300; line-height:1; font-family:'Montserrat', sans-serif;",
-  "font-size:14px; color:var(--grey-100); font-weight:400; line-height:1; font-family:'Montserrat', sans-serif;",
-  "font-size:16px; color:var(--grey-100); font-weight:400; line-height:1; font-family:'Montserrat', sans-serif;",
-  "font-size:18px; color:var(--grey-100); font-weight:400; line-height:1; font-family:'Montserrat', sans-serif;",
-  "font-size:20px; color:var(--grey-100); font-weight:500; line-height:1; font-family:'Montserrat', sans-serif;",
-  "font-size:22px; color:var(--grey-100); font-weight:600; line-height:1; font-family:'Montserrat', sans-serif;",
-  "font-size:24px; color:var(--grey-100); font-weight:700; line-height:1; font-family:'Montserrat', sans-serif;",
-  "font-size:26px; color:var(--grey-100); font-weight:800; line-height:1; font-family:'Montserrat', sans-serif;",
-  "font-size:28px; color:var(--grey-100); font-weight:800; line-height:1; font-family:'Montserrat', sans-serif;",
-  "font-size:30px; color:var(--grey-100); font-weight:900; line-height:1; font-family:'Montserrat', sans-serif;",
+  "font-size:12px;  color: #000000; font-weight:300; line-height:1; font-family:'Montserrat', sans-serif;",
+  "font-size:14px; color:#000000; font-weight:400; line-height:1; font-family:'Montserrat', sans-serif;",
+  "font-size:16px; color:#000000; font-weight:400; line-height:1; font-family:'Montserrat', sans-serif;",
+  "font-size:18px; color:#000000; font-weight:400; line-height:1; font-family:'Montserrat', sans-serif;",
+  "font-size:20px; color:#000000; font-weight:500; line-height:1; font-family:'Montserrat', sans-serif;",
+  "font-size:22px; color:#000000; font-weight:600; line-height:1; font-family:'Montserrat', sans-serif;",
+  "font-size:24px; color:#000000; font-weight:700; line-height:1; font-family:'Montserrat', sans-serif;",
+  "font-size:26px; color:#000000; font-weight:800; line-height:1; font-family:'Montserrat', sans-serif;",
+  "font-size:28px; color:#000000; font-weight:800; line-height:1; font-family:'Montserrat', sans-serif;",
+  "font-size:30px; color:#000000; font-weight:900; line-height:1; font-family:'Montserrat', sans-serif;",
 ];
 
 export default function DesigntTextNodes() {
-  const { updateHtmlJson } = useStateContext();
+  const { designTexts, setDesignTexts } = useStateContext();
 
+  //--- стили узлов здесь отдельно
   const [codeCssList, setCodeCssList] = useState<string[]>(DEFAULTS);
+
+  //---  сами узлы
   const [texts, setTexts] = useState<(Text | null)[]>(Array(10).fill(null));
 
-  // модалка для выбора цвета текста
+  // --- модалка для выбора цвета текста
   const [openColorModal, setOpenColorModal] = useState(false);
   const [currentTextIndex, setCurrentTextIndex] = useState<number | null>(null);
 
+  // ---
+  useEffect(() => {
+    if (!texts) return;
+    console.log("<=🧻🧻🧻==texts===>", texts);
+  }, [texts]);
+
+  useEffect(() => {
+    if (designTexts.length === 0) {
+      setCodeCssList(DEFAULTS);
+      setTexts([]);
+    }
+
+    const nonEmpty = designTexts.filter(
+      (dt) => dt && dt.style && dt.style.trim() !== "",
+    );
+
+    setCodeCssList((prev) => {
+      const copy = [...prev];
+      nonEmpty.forEach((dt, index) => {
+        if (index < copy.length) {
+          const css = dt.style.replace(BASE_STYLE, "").trim();
+          copy[index] = css;
+        }
+      });
+      return copy;
+    });
+
+    setTexts(() => {
+      const arr: (Text | null)[] = Array(10).fill(null);
+      nonEmpty.forEach((dt, index) => {
+        if (index < arr.length) {
+          const className = dt.class || `text${index + 1}`;
+          const styleParts = [BASE_STYLE, dt.style].filter(Boolean).join(" ");
+          const reactStyle = inlineStyleStringToObject(styleParts);
+
+          arr[index] = {
+            class: className,
+            style: styleParts,
+            reactStyle,
+            content: CONTENT,
+          };
+        }
+      });
+      return arr;
+    });
+  }, [designTexts]);
+
+  // -----главная функция формирования текстоа
   function buildText(className: string, css: string): Text {
     const styleParts = [BASE_STYLE, css].filter(Boolean).join(" ");
-    const styleObject = inlineStyleStringToObject(styleParts);
+    const styleObject = inlineStyleStringToObject(styleParts); //для react - отобраение текста здесь
 
     return {
       class: className,
@@ -62,36 +105,38 @@ export default function DesigntTextNodes() {
     };
   }
 
-  function generateTextNode(className: string, css: string): HtmlNode {
-    const styleParts = [BASE_STYLE, css].filter(Boolean).join(" ");
-
-    return {
-      tag: "p",
-      text: CONTENT,
-      class: className,
-      style: styleParts,
-      children: [],
-    };
-  }
-
+  // ----- изменение текста в массиве текстов
   const handleTextClick = (index: number) => {
     const css = codeCssList[index];
     if (!css) return;
 
     const className = `text${index + 1}`;
-
     const newText = buildText(className, css);
+
+    // Обновляем локальные тексты
     setTexts((prev) => {
       const copy = [...prev];
       copy[index] = newText;
       return copy;
     });
 
-    const node = generateTextNode(className, css);
-    const result = ensureNodeKeys([node]);
-    updateHtmlJson(result);
+    // Обновляем designTexts на основе актуального массива
+    setDesignTexts((prev) => {
+      const base = [...texts];
+      base[index] = newText;
+
+      const exit = base
+        .filter((item): item is Text => item !== null)
+        .map((item) => ({
+          class: item.class,
+          style: item.style,
+        }));
+
+      return exit;
+    });
   };
 
+  // -----редактирование стилей текстовой ноды
   const handleChangeCss = (index: number, value: string) => {
     setCodeCssList((prev) => {
       const copy = [...prev];
@@ -101,7 +146,7 @@ export default function DesigntTextNodes() {
 
     setTexts((prev) => {
       const existing = prev[index];
-      if (!existing) return prev; // текст ещё не создан кнопкой
+      if (!existing) return prev;
 
       const className = `text${index + 1}`;
       const updated = buildText(className, value);
@@ -111,7 +156,7 @@ export default function DesigntTextNodes() {
       return copy;
     });
   };
-
+  // -----очищение строки стилей и удаление текста
   const handleClear = (index: number) => {
     setCodeCssList((prev) => {
       const copy = [...prev];
@@ -124,7 +169,7 @@ export default function DesigntTextNodes() {
       return copy;
     });
   };
-
+  //--------- находим цвет в строке css/если есть - меняем. если нет - добавляем
   const updateColorInCss = (cssString: string, newColor: string): string => {
     if (!cssString || !cssString.trim()) {
       return `color:${newColor};`;
@@ -147,16 +192,12 @@ export default function DesigntTextNodes() {
     const currentCss = codeCssList[currentTextIndex];
     const nextCss = updateColorInCss(currentCss, value);
 
-    // только меняем css
     handleChangeCss(currentTextIndex, nextCss);
-
-    // НЕ вызываем handleTextClick здесь
-    // handleTextClick(currentTextIndex);
 
     setOpenColorModal(false);
     setCurrentTextIndex(null);
   };
-
+  //---------
   return (
     <div className="space-y-2 relative">
       {/* Модалка с палитрой для текстов */}
@@ -221,6 +262,7 @@ export default function DesigntTextNodes() {
         return (
           <div key={className} className="mt-1">
             <div className="flex items-center gap-1">
+              {/*изменение текста в массиве текстов*/}
               <button
                 type="button"
                 onClick={() => handleTextClick(index)}
@@ -241,12 +283,15 @@ export default function DesigntTextNodes() {
                 color
               </button>
 
+              {/*определение стилей текста вручную*/}
               <textarea
                 className="w-full text-[12px] bg-slate-900 text-slate-200 rounded px-2 py-1 overflow-x-auto resize-none"
                 rows={1}
                 value={css}
                 onChange={(e) => handleChangeCss(index, e.target.value)}
               />
+
+              {/*очищение строки стилей и удаление текста*/}
               <button
                 className="btn btn-empty w-6 h-6 p-1"
                 onClick={() => handleClear(index)}

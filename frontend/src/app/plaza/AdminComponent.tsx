@@ -74,17 +74,7 @@ type ProjectData = {
 // =====================================
 
 const AdminComponent = () => {
-  const {
-    updateHtmlJson,
-    backgrounds,
-    setBackgrounds,
-    colors,
-    setColors,
-    fonts,
-    setFonts,
-    fontSizes,
-    setFontSizes,
-  } = useStateContext();
+  const { updateHtmlJson } = useStateContext();
   const [name, setName] = useState<string | null>(null);
 
   const { refetch: refetchJson } = useQuery(GET_JSON_DOCUMENT, {
@@ -100,16 +90,8 @@ const AdminComponent = () => {
     const content = data?.jsonDocumentByName?.content;
     if (!content) return;
     const resultWithKeys = ensureNodeKeys(content) as ProjectData[];
-    const withDS = applyDSHeadersToTree(
-      resultWithKeys,
-      colors,
-      fonts,
-      fontSizes,
-    );
-    updateHtmlJson((prev) => [
-      ...prev,
-      ...(Array.isArray(withDS) ? withDS : [withDS]),
-    ]);
+
+    updateHtmlJson((prev) => [...prev, ...resultWithKeys]);
   };
 
   const renderTags = (tags) => (

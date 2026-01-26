@@ -31,45 +31,45 @@ type HtmlNode = {
 };
 
 type nodeToAdd = { type: number };
-type BackgroundState = {
-  background1: string;
-  background2: string;
-  background3: string;
-  background4: string;
-  background5: string;
-};
-type ColorState = {
-  headers1color: string;
-  headers2color: string;
-  headers3color: string;
-  headers4color: string;
-  headers5color: string;
-  headers6color: string;
-  color7: string;
-  color8: string;
-  color9: string;
-  color10: string;
-};
+// type BackgroundState = {
+//   background1: string;
+//   background2: string;
+//   background3: string;
+//   background4: string;
+//   background5: string;
+// };
+// type ColorState = {
+//   headers1color: string;
+//   headers2color: string;
+//   headers3color: string;
+//   headers4color: string;
+//   headers5color: string;
+//   headers6color: string;
+//   color7: string;
+//   color8: string;
+//   color9: string;
+//   color10: string;
+// };
 export type User = {
   id: string;
   email: string;
   name: string;
   createdAt: string;
 };
-type FontSlot = {
-  id: string; // "headersfont", "font2" — используется в UI
-  label: string; // подпись в UI
-  family: string; // имя шрифта (Inter, Roboto) — это и есть value для базы
-  importString: string; // строка @import, только для фронта
-};
-type FontSizeState = {
-  fontSizeHeader1: string;
-  fontSizeHeader2: string;
-  fontSizeHeader3: string;
-  fontSizeHeader4: string;
-  fontSizeHeader5: string;
-  fontSizeHeader6: string;
-};
+// type FontSlot = {
+//   id: string; // "headersfont", "font2" — используется в UI
+//   label: string; // подпись в UI
+//   family: string; // имя шрифта (Inter, Roboto) — это и есть value для базы
+//   importString: string; // строка @import, только для фронта
+// };
+// type FontSizeState = {
+//   fontSizeHeader1: string;
+//   fontSizeHeader2: string;
+//   fontSizeHeader3: string;
+//   fontSizeHeader4: string;
+//   fontSizeHeader5: string;
+//   fontSizeHeader6: string;
+// };
 
 type Preview = {
   id: string;
@@ -88,6 +88,12 @@ type TextNodeWithStyle = {
   text: string;
   __typename: "TextNodeWithStyle";
 };
+
+type designText = {
+  class: string;
+  style: string;
+};
+
 interface StateContextType {
   htmlJson: HtmlNode[];
   setHtmlJson: React.Dispatch<React.SetStateAction<HtmlNode[]>>;
@@ -126,6 +132,8 @@ interface StateContextType {
   setActiveKey: React.Dispatch<React.SetStateAction<string | null>>;
   dragKey: string | null;
   setDragKey: React.Dispatch<React.SetStateAction<string | null>>;
+  designTexts: designText[];
+  setDesignTexts: React.Dispatch<React.SetStateAction<designText[]>>;
 }
 
 const StateContext = createContext<StateContextType | null>(null);
@@ -153,6 +161,7 @@ export function StateProvider({
   const [ScssMixVar, setScssMixVar] = useState<string>("");
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const [dragKey, setDragKey] = useState<string | null>(null);
+  const [designTexts, setDesignTexts] = useState<designText[]>([]);
 
   const { data: usersData, subscribeToMore: subscribeToUsers } = useQuery(
     GET_USERS,
@@ -164,47 +173,47 @@ export function StateProvider({
     fetchPolicy: "network-only",
   });
   // ------------------------
-  const DEFAULT_BACKGROUNDS: BackgroundState = {
-    background1: "",
-    background2: "",
-    background3: "",
-    background4: "",
-    background5: "",
-  };
-  const DEFAULT_COLORS: ColorState = {
-    headers1color: "",
-    headers2color: "",
-    headers3color: "",
-    headers4color: "",
-    headers5color: "",
-    headers6color: "",
-    color7: "",
-    color8: "",
-    color9: "",
-    color10: "",
-  };
-  const DEFAULT_FONTS: FontSlot[] = [
-    { id: "headers1font", label: "headers1font", family: "", importString: "" },
-    { id: "headers2font", label: "headers2font", family: "", importString: "" },
-    { id: "headers3font", label: "headers3font", family: "", importString: "" },
-    { id: "headers4font", label: "headers4font", family: "", importString: "" },
-    { id: "headers5font", label: "headers5font", family: "", importString: "" },
-    { id: "headers6font", label: "headers6font", family: "", importString: "" },
-  ];
-  const DEFAULT_FONT_SIZES: FontSizeState = {
-    fontSizeHeader1: "",
-    fontSizeHeader2: "",
-    fontSizeHeader3: "",
-    fontSizeHeader4: "",
-    fontSizeHeader5: "",
-    fontSizeHeader6: "",
-  };
+  // const DEFAULT_BACKGROUNDS: BackgroundState = {
+  //   background1: "",
+  //   background2: "",
+  //   background3: "",
+  //   background4: "",
+  //   background5: "",
+  // };
+  // const DEFAULT_COLORS: ColorState = {
+  //   headers1color: "",
+  //   headers2color: "",
+  //   headers3color: "",
+  //   headers4color: "",
+  //   headers5color: "",
+  //   headers6color: "",
+  //   color7: "",
+  //   color8: "",
+  //   color9: "",
+  //   color10: "",
+  // };
+  // const DEFAULT_FONTS: FontSlot[] = [
+  //   { id: "headers1font", label: "headers1font", family: "", importString: "" },
+  //   { id: "headers2font", label: "headers2font", family: "", importString: "" },
+  //   { id: "headers3font", label: "headers3font", family: "", importString: "" },
+  //   { id: "headers4font", label: "headers4font", family: "", importString: "" },
+  //   { id: "headers5font", label: "headers5font", family: "", importString: "" },
+  //   { id: "headers6font", label: "headers6font", family: "", importString: "" },
+  // ];
+  // const DEFAULT_FONT_SIZES: FontSizeState = {
+  //   fontSizeHeader1: "",
+  //   fontSizeHeader2: "",
+  //   fontSizeHeader3: "",
+  //   fontSizeHeader4: "",
+  //   fontSizeHeader5: "",
+  //   fontSizeHeader6: "",
+  // };
 
-  const [backgrounds, setBackgrounds] =
-    useState<BackgroundState>(DEFAULT_BACKGROUNDS);
-  const [colors, setColors] = useState<ColorState>(DEFAULT_COLORS);
-  const [fonts, setFonts] = useState<FontSlot[]>(DEFAULT_FONTS);
-  const [fontSizes, setFontSizes] = useState<FontSizeState>(DEFAULT_FONT_SIZES);
+  // const [backgrounds, setBackgrounds] =
+  //   useState<BackgroundState>(DEFAULT_BACKGROUNDS);
+  // const [colors, setColors] = useState<ColorState>(DEFAULT_COLORS);
+  // const [fonts, setFonts] = useState<FontSlot[]>(DEFAULT_FONTS);
+  // const [fontSizes, setFontSizes] = useState<FontSizeState>(DEFAULT_FONT_SIZES);
   // ------------------------ INIT HTML JSON ------------------------
   const resetHtmlJson = () => {
     setUndoStack([]);
@@ -356,14 +365,16 @@ export function StateProvider({
         setActiveKey,
         dragKey,
         setDragKey,
-        backgrounds,
-        setBackgrounds,
-        colors,
-        setColors,
-        fonts,
-        setFonts,
-        fontSizes,
-        setFontSizes,
+        // backgrounds,
+        // setBackgrounds,
+        // colors,
+        // setColors,
+        // fonts,
+        // setFonts,
+        // fontSizes,
+        // setFontSizes,
+        designTexts,
+        setDesignTexts,
         showModal: (msg, duration = 2000) => setModalMessage(msg),
       }}
     >

@@ -8,10 +8,7 @@ const getDesignSystem = async (_, { id }) => {
       id: Number(id),
     },
     include: {
-      backgrounds: true,
-      colors: true,
-      fonts: true,
-      fontSizes: true,
+      designTexts: true,
     },
   });
 

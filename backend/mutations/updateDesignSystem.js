@@ -1,9 +1,6 @@
 import prisma from "../prisma/client.js";
 
-const updateDesignSystem = async (
-  _,
-  { id, ownerId, backgrounds, colors, fonts, fontSizes },
-) => {
+const updateDesignSystem = async (_, { id, ownerId, designTexts }) => {
   if (!ownerId || !id) {
     throw new Error("ownerId and id are required");
   }
@@ -24,20 +21,8 @@ const updateDesignSystem = async (
   }
 
   try {
-    // 2. Чистим старые backgrounds/colors/fonts
-    await prisma.background.deleteMany({
-      where: { designSystemId: systemId },
-    });
-
-    await prisma.color.deleteMany({
-      where: { designSystemId: systemId },
-    });
-
-    await prisma.font.deleteMany({
-      where: { designSystemId: systemId },
-    });
-
-    await prisma.fontSize.deleteMany({
+    // 2. Чистим старые
+    await prisma.designTexts.deleteMany({
       where: { designSystemId: systemId },
     });
 
@@ -45,40 +30,15 @@ const updateDesignSystem = async (
     const designSystem = await prisma.designSystem.update({
       where: { id: systemId },
       data: {
-        // creatorId менять обычно не нужно, но можно оставить, если надо
         creatorId,
-        backgrounds: {
-          create: backgrounds.map((b) => ({
-            background: b.background,
-            value: b.value,
-          })),
-        },
-        colors: {
-          create: colors.map((c) => ({
-            color: c.color,
-            value: c.value,
-          })),
-        },
-        fonts: {
-          create: fonts.map((f) => ({
-            font: f.font,
-            value: f.value,
-          })),
-        },
-        fontSizes: {
-          create: fontSizes.map((fs) => ({
-            fontSize: fs.fontSize,
-            value: fs.value,
+        designTexts: {
+          create: designTexts.map((fs) => ({
+            classText: fs.classText,
+            styleText: fs.styleText,
           })),
         },
       },
-      include: {
-        backgrounds: true,
-        colors: true,
-        fonts: true,
-        fontSizes: true,
-        creator: true,
-      },
+      include: { creator: true, designTexts: true },
     });
 
     return designSystem;

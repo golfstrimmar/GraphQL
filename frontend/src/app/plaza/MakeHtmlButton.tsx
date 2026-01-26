@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useStateContext } from "@/providers/StateProvider";
 import HtmlIcon from "@/components/icons/HtmlIcon";
 import Spinner from "@/components/icons/Spinner";
+
 export default function MakeHtmlButton() {
   const [loading, setLoading] = useState(false);
 
@@ -28,7 +29,7 @@ export default function MakeHtmlButton() {
       }
 
       setHTML(data.html);
-      setSCSS(data.scss);
+      setSCSS(data.scss); // уже очищенный scss из роута
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
       setModalMessage(message);

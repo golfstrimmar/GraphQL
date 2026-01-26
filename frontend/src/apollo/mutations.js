@@ -299,45 +299,19 @@ export const CREATE_DESIGN_SYSTEM = gql`
   mutation createDesignSystem(
     $ownerId: ID!
     $name: String!
-    $backgrounds: [BackgroundInput!]!
-    $colors: [ColorInput!]!
-    $fonts: [FontInput!]!
-    $fontSizes: [FontSizeInput!]!
+    $designTexts: [DesignTextInput!]!
   ) {
     createDesignSystem(
       ownerId: $ownerId
       name: $name
-      backgrounds: $backgrounds
-      colors: $colors
-      fonts: $fonts
-      fontSizes: $fontSizes
+      designTexts: $designTexts
     ) {
       id
       name
       createdAt
-
-      backgrounds {
-        id
-        background
-        value
-      }
-
-      colors {
-        id
-        color
-        value
-      }
-
-      fonts {
-        id
-        font
-        value
-      }
-
-      fontSizes {
-        id
-        fontSize
-        value
+      designTexts {
+        classText
+        styleText
       }
     }
   }
@@ -346,21 +320,16 @@ export const UPDATE_DESIGN_SYSTEM = gql`
   mutation updateDesignSystem(
     $id: ID!
     $ownerId: ID!
-    $backgrounds: [BackgroundInput!]!
-    $colors: [ColorInput!]!
-    $fonts: [FontInput!]!
-    $fontSizes: [FontSizeInput!]!
+    $designTexts: [DesignTextInput!]!
   ) {
-    updateDesignSystem(
-      id: $id
-      ownerId: $ownerId
-      backgrounds: $backgrounds
-      colors: $colors
-      fonts: $fonts
-      fontSizes: $fontSizes
-    ) {
+    updateDesignSystem(id: $id, ownerId: $ownerId, designTexts: $designTexts) {
       id
       name
+      createdAt
+      designTexts {
+        classText
+        styleText
+      }
     }
   }
 `;

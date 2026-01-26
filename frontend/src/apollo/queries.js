@@ -128,17 +128,9 @@ export const GET_DESIGN_SYSTEMS_BY_USER = gql`
     getDesignSystemsByUser(userId: $userId) {
       id
       name
-      backgrounds {
-        background
-        value
-      }
-      colors {
-        color
-        value
-      }
-      fonts {
-        font
-        value
+      designTexts {
+        classText
+        styleText
       }
     }
   }
@@ -150,21 +142,9 @@ export const GET_DESIGN_SYSTEM = gql`
     getDesignSystem(id: $id) {
       id
       name
-      backgrounds {
-        background
-        value
-      }
-      colors {
-        color
-        value
-      }
-      fonts {
-        font
-        value
-      }
-      fontSizes {
-        fontSize
-        value
+      designTexts {
+        classText
+        styleText
       }
     }
   }

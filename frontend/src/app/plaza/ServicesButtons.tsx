@@ -25,6 +25,7 @@ export default function ServicesButtons() {
     setDragKey,
     setHTML,
     setSCSS,
+    setDesignTexts,
   } = useStateContext();
 
   const resetAll = () => {
@@ -33,6 +34,7 @@ export default function ServicesButtons() {
     setDragKey(null);
     setHTML("");
     setSCSS("");
+    setDesignTexts([]);
   };
 
   const handleClean = () => {

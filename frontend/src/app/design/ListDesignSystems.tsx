@@ -16,172 +16,37 @@ import DesignFontSizes from "./DesignFontSizes";
 import { generateHeaderNodesFromDS } from "./generateHeaderNodesFromDS";
 import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
 import DesigntTextNodes from "./DesigntTextNodes";
-
+import inlineStyleStringToObject from "@/app/design/inlineStyleStringToObject";
+import "@/app/design/design.scss";
 const ModalCreateDesignSystem = dynamic(
   () => import("./ModalCreateDesignSystem"),
   { ssr: false, loading: () => <Loading /> },
 );
-
-type BackgroundState = {
-  background1: string;
-  background2: string;
-  background3: string;
-  background4: string;
-  background5: string;
-};
-
-type ColorState = {
-  headers1color: string;
-  headers2color: string;
-  headers3color: string;
-  headers4color: string;
-  headers5color: string;
-  headers6color: string;
-  color7: string;
-  color8: string;
-  color9: string;
-  color10: string;
-};
-export type FontSlot = {
-  id: string; // "headersfont", "font2" — используется в UI
-  label: string; // подпись в UI
-  family: string; // имя шрифта (Inter, Roboto) — это и есть value для базы
-  importString: string; // строка @import, только для фронта
-};
-
-type FontSizeState = {
-  fontSizeHeader1: string;
-  fontSizeHeader2: string;
-  fontSizeHeader3: string;
-  fontSizeHeader4: string;
-  fontSizeHeader5: string;
-  fontSizeHeader6: string;
-};
-
+const BASE_STYLE = "padding: 2px 4px; border: 1px solid #adadad;";
+const CONTENT = "The quick brown fox jumps over the lazy dog.";
 // ====🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
 export default function ListDesignSystems({ designSystems }) {
-  const {
-    setModalMessage,
-    updateHtmlJson,
-    backgrounds,
-    setBackgrounds,
-    colors,
-    setColors,
-    fonts,
-    setFonts,
-    fontSizes,
-    setFontSizes,
-  } = useStateContext();
+  const { setModalMessage, designTexts, setDesignTexts, updateHtmlJson } =
+    useStateContext();
   const [modalCreateOpen, setModalCreateOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string>("");
-  const DEFAULT_BACKGROUNDS: BackgroundState = {
-    background1: "",
-    background2: "",
-    background3: "",
-    background4: "",
-    background5: "",
-  };
-  const DEFAULT_COLORS: ColorState = {
-    headers1color: "",
-    headers2color: "",
-    headers3color: "",
-    headers4color: "",
-    headers5color: "",
-    headers6color: "",
-    color7: "",
-    color8: "",
-    color9: "",
-    color10: "",
-  };
-  const DEFAULT_FONTS: FontSlot[] = [
-    { id: "headers1font", label: "headers1font", family: "", importString: "" },
-    { id: "headers2font", label: "headers2font", family: "", importString: "" },
-    { id: "headers3font", label: "headers3font", family: "", importString: "" },
-    { id: "headers4font", label: "headers4font", family: "", importString: "" },
-    { id: "headers5font", label: "headers5font", family: "", importString: "" },
-    { id: "headers6font", label: "headers6font", family: "", importString: "" },
-  ];
-  const DEFAULT_FONT_SIZES: FontSizeState = {
-    fontSizeHeader1: "",
-    fontSizeHeader2: "",
-    fontSizeHeader3: "",
-    fontSizeHeader4: "",
-    fontSizeHeader5: "",
-    fontSizeHeader6: "",
-  };
-
-  const setFontSize = (key: keyof FontSizeState, value: string) => {
-    setFontSizes((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const setBackground = (key: keyof BackgroundState, value: string) => {
-    setBackgrounds((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const setColor = (key: keyof ColorState, value: string) => {
-    setColors((prev) => ({ ...prev, [key]: value }));
-  };
-  const updateFontSlot = (id: string, patch: Partial<FontSlot>) => {
-    setFonts((prev) => prev.map((s) => (s.id === id ? { ...s, ...patch } : s)));
-  };
-
-  // ---------------
-  useEffect(() => {
-    if (!colors) return;
-    console.log("<===colors===>", colors);
-  }, [colors]);
-  useEffect(() => {
-    if (!fonts) return;
-    console.log("<===fonts===>", fonts);
-  }, [fonts]);
-  useEffect(() => {
-    if (!fontSizes) return;
-    console.log("<===fontSizes===>", fontSizes);
-  }, [fontSizes]);
-
-  // ---------------
-  function buildBackgrounds() {
-    return Object.entries(backgrounds)
-      .filter(([, value]) => value)
-      .map(([background, value]) => ({
-        background,
-        value: value as string,
-      }));
-  }
-
-  function buildColors() {
-    return Object.entries(colors)
-      .filter(([, value]) => value)
-      .map(([color, value]) => ({
-        color,
-        value: value as string,
-      }));
-  }
-  function buildFonts() {
-    return fonts
-      .filter((f) => !!f.family)
-      .map((f) => ({
-        font: f.id,
-        value: f.family,
-      }));
-  }
-  function buildFontSizes() {
-    return Object.entries(fontSizes)
-      .filter(([, value]) => value)
-      .map(([fontSize, value]) => ({
-        fontSize,
-        value: value as string,
-      }));
-  }
-
+  // --------------
   const resetAll = () => {
-    setBackgrounds(DEFAULT_BACKGROUNDS);
-    setColors(DEFAULT_COLORS);
-    setFonts(DEFAULT_FONTS);
-    setFontSizes(DEFAULT_FONT_SIZES);
-    // updateHtmlJson([]);
+    updateHtmlJson([]);
+    setDesignTexts([]);
   };
+  // --------------
+  function generateTextNode(className: string, css: string): HtmlNode {
+    const styleParts = [BASE_STYLE, css].filter(Boolean).join(" ");
 
+    return {
+      tag: "p",
+      text: CONTENT,
+      class: className,
+      style: styleParts,
+      children: [],
+    };
+  }
   const [loadDesignSystem, { loading: loadingDesignSystem }] = useLazyQuery(
     GET_DESIGN_SYSTEM,
     {
@@ -190,49 +55,36 @@ export default function ListDesignSystems({ designSystems }) {
         const system = data?.getDesignSystem;
         if (!system) return;
 
-        const bgs = system.backgrounds ?? [];
-        const cls = system.colors ?? [];
-        const fts = system.fonts ?? [];
-        const fss = system.fontSizes ?? [];
-        setBackgrounds((prev) => {
-          const next = { ...prev };
-          bgs.forEach((bg: any) => {
-            if (bg.background in next) {
-              (next as any)[bg.background] = bg.value;
-            }
-          });
-          return next;
+        const dtxt = system.designTexts ?? [];
+
+        // 1) для контекста designTexts (клиентский формат)
+        const clientTexts: Text[] = dtxt.map((t, index) => {
+          const className = t.classText || `text${index + 1}`;
+          return {
+            class: className,
+            style: t.styleText,
+            // эти поля можно достроить, если нужно
+            reactStyle: inlineStyleStringToObject(
+              [BASE_STYLE, t.styleText].filter(Boolean).join(" "),
+            ),
+            content: CONTENT,
+          };
         });
 
-        setColors((prev) => {
-          const next = { ...prev };
-          cls.forEach((c: any) => {
-            if (c.color in next) {
-              (next as any)[c.color] = c.value;
-            }
-          });
-          return next;
-        });
-        setFonts((prev) =>
-          prev.map((slot) => {
-            const found = fts.find((f: any) => f.font === slot.id);
-            if (!found) return slot;
-            return {
-              ...slot,
-              family: found.value,
-              importString: slot.importString,
-            };
-          }),
+        setDesignTexts(
+          clientTexts.map((t) => ({
+            class: t.class,
+            style: t.style,
+          })),
         );
-        setFontSizes((prev) => {
-          const next = { ...prev };
-          fss.forEach((fs: any) => {
-            if (fs.fontSize in next) {
-              (next as any)[fs.fontSize] = fs.value;
-            }
-          });
-          return next;
-        });
+
+        // 2) генерим HtmlNode[] и кидаем в updateHtmlJson
+        const nodes: HtmlNode[] = clientTexts.map((t) =>
+          generateTextNode(t.class, t.style),
+        );
+
+        const result = ensureNodeKeys(nodes);
+        updateHtmlJson(result);
       },
       onError: (error) => {
         console.error(error);
@@ -240,17 +92,6 @@ export default function ListDesignSystems({ designSystems }) {
       },
     },
   );
-
-  // -- 🧪-- 🧪-- 🧪-- 🧪 если htmlJson пустой → генерим h1–h6 из текущей DS
-  useEffect(() => {
-    if (!selectedId || !colors) return;
-    updateHtmlJson((prev: any) => {
-      if (prev && Array.isArray(prev) && prev.length > 0) return prev;
-      const content = generateHeaderNodesFromDS(colors, fonts, fontSizes);
-      const resultWithKeys = ensureNodeKeys(content) as ProjectData[];
-      return resultWithKeys;
-    });
-  }, [selectedId, colors]);
 
   // --------------------
   return (
@@ -264,10 +105,6 @@ export default function ListDesignSystems({ designSystems }) {
       <ModalCreateDesignSystem
         modalCreateOpen={modalCreateOpen}
         setModalCreateOpen={setModalCreateOpen}
-        buildBackgrounds={buildBackgrounds}
-        buildColors={buildColors}
-        buildFonts={buildFonts}
-        buildFontSizes={buildFontSizes}
       />
       <div className="flex flex-col gap-2  w-full mt-[30px] bg-navy rounded-2xl shadow-xl p-2   border border-slate-200 ">
         {designSystems.length === 0 && (
@@ -293,13 +130,7 @@ export default function ListDesignSystems({ designSystems }) {
                 )}
               </button>
 
-              <UpdateDesignSystem
-                id={system.id}
-                buildBackgrounds={buildBackgrounds}
-                buildColors={buildColors}
-                buildFonts={buildFonts}
-                buildFontSizes={buildFontSizes}
-              />
+              <UpdateDesignSystem id={system.id} />
 
               <RemoveDesignSystem id={system.id} resetAll={resetAll} />
             </div>
@@ -314,30 +145,30 @@ export default function ListDesignSystems({ designSystems }) {
         >
           <ClearIcon width={16} height={16} />
         </button>
-        <h6 className="text-sm text-gray-400 mt-6 mb-1">
+        {/*<h6 className="text-sm text-gray-400 mt-6 mb-1">
           <span className="bg-[var(--teal)] w-2 h-2 rounded-full"></span> Colors
-        </h6>
-        <DesignColors
+        </h6>*/}
+        {/*<DesignColors
           backgrounds={backgrounds}
-          colors={colors}
+          // colors={colors}
           setBackground={setBackground}
-          setColor={setColor}
-        />
-        <h6 className="text-sm text-gray-400 mt-6 mb-1">
+          // setColor={setColor}
+        />*/}
+        {/*<h6 className="text-sm text-gray-400 mt-6 mb-1">
           <span className="bg-[var(--teal)] w-2 h-2 rounded-full"></span> Fonts
-        </h6>
-        <DesignFonts slots={fonts} updateSlot={updateFontSlot} />
-        <h6 className="text-sm text-gray-400 mt-6 mb-1">
+        </h6>*/}
+        {/*<DesignFonts slots={fonts} updateSlot={updateFontSlot} />*/}
+        {/*<h6 className="text-sm text-gray-400 mt-6 mb-1">
           <span className="bg-[var(--teal)] w-2 h-2 rounded-full"></span> Font
           Sizes
-        </h6>
-        <DesignFontSizes fontSizes={fontSizes} setFontSize={setFontSize} />
+        </h6>*/}
+        {/*<DesignFontSizes fontSizes={fontSizes} setFontSize={setFontSize} />*/}
 
-        <h6 className="text-sm text-gray-400 mt-6 mb-1">
+        {/*<h6 className="text-sm text-gray-400 mt-6 mb-1">
           <span className="bg-[var(--teal)] w-2 h-2 rounded-full"></span>{" "}
           Typography
-        </h6>
-        <DesignTypography colors={colors} fonts={fonts} fontSizes={fontSizes} />
+        </h6>*/}
+        {/*<DesignTypography colors={colors} fonts={fonts} fontSizes={fontSizes} />*/}
         <h6 className="text-sm text-gray-400 mt-6 mb-1">
           <span className="bg-[var(--teal)] w-2 h-2 rounded-full"></span> Text
           Nodes

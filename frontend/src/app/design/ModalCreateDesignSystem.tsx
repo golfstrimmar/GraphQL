@@ -12,12 +12,13 @@ import { useRouter } from "next/navigation";
 export default function ModalCreateDesignSystem({
   modalCreateOpen,
   setModalCreateOpen,
-  buildBackgrounds,
-  buildColors,
-  buildFonts,
-  buildFontSizes,
+
+  // buildBackgrounds,
+  // buildColors,
+  // buildFonts,
+  // buildFontSizes,
 }) {
-  const { user, setModalMessage } = useStateContext();
+  const { user, setModalMessage, designTexts } = useStateContext();
   const router = useRouter();
   const [name, setName] = useState<string>("");
   //   // -----------------------
@@ -73,10 +74,16 @@ export default function ModalCreateDesignSystem({
                   variables: {
                     ownerId: user?.id,
                     name: name,
-                    backgrounds: buildBackgrounds(),
-                    colors: buildColors(),
-                    fonts: buildFonts(),
-                    fontSizes: buildFontSizes(),
+
+                    designTexts: designTexts.map((t) => ({
+                      classText: t.class,
+                      styleText: t.style,
+                    })),
+                    // texts: buildTexts(),
+                    // backgrounds: buildBackgrounds(),
+                    // colors: buildColors(),
+                    // fonts: buildFonts(),
+                    // fontSizes: buildFontSizes(),
                   },
                 });
               }}

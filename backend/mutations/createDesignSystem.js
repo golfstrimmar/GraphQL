@@ -1,9 +1,6 @@
 import prisma from "../prisma/client.js";
 
-const createDesignSystem = async (
-  _,
-  { ownerId, name, backgrounds, colors, fonts, fontSizes },
-) => {
+const createDesignSystem = async (_, { ownerId, name, designTexts }) => {
   if (!ownerId || !name) {
     throw new Error("Name and ownerId are required");
   }
@@ -26,37 +23,16 @@ const createDesignSystem = async (
       data: {
         creatorId: Number(ownerId),
         name,
-        backgrounds: {
-          create: backgrounds.map((b) => ({
-            background: b.background,
-            value: b.value,
-          })),
-        },
-        colors: {
-          create: colors.map((c) => ({
-            color: c.color,
-            value: c.value,
-          })),
-        },
-        fonts: {
-          create: fonts.map((f) => ({
-            font: f.font,
-            value: f.value,
-          })),
-        },
-        fontSizes: {
-          create: fontSizes.map((fs) => ({
-            fontSize: fs.fontSize,
-            value: fs.value,
+        designTexts: {
+          create: designTexts.map((fs) => ({
+            classText: fs.classText,
+            styleText: fs.styleText,
           })),
         },
       },
       include: {
         creator: true,
-        backgrounds: true,
-        colors: true,
-        fonts: true,
-        fontSizes: true,
+        designTexts: true,
       },
     });
 

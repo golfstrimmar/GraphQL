@@ -140,57 +140,21 @@ export const typeDefs = gql`
     id: ID!
     name: String!
   }
-  input BackgroundInput {
-    background: String!
-    value: String!
+  input DesignTextInput {
+    classText: String!
+    styleText: String!
   }
 
-  input ColorInput {
-    color: String!
-    value: String!
-  }
-
-  input FontInput {
-    font: String!
-    value: String!
-  }
-
-  input FontSizeInput {
-    fontSize: String!
-    value: String!
-  }
-
-  type Background {
+  type DesignText {
     id: ID!
-    background: String!
-    value: String!
-  }
-
-  type Color {
-    id: ID!
-    color: String!
-    value: String!
-  }
-
-  type Font {
-    id: ID!
-    font: String!
-    value: String!
-  }
-
-  type FontSize {
-    id: ID!
-    fontSize: String!
-    value: String!
+    classText: String!
+    styleText: String!
   }
 
   type DesignSystem {
     id: ID!
     name: String!
-    backgrounds: [Background!]!
-    colors: [Color!]!
-    fonts: [Font!]!
-    fontSizes: [FontSize!]!
+    designTexts: [DesignText!]!
     createdAt: String!
   }
 
@@ -245,18 +209,12 @@ export const typeDefs = gql`
     createDesignSystem(
       ownerId: ID!
       name: String!
-      backgrounds: [BackgroundInput!]!
-      colors: [ColorInput!]!
-      fonts: [FontInput!]!
-      fontSizes: [FontSizeInput!]!
+      designTexts: [DesignTextInput!]!
     ): DesignSystem!
     updateDesignSystem(
       id: ID!
       ownerId: ID!
-      backgrounds: [BackgroundInput!]!
-      colors: [ColorInput!]!
-      fonts: [FontInput!]!
-      fontSizes: [FontSizeInput!]!
+      designTexts: [DesignTextInput!]!
     ): DesignSystem!
     removeDesignSystem(id: ID!): ID!
   }
