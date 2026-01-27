@@ -97,21 +97,11 @@ function buildAttrs(node: any) {
   return attrs.length ? " " + attrs.join(" ") : "";
 }
 
-// BEM-селектор + поддержка нескольких классов
-function getScssSelector(node: any, parentClasses: string[] = []) {
+// селектор без BEM/ампершандов
+function getScssSelector(node: any) {
   const nodeClasses = normalizeClasses(node.class);
-  const parentMain = parentClasses[0] || ""; // основной BEM-блок, если есть
 
   if (nodeClasses.length) {
-    if (
-      parentMain &&
-      nodeClasses.length === 1 &&
-      nodeClasses[0].startsWith(parentMain + "__")
-    ) {
-      const elem = nodeClasses[0].slice(parentMain.length + 2);
-      return `&__${elem}`;
-    }
-
     return "." + nodeClasses.join(".");
   }
 
@@ -189,7 +179,11 @@ function stripServiceTexts(html: string): string {
   return out;
 }
 
-function renderNodesAndCollectScss(nodes: any[], parentClasses: string[] = []) {
+function renderNodesAndCollectScss(nodes: any[]): {
+  html: string;
+  scssBlocks: any[];
+  pug: string;
+} {
   let html = "";
   let scssBlocks: any[] = [];
   let pug = "";
@@ -203,19 +197,18 @@ function renderNodesAndCollectScss(nodes: any[], parentClasses: string[] = []) {
       children = [],
     } = node;
 
-    const nodeClasses = normalizeClasses(nodeClass);
-    const currentClasses = nodeClasses.length > 0 ? nodeClasses : parentClasses;
+    const selector = getScssSelector(node);
 
-    const selector = getScssSelector(node, currentClasses);
-
+    // рекурсивно собираем детей
+    let childHtml = "";
     let childScssBlocks: any[] = [];
     if (children.length > 0) {
-      const childRes = renderNodesAndCollectScss(children, currentClasses);
+      const childRes = renderNodesAndCollectScss(children);
+      childHtml = childRes.html;
       childScssBlocks = childRes.scssBlocks;
-      html += childRes.html; // важно не потерять
-      pug += childRes.pug ? "\n" + childRes.pug : "";
     }
 
+    // SCSS-структура
     if (style && style.trim()) {
       scssBlocks.push({
         selector,
@@ -230,17 +223,23 @@ function renderNodesAndCollectScss(nodes: any[], parentClasses: string[] = []) {
       });
     }
 
+    // HTML с вложенностью
     const attrsStr = buildAttrs(node);
-    let htmlItem;
-    if (selfClosingTags.has(tag.toLowerCase())) {
-      htmlItem = `<${tag}${attrsStr}/>${text}`;
-    } else {
-      htmlItem = `<${tag}${attrsStr}>${text}</${tag}>`;
-    }
-    html += htmlItem;
+    const cleanedText = cleanServiceText(text);
+    let htmlItem: string;
 
+    if (selfClosingTags.has(String(tag).toLowerCase())) {
+      htmlItem = `<${tag}${attrsStr}/>`;
+    } else {
+      htmlItem = `<${tag}${attrsStr}>${cleanedText}${childHtml}</${tag}>`;
+    }
+
+    html += htmlItem;
     html = stripServiceTexts(html);
-    pug += "\n" + toPug([node]);
+
+    // Pug
+    const pugNode = toPug([node]);
+    pug += (pug ? "\n" : "") + pugNode;
   });
 
   return { html, scssBlocks, pug: pug.trim() };
@@ -366,13 +365,53 @@ async function callGroq(scss: string): Promise<string> {
   if (!GROQ_API_KEY) throw new Error("GROQ_API_KEY is missing");
 
   const systemPrompt = `
-Ты помощник, который очищает и форматирует SCSS.
+    Работай на уровне эксперта по SCSS.
 
-ТРЕБОВАНИЯ:
-- не меняй семантику стилей;
-- убери дублирующиеся правила;
-- приведи SCSS к аккуратному, читаемому виду;
-- не пиши никаких комментариев и объяснений, только чистый SCSS.
+    Тебе дают СЫРОЙ SCSS одного файла. В нём НЕТ заранее вынесенных utility-/текстовых классов (.text1, .text2, .text3 и т.п.), только стили компонентов и вложенные селекторы.
+
+    Твоя задача — ОЧИСТИТЬ и ПЕРЕФОРМАТИРОВАТЬ этот SCSS по правилам:
+
+    Вынос utility-/текстовых классов
+
+    Найди повторяющиеся группы свойств, которые оформлены как классы и используются для типографики/текста (например .text1, .text2, .text3 и подобные).
+
+    Для каждого такого класса оставь ОДНО объявление в начале файла.
+
+    Удали все другие объявления этих же классов ниже по файлу.
+
+    Внутри компонентных блоков не дублируй эти свойства — используй только сами классы (без @extend).
+
+    Вложенные селекторы
+
+    Сохраняй текущую структуру вложенности селекторов.
+
+    Во всех вложенных селекторах используй только запись .class или tag.class.
+
+    НЕ используй амперсанд (&) НИГДЕ — ни в селекторах (&.foo), ни в псевдоклассах (&:hover).
+
+    Если в исходном коде были селекторы вида &.foo, перепиши их как .foo (или tag.foo, если это очевидно из контекста).
+
+    @extend и дубли
+
+    Удали любые конструкции вида:
+    .foo { @extend .foo; }
+    &.foo { @extend .foo; }
+
+    Не добавляй новых @extend, даже если видишь повторяющиеся свойства.
+
+    Убери дублирующиеся правила и повторяющиеся блоки с одинаковыми селекторами и одинаковыми свойствами.
+
+    Форматирование
+
+    Приведи SCSS к аккуратному, читаемому виду: понятные отступы, переносы строк, один селекторный блок на фигурные скобки.
+
+    Не меняй значения свойств и визуальное поведение компонентов.
+
+    Вывод
+
+    В ответе ТОЛЬКО чистый SCSS, без комментариев, без пояснений, без текста до или после кода.
+
+
 `.trim();
 
   const userPrompt = `
@@ -422,19 +461,26 @@ export async function POST(request: Request) {
     const nodes = body || [];
 
     const { html, scssBlocks, pug } = renderNodesAndCollectScss(nodes);
-    const rawScss = removeDuplicateLiBlocks(
-      scssBlocksToString(scssBlocks),
-    ).replace(/li {/g, "&>li {");
+    const rawScss = removeDuplicateLiBlocks(scssBlocksToString(scssBlocks));
 
     let cleanedScss = rawScss;
 
     if (GROQ_API_KEY && rawScss && rawScss.trim()) {
       cleanedScss = await callGroq(rawScss);
     }
+    function postFixScss(scss: string) {
+      return (
+        scss
+          // убрать extend самого себя
+          .replace(/(&\.)?([a-zA-Z0-9_-]+)\s*\{\s*@extend\s+\.\2\s*;\s*}/g, "")
+          // заменить "&.class{" на ".class{"
+          .replace(/&(\.[a-zA-Z0-9_-]+)/g, "$1")
+      );
+    }
 
     return NextResponse.json({
       html,
-      scss: cleanedScss,
+      scss: postFixScss(cleanedScss),
       pug,
     });
   } catch (e) {
