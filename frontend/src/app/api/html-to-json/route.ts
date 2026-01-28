@@ -114,6 +114,7 @@ export async function POST(request: Request) {
     }
 
     const css = sass.compileString(scss).css;
+    console.log("<=✨✨✨====css===>", css);
     const htmlJson = await applyCssToDom(html, css);
 
     return NextResponse.json({ htmlJson });

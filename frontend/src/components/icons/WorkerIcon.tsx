@@ -3,8 +3,7 @@ const WorkerIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     fill="currentColor"
     height={`${props?.height}px`}
     width={`${props?.width}px`}
-    viewBox="0 0 512 512"
-    enableBackground="new 0 0 512 512"
+    viewBox="0 0 432 432"
     id="Layer_1"
     version="1.1"
   >

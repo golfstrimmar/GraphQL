@@ -17,7 +17,7 @@ export default function HtmlToJsonButton() {
     }
 
     setLoading(true);
-
+    // console.log("<=✨✨✨==html,scss===>", HTML, SCSS);s
     try {
       const res = await fetch("/api/html-to-json", {
         method: "POST",

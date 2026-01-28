@@ -76,9 +76,11 @@ export default function ServicesButtons() {
         <ClearIcon width={16} height={16} />
         <p className="!text-[12px] !lh-0">remove servises texts</p>
       </button>
+      {/*-------------*/}
       <MakeHtmlButton />
+      {/*-------------*/}
       <HtmlToJsonButton />
-
+      {/*-------------*/}
       <hr className="border-2-[var(--grey-40)]  w-[25px] rotate-90" />
       <button
         className="btn-teal "

@@ -13,11 +13,19 @@ function PageHeader(iconName, title) {
     <div className="flex items-center gap-3 mb-6">
       <div className="flex items-center gap-3">
         <div className="w-6 h-6 bg-gradient-to-br from-blue-800 to-cyan-300 rounded-lg flex items-center justify-center">
-          <span className="">
-            {iconName === "projectsIcon" ? <ProjectsIcon /> : null}
-            {iconName === "canvasIcon" ? <WorkerIcon /> : null}
-            {iconName === "sandboxIcon" ? <SundboxIcon /> : null}
-            {iconName === "PreviewIcon" ? <PreviewIcon /> : null}
+          <span>
+            {iconName === "projectsIcon" ? (
+              <ProjectsIcon width={16} height={16} />
+            ) : null}
+            {iconName === "canvasIcon" ? (
+              <WorkerIcon width={16} height={16} />
+            ) : null}
+            {iconName === "sandboxIcon" ? (
+              <SundboxIcon width={16} height={16} />
+            ) : null}
+            {iconName === "PreviewIcon" ? (
+              <PreviewIcon width={16} height={16} />
+            ) : null}
           </span>
         </div>
         <h6 className="font-bold text-slate-800">{title}</h6>

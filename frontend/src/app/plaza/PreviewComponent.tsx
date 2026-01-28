@@ -65,7 +65,7 @@ export default function PreviewComponent() {
   };
   // ----------HTML
   useEffect(() => {
-    console.log("<==✨✨✨=HTML===>", HTML);
+    // console.log("<==✨✨✨=HTML===>", HTML);
     if (!HTML || HTML === "") {
       setCode("");
       return;
@@ -92,7 +92,6 @@ export default function PreviewComponent() {
       setCodeCss("");
       return;
     }
-    console.log("<===SCSS===>", SCSS);
     setCodeCss(SCSS);
   }, [SCSS]);
 

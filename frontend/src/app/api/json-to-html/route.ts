@@ -469,13 +469,10 @@ export async function POST(request: Request) {
       cleanedScss = await callGroq(rawScss);
     }
     function postFixScss(scss: string) {
-      return (
-        scss
-          // убрать extend самого себя
-          .replace(/(&\.)?([a-zA-Z0-9_-]+)\s*\{\s*@extend\s+\.\2\s*;\s*}/g, "")
-          // заменить "&.class{" на ".class{"
-          .replace(/&(\.[a-zA-Z0-9_-]+)/g, "$1")
-      );
+      return scss
+        .replace(/(&\.)?([a-zA-Z0-9_-]+)\s*\{\s*@extend\s+\.\2\s*;\s*}/g, "")
+        .replace(/&(\.[a-zA-Z0-9_-]+)/g, "$1")
+        .replace(/\.[a-zA-Z0-9_-]+\s*;/g, "");
     }
 
     return NextResponse.json({
