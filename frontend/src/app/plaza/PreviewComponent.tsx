@@ -7,7 +7,7 @@ import Editor, { useMonaco } from "@monaco-editor/react";
 
 //=== 🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢
 export default function PreviewComponent() {
-  const { preview, HTML, SCSS, setSCSS, setHTML } = useStateContext();
+  const { preview, HTML, SCSS, setSCSS, setHTML, htmlJson } = useStateContext();
   const [scale, setScale] = useState(1);
   const imgRef = useRef<HTMLImageElement | null>(null);
   const [naturalWidth, setNaturalWidth] = useState(0);
@@ -129,7 +129,7 @@ export default function PreviewComponent() {
         className="bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 relative mt-[25px] mb-4"
       >
         {PageHeader("PreviewIcon", "Preview")}
-
+        {/*{htmlJson.length > 0 && <pre>{JSON.stringify(htmlJson, null, 2)}</pre>}*/}
         {/*<div className="mt-4 mb-2">
           <CustomSlider
             value={scale}

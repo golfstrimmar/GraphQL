@@ -4,14 +4,16 @@ import { useStateContext } from "@/providers/StateProvider";
 import HtmlIcon from "@/components/icons/HtmlIcon";
 import Spinner from "@/components/icons/Spinner";
 
-export default function MakeHtmlButton() {
+export default function JsonToHtmlButton() {
   const [loading, setLoading] = useState(false);
 
-  const { htmlJson, setHTML, setSCSS, setModalMessage } = useStateContext();
+  const { htmlJson, HTML, SCSS, setHTML, setSCSS, setModalMessage } =
+    useStateContext();
 
   const handleClick = async () => {
     if (!htmlJson || htmlJson.length === 0) return;
-
+    setHTML("");
+    setSCSS("");
     setLoading(true);
 
     try {

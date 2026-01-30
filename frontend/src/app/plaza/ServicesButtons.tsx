@@ -1,15 +1,14 @@
 "use client";
-import React, { useEffect } from "react";
+import React from "react";
 import { useStateContext } from "@/providers/StateProvider";
 import cleanServiceTexts from "./utils/cleanServiceTexts";
 import ClearIcon from "@/components/icons/ClearIcon";
 import СhevronLeft from "@/components/icons/СhevronLeft";
 import СhevronRight from "@/components/icons/СhevronRight";
-import MakeHtmlButton from "./MakeHtmlButton";
-import HtmlToJsonButton from "./HtmlToJsonButton";
+import JsonToHtmlButton from "./JsonToHtmlButton";
+// import HtmlToJsonButton from "./HtmlToJsonButton";
 import ProjectsIcon from "@/components/icons/ProjectsIcon";
 import WorkerIcon from "@/components/icons/WorkerIcon";
-import SundboxIcon from "@/components/icons/SundboxIcon";
 import PreviewIcon from "@/components/icons/PreviewIcon";
 // 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹
 export default function ServicesButtons() {
@@ -26,6 +25,7 @@ export default function ServicesButtons() {
     setHTML,
     setSCSS,
     setDesignTexts,
+    HTML,
   } = useStateContext();
 
   const resetAll = () => {
@@ -77,9 +77,10 @@ export default function ServicesButtons() {
         <p className="!text-[12px] !lh-0">remove servises texts</p>
       </button>
       {/*-------------*/}
-      <MakeHtmlButton />
-      {/*-------------*/}
-      <HtmlToJsonButton />
+      <JsonToHtmlButton />
+      {/*------отложено! обратная генерация в htmlJson-------*/}
+      {/*{HTML.length > 0 && <HtmlToJsonButton />}*/}
+
       {/*-------------*/}
       <hr className="border-2-[var(--grey-40)]  w-[25px] rotate-90" />
       <button

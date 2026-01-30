@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
 
-const GROQ_API_KEY = process.env.GROQ_API_KEY;
-export const maxDuration = 30;
-
 const selfClosingTags = new Set([
   "area",
   "base",
@@ -97,33 +94,23 @@ function buildAttrs(node: any) {
   return attrs.length ? " " + attrs.join(" ") : "";
 }
 
-// селектор без BEM/ампершандов
 function getScssSelector(node: any) {
   const nodeClasses = normalizeClasses(node.class);
-
-  if (nodeClasses.length) {
-    return "." + nodeClasses.join(".");
-  }
-
+  if (nodeClasses.length) return "." + nodeClasses.join(".");
   return node.tag || "div";
 }
 
 function cleanServiceText(raw: string): string {
   let text = raw;
   const sorted = [...SERVICE_TEXTS].sort((a, b) => b.length - a.length);
-
   sorted.forEach((word) => {
     const pattern = word.replace(/\s+/g, "\\s+");
     const re = new RegExp(`^\\s*${pattern}\\s*$`, "i");
-    if (re.test(text)) {
-      text = "";
-    }
+    if (re.test(text)) text = "";
   });
-
   return text;
 }
 
-// --- Pug генератор ---
 function attrsToPug(node: any) {
   const parts: string[] = [];
   if (node.attributes && typeof node.attributes === "object") {
@@ -138,7 +125,6 @@ function toPug(nodes: any[], indent = ""): string {
   return nodes
     .map((node) => {
       const { tag, text = "", class: cls = "", children = [] } = node;
-
       let pugLine = indent + tag;
 
       if (cls && cls.trim()) {
@@ -149,9 +135,7 @@ function toPug(nodes: any[], indent = ""): string {
       if (attrString) pugLine += attrString;
 
       const cleanedText = cleanServiceText(text);
-      if (cleanedText.trim()) {
-        pugLine += ` ${cleanedText.trim()}`;
-      }
+      if (cleanedText.trim()) pugLine += ` ${cleanedText.trim()}`;
 
       let result = pugLine;
 
@@ -175,7 +159,6 @@ function stripServiceTexts(html: string): string {
   });
 
   out = out.replace(/>\s+</g, "><").trim();
-
   return out;
 }
 
@@ -199,7 +182,6 @@ function renderNodesAndCollectScss(nodes: any[]): {
 
     const selector = getScssSelector(node);
 
-    // рекурсивно собираем детей
     let childHtml = "";
     let childScssBlocks: any[] = [];
     if (children.length > 0) {
@@ -208,7 +190,6 @@ function renderNodesAndCollectScss(nodes: any[]): {
       childScssBlocks = childRes.scssBlocks;
     }
 
-    // SCSS-структура
     if (style && style.trim()) {
       scssBlocks.push({
         selector,
@@ -223,7 +204,6 @@ function renderNodesAndCollectScss(nodes: any[]): {
       });
     }
 
-    // HTML с вложенностью
     const attrsStr = buildAttrs(node);
     const cleanedText = cleanServiceText(text);
     let htmlItem: string;
@@ -237,7 +217,6 @@ function renderNodesAndCollectScss(nodes: any[]): {
     html += htmlItem;
     html = stripServiceTexts(html);
 
-    // Pug
     const pugNode = toPug([node]);
     pug += (pug ? "\n" : "") + pugNode;
   });
@@ -251,7 +230,7 @@ function scssBlocksToString(blocks: any[], indent = ""): string {
     out += `${indent}${selector} {${style ? " " + style : ""}`;
     if (children && children.length > 0) {
       out += "\n" + scssBlocksToString(children, indent + "  ");
-      out += `${indent}`;
+      out += indent;
     }
     out += " }\n";
   });
@@ -361,98 +340,11 @@ function removeDuplicateLiBlocks(str: string): string {
   }
 }
 
-async function callGroq(scss: string): Promise<string> {
-  if (!GROQ_API_KEY) throw new Error("GROQ_API_KEY is missing");
-
-  const systemPrompt = `
-    Работай на уровне эксперта по SCSS.
-
-    Тебе дают СЫРОЙ SCSS одного файла. В нём НЕТ заранее вынесенных utility-/текстовых классов (.text1, .text2, .text3 и т.п.), только стили компонентов и вложенные селекторы.
-
-    Твоя задача — ОЧИСТИТЬ и ПЕРЕФОРМАТИРОВАТЬ этот SCSS по правилам:
-
-    Вынос utility-/текстовых классов
-
-    Найди повторяющиеся группы свойств, которые оформлены как классы и используются для типографики/текста (например .text1, .text2, .text3 и подобные).
-
-    Для каждого такого класса оставь ОДНО объявление в начале файла.
-
-    Удали все другие объявления этих же классов ниже по файлу.
-
-    Внутри компонентных блоков не дублируй эти свойства — используй только сами классы (без @extend).
-
-    Вложенные селекторы
-
-    Сохраняй текущую структуру вложенности селекторов.
-
-    Во всех вложенных селекторах используй только запись .class или tag.class.
-
-    НЕ используй амперсанд (&) НИГДЕ — ни в селекторах (&.foo), ни в псевдоклассах (&:hover).
-
-    Если в исходном коде были селекторы вида &.foo, перепиши их как .foo (или tag.foo, если это очевидно из контекста).
-
-    @extend и дубли
-
-    Удали любые конструкции вида:
-    .foo { @extend .foo; }
-    &.foo { @extend .foo; }
-
-    Не добавляй новых @extend, даже если видишь повторяющиеся свойства.
-
-    Убери дублирующиеся правила и повторяющиеся блоки с одинаковыми селекторами и одинаковыми свойствами.
-
-    Форматирование
-
-    Приведи SCSS к аккуратному, читаемому виду: понятные отступы, переносы строк, один селекторный блок на фигурные скобки.
-
-    Не меняй значения свойств и визуальное поведение компонентов.
-
-    Вывод
-
-    В ответе ТОЛЬКО чистый SCSS, без комментариев, без пояснений, без текста до или после кода.
-
-
-`.trim();
-
-  const userPrompt = `
-Вот сырой SCSS. Очисти и отформатируй его по правилам.
-
-SCSS:
-${scss}
-`.trim();
-
-  const body = {
-    model: "llama-3.1-8b-instant",
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt },
-    ],
-    temperature: 0,
-  };
-
-  const response = await fetch(
-    "https://api.groq.com/openai/v1/chat/completions",
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${GROQ_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    },
-  );
-
-  if (!response.ok) {
-    const errBody = await response.text();
-    console.error("Groq API error status:", response.status);
-    console.error("Groq API error body:", errBody);
-    throw new Error(`Groq API error: ${response.status}`);
-  }
-
-  const json = await response.json();
-  const cleaned = json.choices?.[0]?.message?.content?.trim() ?? "";
-
-  return cleaned;
+function postFixScss(scss: string) {
+  return scss
+    .replace(/(&\.)?([a-zA-Z0-9_-]+)\s*\{\s*@extend\s+\.\\2\s*;\s*}/g, "")
+    .replace(/&(\.[a-zA-Z0-9_-]+)/g, "$1")
+    .replace(/\.[a-zA-Z0-9_-]+\s*;/g, "");
 }
 
 export async function POST(request: Request) {
@@ -463,21 +355,9 @@ export async function POST(request: Request) {
     const { html, scssBlocks, pug } = renderNodesAndCollectScss(nodes);
     const rawScss = removeDuplicateLiBlocks(scssBlocksToString(scssBlocks));
 
-    let cleanedScss = rawScss;
-
-    if (GROQ_API_KEY && rawScss && rawScss.trim()) {
-      cleanedScss = await callGroq(rawScss);
-    }
-    function postFixScss(scss: string) {
-      return scss
-        .replace(/(&\.)?([a-zA-Z0-9_-]+)\s*\{\s*@extend\s+\.\2\s*;\s*}/g, "")
-        .replace(/&(\.[a-zA-Z0-9_-]+)/g, "$1")
-        .replace(/\.[a-zA-Z0-9_-]+\s*;/g, "");
-    }
-
     return NextResponse.json({
       html,
-      scss: postFixScss(cleanedScss),
+      scss: postFixScss(rawScss),
       pug,
     });
   } catch (e) {
