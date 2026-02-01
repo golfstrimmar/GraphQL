@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const selfClosingTags = new Set([
   "area",
   "base",
@@ -190,20 +190,24 @@ function renderNodesAndCollectScss(nodes: any[]): {
       childScssBlocks = childRes.scssBlocks;
     }
 
-    if (style && style.trim()) {
-      scssBlocks.push({
-        selector,
-        style: style.trim(),
-        children: childScssBlocks,
-      });
-    } else if (childScssBlocks.length > 0) {
-      scssBlocks.push({
-        selector,
-        style: "",
-        children: childScssBlocks,
-      });
-    }
-
+    // if (style && style.trim()) {
+    //   scssBlocks.push({
+    //     selector,
+    //     style: style.trim(),
+    //     children: childScssBlocks,
+    //   });
+    // } else if (childScssBlocks.length > 0) {
+    //   scssBlocks.push({
+    //     selector,
+    //     style: "",
+    //     children: childScssBlocks,
+    //   });
+    // }
+    scssBlocks.push({
+      selector,
+      style: style.trim(),
+      children: childScssBlocks,
+    });
     const attrsStr = buildAttrs(node);
     const cleanedText = cleanServiceText(text);
     let htmlItem: string;
@@ -234,40 +238,40 @@ function scssBlocksToString(blocks: any[], indent = ""): string {
     }
     out += " }\n";
   });
-  const cleaned = out
-    .replace(/background:\s*rgb\(220,\s*230,\s*220\);?/g, "")
-    .replace(/background:\s*rgb\(226,\s*232,\s*240\);?/g, "")
-    .replace(/padding:\s*2px\s*4px;?/g, "")
-    .replace(/border:\s*1px\s*solid\s*#adadad;?/g, "")
-    .replace(/background:\s*dodgerblue;?/g, "")
-    .replace(/background:\s*#22c55e;?/g, "")
-    .replace(/background:\s*#8b5cf6;?/g, "")
-    .replace(/background:\s*#f97316;?/g, "")
-    .replace(/background:\s*#eab308;?/g, "")
-    .replace(/background:\s*#0ea5e9;?/g, "")
-    .replace(/background:\s*#3b82f6;?/g, "")
-    .replace(/background:\s*#06b6d4;?/g, "")
-    .replace(/background:\s*#14b8a6;?/g, "")
-    .replace(/background:\s*#ef4444;?/g, "")
-    .replace(/background:\s*#f59e0b;?/g, "")
-    .replace(/background:\s*#84cc16;?/g, "")
-    .replace(/background:\s*#6366f1;?/g, "")
-    .replace(/background:\s*#ec4899;?/g, "")
-    .replace(/background:\s*#737373;?/g, "")
-    .replace(/background:\s*#71717a;?/g, "")
-    .replace(/background:\s*#f43f5e;?/g, "")
-    .replace(/background:\s*#a855f7;?/g, "")
-    .replace(/background:\s*#d946ef;?/g, "")
-    .replace(/background:\s*#38bdf8;?/g, "")
-    .replace(/background:\s*powderblue;?/g, "")
-    .replace(/\.imgs\s*\{[^}]*img\s*\{\s*[^}]*\}[^}]*\}/g, "")
-    .replace(/\s*\n\s*/g, " ")
-    .replace(/\s{2,}/g, " ")
-    .replace(/\s*{\s*/g, " { ")
-    .replace(/\s*}\s*/g, " } ")
-    .replace(/\s*;\s*/g, ";")
-    .trim();
-  return cleaned;
+  // const cleaned = out
+  //   .replace(/background:\s*rgb\(220,\s*230,\s*220\);?/g, "")
+  //   .replace(/background:\s*rgb\(226,\s*232,\s*240\);?/g, "")
+  //   .replace(/padding:\s*2px\s*4px;?/g, "")
+  //   .replace(/border:\s*1px\s*solid\s*#adadad;?/g, "")
+  //   .replace(/background:\s*dodgerblue;?/g, "")
+  //   .replace(/background:\s*#22c55e;?/g, "")
+  //   .replace(/background:\s*#8b5cf6;?/g, "")
+  //   .replace(/background:\s*#f97316;?/g, "")
+  //   .replace(/background:\s*#eab308;?/g, "")
+  //   .replace(/background:\s*#0ea5e9;?/g, "")
+  //   .replace(/background:\s*#3b82f6;?/g, "")
+  //   .replace(/background:\s*#06b6d4;?/g, "")
+  //   .replace(/background:\s*#14b8a6;?/g, "")
+  //   .replace(/background:\s*#ef4444;?/g, "")
+  //   .replace(/background:\s*#f59e0b;?/g, "")
+  //   .replace(/background:\s*#84cc16;?/g, "")
+  //   .replace(/background:\s*#6366f1;?/g, "")
+  //   .replace(/background:\s*#ec4899;?/g, "")
+  //   .replace(/background:\s*#737373;?/g, "")
+  //   .replace(/background:\s*#71717a;?/g, "")
+  //   .replace(/background:\s*#f43f5e;?/g, "")
+  //   .replace(/background:\s*#a855f7;?/g, "")
+  //   .replace(/background:\s*#d946ef;?/g, "")
+  //   .replace(/background:\s*#38bdf8;?/g, "")
+  //   .replace(/background:\s*powderblue;?/g, "")
+  //   .replace(/\.imgs\s*\{[^}]*img\s*\{\s*[^}]*\}[^}]*\}/g, "")
+  //   .replace(/\s*\n\s*/g, " ")
+  //   .replace(/\s{2,}/g, " ")
+  //   .replace(/\s*{\s*/g, " { ")
+  //   .replace(/\s*}\s*/g, " } ")
+  //   .replace(/\s*;\s*/g, ";")
+  //   .trim();
+  return out;
 }
 
 function normalizeBlock(block: string) {
@@ -347,6 +351,69 @@ function postFixScss(scss: string) {
     .replace(/\.[a-zA-Z0-9_-]+\s*;/g, "");
 }
 
+// 🔹 вызов Groq для чистки SCSS
+async function callGroq(scss: string): Promise<string> {
+  if (!GROQ_API_KEY) throw new Error("GROQ_API_KEY is missing");
+
+  const systemPrompt = `
+    Ты получаешь ОДИН SCSS-блок вида:
+
+    .selector {
+      prop: value;
+      ...
+    }
+
+    Твоя задача:
+    - не менять навание селектора;
+    - не добавлять & к вложем селекторам;
+    - только отформатировать: переносы строк и отступы.
+
+    Ответ: только содержимое блока, начиная с ".selector {" и заканчивая "}".
+    - убери дублирующиеся правила;
+    - в ответе ТОЛЬКО чистый SCSS без комментариев.
+`.trim();
+
+  const userPrompt = `
+Вот сырой SCSS. Очисти и отформатируй его по правилам.
+
+SCSS:
+${scss}
+`.trim();
+
+  const body = {
+    model: "llama-3.1-8b-instant",
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
+    ],
+    temperature: 0,
+  };
+
+  const response = await fetch(
+    "https://api.groq.com/openai/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${GROQ_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    },
+  );
+
+  if (!response.ok) {
+    const errBody = await response.text();
+    console.error("Groq API error status:", response.status);
+    console.error("Groq API error body:", errBody);
+    throw new Error(`Groq API error: ${response.status}`);
+  }
+
+  const json = await response.json();
+  const cleaned = json.choices?.[0]?.message?.content?.trim() ?? "";
+  return cleaned;
+}
+
+// --------🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹-------
 export async function POST(request: Request) {
   try {
     const body = await request.json(); // htmlJson
@@ -355,9 +422,18 @@ export async function POST(request: Request) {
     const { html, scssBlocks, pug } = renderNodesAndCollectScss(nodes);
     const rawScss = removeDuplicateLiBlocks(scssBlocksToString(scssBlocks));
 
+    let finalScss = rawScss;
+
+    if (GROQ_API_KEY && rawScss && rawScss.trim()) {
+      const cleanedByGroq = await callGroq(rawScss);
+      finalScss = postFixScss(cleanedByGroq || rawScss);
+    } else {
+      finalScss = postFixScss(rawScss);
+    }
+
     return NextResponse.json({
       html,
-      scss: postFixScss(rawScss),
+      scss: finalScss,
       pug,
     });
   } catch (e) {

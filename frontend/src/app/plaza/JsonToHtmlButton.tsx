@@ -41,21 +41,19 @@ export default function JsonToHtmlButton() {
   };
 
   return (
-    <div>
-      <button
-        onClick={handleClick}
-        disabled={loading}
-        className="btn-teal px-1 rounded !text-[12px] !lh-0"
-      >
-        {loading ? (
-          <Spinner />
-        ) : (
-          <>
-            <span>jsonHtml ⇨</span>
-            <HtmlIcon width={18} height={18} />
-          </>
-        )}
-      </button>
-    </div>
+    <button
+      onClick={handleClick}
+      disabled={loading}
+      className="btn-primary  rounded !text-[12px] !lh-0 w-full  !py-1 center"
+    >
+      {loading ? (
+        <Spinner />
+      ) : (
+        <>
+          <span>jsonHtml ⇨</span>
+          <HtmlIcon width={18} height={18} />
+        </>
+      )}
+    </button>
   );
 }

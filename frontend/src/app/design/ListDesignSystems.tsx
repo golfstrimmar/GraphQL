@@ -22,7 +22,6 @@ const ModalCreateDesignSystem = dynamic(
   () => import("./ModalCreateDesignSystem"),
   { ssr: false, loading: () => <Loading /> },
 );
-const BASE_STYLE = "padding: 2px 4px; border: 1px solid #adadad;";
 const CONTENT = "The quick brown fox jumps over the lazy dog.";
 // ====🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
 export default function ListDesignSystems({ designSystems }) {
@@ -37,7 +36,7 @@ export default function ListDesignSystems({ designSystems }) {
   };
   // --------------
   function generateTextNode(className: string, css: string): HtmlNode {
-    const styleParts = [BASE_STYLE, css].filter(Boolean).join(" ");
+    const styleParts = [css].filter(Boolean).join(" ");
 
     return {
       tag: "p",
@@ -63,9 +62,8 @@ export default function ListDesignSystems({ designSystems }) {
           return {
             class: className,
             style: t.styleText,
-            // эти поля можно достроить, если нужно
             reactStyle: inlineStyleStringToObject(
-              [BASE_STYLE, t.styleText].filter(Boolean).join(" "),
+              [t.styleText].filter(Boolean).join(" "),
             ),
             content: CONTENT,
           };
@@ -82,8 +80,9 @@ export default function ListDesignSystems({ designSystems }) {
         const nodes: HtmlNode[] = clientTexts.map((t) =>
           generateTextNode(t.class, t.style),
         );
-
         const result = ensureNodeKeys(nodes);
+
+        console.log("<== ✨ ✨ ✨=result===>", result);
         updateHtmlJson(result);
       },
       onError: (error) => {

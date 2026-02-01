@@ -17,7 +17,6 @@ import Update from "@/components/icons/Update";
 export default function UpdateDesignSystem({ id }) {
   const { user, setModalMessage, designTexts } = useStateContext();
   const router = useRouter();
-
   const [updateDesignSystem, { loading, error }] = useMutation(
     UPDATE_DESIGN_SYSTEM,
     {
@@ -35,6 +34,8 @@ export default function UpdateDesignSystem({ id }) {
     <button
       className="btn btn-teal  !rounded-full w-6 h-6 !p-0.5 mr-1"
       onClick={() => {
+        if (!designTexts) return;
+        console.log("<=🧻🧻🧻==designTexts===>", designTexts);
         updateDesignSystem({
           variables: {
             id: id,

@@ -13,7 +13,10 @@ import { useStateContext } from "@/providers/StateProvider";
 import CreateIcon from "@/components/icons/CreateIcon";
 import CloseIcon from "@/components/icons/CloseIcon";
 import { useRouter } from "next/navigation";
-
+import JsonToHtmlButton from "./JsonToHtmlButton";
+import ProjectsIcon from "@/components/icons/ProjectsIcon";
+import WorkerIcon from "@/components/icons/WorkerIcon";
+import PreviewIcon from "@/components/icons/PreviewIcon";
 type HtmlNode = {
   tag: string;
   text: string;
@@ -99,17 +102,64 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
           transition={{ duration: 0.1, ease: [0.25, 0.8, 0.5, 1] }}
-          className="bg-[var(--navi-admin)]   p-1 pt-6   bottom-0 left-0 transform w-[calc(100vw-10px)] min-h-[170px]  fixed  z-5000"
+          className="bg-[var(--navi-admin)]   p-1 pt-8   bottom-0 left-0 transform w-[calc(100vw-10px)] min-h-[170px]  fixed  z-5000"
           style={{
             borderTop: "3px solid var(--teal)",
           }}
         >
-          <button
-            className="btn btn-primary w-[calc(100%-10px)] absolute top-0.5 left-1 !px-2 !py-0.5 z-10"
-            onClick={() => setActiveKey(null)}
-          >
-            <CloseIcon width={12} height={12} />
-          </button>
+          <div className="flex gap-1 w-[calc(100%-10px)] absolute top-0 left-1  !py-0.5 z-10">
+            <button
+              className="btn btn-primary flex-[40%]"
+              onClick={() => setActiveKey(null)}
+            >
+              <CloseIcon width={12} height={12} />
+            </button>
+            <div className="flex-[50%]">
+              <JsonToHtmlButton />
+            </div>
+            <button
+              className="btn-teal "
+              type="button"
+              onClick={() => {
+                const el = document.getElementById("preview-section");
+                if (el) {
+                  const y =
+                    el.getBoundingClientRect().top + window.scrollY - 80;
+                  window.scrollTo({ top: y, behavior: "smooth" });
+                }
+              }}
+            >
+              <PreviewIcon width={18} height={18} />
+            </button>
+            <button
+              className="btn-teal "
+              type="button"
+              onClick={() => {
+                const el = document.getElementById("canvas-section");
+                if (el) {
+                  const y =
+                    el.getBoundingClientRect().top + window.scrollY - 80;
+                  window.scrollTo({ top: y, behavior: "smooth" });
+                }
+              }}
+            >
+              <WorkerIcon width={16} height={16} />
+            </button>
+            <button
+              className="btn-teal "
+              type="button"
+              onClick={() => {
+                const el = document.getElementById("projects-section");
+                if (el) {
+                  const y =
+                    el.getBoundingClientRect().top + window.scrollY - 80;
+                  window.scrollTo({ top: y, behavior: "smooth" });
+                }
+              }}
+            >
+              <ProjectsIcon width={16} height={16} />
+            </button>
+          </div>
           <div className="grid grid-cols-[repeat(2_,max-content)_1fr_1fr] relative rounded border-2 border-[var(--teal)] p-1  text-[#000] h-full">
             {/*===============Tag=================*/}
             <TagComponent

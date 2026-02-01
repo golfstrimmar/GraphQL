@@ -206,6 +206,7 @@ export default function PreviewComponent() {
               }
             }}
           />
+
           <Editor
             height={editorHeight}
             language="scss"

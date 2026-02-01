@@ -58,9 +58,10 @@ const TagsNamen4 = [
   { tag: "ul flex col", color: "powderblue" }, // teal
 ];
 const TagsNamen5 = [
-  { tag: "SECTION", color: "powderblue" },
-  { tag: "HERO", color: "powderblue" },
+  // { tag: "SECTION", color: "powderblue" },
+  // { tag: "HERO", color: "powderblue" },
   { tag: "CARDS", color: "powderblue" },
+  { tag: "CARD", color: "powderblue" },
 ];
 type ProjectData = {
   tag: string;

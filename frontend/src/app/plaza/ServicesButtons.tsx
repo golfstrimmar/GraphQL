@@ -77,7 +77,9 @@ export default function ServicesButtons() {
         <p className="!text-[12px] !lh-0">remove servises texts</p>
       </button>
       {/*-------------*/}
-      <JsonToHtmlButton />
+      <div className="max-w-[150px]">
+        <JsonToHtmlButton />
+      </div>
       {/*------отложено! обратная генерация в htmlJson-------*/}
       {/*{HTML.length > 0 && <HtmlToJsonButton />}*/}
 

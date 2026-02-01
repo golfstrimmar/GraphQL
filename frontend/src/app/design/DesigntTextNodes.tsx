@@ -3,8 +3,8 @@ import React, { useState, useEffect } from "react";
 import { useStateContext } from "@/providers/StateProvider";
 import inlineStyleStringToObject from "@/app/design/inlineStyleStringToObject";
 import ClearIcon from "@/components/icons/ClearIcon";
-import { Colors } from "@/app/plaza/forStyleComponent/Colors";
-import { motion, AnimatePresence } from "framer-motion";
+import ModalColor from "./ModalColor";
+import ModalFont from "./ModalFont";
 
 type Text = {
   class: string;
@@ -16,7 +16,6 @@ type designText = {
   class: string;
   style: string;
 };
-const BASE_STYLE = "padding: 2px 4px; border: 1px solid #adadad;";
 const CONTENT = "The quick brown fox jumps over the lazy dog.";
 
 const DEFAULTS = [
@@ -32,6 +31,7 @@ const DEFAULTS = [
   "font-size:30px; color:#000000; font-weight:900; line-height:1; font-family:'Montserrat', sans-serif;",
 ];
 
+// ----🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹
 export default function DesigntTextNodes() {
   const { designTexts, setDesignTexts } = useStateContext();
 
@@ -45,56 +45,80 @@ export default function DesigntTextNodes() {
   const [openColorModal, setOpenColorModal] = useState(false);
   const [currentTextIndex, setCurrentTextIndex] = useState<number | null>(null);
 
+  // --- модалка для выбора шрифта текста
+  const [openFontModal, setOpenFontModal] = useState(false);
+
   // ---
+  useEffect(() => {
+    if (!designTexts) return;
+    console.log("<===designTexts===>", designTexts);
+  }, [designTexts]);
   useEffect(() => {
     if (!texts) return;
     console.log("<=🧻🧻🧻==texts===>", texts);
   }, [texts]);
 
+  // --------- обновление текстов по изменению designTexts
   useEffect(() => {
     if (designTexts.length === 0) {
       setCodeCssList(DEFAULTS);
       setTexts([]);
+      return;
     }
-
-    const nonEmpty = designTexts.filter(
-      (dt) => dt && dt.style && dt.style.trim() !== "",
-    );
-
+    // 1) Обновляем codeCssList по номеру из class (textN),
+    //    а не просто по индексу
     setCodeCssList((prev) => {
       const copy = [...prev];
-      nonEmpty.forEach((dt, index) => {
+
+      designTexts.forEach((dt: designText) => {
+        if (!dt) return;
+        const numStr = (dt.class || "").replace(/^text(\d+)$/, "$1");
+        const num = Number(numStr);
+        if (!Number.isFinite(num) || num <= 0) return;
+
+        const index = num - 1;
         if (index < copy.length) {
-          const css = dt.style.replace(BASE_STYLE, "").trim();
+          const css = (dt.style || "").trim();
           copy[index] = css;
         }
       });
+
       return copy;
     });
 
+    // 2) Восстанавливаем texts ТАК ЖЕ по номеру из class
     setTexts(() => {
       const arr: (Text | null)[] = Array(10).fill(null);
-      nonEmpty.forEach((dt, index) => {
-        if (index < arr.length) {
-          const className = dt.class || `text${index + 1}`;
-          const styleParts = [BASE_STYLE, dt.style].filter(Boolean).join(" ");
-          const reactStyle = inlineStyleStringToObject(styleParts);
 
-          arr[index] = {
-            class: className,
-            style: styleParts,
-            reactStyle,
-            content: CONTENT,
-          };
-        }
+      designTexts.forEach((dt) => {
+        if (!dt) return;
+
+        const numStr = (dt.class || "").replace(/^text(\d+)$/, "$1");
+        const num = Number(numStr);
+        if (!Number.isFinite(num) || num <= 0) return;
+
+        const index = num - 1;
+        if (index >= arr.length) return;
+
+        const className = dt.class || `text${index + 1}`;
+        const styleParts = [dt.style].filter(Boolean).join(" ");
+        const reactStyle = inlineStyleStringToObject(styleParts);
+
+        arr[index] = {
+          class: className,
+          style: styleParts,
+          reactStyle,
+          content: CONTENT,
+        };
       });
+
       return arr;
     });
   }, [designTexts]);
 
   // -----главная функция формирования текстоа
   function buildText(className: string, css: string): Text {
-    const styleParts = [BASE_STYLE, css].filter(Boolean).join(" ");
+    const styleParts = [css].filter(Boolean).join(" ");
     const styleObject = inlineStyleStringToObject(styleParts); //для react - отобраение текста здесь
 
     return {
@@ -106,33 +130,34 @@ export default function DesigntTextNodes() {
   }
 
   // ----- изменение текста в массиве текстов
-  const handleTextClick = (index: number) => {
+  const handleTextClick = (className: string) => {
+    const safeNumber = (foo: string) => {
+      const numStr = foo.replace(/^text(\d+)$/, "$1");
+      const num = Number(numStr);
+      return isNaN(num) ? 0 : num;
+    };
+
+    const index = safeNumber(className);
     const css = codeCssList[index];
     if (!css) return;
 
-    const className = `text${index + 1}`;
     const newText = buildText(className, css);
 
-    // Обновляем локальные тексты
+    // ✅ всё внутри обработчика, не в рендере
     setTexts((prev) => {
-      const copy = [...prev];
-      copy[index] = newText;
-      return copy;
-    });
+      const updated = [...prev];
+      updated[index] = newText;
 
-    // Обновляем designTexts на основе актуального массива
-    setDesignTexts((prev) => {
-      const base = [...texts];
-      base[index] = newText;
+      setDesignTexts(
+        updated
+          .filter((item): item is Text => item !== null)
+          .map((item) => ({
+            class: item.class,
+            style: item.style,
+          })),
+      );
 
-      const exit = base
-        .filter((item): item is Text => item !== null)
-        .map((item) => ({
-          class: item.class,
-          style: item.style,
-        }));
-
-      return exit;
+      return updated;
     });
   };
 
@@ -153,6 +178,15 @@ export default function DesigntTextNodes() {
 
       const copy = [...prev];
       copy[index] = updated;
+
+      setDesignTexts(
+        copy
+          .filter((item): item is Text => item !== null)
+          .map((item) => ({
+            class: item.class,
+            style: item.style,
+          })),
+      );
       return copy;
     });
   };
@@ -169,91 +203,29 @@ export default function DesigntTextNodes() {
       return copy;
     });
   };
-  //--------- находим цвет в строке css/если есть - меняем. если нет - добавляем
-  const updateColorInCss = (cssString: string, newColor: string): string => {
-    if (!cssString || !cssString.trim()) {
-      return `color:${newColor};`;
-    }
-
-    const colorRegex = /color\s*:\s*[^;]+;?/i;
-
-    if (colorRegex.test(cssString)) {
-      return cssString.replace(colorRegex, `color:${newColor};`);
-    }
-
-    const trimmed = cssString.trim();
-    const withSemicolon = trimmed.endsWith(";") ? trimmed : trimmed + ";";
-    return `${withSemicolon} color:${newColor};`;
-  };
-
-  const handlePickColorFromModal = (value: string) => {
-    if (currentTextIndex === null) return;
-
-    const currentCss = codeCssList[currentTextIndex];
-    const nextCss = updateColorInCss(currentCss, value);
-
-    handleChangeCss(currentTextIndex, nextCss);
-
-    setOpenColorModal(false);
-    setCurrentTextIndex(null);
-  };
   //---------
   return (
     <div className="space-y-2 relative">
       {/* Модалка с палитрой для текстов */}
-      <AnimatePresence>
-        {openColorModal && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ duration: 0.3, ease: [0.25, 0.8, 0.5, 1] }}
-            className="fixed inset-0 z-[1000] flex items-center justify-center bg-[rgba(0,0,0,0.9)] p-4"
-          >
-            <button
-              className="absolute top-2 right-2 cursor-pointer"
-              onClick={() => {
-                setOpenColorModal(false);
-                setCurrentTextIndex(null);
-              }}
-            >
-              <ClearIcon width={24} height={24} />
-            </button>
+      <ModalColor
+        setOpenColorModal={setOpenColorModal}
+        setCurrentTextIndex={setCurrentTextIndex}
+        currentTextIndex={currentTextIndex}
+        codeCssList={codeCssList}
+        openColorModal={openColorModal}
+        handleChangeCss={handleChangeCss}
+      />
+      {/* Модалка для выбора шрифта текста */}
+      <ModalFont
+        openFontModal={openFontModal}
+        setOpenFontModal={setOpenFontModal}
+        setCurrentTextIndex={setCurrentTextIndex}
+        currentTextIndex={currentTextIndex}
+        codeCssList={codeCssList}
+        handleChangeCss={handleChangeCss}
+      />
 
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] mt-4 w-full gap-2">
-              {[
-                "neutral",
-                "red",
-                "orange",
-                "yellow",
-                "green",
-                "cyan",
-                "blue",
-                "purple",
-                "brown",
-              ].map((groupName) => (
-                <div key={groupName} className="flex flex-col gap-0">
-                  {Colors.filter((c) => c.group === groupName).map((color) => (
-                    <button
-                      key={color.color}
-                      className="btn font-bold !py-0.5 !px-1 rounded !justify-start"
-                      style={{ color: color.value }}
-                      onClick={() => handlePickColorFromModal(color.value)}
-                    >
-                      <span
-                        style={{ backgroundColor: color.value }}
-                        className="w-6 h-6 mr-2 inline-block rounded-full"
-                      />
-                      {color.color}
-                    </button>
-                  ))}
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
+      {/*-----------------*/}
       {Array.from({ length: 10 }).map((_, index) => {
         const text = texts[index];
         const className = `text${index + 1}`;
@@ -265,7 +237,7 @@ export default function DesigntTextNodes() {
               {/*изменение текста в массиве текстов*/}
               <button
                 type="button"
-                onClick={() => handleTextClick(index)}
+                onClick={() => handleTextClick(className)}
                 className="btn btn-empty px-1 max-h-8"
               >
                 {className}
@@ -282,7 +254,17 @@ export default function DesigntTextNodes() {
               >
                 color
               </button>
-
+              {/* Кнопка открытия модалки выбора шрифта для этого текста */}
+              <button
+                type="button"
+                className="btn btn-empty px-2 max-h-8"
+                onClick={() => {
+                  setCurrentTextIndex(index);
+                  setOpenFontModal(true);
+                }}
+              >
+                font
+              </button>
               {/*определение стилей текста вручную*/}
               <textarea
                 className="w-full text-[12px] bg-slate-900 text-slate-200 rounded px-2 py-1 overflow-x-auto resize-none"
