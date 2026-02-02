@@ -1,11 +1,4 @@
-type HtmlNode = {
-  tag: string;
-  class?: string;
-  text?: string;
-  style?: string;
-  children?: HtmlNode[];
-  attributes?: Record<string, any>;
-};
+import type { HtmlNode } from "@/types/HtmlNode";
 
 type HtmlNodeWithKey = HtmlNode & { _key?: string };
 

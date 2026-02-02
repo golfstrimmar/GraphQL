@@ -20,6 +20,8 @@ const updateDesignSystem = async (_, { id, ownerId, designTexts }) => {
     throw new Error(`DesignSystem with id: ${id} does not exist`);
   }
 
+  console.log("---designTexts---", designTexts);
+
   try {
     // 2. Чистим старые
     await prisma.designTexts.deleteMany({
@@ -33,6 +35,7 @@ const updateDesignSystem = async (_, { id, ownerId, designTexts }) => {
         creatorId,
         designTexts: {
           create: designTexts.map((fs) => ({
+            tagText: fs.tagText,
             classText: fs.classText,
             styleText: fs.styleText,
           })),

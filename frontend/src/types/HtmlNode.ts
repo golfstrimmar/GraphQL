@@ -20,4 +20,4 @@ export type HtmlNode = {
   children: HtmlNode[] | string;
 };
 
-type Tree = HtmlNode | HtmlNode[];
+export type Tree = HtmlNode | HtmlNode[];

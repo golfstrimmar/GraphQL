@@ -1,4 +1,4 @@
-// lib/designSystem/generateHeaderNodesFromDS.ts
+import type { HtmlNode } from "@/types/HtmlNode";
 export type ColorState = {
   headers1color: string;
   headers2color: string;
@@ -26,16 +26,6 @@ export type FontSlot = {
   label: string;
   family: string;
   importString: string;
-};
-
-export type HtmlNode = {
-  tag: string;
-  text?: string;
-  class?: string;
-  style?: string;
-  attributes?: Record<string, string>;
-  children?: HtmlNode[] | string;
-  _key?: string;
 };
 
 export function generateHeaderNodesFromDS(

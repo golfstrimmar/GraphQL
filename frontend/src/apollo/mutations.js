@@ -310,6 +310,7 @@ export const CREATE_DESIGN_SYSTEM = gql`
       name
       createdAt
       designTexts {
+        tagText
         classText
         styleText
       }
@@ -327,6 +328,7 @@ export const UPDATE_DESIGN_SYSTEM = gql`
       name
       createdAt
       designTexts {
+        tagText
         classText
         styleText
       }

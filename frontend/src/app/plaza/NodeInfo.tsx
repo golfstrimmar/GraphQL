@@ -17,15 +17,7 @@ import JsonToHtmlButton from "./JsonToHtmlButton";
 import ProjectsIcon from "@/components/icons/ProjectsIcon";
 import WorkerIcon from "@/components/icons/WorkerIcon";
 import PreviewIcon from "@/components/icons/PreviewIcon";
-type HtmlNode = {
-  tag: string;
-  text: string;
-  class: string;
-  style: string;
-  attributes?: Record<string, string>;
-  _key?: string;
-  children: HtmlNode[] | string;
-};
+import type { HtmlNode } from "@/types/HtmlNode";
 
 interface InfoProjectProps {
   setProject: React.Dispatch<React.SetStateAction<ProjectData>>;

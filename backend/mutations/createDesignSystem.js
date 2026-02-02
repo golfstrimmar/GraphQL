@@ -25,6 +25,7 @@ const createDesignSystem = async (_, { ownerId, name, designTexts }) => {
         name,
         designTexts: {
           create: designTexts.map((fs) => ({
+            tagText: fs.tagText,
             classText: fs.classText,
             styleText: fs.styleText,
           })),

@@ -1,3 +1,4 @@
+import type { HtmlNode } from "@/types/HtmlNode";
 export type ColorState = {
   headers1color: string;
   headers2color: string;
@@ -24,15 +25,6 @@ type FontSlot = {
   label: string; // подпись в UI
   family: string; // имя шрифта (Inter, Roboto) — это и есть value для базы
   importString: string; // строка @import, только для фронта
-};
-export type HtmlNode = {
-  tag: string;
-  text?: string;
-  class?: string;
-  style?: string;
-  attributes?: Record<string, string>;
-  children?: HtmlNode[] | string;
-  _key?: string;
 };
 
 const mergeStyle = (oldStyle: string | undefined, extra: string) => {

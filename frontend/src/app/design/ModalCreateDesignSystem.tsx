@@ -76,6 +76,7 @@ export default function ModalCreateDesignSystem({
                     name: name,
 
                     designTexts: designTexts.map((t) => ({
+                      tagText: t.tag,
                       classText: t.class,
                       styleText: t.style,
                     })),

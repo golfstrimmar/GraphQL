@@ -140,13 +140,16 @@ export const typeDefs = gql`
     id: ID!
     name: String!
   }
+
   input DesignTextInput {
+    tagText: String!
     classText: String!
     styleText: String!
   }
 
   type DesignText {
     id: ID!
+    tagText: String!
     classText: String!
     styleText: String!
   }

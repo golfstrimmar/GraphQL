@@ -3,17 +3,7 @@ import { NextResponse } from "next/server";
 import { JSDOM } from "jsdom";
 import sass from "sass";
 import postcss from "postcss";
-
-export type HtmlNode = {
-  tag: string;
-  text: string;
-  class: string;
-  style: string;
-  attributes?: Record<string, string>;
-  _key?: string;
-  children: HtmlNode[] | string;
-};
-
+import type { HtmlNode } from "@/types/HtmlNode";
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 export const maxDuration = 30;
 

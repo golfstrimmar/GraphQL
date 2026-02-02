@@ -103,6 +103,7 @@ model JsonDocument {
 
 model DesignTexts {
   id              Int           @id @default(autoincrement())
+  tagText             String    @default("p")
   classText           String
   styleText           String
 

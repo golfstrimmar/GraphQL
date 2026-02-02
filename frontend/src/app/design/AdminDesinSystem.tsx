@@ -6,7 +6,7 @@ import ListDesignSystems from "./ListDesignSystems";
 import PlazaHeader from "@/components/PlazaHeader";
 import { GET_DESIGN_SYSTEMS_BY_USER } from "@/apollo/queries";
 import Bage from "@/components/ui/Bage/Bage";
-
+import type { DesignSystem } from "@/types/DesignSystem";
 // ---------------------------------------------
 type UserFromCookie = {
   id: string;
@@ -15,8 +15,8 @@ type UserFromCookie = {
   createdAt: string;
 };
 // --- 🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
-export default async function AdinDesinSystem() {
-  let designSystems = [];
+export default async function AdminDesignSystem() {
+  let designSystems: DesignSystem[] = [];
   const cookieStore = await cookies();
   const userCookie = cookieStore.get("user")?.value ?? null;
   if (!userCookie) {
@@ -44,6 +44,7 @@ export default async function AdinDesinSystem() {
     });
 
     designSystems = data?.getDesignSystemsByUser ?? [];
+    console.log("<===designSystems===>", designSystems);
   } catch (err: any) {
     console.log("Failed to fetch DesignSystems:", err.message);
   }

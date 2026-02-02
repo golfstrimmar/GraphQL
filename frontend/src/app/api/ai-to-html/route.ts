@@ -1,13 +1,7 @@
 // app/api/figma-section-to-html/route.ts
 import { NextRequest, NextResponse } from "next/server";
 
-interface HtmlNode {
-  tag: string;
-  text: string;
-  class: string;
-  style: string;
-  children: HtmlNode[];
-}
+import type { HtmlNode } from "@/types/HtmlNode";
 
 interface FigmaNode {
   id: string;

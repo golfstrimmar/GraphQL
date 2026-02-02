@@ -10,6 +10,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { removeKeys } from "./utils/removeKeys";
 import Spinner from "@/components/icons/Spinner";
+import type { HtmlNode } from "@/types/HtmlNode";
+
+// ====🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
 const CreateNewProject = () => {
   const { htmlJson, user, setModalMessage, ScssMixVar, activeKey } =
     useStateContext();

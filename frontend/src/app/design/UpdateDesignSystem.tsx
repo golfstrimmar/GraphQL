@@ -41,6 +41,7 @@ export default function UpdateDesignSystem({ id }) {
             id: id,
             ownerId: user?.id,
             designTexts: designTexts.map((t) => ({
+              tagText: t.tag,
               classText: t.class,
               styleText: t.style,
             })),

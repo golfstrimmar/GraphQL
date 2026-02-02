@@ -17,7 +17,7 @@ interface FontsFromFigmaProps {
   fontsToDisplay: any[];
   setfontsToDisplay: (fonts: any[]) => void;
 }
-
+import type { HtmlNode } from "@/types/HtmlNode";
 const FontsFromFigma: React.FC<FontsFromFigmaProps> = ({
   project,
   fontsToDisplay,
@@ -36,7 +36,7 @@ const FontsFromFigma: React.FC<FontsFromFigmaProps> = ({
     {
       variables: { fileKey: project?.fileKey },
       fetchPolicy: "network-only",
-    }
+    },
   );
 
   // 🔸 Мутация для запуска серверного экстракта и сейва шрифтов
@@ -48,7 +48,7 @@ const FontsFromFigma: React.FC<FontsFromFigmaProps> = ({
         setModalMessage("Fonts extracted and saved on server!");
       },
       onError: (err) => setModalMessage(`Error: ${err.message}`),
-    }
+    },
   );
 
   useEffect(() => {
@@ -93,13 +93,13 @@ const FontsFromFigma: React.FC<FontsFromFigmaProps> = ({
   // 🔸 Импорт Google Fonts + копирование SCSS-классов
   const buildGoogleFontsImport = () => {
     const uniqueFonts = Array.from(
-      new Set(fontsToDisplay.map((f) => f.fontFamily))
+      new Set(fontsToDisplay.map((f) => f.fontFamily)),
     );
     if (uniqueFonts.length === 0) return "";
     return `@import url('https://fonts.googleapis.com/css2?${uniqueFonts
       .map(
         (name) =>
-          `family=${encodeURIComponent(name)}:ital,wght@0,100..900;1,100..900`
+          `family=${encodeURIComponent(name)}:ital,wght@0,100..900;1,100..900`,
       )
       .join("&")}&display=swap');`;
   };
@@ -215,7 +215,7 @@ const FontsFromFigma: React.FC<FontsFromFigmaProps> = ({
             />
             Copy Google Fonts Import
           </button>
-          <pre>{buildGoogleFontsImport()}</pre> 
+          <pre>{buildGoogleFontsImport()}</pre>
         </div>
       )} */}
 

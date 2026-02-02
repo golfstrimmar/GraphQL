@@ -18,13 +18,19 @@ import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
 import DesigntTextNodes from "./DesigntTextNodes";
 import inlineStyleStringToObject from "@/app/design/inlineStyleStringToObject";
 import "@/app/design/design.scss";
+import type { HtmlNode } from "@/types/HtmlNode";
+import type { DesignSystem } from "@/types/DesignSystem";
 const ModalCreateDesignSystem = dynamic(
   () => import("./ModalCreateDesignSystem"),
   { ssr: false, loading: () => <Loading /> },
 );
-const CONTENT = "The quick brown fox jumps over the lazy dog.";
+
 // ====🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
-export default function ListDesignSystems({ designSystems }) {
+export default function ListDesignSystems({
+  designSystems,
+}: {
+  designSystems: DesignSystem[];
+}) {
   const { setModalMessage, designTexts, setDesignTexts, updateHtmlJson } =
     useStateContext();
   const [modalCreateOpen, setModalCreateOpen] = useState(false);
@@ -35,17 +41,21 @@ export default function ListDesignSystems({ designSystems }) {
     setDesignTexts([]);
   };
   // --------------
-  function generateTextNode(className: string, css: string): HtmlNode {
+  function generateTextNode(
+    tagName: string,
+    className: string,
+    css: string,
+  ): HtmlNode {
     const styleParts = [css].filter(Boolean).join(" ");
-
     return {
-      tag: "p",
+      tag: tagName,
       text: CONTENT,
       class: className,
       style: styleParts,
       children: [],
     };
   }
+  // --------------
   const [loadDesignSystem, { loading: loadingDesignSystem }] = useLazyQuery(
     GET_DESIGN_SYSTEM,
     {
@@ -54,36 +64,31 @@ export default function ListDesignSystems({ designSystems }) {
         const system = data?.getDesignSystem;
         if (!system) return;
 
-        const dtxt = system.designTexts ?? [];
+        // const dtxt = system.designTexts ?? [];
 
-        // 1) для контекста designTexts (клиентский формат)
-        const clientTexts: Text[] = dtxt.map((t, index) => {
-          const className = t.classText || `text${index + 1}`;
-          return {
-            class: className,
-            style: t.styleText,
-            reactStyle: inlineStyleStringToObject(
-              [t.styleText].filter(Boolean).join(" "),
-            ),
-            content: CONTENT,
-          };
-        });
+        // // 1) для контекста designTexts (клиентский формат)
+        // const clientTexts: Text[] = dtxt.map((t, index) => {
+        //   return {
+        //     tag: t.tagText,
+        //     class: t.classText,
+        //     style: t.styleText,
+        //   };
+        // });
 
-        setDesignTexts(
-          clientTexts.map((t) => ({
-            class: t.class,
-            style: t.style,
-          })),
-        );
+        // setDesignTexts(
+        //   clientTexts.map((t) => ({
+        //     tag: t.tag,
+        //     class: t.class,
+        //     style: t.style,
+        //   })),
+        // );
 
         // 2) генерим HtmlNode[] и кидаем в updateHtmlJson
-        const nodes: HtmlNode[] = clientTexts.map((t) =>
-          generateTextNode(t.class, t.style),
-        );
-        const result = ensureNodeKeys(nodes);
-
-        console.log("<== ✨ ✨ ✨=result===>", result);
-        updateHtmlJson(result);
+        // const nodes: HtmlNode[] = clientTexts.map((t) =>
+        //   generateTextNode(t.tag, t.class, t.style),
+        // );
+        // const result = ensureNodeKeys(nodes);
+        // updateHtmlJson(result);
       },
       onError: (error) => {
         console.error(error);

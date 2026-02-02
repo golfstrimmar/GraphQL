@@ -1,12 +1,4 @@
-type HtmlNode = {
-  tag: string;
-  text: string;
-  class: string;
-  style: string;
-  attributes?: Record<string, string>;
-  _key?: string;
-  children: HtmlNode[] | string;
-};
+import type { HtmlNode } from "@/types/HtmlNode";
 function addNodeToTargetByKey(
   tree: HtmlNode[],
   targetKey: string,

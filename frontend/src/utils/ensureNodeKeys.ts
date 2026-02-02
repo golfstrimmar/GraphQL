@@ -1,7 +1,4 @@
-type HtmlNode = {
-  _key?: string;
-  children?: HtmlNode[];
-};
+import type { HtmlNode } from "@/types/HtmlNode";
 
 export function ensureNodeKeys(
   tree: HtmlNode | HtmlNode[],

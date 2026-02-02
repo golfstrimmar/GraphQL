@@ -129,6 +129,7 @@ export const GET_DESIGN_SYSTEMS_BY_USER = gql`
       id
       name
       designTexts {
+        tagText
         classText
         styleText
       }
@@ -143,6 +144,7 @@ export const GET_DESIGN_SYSTEM = gql`
       id
       name
       designTexts {
+        tagText
         classText
         styleText
       }
