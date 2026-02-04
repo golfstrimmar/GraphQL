@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import DesignColors from "./DesignColors";
 import Spinner from "@/components/icons/Spinner";
 import { useStateContext } from "@/providers/StateProvider";
 import { useLazyQuery } from "@apollo/client";
@@ -8,15 +7,9 @@ import { GET_DESIGN_SYSTEM } from "@/apollo/queries";
 import RemoveDesignSystem from "./RemoveDesignSystem";
 import Loading from "@/components/ui/Loading/Loading";
 import UpdateDesignSystem from "./UpdateDesignSystem";
-import DesignFonts from "./DesignFonts";
 import dynamic from "next/dynamic";
 import ClearIcon from "@/components/icons/ClearIcon";
-import DesignTypography from "./DesignTypography";
-import DesignFontSizes from "./DesignFontSizes";
-import { generateHeaderNodesFromDS } from "./generateHeaderNodesFromDS";
-import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
 import DesigntTextNodes from "./DesigntTextNodes";
-import inlineStyleStringToObject from "@/app/design/inlineStyleStringToObject";
 import "@/app/design/design.scss";
 import type { HtmlNode } from "@/types/HtmlNode";
 import type { DesignSystem } from "@/types/DesignSystem";
@@ -31,8 +24,7 @@ export default function ListDesignSystems({
 }: {
   designSystems: DesignSystem[];
 }) {
-  const { setModalMessage, designTexts, setDesignTexts, updateHtmlJson } =
-    useStateContext();
+  const { setModalMessage, updateHtmlJson, setDesignTexts } = useStateContext();
   const [modalCreateOpen, setModalCreateOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string>("");
   // --------------
@@ -110,7 +102,7 @@ export default function ListDesignSystems({
         modalCreateOpen={modalCreateOpen}
         setModalCreateOpen={setModalCreateOpen}
       />
-      <div className="flex flex-col gap-2  w-full mt-[30px] bg-navy rounded-2xl shadow-xl p-2   border border-slate-200 ">
+      <div className="flex flex-col gap-2  w-full  bg-navy rounded-2xl shadow-xl p-2   border border-slate-200 ">
         {designSystems.length === 0 && (
           <div className="flex flex-col items-center justify-center">
             <p className="text-[var(--teal)]">No design systems found</p>
@@ -141,14 +133,6 @@ export default function ListDesignSystems({
           ))}
       </div>
       <div className="flex flex-col gap-2 mb-2 w-full mt-[30px] bg-navy rounded-2xl shadow-xl p-2   border border-slate-200 ">
-        <button
-          className="btn btn-empty w-6 h-6 p-1 "
-          onClick={() => {
-            resetAll();
-          }}
-        >
-          <ClearIcon width={16} height={16} />
-        </button>
         {/*<h6 className="text-sm text-gray-400 mt-6 mb-1">
           <span className="bg-[var(--teal)] w-2 h-2 rounded-full"></span> Colors
         </h6>*/}
@@ -173,11 +157,11 @@ export default function ListDesignSystems({
           Typography
         </h6>*/}
         {/*<DesignTypography colors={colors} fonts={fonts} fontSizes={fontSizes} />*/}
-        <h6 className="text-sm text-gray-400 mt-6 mb-1">
+        <h6 className="text-sm text-gray-400  mb-1">
           <span className="bg-[var(--teal)] w-2 h-2 rounded-full"></span> Text
           Nodes
         </h6>
-        <DesigntTextNodes />
+        <DesigntTextNodes resetAll={resetAll} />
       </div>
     </div>
   );

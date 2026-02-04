@@ -20,7 +20,7 @@ export default function ModalColor({
   handleChangeCss,
 }) {
   const {} = useStateContext();
-
+  // --------------------
   const updateColorInCss = (cssString: string, newColor: string): string => {
     if (!cssString || !cssString.trim()) {
       return `color:${newColor};`;
@@ -36,7 +36,7 @@ export default function ModalColor({
     const withSemicolon = trimmed.endsWith(";") ? trimmed : trimmed + ";";
     return `${withSemicolon} color:${newColor};`;
   };
-
+  // --------------------
   const handlePickColorFromModal = (value: string) => {
     if (currentTextIndex === null) return;
 
@@ -48,7 +48,7 @@ export default function ModalColor({
     setOpenColorModal(false);
     setCurrentTextIndex(null);
   };
-
+  // --------------------
   return (
     <AnimatePresence>
       {openColorModal && (

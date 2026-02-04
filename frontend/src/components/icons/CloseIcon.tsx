@@ -6,13 +6,7 @@ const CloseIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     viewBox="0 0 25 25"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <g
-      id="Page-1"
-      stroke="none"
-      stroke-width="1"
-      fill="none"
-      fill-rule="evenodd"
-    >
+    <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
       <g
         id="Icon-Set"
         transform="translate(-467.000000, -1039.000000)"

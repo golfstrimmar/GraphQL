@@ -15,6 +15,10 @@ const ModalFont = dynamic(() => import("./ModalFont"), {
   ssr: false,
   loading: () => <Loading />,
 });
+const ModalTag = dynamic(() => import("./ModalTag"), {
+  ssr: false,
+  loading: () => <Loading />,
+});
 
 type Text = {
   tagName: string;
@@ -37,19 +41,21 @@ const DEFAULTS = [
 ];
 
 // --- 🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
-export default function DesigntTextNodes() {
-  const { designTexts, setDesignTexts } = useStateContext();
+export default function DesigntTextNodes({ resetAll }) {
+  const { designTexts, setDesignTexts, updateHtmlJson } = useStateContext();
 
   //--- стили узлов здесь отдельно
   const [codeCssList, setCodeCssList] = useState<string[]>(DEFAULTS);
   //---  сами узлы
   const [texts, setTexts] = useState<(Text | null)[]>(Array(10).fill(null));
+
+  const [openTagModal, setOpenTagModal] = useState<boolean>(false);
   // --- модалка для выбора цвета текста
-  const [openColorModal, setOpenColorModal] = useState(false);
+  const [openColorModal, setOpenColorModal] = useState<boolean>(false);
   const [currentTextIndex, setCurrentTextIndex] = useState<number | null>(null);
 
   // --- модалка для выбора шрифта текста
-  const [openFontModal, setOpenFontModal] = useState(false);
+  const [openFontModal, setOpenFontModal] = useState<boolean>(false);
 
   // ---
   // useEffect(() => {
@@ -77,6 +83,7 @@ export default function DesigntTextNodes() {
       });
       return copy;
     });
+    setCurrentTextIndex(idx);
   };
   // -----редактирование стилей текстовой ноды
   const handleChangeCss = (idx: number, value: string) => {
@@ -86,8 +93,8 @@ export default function DesigntTextNodes() {
       return copy;
     });
     const newText = {
-      tagName: `texts[idx].tag`,
-      className: `texts[idx].class`,
+      tagName: texts[idx].tag,
+      className: texts[idx].class,
       style: value,
     };
     setTexts((prev) => {
@@ -100,46 +107,47 @@ export default function DesigntTextNodes() {
       });
       return copy;
     });
-    // setTexts((prev) => {
-    //   const existing = prev[index];
-    //   if (!existing) return prev;
-
-    // const className = `text${index + 1}`;
-    // const updated = buildText(className, value);
-
-    // const copy = [...prev];
-    // copy[index] = updated;
-
-    // setDesignTexts(
-    //   copy
-    //     .filter((item): item is Text => item !== null)
-    //     .map((item) => ({
-    //       tag: item.tagName,
-    //       className: item.className,
-    //       style: item.style,
-    //     })),
-    // );
-    // return copy;
-    //   return existing;
-    // });
   };
   // -----очищение строки стилей и удаление текста
-  const handleClear = (index: number) => {
+  const handleClear = (idx: number) => {
     setCodeCssList((prev) => {
       const copy = [...prev];
-      copy[index] = "";
+      copy[idx] = DEFAULTS[idx];
       return copy;
     });
     setTexts((prev) => {
-      const copy = [...prev];
-      copy[index] = null;
+      let copy = [...prev];
+      copy = copy.map((item, i) => {
+        if (i === idx) {
+          return null;
+        }
+        return item;
+      });
       return copy;
     });
   };
   //---------
 
+  // --------------
   return (
     <div className="space-y-2 relative">
+      <button
+        className="btn btn-empty w-6 h-6 p-1 "
+        onClick={() => {
+          resetAll();
+          setTexts(Array(10).fill(null));
+        }}
+      >
+        <ClearIcon width={16} height={16} />
+      </button>
+      {/* Модалка с тегами */}
+      <ModalTag
+        openTagModal={openTagModal}
+        setOpenTagModal={setOpenTagModal}
+        setCurrentTextIndex={setCurrentTextIndex}
+        currentTextIndex={currentTextIndex}
+        setTexts={setTexts}
+      />
       {/* Модалка с палитрой для текстов */}
       <ModalColor
         setOpenColorModal={setOpenColorModal}
@@ -172,67 +180,68 @@ export default function DesigntTextNodes() {
             key={index}
             className="mt-2  p-1 border border-[var(--teal)] rounded"
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               {/*изменение  текста в массиве текстов*/}
               <button
                 type="button"
                 onClick={() => handleTextClick(index)}
-                className="btn btn-empty px-2 h-8 min-w-[max-content] w-[max-content]"
+                className="btn btn-empty px-0.5 min-h-[22px]   min-w-[max-content] w-[max-content] text-white  text-sm"
                 style={{ width: "min-content" }}
               >
                 {className ? className : <CreateIcon width={16} height={16} />}
               </button>
-              <input
-                className="text-gray-500 min-w-[50px] border-slate-300 border-solid border-2 rounded-md"
-                value={tagName}
-                onChange={(e) => {
-                  setTexts((prevTexts) => {
-                    const updatedTexts = [...prevTexts]; // тип: (Text | null)[]
-                    const current = updatedTexts[index];
-                    if (!current) return prevTexts; // если нода ещё не создана — ничего не делаем
-                    updatedTexts[index] = {
-                      ...current,
-                      tagName: e.target.value,
-                    };
-                    return updatedTexts;
-                  });
-                }}
-              />
-
-              {/* изменение цвета для этого текста */}
+              {/* изменение тэга  */}
               <button
                 type="button"
-                className="btn btn-empty px-2 max-h-8"
+                className={`${texts[index] === null ? "opacity-20" : "opacity-100 "}
+                 ${texts[index]?.tagName ? "text-white" : ""} btn btn-empty px-0.5  min-w-[max-content] w-[max-content] text-sm`}
+                onClick={() => {
+                  setCurrentTextIndex(index);
+                  setOpenTagModal(true);
+                }}
+                disabled={texts[index] === null}
+              >
+                {texts[index]?.tagName ? texts[index].tagName : "tag"}
+              </button>
+              <hr className="bg-amber-50 w-[1px] h-[22px] mx-2" />
+              {/* изменение цвета  */}
+              <button
+                type="button"
+                className={`${texts[index] === null ? "opacity-20" : "opacity-100"} btn btn-empty px-0.5  text-sm  min-w-[max-content] w-[max-content]`}
                 onClick={() => {
                   setCurrentTextIndex(index);
                   setOpenColorModal(true);
                 }}
+                disabled={texts[index] === null}
               >
                 color
               </button>
-              {/* изменение шрифта для этого текста */}
+              {/* изменение шрифта */}
               <button
                 type="button"
-                className="btn btn-empty px-2 max-h-8"
+                className={`${texts[index] === null ? "opacity-20" : "opacity-100"} btn  text-sm btn-empty px-2 max-h-8`}
                 onClick={() => {
                   setCurrentTextIndex(index);
                   setOpenFontModal(true);
                 }}
+                disabled={texts[index] === null}
               >
                 font
               </button>
               {/*определение стилей текста вручную*/}
               <textarea
-                className="w-full text-[12px] bg-slate-900 text-slate-200 rounded px-2 py-1 overflow-x-auto resize-none"
+                className={`${texts[index] === null ? "opacity-20" : "opacity-100"} w-full text-[12px] bg-slate-900 text-slate-200 rounded px-2 py-1 overflow-x-auto resize-none`}
                 rows={1}
                 value={css}
                 onChange={(e) => handleChangeCss(index, e.target.value)}
+                disabled={texts[index] === null}
               />
 
               {/*очищение строки стилей и удаление текста*/}
               <button
-                className="btn btn-empty w-6 h-6 p-1"
+                className={`${texts[index] === null ? "opacity-20" : "opacity-100"} btn btn-empty w-6 h-6 p-1`}
                 onClick={() => handleClear(index)}
+                disabled={texts[index] === null}
               >
                 <ClearIcon width={16} height={16} />
               </button>
