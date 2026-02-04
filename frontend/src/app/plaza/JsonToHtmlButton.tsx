@@ -29,7 +29,6 @@ export default function JsonToHtmlButton() {
         setModalMessage(data.error || "Unknown error");
         return;
       }
-
       setHTML(data.html);
       setSCSS(data.scss); // уже очищенный scss из роута
     } catch (e) {

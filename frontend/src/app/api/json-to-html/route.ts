@@ -346,9 +346,13 @@ function removeDuplicateLiBlocks(str: string): string {
 
 function postFixScss(scss: string) {
   return scss
-    .replace(/(&\.)?([a-zA-Z0-9_-]+)\s*\{\s*@extend\s+\.\\2\s*;\s*}/g, "")
-    .replace(/&(\.[a-zA-Z0-9_-]+)/g, "$1")
-    .replace(/\.[a-zA-Z0-9_-]+\s*;/g, "");
+    .replace(
+      /(&\\.)?([a-zA-Z0-9_-]+)\\s*\\{\\s*@extend\\s+\\.\\\\2\\s*;\\s*}/g,
+      "",
+    )
+    .replace(/&(\\.[a-zA-Z0-9_-]+)/g, "$1")
+    .replace(/^\\s*\\.[a-zA-Z0-9_-]+\\s*;$/gm, "")
+    .trim();
 }
 
 // 🔹 вызов Groq для чистки SCSS
@@ -423,9 +427,9 @@ export async function POST(request: Request) {
     const rawScss = removeDuplicateLiBlocks(scssBlocksToString(scssBlocks));
 
     let finalScss = rawScss;
-
     if (GROQ_API_KEY && rawScss && rawScss.trim()) {
       const cleanedByGroq = await callGroq(rawScss);
+      console.log("<===cleanedByGroq===>", cleanedByGroq);
       finalScss = postFixScss(cleanedByGroq || rawScss);
     } else {
       finalScss = postFixScss(rawScss);

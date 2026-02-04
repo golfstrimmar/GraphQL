@@ -84,7 +84,7 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
   const itemStyle =
     "flex flex-col items-start justify-center p-2 m-1 border border-gray-300 rounded bg-gray-100 text-sm";
   const itemClass =
-    "absolute top-[-30px] !font-bold  inline-flex items-center gap-2 z-30 py-1 min-h-[26px] text-white w-[max-content]";
+    "absolute top-[-25px] !font-bold  inline-flex items-center gap-2 z-30 py-1 min-h-[26px] text-white w-[max-content]";
   return (
     <AnimatePresence mode="wait">
       {activeKey && (
@@ -152,7 +152,7 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
               <ProjectsIcon width={16} height={16} />
             </button>
           </div>
-          <div className="grid grid-cols-[repeat(2_,max-content)_1fr_1fr] relative rounded border-2 border-[var(--teal)] p-1  text-[#000] h-full">
+          <div className="grid grid-cols-[repeat(2_,max-content)_1fr_1fr] relative rounded border-2 border-[var(--teal)] p-1 pt-6  text-[#000] h-full">
             {/*===============Tag=================*/}
             <TagComponent
               node={NodeToSend}

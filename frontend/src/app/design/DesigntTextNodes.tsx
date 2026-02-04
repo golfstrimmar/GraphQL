@@ -20,11 +20,6 @@ const ModalTag = dynamic(() => import("./ModalTag"), {
   loading: () => <Loading />,
 });
 
-type Text = {
-  tagName: string;
-  className: string;
-  style: string;
-};
 const CONTENT = "The quick brown fox jumps over the lazy dog.";
 
 const DEFAULTS = [
@@ -41,13 +36,12 @@ const DEFAULTS = [
 ];
 
 // --- 🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
-export default function DesigntTextNodes({ resetAll }) {
-  const { designTexts, setDesignTexts, updateHtmlJson } = useStateContext();
+export default function DesigntTextNodes({ resetAll, texts, setTexts }) {
+  const { designTexts, setDesignTexts } = useStateContext();
 
   //--- стили узлов здесь отдельно
   const [codeCssList, setCodeCssList] = useState<string[]>(DEFAULTS);
   //---  сами узлы
-  const [texts, setTexts] = useState<(Text | null)[]>(Array(10).fill(null));
 
   const [openTagModal, setOpenTagModal] = useState<boolean>(false);
   // --- модалка для выбора цвета текста
@@ -93,8 +87,8 @@ export default function DesigntTextNodes({ resetAll }) {
       return copy;
     });
     const newText = {
-      tagName: texts[idx].tag,
-      className: texts[idx].class,
+      tagName: texts[idx].tagName || "",
+      className: texts[idx].className || "",
       style: value,
     };
     setTexts((prev) => {
@@ -194,14 +188,14 @@ export default function DesigntTextNodes({ resetAll }) {
               <button
                 type="button"
                 className={`${texts[index] === null ? "opacity-20" : "opacity-100 "}
-                 ${texts[index]?.tagName ? "text-white" : ""} btn btn-empty px-0.5  min-w-[max-content] w-[max-content] text-sm`}
+                 ${tagName ? "text-white" : ""} btn btn-empty px-0.5  min-w-[max-content] w-[max-content] text-sm`}
                 onClick={() => {
                   setCurrentTextIndex(index);
                   setOpenTagModal(true);
                 }}
                 disabled={texts[index] === null}
               >
-                {texts[index]?.tagName ? texts[index].tagName : "tag"}
+                {tagName ? texts[index].tagName : "tag"}
               </button>
               <hr className="bg-amber-50 w-[1px] h-[22px] mx-2" />
               {/* изменение цвета  */}

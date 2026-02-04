@@ -8,7 +8,7 @@ import RemoveDesignSystem from "./RemoveDesignSystem";
 import Loading from "@/components/ui/Loading/Loading";
 import UpdateDesignSystem from "./UpdateDesignSystem";
 import dynamic from "next/dynamic";
-import ClearIcon from "@/components/icons/ClearIcon";
+import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
 import DesigntTextNodes from "./DesigntTextNodes";
 import "@/app/design/design.scss";
 import type { HtmlNode } from "@/types/HtmlNode";
@@ -17,7 +17,12 @@ const ModalCreateDesignSystem = dynamic(
   () => import("./ModalCreateDesignSystem"),
   { ssr: false, loading: () => <Loading /> },
 );
-
+const CONTENT = "The quick brown fox jumps over the lazy dog.";
+type Text = {
+  tagName: string;
+  className: string;
+  style: string;
+};
 // ====🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
 export default function ListDesignSystems({
   designSystems,
@@ -25,8 +30,10 @@ export default function ListDesignSystems({
   designSystems: DesignSystem[];
 }) {
   const { setModalMessage, updateHtmlJson, setDesignTexts } = useStateContext();
-  const [modalCreateOpen, setModalCreateOpen] = useState(false);
+  const [modalCreateOpen, setModalCreateOpen] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<string>("");
+  const [texts, setTexts] = useState<(Text | null)[]>(Array(10).fill(null));
+  const [isTransformed, setIsTransformed] = useState<boolean>(false);
   // --------------
   const resetAll = () => {
     updateHtmlJson([]);
@@ -90,6 +97,26 @@ export default function ListDesignSystems({
   );
 
   // --------------------
+  const validTexts: Text[] = texts?.filter((t): t is Text => t !== null) ?? [];
+  const transformToHtmlJson = () => {
+    if (!validTexts.length) return;
+
+    // ✅ Map только по непустым элементам
+    const nodes: HtmlNode[] = validTexts.map((t) =>
+      generateTextNode(t.tagName || "p", t.className, t.style),
+    );
+
+    const result = ensureNodeKeys(nodes);
+    updateHtmlJson((prev) => {
+      return [...prev, ...result];
+    });
+
+    // ✅ Добавляем обработку состояния isTransformed
+    setIsTransformed(true);
+    setTimeout(() => setIsTransformed(false), 500);
+  };
+
+  // --------------------
   return (
     <div>
       <button
@@ -102,7 +129,7 @@ export default function ListDesignSystems({
         modalCreateOpen={modalCreateOpen}
         setModalCreateOpen={setModalCreateOpen}
       />
-      <div className="flex flex-col gap-2  w-full  bg-navy rounded-2xl shadow-xl p-2   border border-slate-200 ">
+      <div className="flex flex-col gap-2  w-full  bg-navy rounded-2xl shadow-xl p-2   border border-slate-200 mb-4">
         {designSystems.length === 0 && (
           <div className="flex flex-col items-center justify-center">
             <p className="text-[var(--teal)]">No design systems found</p>
@@ -132,7 +159,26 @@ export default function ListDesignSystems({
             </div>
           ))}
       </div>
-      <div className="flex flex-col gap-2 mb-2 w-full mt-[30px] bg-navy rounded-2xl shadow-xl p-2   border border-slate-200 ">
+      {validTexts.length > 0 && (
+        <button
+          className="btn btn-teal  mt-[30px] mb-1 text-[14px]"
+          onClick={transformToHtmlJson}
+        >
+          {isTransformed ? <Spinner /> : <span>Transform to htmlJson</span>}
+        </button>
+      )}
+
+      <div className="flex flex-col gap-2 mb-2 w-full bg-navy rounded-2xl shadow-xl p-2   border border-slate-200 ">
+        <h6 className="text-sm text-gray-400  mb-1">
+          <span className="bg-[var(--teal)] w-2 h-2 rounded-full"></span> Text
+          Nodes
+        </h6>
+        <DesigntTextNodes
+          resetAll={resetAll}
+          texts={texts}
+          setTexts={setTexts}
+        />
+
         {/*<h6 className="text-sm text-gray-400 mt-6 mb-1">
           <span className="bg-[var(--teal)] w-2 h-2 rounded-full"></span> Colors
         </h6>*/}
@@ -157,11 +203,6 @@ export default function ListDesignSystems({
           Typography
         </h6>*/}
         {/*<DesignTypography colors={colors} fonts={fonts} fontSizes={fontSizes} />*/}
-        <h6 className="text-sm text-gray-400  mb-1">
-          <span className="bg-[var(--teal)] w-2 h-2 rounded-full"></span> Text
-          Nodes
-        </h6>
-        <DesigntTextNodes resetAll={resetAll} />
       </div>
     </div>
   );

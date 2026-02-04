@@ -92,11 +92,13 @@ export default function PreviewComponent() {
       setCodeCss("");
       return;
     }
+    console.log("<===SCSS===>", SCSS);
     setCodeCss(SCSS);
   }, [SCSS]);
 
   useEffect(() => {
     if (!codeCss) return;
+    console.log("<===codeCss===>", codeCss);
     setTimeout(() => {
       const editor = scssEditorRef.current;
       if (!editor) return;
@@ -237,8 +239,6 @@ export default function PreviewComponent() {
               hover: { enabled: false },
               parameterHints: { enabled: false },
               autoIndent: "full",
-              formatOnPaste: true,
-              formatOnType: true,
             }}
             onMount={handleScssEditorMount}
             beforeMount={() => {

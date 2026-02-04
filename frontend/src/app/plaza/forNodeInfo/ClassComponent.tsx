@@ -1,6 +1,6 @@
 "use client";
 import React, { useRef, useEffect, useState } from "react";
-
+import Spinner from "@/components/icons/Spinner";
 type NodeToSend = {
   _key: string;
   tag: string;
@@ -24,7 +24,7 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
   updateNodeByKey,
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-
+  const [isTransformed, setIsTransformed] = useState<boolean>(false);
   // ================================
   const adjustHeight = (el: HTMLTextAreaElement) => {
     el.style.height = "auto";
@@ -142,15 +142,19 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
 
   // ================================
   return (
-    <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-6  flex flex-col relative   ">
+    <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]   flex flex-col relative   ">
       <p className={itemClass}>
         <span>Class:</span>
         {node?.tag === "section" && (
           <button
-            className="btn-teal text-[12px] "
-            onClick={() => handleParentClass()}
+            className="btn-teal text-[12px] !max-h-[20px]"
+            onClick={() => {
+              handleParentClass();
+              setIsTransformed(true);
+              setTimeout(() => setIsTransformed(false), 500);
+            }}
           >
-            Add parent class
+            {isTransformed ? <Spinner /> : <span>Add parent class</span>}
           </button>
         )}
       </p>

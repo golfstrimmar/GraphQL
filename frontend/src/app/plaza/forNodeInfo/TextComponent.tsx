@@ -56,7 +56,7 @@ const TextComponent: React.FC<TextComponentProps> = ({
     return () => clearTimeout(id);
   };
   return (
-    <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-6  flex flex-col relative ">
+    <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  flex flex-col relative ">
       {modalTextsOpen && (
         <ModalTexts
           node={node}
@@ -84,7 +84,7 @@ const TextComponent: React.FC<TextComponentProps> = ({
           </button>
         )}
         <button
-          className="btn-teal"
+          className="btn-teal !max-h-[20px] text-sm"
           onClick={() => {
             setTextValue("Lorem");
             const id = setTimeout(() => {
@@ -96,7 +96,7 @@ const TextComponent: React.FC<TextComponentProps> = ({
           Lorem 1
         </button>
         <button
-          className="btn-teal"
+          className="btn-teal !max-h-[20px] text-sm"
           onClick={() => {
             setTextValue("Lorem ipsum dolor sit amet.");
             const id = setTimeout(() => {
@@ -110,7 +110,7 @@ const TextComponent: React.FC<TextComponentProps> = ({
           Lorem 5
         </button>
         <button
-          className="btn-teal"
+          className="btn-teal !max-h-[20px] text-sm"
           onClick={() => {
             setTextValue(
               "Lorem ipsum dolor sit amet consectetur adipisicing elit. Alias reiciendis consequatur iure neque praesentium iste.",
@@ -126,7 +126,7 @@ const TextComponent: React.FC<TextComponentProps> = ({
           Lorem 15
         </button>
         <button
-          className="btn-teal"
+          className="btn-teal !max-h-[20px] text-sm"
           onClick={() => {
             setTextValue(
               "Lorem ipsum dolor sit amet consectetur adipisicing elit. Tenetur consequuntur adipisci nulla velit mollitia cum quis, cumque reprehenderit natus illum doloribus consectetur ipsam iste quisquam!",
@@ -142,7 +142,7 @@ const TextComponent: React.FC<TextComponentProps> = ({
           Lorem 25
         </button>
         <button
-          className="btn-teal"
+          className="btn-teal !max-h-[20px] text-sm"
           onClick={() => {
             setTextValue("");
             const id = setTimeout(() => {
