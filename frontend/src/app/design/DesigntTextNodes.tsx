@@ -6,7 +6,9 @@ import ClearIcon from "@/components/icons/ClearIcon";
 import dynamic from "next/dynamic";
 import Loading from "@/components/ui/Loading/Loading";
 import CreateIcon from "@/components/icons/CreateIcon";
+import CloseIcon from "@/components/icons/CloseIcon";
 import { designText } from "@/types/DesignSystem";
+import { divide } from "lodash";
 const ModalColor = dynamic(() => import("./ModalColor"), {
   ssr: false,
   loading: () => <Loading />,
@@ -37,8 +39,6 @@ const DEFAULTS = [
 
 // --- 🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
 export default function DesigntTextNodes({ resetAll, texts, setTexts }) {
-  const { designTexts, setDesignTexts } = useStateContext();
-
   //--- стили узлов здесь отдельно
   const [codeCssList, setCodeCssList] = useState<string[]>(DEFAULTS);
   //---  сами узлы
@@ -51,11 +51,6 @@ export default function DesigntTextNodes({ resetAll, texts, setTexts }) {
   // --- модалка для выбора шрифта текста
   const [openFontModal, setOpenFontModal] = useState<boolean>(false);
 
-  // ---
-  // useEffect(() => {
-  //   if (!designTexts) return;
-  //   console.log("<===designTexts===>", designTexts);
-  // }, [designTexts]);
   useEffect(() => {
     if (!texts) return;
     console.log("<=🧻🧻🧻==texts===>", texts);
@@ -65,7 +60,7 @@ export default function DesigntTextNodes({ resetAll, texts, setTexts }) {
     const newText = {
       tagName: texts[idx]?.tagName || "",
       className: `text${idx + 1}`,
-      style: codeCssList[idx],
+      style: DEFAULTS[idx],
     };
     setTexts((prev) => {
       let copy = [...prev];
@@ -81,34 +76,24 @@ export default function DesigntTextNodes({ resetAll, texts, setTexts }) {
   };
   // -----редактирование стилей текстовой ноды
   const handleChangeCss = (idx: number, value: string) => {
-    setCodeCssList((prev) => {
-      const copy = [...prev];
-      copy[idx] = value;
-      return copy;
-    });
     const newText = {
       tagName: texts[idx].tagName || "",
       className: texts[idx].className || "",
       style: value,
     };
     setTexts((prev) => {
-      let copy = [...prev];
-      copy = copy.map((item, i) => {
+      let updated = [...prev];
+      updated = updated.map((item, i) => {
         if (i === idx) {
           return newText;
         }
         return item;
       });
-      return copy;
+      return updated;
     });
   };
   // -----очищение строки стилей и удаление текста
   const handleClear = (idx: number) => {
-    setCodeCssList((prev) => {
-      const copy = [...prev];
-      copy[idx] = DEFAULTS[idx];
-      return copy;
-    });
     setTexts((prev) => {
       let copy = [...prev];
       copy = copy.map((item, i) => {
@@ -147,7 +132,7 @@ export default function DesigntTextNodes({ resetAll, texts, setTexts }) {
         setOpenColorModal={setOpenColorModal}
         setCurrentTextIndex={setCurrentTextIndex}
         currentTextIndex={currentTextIndex}
-        codeCssList={codeCssList}
+        texts={texts}
         openColorModal={openColorModal}
         handleChangeCss={handleChangeCss}
       />
@@ -157,16 +142,15 @@ export default function DesigntTextNodes({ resetAll, texts, setTexts }) {
         setOpenFontModal={setOpenFontModal}
         setCurrentTextIndex={setCurrentTextIndex}
         currentTextIndex={currentTextIndex}
-        codeCssList={codeCssList}
+        texts={texts}
         handleChangeCss={handleChangeCss}
       />
 
       {/*-----------------*/}
-      {Array.from({ length: 10 }).map((_, index) => {
-        const text = texts[index];
+      {texts.map((text, index) => {
         const tagName = text?.tagName || "";
         const className = text?.className || "";
-        const css = codeCssList[index];
+        const css = text?.style || DEFAULTS[index];
         const styleParts = [text?.style].filter(Boolean).join(" ");
         const reactStyle = inlineStyleStringToObject(styleParts);
         return (
@@ -179,15 +163,25 @@ export default function DesigntTextNodes({ resetAll, texts, setTexts }) {
               <button
                 type="button"
                 onClick={() => handleTextClick(index)}
-                className="btn btn-empty px-0.5 min-h-[22px]   min-w-[max-content] w-[max-content] text-white  text-sm"
-                style={{ width: "min-content" }}
+                className="btn btn-teal  px-1.5 text-[12px]   text-white  "
+                style={{ width: "max-content" }}
+                disabled={className !== ""}
               >
-                {className ? className : <CreateIcon width={16} height={16} />}
+                {className ? (
+                  className
+                ) : (
+                  <div className="flex items-center gap-1">
+                    <span className="rotate-[45deg]">
+                      <CloseIcon width={8} height={8} />
+                    </span>{" "}
+                    class
+                  </div>
+                )}
               </button>
               {/* изменение тэга  */}
               <button
                 type="button"
-                className={`${texts[index] === null ? "opacity-20" : "opacity-100 "}
+                className={`${texts[index] === null ? "opacity-70" : "opacity-100 "}
                  ${tagName ? "text-white" : ""} btn btn-empty px-0.5  min-w-[max-content] w-[max-content] text-sm`}
                 onClick={() => {
                   setCurrentTextIndex(index);
@@ -201,7 +195,7 @@ export default function DesigntTextNodes({ resetAll, texts, setTexts }) {
               {/* изменение цвета  */}
               <button
                 type="button"
-                className={`${texts[index] === null ? "opacity-20" : "opacity-100"} btn btn-empty px-0.5  text-sm  min-w-[max-content] w-[max-content]`}
+                className={`${texts[index] === null ? "opacity-70" : "opacity-100"} btn btn-empty px-0.5  text-sm  min-w-[max-content] w-[max-content]`}
                 onClick={() => {
                   setCurrentTextIndex(index);
                   setOpenColorModal(true);
@@ -213,7 +207,7 @@ export default function DesigntTextNodes({ resetAll, texts, setTexts }) {
               {/* изменение шрифта */}
               <button
                 type="button"
-                className={`${texts[index] === null ? "opacity-20" : "opacity-100"} btn  text-sm btn-empty px-2 max-h-8`}
+                className={`${texts[index] === null ? "opacity-70" : "opacity-100"} btn  text-sm btn-empty px-2 max-h-8`}
                 onClick={() => {
                   setCurrentTextIndex(index);
                   setOpenFontModal(true);
@@ -224,7 +218,7 @@ export default function DesigntTextNodes({ resetAll, texts, setTexts }) {
               </button>
               {/*определение стилей текста вручную*/}
               <textarea
-                className={`${texts[index] === null ? "opacity-20" : "opacity-100"} w-full text-[12px] bg-slate-900 text-slate-200 rounded px-2 py-1 overflow-x-auto resize-none`}
+                className={`${texts[index] === null ? "opacity-40" : "opacity-100"} w-full text-[12px] bg-slate-900 text-slate-200 rounded px-2 py-1 overflow-x-auto resize-none`}
                 rows={1}
                 value={css}
                 onChange={(e) => handleChangeCss(index, e.target.value)}
@@ -233,7 +227,7 @@ export default function DesigntTextNodes({ resetAll, texts, setTexts }) {
 
               {/*очищение строки стилей и удаление текста*/}
               <button
-                className={`${texts[index] === null ? "opacity-20" : "opacity-100"} btn btn-empty w-6 h-6 p-1`}
+                className={`${texts[index] === null ? "opacity-40" : "opacity-100"} btn btn-empty w-6 h-6 p-1`}
                 onClick={() => handleClear(index)}
                 disabled={texts[index] === null}
               >
@@ -248,6 +242,23 @@ export default function DesigntTextNodes({ resetAll, texts, setTexts }) {
           </div>
         );
       })}
+      {/*-----------------*/}
+      <button
+        onClick={() => {
+          const newText = {
+            tagName: "p",
+            className: `text${texts.length + 1}`,
+            style:
+              "font-size:20px; color:#000000; font-weight:400; line-height:1; font-family:'Montserrat', sans-serif;",
+          };
+          setTexts([...texts, newText]);
+        }}
+        className="btn btn-teal"
+      >
+        <span className="rotate-[45deg]">
+          <CloseIcon width={8} height={8} />
+        </span>
+      </button>
     </div>
   );
 }

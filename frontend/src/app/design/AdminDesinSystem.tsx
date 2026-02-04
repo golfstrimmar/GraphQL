@@ -44,7 +44,6 @@ export default async function AdminDesignSystem() {
     });
 
     designSystems = data?.getDesignSystemsByUser ?? [];
-    console.log("<===designSystems===>", designSystems);
   } catch (err: any) {
     console.log("Failed to fetch DesignSystems:", err.message);
   }

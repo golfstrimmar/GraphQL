@@ -107,7 +107,6 @@ export function StateProvider({
   const [nodeToAdd, setNodeToAdd] = useState<nodeToAdd | null>(null);
   const [modalMessage, setModalMessage] = useState<string>("");
   const [open, setOpen] = useState<boolean>(false);
-  // const [colors, setColors] = useState<string[]>([]);
   const [texts, setTexts] = useState<TextNodeWithStyle[]>([]);
   const [undoStack, setUndoStack] = useState<HtmlNode[][]>([]);
   const [redoStack, setRedoStack] = useState<HtmlNode[][]>([]);
@@ -117,7 +116,6 @@ export function StateProvider({
   const [ScssMixVar, setScssMixVar] = useState<string>("");
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const [dragKey, setDragKey] = useState<string | null>(null);
-  const [designTexts, setDesignTexts] = useState<designText[]>([]);
 
   const { data: usersData, subscribeToMore: subscribeToUsers } = useQuery(
     GET_USERS,
@@ -269,8 +267,6 @@ export function StateProvider({
         setSCSS,
         preview,
         setPreview,
-        // colors,
-        // setColors,
         ScssMixVar,
         setScssMixVar,
         isModalOpen: open,
@@ -280,16 +276,6 @@ export function StateProvider({
         setActiveKey,
         dragKey,
         setDragKey,
-        // backgrounds,
-        // setBackgrounds,
-        // colors,
-        // setColors,
-        // fonts,
-        // setFonts,
-        // fontSizes,
-        // setFontSizes,
-        designTexts,
-        setDesignTexts,
         showModal: (msg, duration = 2000) => setModalMessage(msg),
       }}
     >

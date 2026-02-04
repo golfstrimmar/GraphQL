@@ -13,6 +13,8 @@ import DesigntTextNodes from "./DesigntTextNodes";
 import "@/app/design/design.scss";
 import type { HtmlNode } from "@/types/HtmlNode";
 import type { DesignSystem } from "@/types/DesignSystem";
+import { useRouter } from "next/navigation";
+
 const ModalCreateDesignSystem = dynamic(
   () => import("./ModalCreateDesignSystem"),
   { ssr: false, loading: () => <Loading /> },
@@ -29,6 +31,8 @@ export default function ListDesignSystems({
 }: {
   designSystems: DesignSystem[];
 }) {
+  const router = useRouter();
+
   const { setModalMessage, updateHtmlJson, setDesignTexts } = useStateContext();
   const [modalCreateOpen, setModalCreateOpen] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<string>("");
@@ -37,7 +41,7 @@ export default function ListDesignSystems({
   // --------------
   const resetAll = () => {
     updateHtmlJson([]);
-    setDesignTexts([]);
+    setTexts([]);
   };
   // --------------
   function generateTextNode(
@@ -63,31 +67,16 @@ export default function ListDesignSystems({
         const system = data?.getDesignSystem;
         if (!system) return;
 
-        // const dtxt = system.designTexts ?? [];
+        const dtxt = system.designTexts ?? [];
 
-        // // 1) для контекста designTexts (клиентский формат)
-        // const clientTexts: Text[] = dtxt.map((t, index) => {
-        //   return {
-        //     tag: t.tagText,
-        //     class: t.classText,
-        //     style: t.styleText,
-        //   };
-        // });
-
-        // setDesignTexts(
-        //   clientTexts.map((t) => ({
-        //     tag: t.tag,
-        //     class: t.class,
-        //     style: t.style,
-        //   })),
-        // );
-
-        // 2) генерим HtmlNode[] и кидаем в updateHtmlJson
-        // const nodes: HtmlNode[] = clientTexts.map((t) =>
-        //   generateTextNode(t.tag, t.class, t.style),
-        // );
-        // const result = ensureNodeKeys(nodes);
-        // updateHtmlJson(result);
+        const clientTexts: Text[] = dtxt.map((t, index) => {
+          return {
+            tagName: t.tagText,
+            className: t.classText,
+            style: t.styleText,
+          };
+        });
+        setTexts(clientTexts);
       },
       onError: (error) => {
         console.error(error);
@@ -113,7 +102,10 @@ export default function ListDesignSystems({
 
     // ✅ Добавляем обработку состояния isTransformed
     setIsTransformed(true);
-    setTimeout(() => setIsTransformed(false), 500);
+    setTimeout(() => {
+      setIsTransformed(false);
+      router.push("/plaza");
+    }, 500);
   };
 
   // --------------------
@@ -128,6 +120,7 @@ export default function ListDesignSystems({
       <ModalCreateDesignSystem
         modalCreateOpen={modalCreateOpen}
         setModalCreateOpen={setModalCreateOpen}
+        texts={texts}
       />
       <div className="flex flex-col gap-2  w-full  bg-navy rounded-2xl shadow-xl p-2   border border-slate-200 mb-4">
         {designSystems.length === 0 && (
@@ -153,7 +146,7 @@ export default function ListDesignSystems({
                 )}
               </button>
 
-              <UpdateDesignSystem id={system.id} />
+              <UpdateDesignSystem id={system.id} texts={texts} />
 
               <RemoveDesignSystem id={system.id} resetAll={resetAll} />
             </div>
@@ -178,31 +171,6 @@ export default function ListDesignSystems({
           texts={texts}
           setTexts={setTexts}
         />
-
-        {/*<h6 className="text-sm text-gray-400 mt-6 mb-1">
-          <span className="bg-[var(--teal)] w-2 h-2 rounded-full"></span> Colors
-        </h6>*/}
-        {/*<DesignColors
-          backgrounds={backgrounds}
-          // colors={colors}
-          setBackground={setBackground}
-          // setColor={setColor}
-        />*/}
-        {/*<h6 className="text-sm text-gray-400 mt-6 mb-1">
-          <span className="bg-[var(--teal)] w-2 h-2 rounded-full"></span> Fonts
-        </h6>*/}
-        {/*<DesignFonts slots={fonts} updateSlot={updateFontSlot} />*/}
-        {/*<h6 className="text-sm text-gray-400 mt-6 mb-1">
-          <span className="bg-[var(--teal)] w-2 h-2 rounded-full"></span> Font
-          Sizes
-        </h6>*/}
-        {/*<DesignFontSizes fontSizes={fontSizes} setFontSize={setFontSize} />*/}
-
-        {/*<h6 className="text-sm text-gray-400 mt-6 mb-1">
-          <span className="bg-[var(--teal)] w-2 h-2 rounded-full"></span>{" "}
-          Typography
-        </h6>*/}
-        {/*<DesignTypography colors={colors} fonts={fonts} fontSizes={fontSizes} />*/}
       </div>
     </div>
   );

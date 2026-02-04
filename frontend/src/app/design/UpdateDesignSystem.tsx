@@ -14,8 +14,8 @@ import Spinner from "@/components/icons/Spinner";
 import Update from "@/components/icons/Update";
 
 // --- 🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
-export default function UpdateDesignSystem({ id }) {
-  const { user, setModalMessage, designTexts } = useStateContext();
+export default function UpdateDesignSystem({ id, texts }) {
+  const { user, setModalMessage } = useStateContext();
   const router = useRouter();
   const [updateDesignSystem, { loading, error }] = useMutation(
     UPDATE_DESIGN_SYSTEM,
@@ -29,22 +29,31 @@ export default function UpdateDesignSystem({ id }) {
       },
     },
   );
-
+  // ---------------
+  // есть хотя бы один текст (не null)
+  const hasAtLeastOneText = texts?.some((item) => item !== null);
+  // ---------------
   return (
     <button
       className="btn btn-teal  !rounded-full w-6 h-6 !p-0.5 mr-1"
       onClick={() => {
-        if (!designTexts) return;
-        console.log("<=🧻🧻🧻==designTexts===>", designTexts);
+        if (!hasAtLeastOneText) {
+          setModalMessage("Please enter a name and select at least one text");
+          return;
+        }
         updateDesignSystem({
           variables: {
             id: id,
             ownerId: user?.id,
-            designTexts: designTexts.map((t) => ({
-              tagText: t.tag,
-              classText: t.class,
-              styleText: t.style,
-            })),
+            designTexts: texts
+              ?.filter((foo) => {
+                return foo !== null;
+              })
+              .map((t) => ({
+                tagText: t.tagName || "div",
+                classText: t.className || "",
+                styleText: t.style || "",
+              })),
           },
         });
       }}

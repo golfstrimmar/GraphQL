@@ -12,13 +12,9 @@ import { useRouter } from "next/navigation";
 export default function ModalCreateDesignSystem({
   modalCreateOpen,
   setModalCreateOpen,
-
-  // buildBackgrounds,
-  // buildColors,
-  // buildFonts,
-  // buildFontSizes,
+  texts,
 }) {
-  const { user, setModalMessage, designTexts } = useStateContext();
+  const { user, setModalMessage } = useStateContext();
   const router = useRouter();
   const [name, setName] = useState<string>("");
   //   // -----------------------
@@ -43,6 +39,9 @@ export default function ModalCreateDesignSystem({
   );
 
   // ---------------
+  // есть хотя бы один текст (не null)
+  const hasAtLeastOneText = texts.some((item) => item !== null);
+  // ---------------
   return (
     <AnimatePresence>
       {modalCreateOpen && (
@@ -66,8 +65,10 @@ export default function ModalCreateDesignSystem({
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                if (!name || !user) {
-                  setModalMessage("Please enter a name");
+                if (!name || !user || !hasAtLeastOneText) {
+                  setModalMessage(
+                    "Please enter a name and select at least one text",
+                  );
                   return;
                 }
                 createDesignSystem({
@@ -75,16 +76,15 @@ export default function ModalCreateDesignSystem({
                     ownerId: user?.id,
                     name: name,
 
-                    designTexts: designTexts.map((t) => ({
-                      tagText: t.tag,
-                      classText: t.class,
-                      styleText: t.style,
-                    })),
-                    // texts: buildTexts(),
-                    // backgrounds: buildBackgrounds(),
-                    // colors: buildColors(),
-                    // fonts: buildFonts(),
-                    // fontSizes: buildFontSizes(),
+                    designTexts: texts
+                      ?.filter((foo) => {
+                        return foo !== null;
+                      })
+                      .map((t) => ({
+                        tagText: t.tagName || "div",
+                        classText: t.className || "",
+                        styleText: t.style || "",
+                      })),
                   },
                 });
               }}

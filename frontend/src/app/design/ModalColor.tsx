@@ -16,22 +16,15 @@ export default function ModalColor({
   setOpenColorModal,
   setCurrentTextIndex,
   currentTextIndex,
-  codeCssList,
+  texts,
   handleChangeCss,
 }) {
-  const {} = useStateContext();
-  // --------------------
   const updateColorInCss = (cssString: string, newColor: string): string => {
-    if (!cssString || !cssString.trim()) {
-      return `color:${newColor};`;
-    }
-
+    if (!cssString) return "";
     const colorRegex = /color\s*:\s*[^;]+;?/i;
-
     if (colorRegex.test(cssString)) {
       return cssString.replace(colorRegex, `color:${newColor};`);
     }
-
     const trimmed = cssString.trim();
     const withSemicolon = trimmed.endsWith(";") ? trimmed : trimmed + ";";
     return `${withSemicolon} color:${newColor};`;
@@ -39,12 +32,12 @@ export default function ModalColor({
   // --------------------
   const handlePickColorFromModal = (value: string) => {
     if (currentTextIndex === null) return;
-
-    const currentCss = codeCssList[currentTextIndex];
+    console.log("<===currentTextIndex===>", currentTextIndex);
+    const currentCss = texts[currentTextIndex].style || "";
     const nextCss = updateColorInCss(currentCss, value);
 
     handleChangeCss(currentTextIndex, nextCss);
-
+    console.log("<===nextCss===>", nextCss);
     setOpenColorModal(false);
     setCurrentTextIndex(null);
   };

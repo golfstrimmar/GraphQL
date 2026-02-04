@@ -15,7 +15,7 @@ export default function ModalFont({
   setOpenFontModal,
   setCurrentTextIndex,
   currentTextIndex,
-  codeCssList,
+  texts,
   handleChangeCss,
 }) {
   const {} = useStateContext();
@@ -33,10 +33,7 @@ export default function ModalFont({
     { family: "Lobster", weights: [300, 400, 500, 600, 700, 800] },
   ];
   const updateFontInCss = (currentCss: string, family: string) => {
-    if (!currentCss || !currentCss.trim()) {
-      return `font-family:${family};`;
-    }
-
+    if (!currentCss) return "";
     const fontRegex = /font-family\s*:[^;]+;?/i;
 
     if (fontRegex.test(currentCss)) {
@@ -45,7 +42,6 @@ export default function ModalFont({
         `font-family: '${family}', sans-serif;`,
       );
     }
-
     const trimmed = currentCss.trim();
     const withSemicolon = trimmed.endsWith(";") ? trimmed : trimmed + ";";
     return `${withSemicolon} font-family:${family};`;
@@ -53,8 +49,10 @@ export default function ModalFont({
 
   const handleFontClick = (family: string) => {
     if (currentTextIndex === null) return;
-
-    const currentCss = codeCssList[currentTextIndex] || "";
+    console.log("<===currentTextIndex===>", currentTextIndex);
+    console.log("<===texts[currentTextIndex]===>", texts[currentTextIndex]);
+    const currentCss = texts[currentTextIndex].style || "";
+    console.log("<===currentCss===>", currentCss);
     const nextCss = updateFontInCss(currentCss, family);
 
     handleChangeCss(currentTextIndex, nextCss);
