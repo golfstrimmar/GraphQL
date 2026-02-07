@@ -15,7 +15,7 @@ interface ExtractImagesProps {
 }
 
 const ExtractImages: React.FC<ExtractImagesProps> = ({ project }) => {
-  const { setModalMessage } = useStateContext();
+  const { showModal } = useStateContext();
   const [images, setImages] = useState<any[]>([]);
   const [svgImages, setSvgImages] = useState<any[]>([]);
   const [tempId, setTempId] = useState<string>("");
@@ -35,7 +35,7 @@ const ExtractImages: React.FC<ExtractImagesProps> = ({ project }) => {
     { loading: uploadingSvgs, error: uploadSvgError },
   ] = useMutation(UPLOAD_FIGMA_SVGS_TO_CLOUDINARY);
   const [transformRasterToSvg, { loading: transformLoading }] = useMutation(
-    TRANSFORM_RASTER_TO_SVG
+    TRANSFORM_RASTER_TO_SVG,
   );
 
   const [removeFigmaImage] = useMutation(REMOVE_FIGMA_IMAGE);
@@ -63,7 +63,7 @@ const ExtractImages: React.FC<ExtractImagesProps> = ({ project }) => {
       setImages(data.uploadFigmaImagesToCloudinary);
     } catch (err) {
       console.error("❌ Error:", err);
-      setModalMessage(err.message);
+      showModal(err.message, "error");
     }
   };
   const downloadImage = async (url: string, fileName: string) => {
@@ -100,7 +100,7 @@ const ExtractImages: React.FC<ExtractImagesProps> = ({ project }) => {
       setTempId("");
     } catch (err) {
       console.error("❌ Error transforming raster to SVG:", err);
-      setModalMessage(`Error: ${err.message}`);
+      showModal(`Error: ${err.message}`, "error");
     }
   };
   const deleteImg = async (img) => {
@@ -113,10 +113,10 @@ const ExtractImages: React.FC<ExtractImagesProps> = ({ project }) => {
       });
       setImages(images.filter((i) => i.nodeId !== img.nodeId));
       setSvgImages(svgImages.filter((i) => i.nodeId !== img.nodeId));
-      setModalMessage(`Image ${img.nodeId} removed`);
+      showModal(`Image ${img.nodeId} removed`);
     } catch (err) {
       console.error("❌ Error:", err);
-      setModalMessage(err.message);
+      showModal(err.message, "error");
     }
   };
 
@@ -129,7 +129,7 @@ const ExtractImages: React.FC<ExtractImagesProps> = ({ project }) => {
       setSvgImages(data.uploadFigmaSvgsToCloudinary);
     } catch (err) {
       console.error("❌ SVG upload error:", err);
-      setModalMessage(err.message);
+      showModal(err.message, "error");
     }
   };
 

@@ -49,7 +49,7 @@ ColorVarItem.displayName = "ColorVarItem";
 
 // ------------------------
 const RenderColorVars: React.FC<RenderColorVarsProps> = ({ colors }) => {
-  const { setModalMessage } = useStateContext();
+  const { showModal } = useStateContext();
   // -------------------
   const colorsTo = useMemo(() => {
     if (colors.length > 0) {
@@ -61,29 +61,29 @@ const RenderColorVars: React.FC<RenderColorVarsProps> = ({ colors }) => {
   const onCopy = useCallback(
     (value: string) => {
       if (!navigator?.clipboard) {
-        setModalMessage?.("Clipboard not available");
+        showModal?.("Clipboard not available", "error");
         return;
       }
       navigator.clipboard
         .writeText(value)
-        .then(() => setModalMessage?.("Variable copied!"))
-        .catch(() => setModalMessage?.("Failed to copy variable"));
+        .then(() => showModal?.("Variable copied!", "success"))
+        .catch(() => showModal?.("Failed to copy variable", "error"));
     },
-    [setModalMessage],
+    [showModal],
   );
   // -------------------
   const copyAll = useCallback(() => {
     if (!colorsTo || colorsTo.length === 0) return;
     if (!navigator?.clipboard) {
-      setModalMessage?.("Clipboard not available");
+      showModal?.("Clipboard not available", "error");
       return;
     }
     const text = colorsTo.join("\n");
     navigator.clipboard
       .writeText(text)
-      .then(() => setModalMessage?.("All variables copied!"))
-      .catch(() => setModalMessage?.("Failed to copy variables"));
-  }, [colorsTo, setModalMessage]);
+      .then(() => showModal?.("All variables copied!", "success"))
+      .catch(() => showModal?.("Failed to copy variables", "error"));
+  }, [colorsTo, showModal]);
   // -------------------
   if (!colorsTo || colorsTo.length === 0) return null;
   // -------------------

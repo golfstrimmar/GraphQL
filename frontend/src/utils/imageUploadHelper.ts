@@ -24,7 +24,7 @@ export const findAndUploadImages = async (
   project: ProjectNode,
   imageFiles: ImageFile[],
   uploadImageMutation: any,
-  setModalMessage: (message: string) => void
+  setModalMessage: (message: string) => void,
 ): Promise<ProjectNode> => {
   // console.log("<====project====>", project);
   console.log("<====imageFiles====>", imageFiles);
@@ -50,7 +50,7 @@ export const findAndUploadImages = async (
 
     const uploadPromises = Array.from(blobUrls).map(async (blobUrl) => {
       const imageFile = (imageFiles || []).find(
-        (f) => f.previewUrl === blobUrl
+        (f) => f.previewUrl === blobUrl,
       );
       if (imageFile) {
         try {

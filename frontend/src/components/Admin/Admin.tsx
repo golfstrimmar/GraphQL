@@ -14,7 +14,7 @@ const Admin = ({
   setClassToAdd,
   isMarker,
 }) => {
-  const { setHtmlJson, setModalMessage, setTransformTo } = useStateContext();
+  const { setHtmlJson, showModal, setTransformTo } = useStateContext();
   const [openPanel, setOpenPanel] = useState<boolean>(false);
   const [openPanelClasses, setOpenPanelClasses] = useState<boolean>(false);
   const [openPanels, setOpenPanels] = useState({
@@ -250,7 +250,7 @@ const Admin = ({
                 e.stopPropagation();
                 console.log("<===== 🙍🙍🙍 admin isMarker=====>", isMarker);
                 if (!isMarker) {
-                  setModalMessage("🙍 You need to place a marker first");
+                  showModal("🙍 You need to place a marker first", "error");
                   setClassToAdd("");
                 }
               }}
@@ -341,9 +341,8 @@ const Admin = ({
                 className=" fildset-radio bg-[#0891b2] px-1 border-2 border-slate-500 rounded-sm flex flex-col gap-1 "
                 onClick={(e) => {
                   e.stopPropagation();
-                  console.log("<=====isMarker=====>", isMarker);
                   if (!isMarker) {
-                    setModalMessage(" You need to place a marker first");
+                    showModal(" You need to place a marker first", "error");
                     setClassToAdd("");
                   }
                 }}

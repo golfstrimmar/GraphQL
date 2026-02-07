@@ -17,7 +17,7 @@ const ModalProject: React.FC<ModalMessageProps> = ({
   setOpenModalProject,
 }) => {
   const [projectName, setProjectName] = useState<string>("");
-  const { user, htmlJson, setUser, setModalMessage } = useStateContext();
+  const { user, htmlJson, setUser, showModal } = useStateContext();
   const [createProject] = useMutation(CREATE_PROJECT);
 
   const handelSubmit = async (e, projectName) => {
@@ -44,7 +44,7 @@ const ModalProject: React.FC<ModalMessageProps> = ({
       setOpenModalProject(false);
     } catch (err) {
       console.error("Error:", err);
-      setModalMessage(`${err}`);
+      showModal(`${err}`, "error", "error");
     } finally {
       setProjectName("");
     }

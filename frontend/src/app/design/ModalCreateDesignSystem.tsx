@@ -15,7 +15,7 @@ export default function ModalCreateDesignSystem({
   texts,
   buttons,
 }) {
-  const { user, setModalMessage } = useStateContext();
+  const { user, showModal } = useStateContext();
   const router = useRouter();
   const [name, setName] = useState<string>("");
   //   // -----------------------
@@ -27,13 +27,13 @@ export default function ModalCreateDesignSystem({
         if (system) {
           console.log("DesignSystem", system);
           router.refresh();
-          setModalMessage("✅ Design system created successfully!");
+          showModal("Design system created successfully!", "success");
           setModalCreateOpen(false);
           setName("");
         }
       },
       onError: (error) => {
-        setModalMessage(error.message);
+        showModal(error.message);
         console.error(error);
       },
     },
@@ -67,8 +67,9 @@ export default function ModalCreateDesignSystem({
               onSubmit={(e) => {
                 e.preventDefault();
                 if (!name || !user || !hasAtLeastOneText) {
-                  setModalMessage(
+                  showModal(
                     "Please enter a name and select at least one text",
+                    "error",
                   );
                   return;
                 }

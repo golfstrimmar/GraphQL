@@ -15,17 +15,17 @@ import Update from "@/components/icons/Update";
 
 // --- 🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
 export default function UpdateDesignSystem({ id, buttons, texts }) {
-  const { user, setModalMessage } = useStateContext();
+  const { user, showModal } = useStateContext();
   const router = useRouter();
   const [updateDesignSystem, { loading, error }] = useMutation(
     UPDATE_DESIGN_SYSTEM,
     {
       onCompleted: () => {
         router.refresh();
-        setModalMessage("✅ Design System updated successfully");
+        showModal("Design System updated successfully", "success");
       },
       onError: () => {
-        setModalMessage("Error updating Design System");
+        showModal("Failed to update Design System", "error");
       },
     },
   );
@@ -38,7 +38,10 @@ export default function UpdateDesignSystem({ id, buttons, texts }) {
       className="btn btn-teal  !rounded-full w-6 h-6 !p-0.5 mr-1"
       onClick={() => {
         if (!hasAtLeastOneText) {
-          setModalMessage("Please enter a name and select at least one text");
+          showModal(
+            "Please enter a name and select at least one text",
+            "error",
+          );
           return;
         }
         let ToBD = texts

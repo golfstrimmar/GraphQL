@@ -8,17 +8,17 @@ import RemoveIcon from "@/components/icons/RemoveIcon";
 import Spinner from "@/components/icons/Spinner";
 // 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹
 export default function RemoveFigmaProject({ id }) {
-  const { setModalMessage } = useStateContext();
+  const { showModal } = useStateContext();
   const router = useRouter();
   const [removeFigmaProject, { loading, error }] = useMutation(
     REMOVE_FIGMA_PROJECT,
     {
       onCompleted: () => {
-        setModalMessage("✅ Figma Project removed successfully");
+        showModal("Figma Project removed successfully", "success");
         router.refresh();
       },
       onError: () => {
-        setModalMessage("Error removing Figma project");
+        showModal("Error removing Figma project", "error");
       },
     },
   );

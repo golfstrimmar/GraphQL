@@ -14,7 +14,7 @@ import { User } from "@/types/user";
 import Image from "next/image";
 
 const Navbar: React.FC = () => {
-  const { setModalMessage } = useStateContext();
+  const { showModal } = useStateContext();
   const hasMounted = useHasMounted();
   const router = useRouter();
   const pathname = usePathname();
@@ -55,11 +55,11 @@ const Navbar: React.FC = () => {
         method: "POST",
       });
 
-      setModalMessage("You have been logged out.");
+      showModal("You have been logged out.");
       router.push("/");
     } catch (e) {
       console.error("Logout error", e);
-      setModalMessage("Logout failed. Try again.");
+      showModal("Logout failed. Try again.", "error");
     }
   };
   useEffect(() => {

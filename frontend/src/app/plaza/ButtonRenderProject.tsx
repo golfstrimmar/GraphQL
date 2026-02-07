@@ -22,7 +22,7 @@ export default function ButtonRenderProject({
 }: {
   project: ProjectData;
 }) {
-  const { updateHtmlJson, htmlJson, setModalMessage } = useStateContext();
+  const { updateHtmlJson, htmlJson, showModal } = useStateContext();
 
   const [
     loadProject,
@@ -50,7 +50,7 @@ export default function ButtonRenderProject({
     variables: { projectId: project.id, data: removeKeys(htmlJson) },
     fetchPolicy: "no-cache",
     onCompleted: (data) => {
-      setModalMessage(`Project ${project.name} updated successfully.`);
+      showModal(`Project ${project.name} updated successfully.`);
     },
     onError: (error) => {
       console.log("<=== updateProjectError ===>", updateProjectError);

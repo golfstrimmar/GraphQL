@@ -47,8 +47,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ project }) => {
   const [isPrev, setIsPrev] = useState<boolean>(false);
   const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
 
-  const { preview, setPreview, updateHtmlJson, setModalMessage } =
-    useStateContext();
+  const { preview, setPreview, updateHtmlJson, showModal } = useStateContext();
 
   const [uploadImage, { loading: uploadLoading }] =
     useMutation(UPLOAD_ULON_IMAGE);
@@ -180,7 +179,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ project }) => {
           },
         });
         if (!data) {
-          setModalMessage("Error removing image");
+          showModal("Error removing image", "error");
           return;
         }
 
@@ -222,10 +221,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ project }) => {
         });
 
         router.refresh();
-        setModalMessage("Image removed successfully");
+        showModal("Image removed successfully");
       }
     },
-    [project, removeFigmaImage, setModalMessage, router],
+    [project, removeFigmaImage, showModal, router],
   );
 
   const saveAllImages = useCallback(async () => {
@@ -260,7 +259,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ project }) => {
   const handleSaveProjectWithImages = useCallback(async () => {
     const projectId = project?.id;
     if (!projectId) {
-      setModalMessage?.("No projectId");
+      showModal?.("No projectId", "error");
       return;
     }
 
@@ -297,12 +296,12 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ project }) => {
 
         setImageFiles(temp);
         setIsNewImages(false);
-        setModalMessage?.("Project updated with images");
+        showModal?.("Project updated with images", "error");
         router.refresh();
       }
     } catch (error) {
       console.error("Error updating Figma project:", error);
-      setModalMessage?.("Error updating Figma project");
+      showModal?.("Error updating Figma project", "error");
     }
   }, [
     project,
@@ -311,7 +310,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ project }) => {
     setPreview,
     setImageFiles,
     setIsNewImages,
-    setModalMessage,
+    showModal,
     router,
   ]);
 

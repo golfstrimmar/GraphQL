@@ -5,7 +5,7 @@ import { REMOVE_USER } from "@/apollo/mutations";
 import { useStateContext } from "@/providers/StateProvider";
 import { useRouter } from "next/navigation";
 const ButtonRemoveUser = () => {
-  const { user, setUser, setModalMessage } = useStateContext();
+  const { user, setUser, showModal } = useStateContext();
   const [removeUser] = useMutation(REMOVE_USER);
   const router = useRouter();
   return (
@@ -15,7 +15,7 @@ const ButtonRemoveUser = () => {
         setUser(null);
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        setModalMessage("User removed");
+        showModal("User removed");
         router.push("/");
       }}
       className="mt-2 btn btn-allert"

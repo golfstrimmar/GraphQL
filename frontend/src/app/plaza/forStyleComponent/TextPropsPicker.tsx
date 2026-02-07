@@ -16,6 +16,7 @@ const textProps = [
   "text-transform: uppercase;",
   "text-align: center;",
   "white-space: nowrap;",
+  "white-space: wrap;",
 
   // SVG
   "fill: white;",

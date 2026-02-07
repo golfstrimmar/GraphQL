@@ -97,7 +97,7 @@ CopyAllButton.displayName = "CopyAllButton";
  * с помощью `useMemo` и мемоизирует обработчики через `useCallback`.
  */
 const RenderScssMixins: React.FC<RenderScssMixinsProps> = ({ colors }) => {
-  const { texts, setModalMessage } = useStateContext();
+  const { texts, showModal } = useStateContext();
 
   // Если тексты недоступны или пусты — нечего рендерить
   const textNodes = (texts as unknown as TextNode[]) ?? [];
@@ -141,30 +141,30 @@ const RenderScssMixins: React.FC<RenderScssMixinsProps> = ({ colors }) => {
   const onCopyMixin = useCallback(
     (text: string) => {
       if (!navigator?.clipboard) {
-        setModalMessage?.("Clipboard not available");
+        showModal?.("Clipboard not available", "error");
         return;
       }
       navigator.clipboard
         .writeText(text)
-        .then(() => setModalMessage?.("Mixin copied!"))
-        .catch(() => setModalMessage?.("Failed to copy mixin"));
+        .then(() => showModal?.("Mixin copied!"))
+        .catch(() => showModal?.("Failed to copy mixin", "error"));
     },
-    [setModalMessage],
+    [showModal],
   );
 
   // обработчик копирования всех миксинов
   const onCopyAll = useCallback(
     (text: string) => {
       if (!navigator?.clipboard || !text) {
-        setModalMessage?.("Clipboard not available");
+        showModal?.("Clipboard not available");
         return;
       }
       navigator.clipboard
         .writeText(text)
-        .then(() => setModalMessage?.("All mixins copied!"))
-        .catch(() => setModalMessage?.("Failed to copy all mixins"));
+        .then(() => showModal?.("All mixins copied!"))
+        .catch(() => showModal?.("Failed to copy all mixins", "error"));
     },
-    [setModalMessage],
+    [showModal],
   );
 
   return (

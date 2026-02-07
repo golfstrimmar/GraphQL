@@ -8,7 +8,7 @@ import Spinner from "@/components/icons/Spinner";
 import { useRouter } from "next/navigation";
 // 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹
 export default function RemoveDesignSystem({ id, resetAll }) {
-  const { setModalMessage } = useStateContext();
+  const { showModal } = useStateContext();
   const router = useRouter();
   const [removeDesignSystem, { loading, error }] = useMutation(
     REMOVE_DESIGN_SYSTEM,
@@ -16,10 +16,10 @@ export default function RemoveDesignSystem({ id, resetAll }) {
       onCompleted: () => {
         resetAll();
         router.refresh();
-        setModalMessage("✅ Design System removed successfully");
+        showModal("Design System removed successfully", "success");
       },
       onError: () => {
-        setModalMessage("Error removing Design System");
+        showModal("Error removing Design System", "error");
       },
     },
   );

@@ -7,12 +7,12 @@ import HtmlIcon from "@/components/icons/HtmlIcon";
 
 //=== 🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢
 export default function HtmlToJsonButton() {
-  const { HTML, SCSS, setHtmlJson, setModalMessage } = useStateContext();
+  const { HTML, SCSS, setHtmlJson, showModal } = useStateContext();
   const [loading, setLoading] = useState(false);
 
   const handleClick = async () => {
     if (!HTML) {
-      setModalMessage("No HTML");
+      showModal("No HTML", "error");
       return;
     }
 
@@ -28,7 +28,7 @@ export default function HtmlToJsonButton() {
       const data = await res.json();
 
       if (!res.ok) {
-        setModalMessage("Unknown error");
+        showModal("Unknown error", "error");
         return;
       }
 
@@ -36,7 +36,7 @@ export default function HtmlToJsonButton() {
       setHtmlJson(data.htmlJson);
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
-      setModalMessage(message);
+      showModal(message);
     } finally {
       setLoading(false);
     }

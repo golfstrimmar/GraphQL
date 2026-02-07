@@ -11,18 +11,18 @@ type Props = {
  * Потребляет контекст локально, чтобы родитель оставался стабильным.
  */
 const ColorItem: React.FC<{ color: string }> = memo(({ color }) => {
-  const { setModalMessage } = useStateContext();
+  const { showModal } = useStateContext();
 
   const handleCopy = useCallback(() => {
     if (!navigator?.clipboard) {
-      setModalMessage?.(`Clipboard not available`);
+      showModal?.(`Clipboard not available`, "error");
       return;
     }
     navigator.clipboard
       .writeText(color)
-      .then(() => setModalMessage?.(`Color ${color} copied!`))
-      .catch(() => setModalMessage?.(`Failed to copy ${color}`));
-  }, [color, setModalMessage]);
+      .then(() => showModal?.(`Color ${color} copied!`))
+      .catch(() => showModal?.(`Failed to copy ${color}`));
+  }, [color, showModal]);
 
   return (
     <div

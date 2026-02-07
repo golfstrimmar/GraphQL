@@ -9,7 +9,7 @@ import Spinner from "@/components/icons/Spinner";
 
 // --- 🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
 export function AiToUlonButton({ fileCache }: { fileCache: any }) {
-  const { texts, updateHtmlJson, setModalMessage } = useStateContext();
+  const { texts, updateHtmlJson, showModal } = useStateContext();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
@@ -136,7 +136,7 @@ export function AiToUlonButton({ fileCache }: { fileCache: any }) {
 
       if (!res.ok) {
         console.error("ai-to-html failed");
-        setModalMessage("Ai to html failed");
+        showModal("Ai to html failed", "error");
         return;
       }
 

@@ -87,7 +87,7 @@ TextStyleItem.displayName = "TextStyleItem";
 const RenderTextStyles: React.FC<{ textNodes?: TextNode[] }> = ({
   textNodes,
 }) => {
-  const { texts, setModalMessage, setTexts } = useStateContext();
+  const { texts, showModal, setTexts } = useStateContext();
 
   // Sync incoming prop into provider state (only when prop changes).
   useEffect(() => {
@@ -105,30 +105,30 @@ const RenderTextStyles: React.FC<{ textNodes?: TextNode[] }> = ({
   const onCopyText = useCallback(
     (text: string) => {
       if (!navigator?.clipboard) {
-        setModalMessage?.("Clipboard not available");
+        showModal?.("Clipboard not available");
         return;
       }
       navigator.clipboard
         .writeText(text)
-        .then(() => setModalMessage?.("Text copied!"))
-        .catch(() => setModalMessage?.("Failed to copy text"));
+        .then(() => showModal?.("Text copied!"))
+        .catch(() => showModal?.("Failed to copy text", "error"));
     },
-    [setModalMessage],
+    [showModal],
   );
 
   const onCopyMixin = useCallback(
     (mixin: string) => {
       if (!navigator?.clipboard) {
-        setModalMessage?.("Clipboard not available");
+        showModal?.("Clipboard not available", "error");
         return;
       }
       const text = `@include ${mixin};`;
       navigator.clipboard
         .writeText(text)
-        .then(() => setModalMessage?.("Mixin copied!"))
-        .catch(() => setModalMessage?.("Failed to copy mixin"));
+        .then(() => showModal?.("Mixin copied!"))
+        .catch(() => showModal?.("Failed to copy mixin", "error"));
     },
-    [setModalMessage],
+    [showModal],
   );
 
   // Memoize rendered items so they only change when nodes or handlers change.

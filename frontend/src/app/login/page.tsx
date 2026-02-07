@@ -21,7 +21,7 @@ import { useStateContext } from "@/providers/StateProvider";
 export default function Login() {
   const router = useRouter();
   const client = useApolloClient();
-  const { setModalMessage, setUser } = useStateContext();
+  const { showModal, setUser } = useStateContext();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -38,7 +38,7 @@ export default function Login() {
 
     if (!email || !password) {
       setIsLoading(false);
-      return setModalMessage("Please fill in all fields.");
+      return showModal("Please fill in all fields.", "error");
     }
 
     try {
@@ -47,7 +47,7 @@ export default function Login() {
 
       if (!loggedInUser) {
         setIsLoading(false);
-        return setModalMessage("⚠️Invalid login");
+        return showModal("⚠️Invalid login", "error");
       }
       const { token, ...userWithoutToken } = loggedInUser;
       const newUser = { ...userWithoutToken };
@@ -61,7 +61,7 @@ export default function Login() {
       });
       setUser(newUser.user);
       updateUserStatusInCache(client, loggedInUser.user.id, true);
-      setModalMessage("✅ Login successful!");
+      showModal("Login successful!");
       setTimeout(() => {
         setEmail("");
         setPassword("");
@@ -74,17 +74,17 @@ export default function Login() {
         err?.message ===
         "This account was registered via Google. User must set a password."
       ) {
-        setModalMessage(err?.message);
+        showModal(err?.message, "error");
         setTimeout(() => setShowSetPasswordModal(true), 2000);
         return;
       }
 
       if (err?.message === "Invalid password") {
-        setModalMessage("⚠️Incorrect password.");
+        showModal("⚠️Incorrect password.", "error");
         return;
       }
 
-      setModalMessage("⚠️User not found. Redirecting...");
+      showModal("⚠️User not found. Redirecting...", "error");
       setTimeout(() => router.push("/register"), 2000);
     } finally {
       setIsLoading(false);
@@ -94,7 +94,7 @@ export default function Login() {
   const handleGoogleLoginSuccess = async (response: CredentialResponse) => {
     console.log("<====== GOOGLE LOGIN RESPONSE =====>", response.credential);
     if (!response.credential)
-      return setModalMessage("No credential from Google");
+      return showModal("No credential from Google", "error");
 
     setIsLoading(true);
 
@@ -109,7 +109,7 @@ export default function Login() {
 
       if (!loggedInUser || !loggedInToken) {
         setIsLoading(false);
-        return setModalMessage("Google login failed");
+        return showModal("Google login failed", "error");
       }
       setUser(loggedInUser);
 
@@ -122,14 +122,14 @@ export default function Login() {
         }),
       });
 
-      setModalMessage("🟢Google login successful!");
+      showModal("Google login successful!");
       setTimeout(() => router.push("/profile"), 2000);
     } catch (err: any) {
       console.error("Login error:", err);
       const graphQLError = err?.graphQLErrors?.[0];
 
       if (graphQLError?.extensions?.code === "ACCOUNT_NEEDS_PASSWORD") {
-        setModalMessage(
+        showModal(
           "Account registered via Google. Please set a password first.",
         );
         setTimeout(() => setShowSetPasswordModal(true), 2000);
@@ -137,24 +137,24 @@ export default function Login() {
       }
 
       if (graphQLError?.message === "Invalid password") {
-        setModalMessage("⚠️Incorrect password.");
+        showModal("⚠️Incorrect password.", "error");
         return;
       }
 
       if (graphQLError?.message === "User not found") {
-        setModalMessage("⚠️User not found. Redirecting...");
+        showModal("⚠️User not found. Redirecting...", "error");
         setTimeout(() => router.push("/register"), 2000);
         return;
       }
 
-      setModalMessage("⚠️Something went wrong. Try again.");
+      showModal("⚠️Something went wrong. Try again.", "error");
     } finally {
       setIsLoading(false);
     }
   };
   // -----------------
   const handleGoogleLoginFailure = () => {
-    setModalMessage("Google login failed.");
+    showModal("Google login failed.", "error");
   };
   // -----------------
   function updateUserStatusInCache(
@@ -242,13 +242,13 @@ export default function Login() {
                 buttonType="button"
                 children="Submit"
                 onClick={async () => {
-                  if (!newPassword) return setModalMessage("Password required");
+                  if (!newPassword) return showModal("Password required");
 
                   try {
                     await setPasswordMutation({
                       variables: { email, password: newPassword },
                     });
-                    setModalMessage("Password set successfully!");
+                    showModal("Password set successfully!");
 
                     setShowSetPasswordModal(false);
                     setTimeout(
@@ -257,7 +257,7 @@ export default function Login() {
                     ); // автологин
                   } catch (err: any) {
                     console.error("Set password error:", err);
-                    setModalMessage(err.message || "Error setting password");
+                    showModal(err.message || "Error setting password");
                   }
                 }}
               />

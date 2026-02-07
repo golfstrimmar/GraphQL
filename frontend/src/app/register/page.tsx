@@ -10,7 +10,7 @@ import { CREATE_USER } from "@/apollo/mutations";
 import { GET_USERS } from "@/apollo/queries";
 export default function Register() {
   const router = useRouter();
-  const { setModalMessage } = useStateContext();
+  const { showModal } = useStateContext();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,7 +26,7 @@ export default function Register() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email || !password) {
-      setModalMessage("Please fill in all fields.");
+      showModal("⚠️ Please fill in all fields.", "error");
       return;
     }
 
@@ -38,14 +38,14 @@ export default function Register() {
       setName("");
       setEmail("");
       setPassword("");
-      setModalMessage("✅ Registration successful!");
+      showModal("Registration successful!");
       setTimeout(() => router.push("/"), 2000);
     } catch (error: any) {
       console.error("Registration error:", error);
       if (error.message.includes("already exists")) {
-        setModalMessage("❌ User with this email already exists.");
+        showModal("⚠️ User with this email already exists.", "error");
       } else {
-        setModalMessage("⚠️ Registration failed. Try again later.");
+        showModal("⚠️ Registration failed. Try again later.", "error");
       }
     }
   };

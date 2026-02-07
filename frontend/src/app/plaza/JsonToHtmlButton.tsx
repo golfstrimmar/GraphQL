@@ -7,7 +7,7 @@ import Spinner from "@/components/icons/Spinner";
 export default function JsonToHtmlButton() {
   const [loading, setLoading] = useState(false);
 
-  const { htmlJson, HTML, SCSS, setHTML, setSCSS, setModalMessage } =
+  const { htmlJson, HTML, SCSS, setHTML, setSCSS, showModal } =
     useStateContext();
 
   const handleClick = async () => {
@@ -26,14 +26,14 @@ export default function JsonToHtmlButton() {
       const data = await res.json();
 
       if (!res.ok) {
-        setModalMessage(data.error || "Unknown error");
+        showModal(data.error || "Unknown error", "error");
         return;
       }
       setHTML(data.html);
       setSCSS(data.scss); // уже очищенный scss из роута
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
-      setModalMessage(message);
+      showModal(message, "error");
     } finally {
       setLoading(false);
     }

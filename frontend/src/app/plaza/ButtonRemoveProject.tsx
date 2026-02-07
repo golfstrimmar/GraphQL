@@ -15,7 +15,7 @@ import Spinner from "@/components/icons/Spinner";
 import RemoveIcon from "@/components/icons/RemoveIcon";
 
 export default function ButtonRemoveProject({ id }) {
-  const { setModalMessage } = useStateContext();
+  const { showModal } = useStateContext();
   const router = useRouter();
 
   const [removeProject, { loading }] = useMutation(REMOVE_PROJECT, {
@@ -29,7 +29,7 @@ export default function ButtonRemoveProject({ id }) {
     const { data } = await removeProject({ variables: { projectId: id } });
     if (data) {
       console.log("<===data removeProject===>", data);
-      setModalMessage("Project removed");
+      showModal("Project removed");
       router.refresh();
     }
   };

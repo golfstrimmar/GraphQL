@@ -8,7 +8,7 @@ export default function ClientLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { setModalMessage, setUser } = useStateContext();
+  const { showModal, setUser } = useStateContext();
   useEffect(() => {
     const TIMEOUT = 30 * 60 * 1000;
 
@@ -20,7 +20,7 @@ export default function ClientLayout({
         console.error("Auto logout cookie clear failed", e);
       }
       setUser(null);
-      setModalMessage("You have been logged out due to inactivity.");
+      showModal("You have been logged out due to inactivity.", "error");
       window.location.href = "/";
     };
 

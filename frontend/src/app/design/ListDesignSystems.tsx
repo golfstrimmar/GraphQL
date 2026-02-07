@@ -36,7 +36,7 @@ export default function ListDesignSystems({
 }) {
   const router = useRouter();
 
-  const { setModalMessage, updateHtmlJson } = useStateContext();
+  const { showModal, updateHtmlJson } = useStateContext();
   const [modalCreateOpen, setModalCreateOpen] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<string>("");
   const [texts, setTexts] = useState<(Text | null)[]>(Array(10).fill(null));
@@ -105,7 +105,7 @@ export default function ListDesignSystems({
       },
       onError: (error) => {
         console.error(error);
-        setModalMessage(error.message);
+        showModal(error.message, "error");
       },
     },
   );

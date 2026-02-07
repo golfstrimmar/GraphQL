@@ -20,6 +20,7 @@ const ModalMessage = dynamic(
   () => import("@/components/ModalMessage/ModalMessage"),
   { ssr: false },
 );
+
 import type { HtmlNode } from "@/types/HtmlNode";
 import { designText } from "@/types/DesignSystem";
 
@@ -40,6 +41,7 @@ type Preview = {
   type: "VECTOR" | "RASTER" | "OTHER";
   __typename: "FigmaImage";
 };
+
 type TextNodeWithStyle = {
   color: string;
   fontFamily: string;
@@ -49,6 +51,8 @@ type TextNodeWithStyle = {
   text: string;
   __typename: "TextNodeWithStyle";
 };
+
+type ModalVariant = "success" | "error";
 
 interface StateContextType {
   htmlJson: HtmlNode[];
@@ -61,9 +65,15 @@ interface StateContextType {
   setUsers: React.Dispatch<React.SetStateAction<User[] | null>>;
   modalMessage: string;
   setModalMessage: React.Dispatch<React.SetStateAction<string>>;
+  modalVariant: ModalVariant;
+  setModalVariant: React.Dispatch<React.SetStateAction<ModalVariant>>;
   isModalOpen: boolean;
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  showModal: (message: string, duration?: number) => void;
+  showModal: (
+    message: string,
+    variant?: ModalVariant,
+    duration?: number,
+  ) => void;
   updateHtmlJson: (
     next: HtmlNode[] | ((prev: HtmlNode[]) => HtmlNode[]),
   ) => void;
@@ -71,8 +81,8 @@ interface StateContextType {
   redo: () => void;
   undoStack: HtmlNode[][];
   redoStack: HtmlNode[][];
-  texts: string[];
-  setTexts: React.Dispatch<React.SetStateAction<string[]>>;
+  texts: TextNodeWithStyle[];
+  setTexts: React.Dispatch<React.SetStateAction<TextNodeWithStyle[]>>;
   HTML: string;
   setHTML: React.Dispatch<React.SetStateAction<string>>;
   SCSS: string;
@@ -105,8 +115,11 @@ export function StateProvider({
   const [users, setUsers] = useState<User[] | null>(null);
   const [htmlJson, setHtmlJson] = useState<HtmlNode[]>([]);
   const [nodeToAdd, setNodeToAdd] = useState<nodeToAdd | null>(null);
+
   const [modalMessage, setModalMessage] = useState<string>("");
+  const [modalVariant, setModalVariant] = useState<ModalVariant>("success");
   const [open, setOpen] = useState<boolean>(false);
+
   const [texts, setTexts] = useState<TextNodeWithStyle[]>([]);
   const [undoStack, setUndoStack] = useState<HtmlNode[][]>([]);
   const [redoStack, setRedoStack] = useState<HtmlNode[][]>([]);
@@ -116,6 +129,8 @@ export function StateProvider({
   const [ScssMixVar, setScssMixVar] = useState<string>("");
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const [dragKey, setDragKey] = useState<string | null>(null);
+  const [colors, setColors] = useState<string[]>([]);
+  const [designTexts, setDesignTexts] = useState<designText[]>([]);
 
   const { data: usersData, subscribeToMore: subscribeToUsers } = useQuery(
     GET_USERS,
@@ -137,22 +152,25 @@ export function StateProvider({
   // ------------------------ SYNC HTML JSON ------------------------
   useEffect(() => {
     if (typeof window === "undefined") return;
-    console.log("<= 🟢 ==htmlJson=  🟢==>", htmlJson);
     localStorage.setItem("htmlJson", JSON.stringify(htmlJson));
   }, [htmlJson]);
 
-  // ------------------------ MODAL ------------------------
-  useEffect(() => {
-    if (!modalMessage) return;
+  // ------------------------ MODAL API ------------------------
+  const showModal = (
+    msg: string,
+    variant: ModalVariant = "success",
+    duration = 2000,
+  ) => {
+    setModalVariant(variant);
+    setModalMessage(msg);
     setOpen(true);
 
-    const t = setTimeout(() => {
+    window.setTimeout(() => {
       setOpen(false);
       setModalMessage("");
-    }, 2000);
-
-    return () => clearTimeout(t);
-  }, [modalMessage]);
+      setModalVariant("success");
+    }, duration);
+  };
 
   // ------------------------ USERS SUBSCRIPTIONS ------------------------
   useEffect(() => {
@@ -239,7 +257,6 @@ export function StateProvider({
     setUndoStack((stack) => [...stack, JSON.parse(JSON.stringify(htmlJson))]);
     setHtmlJson(next);
   };
-  // --------------------
 
   return (
     <StateContext.Provider
@@ -254,6 +271,11 @@ export function StateProvider({
         setUsers,
         modalMessage,
         setModalMessage,
+        modalVariant,
+        setModalVariant,
+        isModalOpen: open,
+        setIsModalOpen: setOpen,
+        showModal,
         updateHtmlJson,
         undo,
         redo,
@@ -265,22 +287,23 @@ export function StateProvider({
         setHTML,
         SCSS,
         setSCSS,
+        colors,
+        setColors,
         preview,
         setPreview,
         ScssMixVar,
         setScssMixVar,
-        isModalOpen: open,
-        setIsModalOpen: setOpen,
         resetHtmlJson,
         activeKey,
         setActiveKey,
         dragKey,
         setDragKey,
-        showModal: (msg, duration = 2000) => setModalMessage(msg),
+        designTexts,
+        setDesignTexts,
       }}
     >
       <AnimatePresence initial={false} mode="wait">
-        {open && <ModalMessage message={modalMessage} />}
+        {open && <ModalMessage message={modalMessage} variant={modalVariant} />}
       </AnimatePresence>
 
       {children}

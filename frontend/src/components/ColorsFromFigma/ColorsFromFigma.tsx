@@ -17,7 +17,7 @@ const ColorsFromFigma: React.FC<ColorsFromFigmaProps> = ({
   fontsToDisplay,
   setfontsToDisplay,
 }) => {
-  const { setModalMessage } = useStateContext();
+  const { showModal } = useStateContext();
   const [colorVariables, setColorVariables] = useState<any[]>([]);
   const [colors, setColors] = useState<any[]>([]);
   const ButtonColorsFontsTexts = useRef<HTMLDivElement>(null);
@@ -80,7 +80,7 @@ const ColorsFromFigma: React.FC<ColorsFromFigmaProps> = ({
   //🟢🟢🟢🟢🟢🟢🟢
   const handleExtractAndSaveColors = async () => {
     if (!project?.file || !project?.nodeId || !project?.fileKey) {
-      setModalMessage("Invalid project data");
+      showModal("Invalid project data", "error");
       return;
     }
 
@@ -95,13 +95,13 @@ const ColorsFromFigma: React.FC<ColorsFromFigmaProps> = ({
 
       // Обновляем локальный стейт
       setColorVariables(data.extractAndSaveColors);
-      setModalMessage("Colors extracted and saved on server!");
+      showModal("Colors extracted and saved on server!");
 
       // 🔄 Рефетчим данные с сервера для фронта
       await refetch();
     } catch (err) {
       console.error("❌ Error:", err);
-      setModalMessage(`Error: ${err.message}`);
+      showModal(`Error: ${err.message}`, "error");
     }
   };
 
@@ -163,11 +163,11 @@ const ColorsFromFigma: React.FC<ColorsFromFigmaProps> = ({
                     onClick={async () => {
                       try {
                         await navigator.clipboard.writeText(
-                          generateSassVariablesFromVariables(colorVariables)
+                          generateSassVariablesFromVariables(colorVariables),
                         );
-                        setModalMessage("Color variables copied to clipboard!");
+                        showModal("Color variables copied to clipboard!");
                       } catch (err) {
-                        setModalMessage("Failed to copy to clipboard");
+                        showModal("Failed to copy to clipboard", "error");
                         console.error("Clipboard error:", err);
                       }
                     }}

@@ -30,7 +30,7 @@ const EditorComponent: React.FC = () => {
     setHtmlJson,
     nodeToAdd,
     setNodeToAdd,
-    setModalMessage,
+    showModal,
     transformTo,
     setTransformTo,
     setResHtml,
@@ -159,7 +159,7 @@ const EditorComponent: React.FC = () => {
       if (!htmlString) return;
 
       const marker = document.querySelector(
-        "[data-marker]"
+        "[data-marker]",
       ) as HTMLElement | null;
       if (!marker) {
         const cartBlock = previewEl.querySelector(".cart");
@@ -220,13 +220,13 @@ const EditorComponent: React.FC = () => {
       setIsMarker(true);
 
       const children = Array.from(block.children).filter(
-        (el) => !el.hasAttribute("data-marker")
+        (el) => !el.hasAttribute("data-marker"),
       ) as HTMLElement[];
 
       const clickX = e.clientX;
       const clickY = e.clientY;
       const isHorizontal = ["flex-row", "grid"].some((cls) =>
-        block.classList.contains(cls)
+        block.classList.contains(cls),
       );
 
       let insertBeforeElement: HTMLElement | null = null;
@@ -253,7 +253,7 @@ const EditorComponent: React.FC = () => {
     };
 
     preview.addEventListener("click", (e) =>
-      setTimeout(() => handleClick(e), 300)
+      setTimeout(() => handleClick(e), 300),
     );
     preview.addEventListener("dblclick", handleDoubleClick);
 
@@ -277,11 +277,11 @@ const EditorComponent: React.FC = () => {
           setClassToAdd,
           setIsMarker,
           setHtmlJson,
-          setModalMessage
+          showModal,
         );
         setIsMarker(false);
       } else {
-        setModalMessage("✏️ You need to place a marker first");
+        showModal(" You need to place a marker first", "error");
         setClassToAdd("");
       }
     }

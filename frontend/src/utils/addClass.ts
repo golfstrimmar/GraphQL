@@ -28,7 +28,7 @@ const classGroups = {
 const updateElementClasses = (
   element: HTMLElement,
   newClass: string,
-  classesToRemove: string[]
+  classesToRemove: string[],
 ) => {
   // Remove all conflicting classes from the element
   element.classList.remove(...classesToRemove);
@@ -48,7 +48,7 @@ const updateElementClasses = (
     element.classList.add(
       "grid",
       "grid-cols-[repeat(auto-fit,_minmax(150px,_1fr))]",
-      "gap-2"
+      "gap-2",
     );
   } else if (newClass === "flex-row") {
     element.classList.add("flex", "flex-row");
@@ -66,7 +66,7 @@ const addClass = (
   setClassToAdd: SetState<string>,
   setIsMarker: SetState<boolean>,
   setHtmlJson: any, // Keep 'any' if ToBase signature is unknown
-  setModalMessage: SetState<string>
+  showModal: SetState<string>,
 ) => {
   const marker = document.querySelector("[data-marker]");
   if (!marker) {
@@ -84,7 +84,7 @@ const addClass = (
 
   // Prevent adding the same class twice
   if (parentMarker.classList.contains(foo)) {
-    setModalMessage("You can't add the same class twice");
+    showModal("You can't add the same class twice");
     // Clean up and exit
     marker.remove();
     setIsMarker(false);
@@ -109,9 +109,7 @@ const addClass = (
     ) {
       classesToRemove = classGroups.justify;
     } else {
-      setModalMessage(
-        "Justify properties only work with flex or grid containers."
-      );
+      showModal("Justify properties only work with flex or grid containers.");
       return; // Or handle as needed
     }
   } else if (classGroups.items.includes(foo)) {
@@ -121,8 +119,8 @@ const addClass = (
     ) {
       classesToRemove = classGroups.items;
     } else {
-      setModalMessage(
-        "Align items properties only work with flex or grid containers."
+      showModal(
+        "Align items properties only work with flex or grid containers.",
       );
       return; // Or handle as needed
     }

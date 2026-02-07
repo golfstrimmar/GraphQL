@@ -14,7 +14,7 @@ import type { HtmlNode } from "@/types/HtmlNode";
 
 // ====🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
 const CreateNewProject = () => {
-  const { htmlJson, user, setModalMessage, ScssMixVar, activeKey } =
+  const { htmlJson, user, showModal, ScssMixVar, activeKey } =
     useStateContext();
 
   const [newProjectName, setNewProjectName] = useState<string>("");
@@ -70,12 +70,12 @@ const CreateNewProject = () => {
 
   const createNewProject = async () => {
     if (!newProjectName || !user) {
-      setModalMessage(" All fields are required.");
+      showModal(" All fields are required.", "error");
       return;
     }
 
     if (!htmlJson) {
-      setModalMessage(" Data fields are required.");
+      showModal(" Data fields are required.", "error");
       return;
     }
 
@@ -100,10 +100,10 @@ const CreateNewProject = () => {
 
       router.refresh();
       setOpenCreate(false);
-      setModalMessage(`Project ${newProjectName} created.`);
+      showModal(`Project ${newProjectName} created.`);
       setNewProjectName("");
     } catch (error) {
-      setModalMessage("Failed to create project.");
+      showModal("Failed to create project.", "error");
       console.error(error);
     }
   };

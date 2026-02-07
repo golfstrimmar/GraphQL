@@ -10,7 +10,7 @@ import Spinner from "@/components/icons/Spinner";
 // 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹
 export default function ModalCreateClient({ modalOpen, setModalOpen }) {
   const router = useRouter();
-  const { user, setModalMessage } = useStateContext();
+  const { user, showModal } = useStateContext();
   const [file, setFile] = useState<File | null>(null);
   const [name, setName] = useState<string>("");
   const [figmaUrl, setFigmaUrl] = useState<string>("");
@@ -18,7 +18,7 @@ export default function ModalCreateClient({ modalOpen, setModalOpen }) {
   //   // -----------------------
   const [createDesigne, { loading }] = useMutation(CREATE_DESIGN, {
     onCompleted: () => {
-      setModalMessage("Figma Project created successfully");
+      showModal("Figma Project created successfully", "success");
     },
   });
   // ---------------
@@ -26,7 +26,7 @@ export default function ModalCreateClient({ modalOpen, setModalOpen }) {
     e.preventDefault();
 
     if (user === null || name === "" || figmaUrl === "") {
-      setModalMessage("All fields are required.");
+      showModal("All fields are required.", "error");
       return;
     }
 
@@ -61,7 +61,7 @@ export default function ModalCreateClient({ modalOpen, setModalOpen }) {
       }
     } catch (err: any) {
       setModalOpen(false);
-      setModalMessage(err.message);
+      showModal(err.message, "error");
     }
   };
 
