@@ -96,11 +96,11 @@ const AdminComponent = () => {
   };
 
   const renderTags = (tags) => (
-    <div className="flex flex-wrap gap-1 bg-slate-200 p-1 ">
+    <div className=" flex flex-wrap gap-1 bg-slate-200 p-1 ">
       {tags.map((el, i) => (
         <button
           key={i}
-          className="btn px-1.5! border-1 border-[#aaa] text-black text-[12px]"
+          className="btn adminButton px-1.5! border-1 border-[#aaa] text-black text-[12px]"
           style={{ background: el.color }}
           type="button"
           onClick={() => handleLoad(el.tag)}

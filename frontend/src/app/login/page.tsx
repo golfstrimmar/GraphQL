@@ -61,7 +61,7 @@ export default function Login() {
       });
       setUser(newUser.user);
       updateUserStatusInCache(client, loggedInUser.user.id, true);
-      setModalMessage("🟢Login successful!");
+      setModalMessage("✅ Login successful!");
       setTimeout(() => {
         setEmail("");
         setPassword("");

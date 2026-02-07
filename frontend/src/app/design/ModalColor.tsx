@@ -17,6 +17,7 @@ export default function ModalColor({
   setCurrentTextIndex,
   currentTextIndex,
   texts,
+  buttons,
   handleChangeCss,
 }) {
   const updateColorInCss = (cssString: string, newColor: string): string => {
@@ -32,8 +33,13 @@ export default function ModalColor({
   // --------------------
   const handlePickColorFromModal = (value: string) => {
     if (currentTextIndex === null) return;
-    console.log("<===currentTextIndex===>", currentTextIndex);
-    const currentCss = texts[currentTextIndex].style || "";
+    let currentCss;
+    if (texts) {
+      currentCss = texts[currentTextIndex].style || "";
+    } else if (buttons) {
+      currentCss = buttons[currentTextIndex].style || "";
+    }
+
     const nextCss = updateColorInCss(currentCss, value);
 
     handleChangeCss(currentTextIndex, nextCss);

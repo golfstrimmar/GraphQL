@@ -14,7 +14,7 @@ import Spinner from "@/components/icons/Spinner";
 import Update from "@/components/icons/Update";
 
 // --- 🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
-export default function UpdateDesignSystem({ id, texts }) {
+export default function UpdateDesignSystem({ id, buttons, texts }) {
   const { user, setModalMessage } = useStateContext();
   const router = useRouter();
   const [updateDesignSystem, { loading, error }] = useMutation(
@@ -22,7 +22,7 @@ export default function UpdateDesignSystem({ id, texts }) {
     {
       onCompleted: () => {
         router.refresh();
-        setModalMessage("Design System updated successfully");
+        setModalMessage("✅ Design System updated successfully");
       },
       onError: () => {
         setModalMessage("Error updating Design System");
@@ -41,19 +41,30 @@ export default function UpdateDesignSystem({ id, texts }) {
           setModalMessage("Please enter a name and select at least one text");
           return;
         }
+        let ToBD = texts
+          ?.filter((foo) => {
+            return foo !== null;
+          })
+          .map((t) => ({
+            tagText: t.tagName || "div",
+            classText: t.className || "",
+            styleText: t.style || "",
+          }));
+        const bToBD = buttons
+          .filter((foo) => {
+            return foo !== null;
+          })
+          .map((b) => ({
+            tagText: "button",
+            classText: b.className || "",
+            styleText: b.style || "",
+          }));
+
         updateDesignSystem({
           variables: {
             id: id,
             ownerId: user?.id,
-            designTexts: texts
-              ?.filter((foo) => {
-                return foo !== null;
-              })
-              .map((t) => ({
-                tagText: t.tagName || "div",
-                classText: t.className || "",
-                styleText: t.style || "",
-              })),
+            designTexts: [...ToBD, ...bToBD],
           },
         });
       }}

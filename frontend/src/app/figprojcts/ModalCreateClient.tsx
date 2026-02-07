@@ -51,7 +51,7 @@ export default function ModalCreateClient({ modalOpen, setModalOpen }) {
 
       if (data.createDesigne) {
         console.log(
-          `Figma Project ${data.createDesigne.name} created successfully`,
+          `✅ Figma Project ${data.createDesigne.name} created successfully`,
           data.createDesigne.name,
         );
         setModalOpen(false);

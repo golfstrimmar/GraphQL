@@ -13,6 +13,7 @@ export default function ModalCreateDesignSystem({
   modalCreateOpen,
   setModalCreateOpen,
   texts,
+  buttons,
 }) {
   const { user, setModalMessage } = useStateContext();
   const router = useRouter();
@@ -26,7 +27,7 @@ export default function ModalCreateDesignSystem({
         if (system) {
           console.log("DesignSystem", system);
           router.refresh();
-          setModalMessage("Design system created successfully!");
+          setModalMessage("✅ Design system created successfully!");
           setModalCreateOpen(false);
           setName("");
         }
@@ -51,7 +52,7 @@ export default function ModalCreateDesignSystem({
             animate={{ height: "auto", opacity: 1, y: 0 }}
             exit={{ height: 0, opacity: 0, y: -10 }}
             transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="w-full "
+            className="w-full mb-4"
             onClick={(e) => {
               e.stopPropagation();
               if (
@@ -71,20 +72,29 @@ export default function ModalCreateDesignSystem({
                   );
                   return;
                 }
+                let ToBD = texts
+                  ?.filter((foo) => {
+                    return foo !== null;
+                  })
+                  .map((t) => ({
+                    tagText: t.tagName || "div",
+                    classText: t.className || "",
+                    styleText: t.style || "",
+                  }));
+                const bToBD = buttons
+                  .filter((foo) => {
+                    return foo !== null;
+                  })
+                  .map((b) => ({
+                    tagText: "button",
+                    classText: b.className || "",
+                    styleText: b.style || "",
+                  }));
                 createDesignSystem({
                   variables: {
                     ownerId: user?.id,
                     name: name,
-
-                    designTexts: texts
-                      ?.filter((foo) => {
-                        return foo !== null;
-                      })
-                      .map((t) => ({
-                        tagText: t.tagName || "div",
-                        classText: t.className || "",
-                        styleText: t.style || "",
-                      })),
+                    designTexts: [...ToBD, ...bToBD],
                   },
                 });
               }}

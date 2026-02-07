@@ -16,7 +16,7 @@ export default function RemoveDesignSystem({ id, resetAll }) {
       onCompleted: () => {
         resetAll();
         router.refresh();
-        setModalMessage("Design System removed successfully");
+        setModalMessage("✅ Design System removed successfully");
       },
       onError: () => {
         setModalMessage("Error removing Design System");

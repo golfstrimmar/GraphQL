@@ -38,7 +38,7 @@ export default function Register() {
       setName("");
       setEmail("");
       setPassword("");
-      setModalMessage("🟢 Registration successful!");
+      setModalMessage("✅ Registration successful!");
       setTimeout(() => router.push("/"), 2000);
     } catch (error: any) {
       console.error("Registration error:", error);

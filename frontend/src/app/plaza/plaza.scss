@@ -37,7 +37,12 @@
     max-height: 50px !important;
   }
 } */
-
+.adminButton {
+  &:active {
+    transform: translateY(1px);
+    background-color: #64ffda !important;
+  }
+}
 .nextafterButton {
   transition: all 0.2s ease-in-out;
   opacity: 0;

@@ -43,6 +43,10 @@ export default async function RootLayout({
             });
           `}
         </Script>
+        <Script
+          src="https://cdn.jsdelivr.net/npm/@tailwindplus/elements@1"
+          type="module"
+        ></Script>
       </head>
       <body>
         <GoogleOAuthProvider

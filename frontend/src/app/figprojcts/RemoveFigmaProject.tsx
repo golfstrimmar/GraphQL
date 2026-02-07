@@ -14,7 +14,7 @@ export default function RemoveFigmaProject({ id }) {
     REMOVE_FIGMA_PROJECT,
     {
       onCompleted: () => {
-        setModalMessage("Figma Project removed successfully");
+        setModalMessage("✅ Figma Project removed successfully");
         router.refresh();
       },
       onError: () => {

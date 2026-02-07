@@ -16,6 +16,7 @@ export default function ModalFont({
   setCurrentTextIndex,
   currentTextIndex,
   texts,
+  buttons,
   handleChangeCss,
 }) {
   const {} = useStateContext();
@@ -49,10 +50,13 @@ export default function ModalFont({
 
   const handleFontClick = (family: string) => {
     if (currentTextIndex === null) return;
-    console.log("<===currentTextIndex===>", currentTextIndex);
-    console.log("<===texts[currentTextIndex]===>", texts[currentTextIndex]);
-    const currentCss = texts[currentTextIndex].style || "";
-    console.log("<===currentCss===>", currentCss);
+    let currentCss;
+    if (texts) {
+      currentCss = texts[currentTextIndex].style || "";
+    } else if (buttons) {
+      currentCss = buttons[currentTextIndex].style || "";
+    }
+
     const nextCss = updateFontInCss(currentCss, family);
 
     handleChangeCss(currentTextIndex, nextCss);
