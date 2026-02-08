@@ -19,6 +19,7 @@ import ProjectsIcon from "@/components/icons/ProjectsIcon";
 import WorkerIcon from "@/components/icons/WorkerIcon";
 import PreviewIcon from "@/components/icons/PreviewIcon";
 import type { HtmlNode } from "@/types/HtmlNode";
+import Image from "next/image";
 
 interface InfoProjectProps {
   setProject: React.Dispatch<React.SetStateAction<ProjectData>>;
@@ -116,7 +117,7 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
         >
           <div className="flex gap-1 w-[calc(100%-10px)] absolute top-0 left-1  !py-0.5 z-10">
             <button
-              className="btn btn-allert !py-1"
+              className="btn btn-allert !py-1 flex-[40px]"
               type="button"
               onClick={() => {
                 resetAll();
@@ -125,16 +126,21 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
               <ClearIcon width={16} height={16} />
             </button>
             <button
-              className="btn btn-primary flex-[40%]"
+              className="btn btn-primary  flex-[40px]"
               onClick={() => setActiveKey(null)}
             >
-              <CloseIcon width={12} height={12} />
+              <Image
+                src="./svg/cross-com.svg"
+                alt="close"
+                width={15}
+                height={15}
+              />
             </button>
-            <div className="flex-[50%]">
+            <div className="flex-[70%]">
               <JsonToHtmlButton />
             </div>
             <button
-              className="btn-teal "
+              className="btn-teal flex-[140px] center"
               type="button"
               onClick={() => {
                 const el = document.getElementById("preview-section");
@@ -148,7 +154,7 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
               <PreviewIcon width={18} height={18} />
             </button>
             <button
-              className="btn-teal "
+              className="btn-teal  flex-[140px] center"
               type="button"
               onClick={() => {
                 const el = document.getElementById("canvas-section");
@@ -162,7 +168,7 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
               <WorkerIcon width={16} height={16} />
             </button>
             <button
-              className="btn-teal "
+              className="btn-teal  flex-[140px] center"
               type="button"
               onClick={() => {
                 const el = document.getElementById("projects-section");

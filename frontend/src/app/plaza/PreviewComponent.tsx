@@ -92,13 +92,11 @@ export default function PreviewComponent() {
       setCodeCss("");
       return;
     }
-    console.log("<===SCSS===>", SCSS);
     setCodeCss(SCSS);
   }, [SCSS]);
 
   useEffect(() => {
     if (!codeCss) return;
-    console.log("<===codeCss===>", codeCss);
     setTimeout(() => {
       const editor = scssEditorRef.current;
       if (!editor) return;
@@ -257,3 +255,54 @@ export default function PreviewComponent() {
     </>
   );
 }
+
+// [
+//   {
+//     "tag": "div",
+//     "text": "div",
+//     "class": "imgs-container",
+//     "style": "width: 30px;height: 30px;position:relative;z-index:2;",
+//     "children": [
+//       {
+//         "tag": "div",
+//         "text": "imgs",
+//         "class": "imgs",
+//         "style": "overflow: hidden;
+//         position: relative;
+//         position: absolute !important;
+//         width: 100%;
+//         height: 100%;
+//         top: 0;
+//         left: 0;
+//         margin: 0 0 0 0 !important;
+//         padding: 0 0 0 0 !important;",
+//         "children": [{"tag":"img","text":"","class":"","style":"height: 100%;
+//         width: 100%;
+//         object-fit: cover;
+//         object-position: top;
+//         position: absolute;
+//         top: 0;
+//         left: 0;
+//         margin: 0 0 0 0 !important;
+//         padding: 0 0 0 0 !important;","children":[],"attributes":{"alt":"image","src":"https://res.cloudinary.com/dke0nudcz/image/upload/v1747736837/jzzdb1oryvjblibhicl4.jpg"}}]
+//       }
+//     ]
+//   }
+// ]
+// [
+//       {
+//         "tag": "div",
+//         "text": "imgs",
+//         "class": "imgs",
+//         "style": "overflow: hidden;
+//         position: relative;
+//         position: absolute !important;
+//         width: 100%;
+//         height: 100%;
+//         top: 0;
+//         left: 0;
+//         margin: 0 0 0 0 !important;
+//         padding: 0 0 0 0 !important;",
+//         "children": []
+//       }
+//     ]

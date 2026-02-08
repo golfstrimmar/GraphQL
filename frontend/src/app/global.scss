@@ -222,6 +222,10 @@ span {
   color: var(--grey-00);
   border: 1px solid var(--primary);
   padding: 0 5px;
+  &:hover {
+    border: 1px solid #8892b0;
+    background-color: var(--slate);
+  }
   &:active {
     transform: translateY(1px);
     background-color: #64ffda;

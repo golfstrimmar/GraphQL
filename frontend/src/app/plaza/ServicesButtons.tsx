@@ -76,7 +76,7 @@ export default function ServicesButtons() {
         <p className="!text-[12px] !lh-0">remove servises texts</p>
       </button>
       {/*-------------*/}
-      <div className="max-w-[150px]">
+      <div className="flex-[70%] center">
         <JsonToHtmlButton />
       </div>
       {/*------отложено! обратная генерация в htmlJson-------*/}
@@ -85,7 +85,7 @@ export default function ServicesButtons() {
       {/*-------------*/}
       <hr className="border-2-[var(--grey-40)]  w-[25px] rotate-90" />
       <button
-        className="btn-teal "
+        className="btn-teal flex-[140px] center"
         type="button"
         onClick={() => {
           const el = document.getElementById("preview-section");
@@ -98,7 +98,7 @@ export default function ServicesButtons() {
         <PreviewIcon width={18} height={18} />
       </button>
       <button
-        className="btn-teal "
+        className="btn-teal  flex-[140px] center"
         type="button"
         onClick={() => {
           const el = document.getElementById("canvas-section");
@@ -111,7 +111,7 @@ export default function ServicesButtons() {
         <WorkerIcon width={16} height={16} />
       </button>
       <button
-        className="btn-teal "
+        className="btn-teal    flex-[140px] center"
         type="button"
         onClick={() => {
           const el = document.getElementById("projects-section");

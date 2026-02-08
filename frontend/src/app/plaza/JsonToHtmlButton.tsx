@@ -30,7 +30,12 @@ export default function JsonToHtmlButton() {
         return;
       }
       setHTML(data.html);
-      setSCSS(data.scss); // уже очищенный scss из роута
+      setSCSS(data.scss);
+      const el = document.getElementById("preview-section");
+      if (el) {
+        const y = el.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      }
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
       showModal(message, "error");
