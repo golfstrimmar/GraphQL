@@ -12,6 +12,7 @@ import { useScssFromJson } from "@/hooks/useScssFromJson";
 import { useStateContext } from "@/providers/StateProvider";
 import CreateIcon from "@/components/icons/CreateIcon";
 import CloseIcon from "@/components/icons/CloseIcon";
+import ClearIcon from "@/components/icons/ClearIcon";
 import { useRouter } from "next/navigation";
 import JsonToHtmlButton from "./JsonToHtmlButton";
 import ProjectsIcon from "@/components/icons/ProjectsIcon";
@@ -39,12 +40,26 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
   setActiveKey,
 }) => {
   const router = useRouter();
-  const { activeKey, htmlJson, updateHtmlJson } = useStateContext();
+  const {
+    htmlJson,
+    activeKey,
+    resetHtmlJson,
+    updateHtmlJson,
+    setDragKey,
+    setHTML,
+    setSCSS,
+  } = useStateContext();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [Open, setOpen] = useState<boolean>(false);
   const [NodeToSend, setNodeToSend] = useState<HtmlNode | null>(null);
   // -------------
-
+  const resetAll = () => {
+    resetHtmlJson();
+    setActiveKey(null);
+    setDragKey(null);
+    setHTML("");
+    setSCSS("");
+  };
   // -------------
   useEffect(() => {
     console.log("<==!!!=activeKey===>", activeKey);
@@ -100,6 +115,15 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
           }}
         >
           <div className="flex gap-1 w-[calc(100%-10px)] absolute top-0 left-1  !py-0.5 z-10">
+            <button
+              className="btn btn-allert !py-1"
+              type="button"
+              onClick={() => {
+                resetAll();
+              }}
+            >
+              <ClearIcon width={16} height={16} />
+            </button>
             <button
               className="btn btn-primary flex-[40%]"
               onClick={() => setActiveKey(null)}

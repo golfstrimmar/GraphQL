@@ -18,7 +18,7 @@ import CommonPropsPicker from "./CommonPropsPicker";
 import TextPropsPicker from "./TextPropsPicker";
 import PositionPropsPicker from "./PositionPropsPicker";
 import PresetsPicker from "./PresetsPicker";
-
+import СhevronDown from "@/components/icons/ChevronDown";
 export default function MobileAddStyle({
   setStyleText,
   openMobile,
@@ -31,6 +31,13 @@ export default function MobileAddStyle({
   const [historyIndex, setHistoryIndex] = useState(0);
   const canUndo = historyIndex > 0;
   const canRedo = historyIndex < history.length - 1;
+  const modalRef = useRef<HTMLDivElement | null>(null);
+
+  const scrollModalToTop = () => {
+    const el = modalRef.current;
+    if (!el) return;
+    el.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+  };
 
   const handleUndo = () => {
     if (!canUndo) return;
@@ -110,7 +117,7 @@ export default function MobileAddStyle({
   };
   // --------------
   const ItemClass =
-    "grid grid-cols-[100px_1fr] gap-2 bg-[var(--lightest-slate)] rounded-2xl shadow-xl p-2 border border-slate-200"; // --------------
+    "grid grid-cols-[100px_1fr] gap-2  rounded-2xl shadow-xl p-2 bg-[var(--lightest-slate)] border border-slate-200"; // --------------
 
   // --------------
   return (
@@ -125,7 +132,10 @@ export default function MobileAddStyle({
           className=" py-4 fixed inset-0 z-[7000] flex items-center justify-center bg-black/60 backdrop-blur-lg !left-0  w-[100vw] min-h-[100vh]"
           onClick={(e) => {
             e.stopPropagation();
-            if (!(e.target as HTMLElement).closest(".modal-inner")) {
+            if (
+              !(e.target as HTMLElement).closest(".modal-inner") &&
+              !(e.target as HTMLElement).closest(".button-top")
+            ) {
               setOpenMobile(false);
             }
           }}
@@ -137,7 +147,21 @@ export default function MobileAddStyle({
             <Image src="./svg/cross.svg" alt="close" width={20} height={20} />
           </button>
 
-          <div className="modal-inner bg-white p-2 w-full mx-auto max-w-[90%] min-h-[90vh] h-full overflow-y-scroll ">
+          <button
+            className="button-top absolute block rotate-[180deg] bottom-4 right-8 rounded-full z-[7140]  p-2 cursor-pointer bg-[var(--lightest-slate)] border border-slate-200 hover:bg-[var(--slate-400)]  hover:border-[var( --slate-500)] transition-all duration-200 text-[var(--slate-800)] hover:text-[var(--slate-200)]"
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                scrollModalToTop();
+              }
+            }}
+          >
+            <СhevronDown width={20} height={20} />
+          </button>
+
+          <div
+            ref={modalRef}
+            className="modal-inner bg-white p-2 w-full mx-auto max-w-[90%] min-h-[90vh] h-full overflow-y-scroll "
+          >
             <textarea
               ref={(el) => {
                 if (!el) return;
@@ -272,3 +296,4 @@ export default function MobileAddStyle({
     </AnimatePresence>
   );
 }
+// [{"tag":"div","text":"grid 100px_1fr","class":"grid_100px_1fr","style":"display: grid; grid-template-columns: 100px 1fr; align-items: center; gap: 10px;","children":[]}]

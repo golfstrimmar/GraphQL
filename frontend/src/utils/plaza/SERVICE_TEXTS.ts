@@ -14,6 +14,7 @@ const SERVICE_TEXTS = [
   "ul flex row",
   "ul flex col",
   "grid minmax",
+  "grid 100px_1fr",
 
   "li",
   "nav",

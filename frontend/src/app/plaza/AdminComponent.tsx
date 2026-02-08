@@ -54,6 +54,7 @@ const TagsNamen4 = [
   { tag: "section container wrap", color: "powderblue" },
   { tag: "flex row", color: "powderblue" },
   { tag: "flex col", color: "powderblue" },
+  { tag: "grid 100px_1fr", color: "powderblue" },
   { tag: "grid minmax", color: "powderblue" },
   { tag: "ul flex row", color: "powderblue" },
   { tag: "ul flex col", color: "powderblue" },
@@ -63,6 +64,7 @@ const TagsNamen5 = [
   // { tag: "HERO", color: "powderblue" },
   { tag: "CARDS", color: "powderblue" },
   { tag: "CARD", color: "powderblue" },
+  { tag: "CARD EMPTY", color: "powderblue" },
 ];
 type ProjectData = {
   tag: string;
@@ -130,4 +132,4 @@ export default AdminComponent;
 // grid-template-columns: repeat(auto-fill, minmax(250px,1fr));
 // align-items: center;
 // gap: 10px;
-// [{"tag":"div","text":"grid minmax","class":"","style":"display: grid; grid-template-columns: repeat(auto-fill, minmax(250px,1fr)); align-items: center; gap: 10px;","children":[]}]
+// [{"tag":"div","text":"grid 100px_1fr","class":"","style":"display: grid; grid-template-columns: 100px 1fr; align-items: center; gap: 10px;","children":[]}]
