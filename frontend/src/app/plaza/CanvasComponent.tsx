@@ -326,7 +326,8 @@ export default function CanvasComponent() {
           renderNode(child, node._key || parentKey),
         )
       : null;
-
+    const isSvgInner =
+      node.tag === "circle" || node.tag === "path" || node.tag === "rect";
     return (
       <Tag
         data-key={node._key}
@@ -372,7 +373,6 @@ export default function CanvasComponent() {
       className="bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 relative mt-[25px] "
     >
       {PageHeader("canvasIcon", "Canvas")}
-
       <div
         id="plaza-render-area"
         className="flex flex-col gap-2 mb-2 relative text-[#000] rounded overflow-hidden"

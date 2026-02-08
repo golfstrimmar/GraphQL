@@ -208,6 +208,13 @@ export default function MobileAddStyle({
             </div>
 
             <div className="flex flex-col gap-2 mt-6">
+              {/*========background-color===========*/}
+              <div className={ItemClass}>
+                <span className="text-[var(--navy)] font-bold text-[14px]">
+                  background-color:
+                </span>
+                <ColorPicker toAdd={toAdd} />
+              </div>
               {/*========Presets===========*/}
               <div className={ItemClass}>
                 <span className="text-[var(--navy)] font-bold text-[14px]">
@@ -257,13 +264,6 @@ export default function MobileAddStyle({
                   Grid
                 </span>
                 <GridContainerPicker toAdd={toAdd} />
-              </div>
-              {/*========background-color===========*/}
-              <div className={ItemClass}>
-                <span className="text-[var(--navy)] font-bold text-[14px]">
-                  background-color:
-                </span>
-                <ColorPicker toAdd={toAdd} />
               </div>
             </div>
           </div>

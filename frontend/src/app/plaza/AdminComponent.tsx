@@ -51,11 +51,12 @@ const TagsNamen2 = [
   { tag: "source", color: "#38bdf8" }, // sky-light
 ];
 const TagsNamen4 = [
-  { tag: "section container wrap", color: "powderblue" }, // teal
-  { tag: "flex row", color: "powderblue" }, // teal
-  { tag: "flex col", color: "powderblue" }, // teal
-  { tag: "ul flex row", color: "powderblue" }, // teal
-  { tag: "ul flex col", color: "powderblue" }, // teal
+  { tag: "section container wrap", color: "powderblue" },
+  { tag: "flex row", color: "powderblue" },
+  { tag: "flex col", color: "powderblue" },
+  { tag: "grid minmax", color: "powderblue" },
+  { tag: "ul flex row", color: "powderblue" },
+  { tag: "ul flex col", color: "powderblue" },
 ];
 const TagsNamen5 = [
   // { tag: "SECTION", color: "powderblue" },
@@ -125,3 +126,8 @@ const AdminComponent = () => {
 };
 
 export default AdminComponent;
+// display: grid;
+// grid-template-columns: repeat(auto-fill, minmax(250px,1fr));
+// align-items: center;
+// gap: 10px;
+// [{"tag":"div","text":"grid minmax","class":"","style":"display: grid; grid-template-columns: repeat(auto-fill, minmax(250px,1fr)); align-items: center; gap: 10px;","children":[]}]

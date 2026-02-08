@@ -4,20 +4,21 @@ import React from "react";
 const commonProps1 = [
   // Width/Height
   "width: 100%;",
+  "height: 100%;",
+  "width: 30px;",
+  "height: 30px;",
   "min-width: px;",
   "max-width: px;",
   "max-width: calc(100vw - 20px);",
-  "calc(100vw - 20px);",
-] as const;
-const commonProps2 = [
-  "height: 100%;",
   "max-height: 100vh;",
   "min-height: 100vh;",
+  "calc(100vw - 20px);",
 ] as const;
+const commonProps2 = [""] as const;
 const commonProps3 = [
   // Margin
-  "margin: 20px 0 0 0;",
-  "padding: 20px 0 0 0;",
+  "margin: 20px 0;",
+  "padding: 20px 0;",
   "margin: 0 auto;",
 ] as const;
 const commonProps4 = [
@@ -78,7 +79,7 @@ export default function CommonPropsPicker({
         ))}
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      {/*<div className="flex flex-wrap gap-2">
         {commonProps2.map((prop: string) => (
           <button
             key={prop}
@@ -89,7 +90,7 @@ export default function CommonPropsPicker({
             {prop.split(";")[0].trim()}
           </button>
         ))}
-      </div>
+      </div>*/}
       <div className="flex flex-wrap gap-2">
         {commonProps3.map((prop: string) => (
           <button

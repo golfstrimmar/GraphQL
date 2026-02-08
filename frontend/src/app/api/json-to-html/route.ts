@@ -72,6 +72,7 @@ const SERVICE_TEXTS = [
   "cards__card card",
   "card__title",
   "card__button",
+  "grid minmax",
 ];
 
 function normalizeClasses(cls?: string): string[] {
