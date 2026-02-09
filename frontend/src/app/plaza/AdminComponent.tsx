@@ -19,7 +19,7 @@ const TagsNamen1 = [
   { tag: "span", color: "#8b5cf6" }, // violet
   { tag: "ul", color: "#f97316" }, // orange
   { tag: "li", color: "#eab308" }, // yellow
-  { tag: "imgs", color: "#0ea5e9" },
+  { tag: "is", color: "#0ea5e9" },
   { tag: "img", color: "#0ea5e9" }, // sky
   { tag: "svg", color: "#06b6d4" }, // cyan
   { tag: "nav", color: "#14b8a6" }, // teal
