@@ -133,11 +133,17 @@ export const GET_DESIGN_SYSTEMS_BY_USER = gql`
         classText
         styleText
       }
+      images {
+        id
+        publicId
+        url
+        alt
+        createdAt
+      }
     }
   }
 `;
 
-// Получить дизайн-систему по ID
 export const GET_DESIGN_SYSTEM = gql`
   query getDesignSystem($id: ID!) {
     getDesignSystem(id: $id) {
@@ -147,6 +153,13 @@ export const GET_DESIGN_SYSTEM = gql`
         tagText
         classText
         styleText
+      }
+      images {
+        id
+        publicId
+        url
+        alt
+        createdAt
       }
     }
   }

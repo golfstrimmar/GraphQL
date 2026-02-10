@@ -7,6 +7,7 @@ const getDesignSystemsByUser = async (_, { userId }) => {
     where: { creatorId: Number(userId) },
     include: {
       designTexts: true,
+      images: true,
     },
   });
   return systems ?? [];

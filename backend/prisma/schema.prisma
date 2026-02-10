@@ -112,15 +112,30 @@ model DesignTexts {
 
   @@index([designSystemId])
 }
+
+model DesignImage {
+  id             Int           @id @default(autoincrement())
+  publicId       String        // Cloudinary public_id
+  url            String        // secure_url или трансформированный URL
+  alt            String?
+  createdAt      DateTime      @default(now())
+
+  designSystem   DesignSystem? @relation(fields: [designSystemId], references: [id], onDelete: Cascade)
+  designSystemId Int?
+
+  @@index([designSystemId])
+}
+
+
 model DesignSystem {
   id              Int           @id @default(autoincrement())
-  name        String
-  designTexts DesignTexts[]
+  name            String
+  designTexts     DesignTexts[]
+  images          DesignImage[]   // ← связь с картинками
+  createdAt       DateTime        @default(now())
 
-  createdAt   DateTime     @default(now())
-
-  creatorId   Int
-  creator     User         @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  creatorId       Int
+  creator         User            @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
   @@unique([creatorId, name], name: "creatorId_name")
 }

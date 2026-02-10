@@ -300,11 +300,13 @@ export const CREATE_DESIGN_SYSTEM = gql`
     $ownerId: ID!
     $name: String!
     $designTexts: [DesignTextInput!]!
+    $images: [DesignImageInput!]
   ) {
     createDesignSystem(
       ownerId: $ownerId
       name: $name
       designTexts: $designTexts
+      images: $images
     ) {
       id
       name
@@ -314,16 +316,30 @@ export const CREATE_DESIGN_SYSTEM = gql`
         classText
         styleText
       }
+      images {
+        id
+        publicId
+        url
+        alt
+        createdAt
+      }
     }
   }
 `;
+
 export const UPDATE_DESIGN_SYSTEM = gql`
   mutation updateDesignSystem(
     $id: ID!
     $ownerId: ID!
     $designTexts: [DesignTextInput!]!
+    $images: [DesignImageInput!]
   ) {
-    updateDesignSystem(id: $id, ownerId: $ownerId, designTexts: $designTexts) {
+    updateDesignSystem(
+      id: $id
+      ownerId: $ownerId
+      designTexts: $designTexts
+      images: $images
+    ) {
       id
       name
       createdAt
@@ -332,6 +348,13 @@ export const UPDATE_DESIGN_SYSTEM = gql`
         classText
         styleText
       }
+      images {
+        id
+        publicId
+        url
+        alt
+        createdAt
+      }
     }
   }
 `;
@@ -339,5 +362,58 @@ export const UPDATE_DESIGN_SYSTEM = gql`
 export const REMOVE_DESIGN_SYSTEM = gql`
   mutation RemoveDesignSystem($id: ID!) {
     removeDesignSystem(id: $id)
+  }
+`;
+export const ADD_DESIGN_IMAGES_TO_SYSTEM = gql`
+  mutation addDesignImagesToSystem(
+    $designSystemId: ID!
+    $images: [DesignImageInput!]!
+  ) {
+    addDesignImagesToSystem(designSystemId: $designSystemId, images: $images) {
+      id
+      name
+      images {
+        id
+        publicId
+        url
+        alt
+        createdAt
+      }
+    }
+  }
+`;
+
+export const UPDATE_DESIGN_IMAGES = gql`
+  mutation updateDesignImages(
+    $designSystemId: ID!
+    $images: [DesignImageUpdateInput!]!
+  ) {
+    updateDesignImages(designSystemId: $designSystemId, images: $images) {
+      id
+      name
+      images {
+        id
+        publicId
+        url
+        alt
+        createdAt
+      }
+    }
+  }
+`;
+
+export const REMOVE_DESIGN_IMAGE = gql`
+  mutation removeDesignImage($designSystemId: ID!, $imageId: ID!) {
+    removeDesignImage(designSystemId: $designSystemId, imageId: $imageId) {
+      id
+      name
+      images {
+        id
+        publicId
+        url
+        alt
+        createdAt
+      }
+    }
   }
 `;

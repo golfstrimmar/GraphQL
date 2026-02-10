@@ -1,6 +1,9 @@
 import prisma from "../prisma/client.js";
 
-const createDesignSystem = async (_, { ownerId, name, designTexts }) => {
+const createDesignSystem = async (
+  _,
+  { ownerId, name, designTexts, images },
+) => {
   if (!ownerId || !name) {
     throw new Error("Name and ownerId are required");
   }
@@ -30,10 +33,20 @@ const createDesignSystem = async (_, { ownerId, name, designTexts }) => {
             styleText: fs.styleText,
           })),
         },
+        images: images
+          ? {
+              create: images.map((img) => ({
+                publicId: img.publicId,
+                url: img.url,
+                alt: img.alt ?? null,
+              })),
+            }
+          : undefined,
       },
       include: {
         creator: true,
         designTexts: true,
+        images: true,
       },
     });
 

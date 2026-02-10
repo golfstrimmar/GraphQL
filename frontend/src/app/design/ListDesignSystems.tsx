@@ -42,6 +42,7 @@ export default function ListDesignSystems({
   const [texts, setTexts] = useState<(Text | null)[]>(Array(10).fill(null));
   const [buttons, setButtons] = useState<(Text | null)[]>(Array(10).fill(null));
   const [isTransformed, setIsTransformed] = useState<boolean>(false);
+  const [images, setImages] = useState<DesignImage[]>([]);
   // --------------
   const resetAll = () => {
     updateHtmlJson([]);
@@ -73,7 +74,9 @@ export default function ListDesignSystems({
         if (!system) return;
 
         const dtxt = system.designTexts ?? [];
+        const dimg = system.images ?? [];
         console.log("<===dtxt===>", dtxt);
+        console.log("<===dimg===>", dimg);
         const clientTexts: Text[] = dtxt
           .filter((t) => t.tagText !== "button")
           .map((t, index) => {
@@ -102,6 +105,7 @@ export default function ListDesignSystems({
           ...Array(10 - clientButtons.length).fill(null),
         ];
         setButtons(restbtns);
+        setImages(dimg);
       },
       onError: (error) => {
         console.error(error);
@@ -234,6 +238,28 @@ export default function ListDesignSystems({
           buttons={buttons}
           setButtons={setButtons}
         />
+      </div>
+      <div className="flex flex-col gap-2 mb-2 w-full bg-navy rounded-2xl shadow-xl p-2   border border-slate-200 ">
+        <h6 className="text-sm text-gray-400  mb-1">
+          <span className="bg-[var(--teal)] w-2 h-2 rounded-full"></span> Image
+          Nodes
+        </h6>
+        {images.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-2">
+            {images.map((img) => (
+              <div
+                key={img.id}
+                className="w-24 h-24 overflow-hidden rounded border border-slate-600"
+              >
+                <img
+                  src={img.url}
+                  alt={img.alt || img.publicId}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

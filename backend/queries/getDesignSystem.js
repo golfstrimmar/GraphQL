@@ -9,6 +9,7 @@ const getDesignSystem = async (_, { id }) => {
     },
     include: {
       designTexts: true,
+      images: true,
     },
   });
 

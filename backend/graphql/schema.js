@@ -153,14 +153,30 @@ export const typeDefs = gql`
     classText: String!
     styleText: String!
   }
+  input DesignImageInput {
+    publicId: String!
+    url: String!
+    alt: String
+  }
 
+  input DesignImageUpdateInput {
+    id: ID!
+    alt: String
+  }
+  type DesignImage {
+    id: ID!
+    publicId: String!
+    url: String!
+    alt: String
+    createdAt: String!
+  }
   type DesignSystem {
     id: ID!
     name: String!
     designTexts: [DesignText!]!
+    images: [DesignImage!]!
     createdAt: String!
   }
-
   type Query {
     users: [User!]!
     findProject(id: ID!): Project
@@ -209,16 +225,32 @@ export const typeDefs = gql`
     ): FigmaProject!
     uploadImage(file: Upload!): ImageUploadResponse!
     createDesign(ownerId: ID!, name: String!, figmaUrl: String!): FigmaProject!
+
     createDesignSystem(
       ownerId: ID!
       name: String!
       designTexts: [DesignTextInput!]!
+      images: [DesignImageInput!]
     ): DesignSystem!
+
     updateDesignSystem(
       id: ID!
       ownerId: ID!
       designTexts: [DesignTextInput!]!
+      images: [DesignImageInput!]
     ): DesignSystem!
+
+    addDesignImagesToSystem(
+      designSystemId: ID!
+      images: [DesignImageInput!]!
+    ): DesignSystem!
+
+    updateDesignImages(
+      designSystemId: ID!
+      images: [DesignImageUpdateInput!]!
+    ): DesignSystem!
+
+    removeDesignImage(designSystemId: ID!, imageId: ID!): DesignSystem!
     removeDesignSystem(id: ID!): ID!
   }
 
