@@ -14,6 +14,7 @@ export default function ModalCreateDesignSystem({
   setModalCreateOpen,
   texts,
   buttons,
+  images,
 }) {
   const { user, showModal } = useStateContext();
   const router = useRouter();
@@ -96,6 +97,7 @@ export default function ModalCreateDesignSystem({
                     ownerId: user?.id,
                     name: name,
                     designTexts: [...ToBD, ...bToBD],
+                    images: [], // пока без картинок
                   },
                 });
               }}

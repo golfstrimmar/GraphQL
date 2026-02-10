@@ -13,7 +13,7 @@ import DesigntTextNodes from "./DesigntTextNodes";
 import DesignButtons from "./DesignButtons";
 import "@/app/design/design.scss";
 import type { HtmlNode } from "@/types/HtmlNode";
-import type { DesignSystem } from "@/types/DesignSystem";
+import type { DesignSystem, Text, DesignImage } from "@/types/DesignSystem";
 import { useRouter } from "next/navigation";
 import ClearIcon from "@/components/icons/ClearIcon";
 import { CONTENT, dTN, dBT } from "@/app/design/defaults";
@@ -23,11 +23,6 @@ const ModalCreateDesignSystem = dynamic(
   { ssr: false, loading: () => <Loading /> },
 );
 
-type Text = {
-  tagName: string;
-  className: string;
-  style: string;
-};
 // ====🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
 export default function ListDesignSystems({
   designSystems,
@@ -176,6 +171,7 @@ export default function ListDesignSystems({
                 id={system.id}
                 buttons={buttons}
                 texts={texts}
+                images={images}
               />
 
               <RemoveDesignSystem id={system.id} resetAll={resetAll} />
@@ -195,6 +191,7 @@ export default function ListDesignSystems({
         setModalCreateOpen={setModalCreateOpen}
         texts={texts}
         buttons={buttons}
+        images={images}
       />
       {(validTexts.length > 0 || validButtons.length > 0) && (
         <div className="flex items-center mt-[30px] mb-2 gap-2 w-full bg-navy rounded shadow-xl p-2   border border-slate-200 ">

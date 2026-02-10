@@ -14,7 +14,7 @@ import Spinner from "@/components/icons/Spinner";
 import Update from "@/components/icons/Update";
 
 // --- 🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
-export default function UpdateDesignSystem({ id, buttons, texts }) {
+export default function UpdateDesignSystem({ id, buttons, texts, images }) {
   const { user, showModal } = useStateContext();
   const router = useRouter();
   const [updateDesignSystem, { loading, error }] = useMutation(
@@ -68,6 +68,7 @@ export default function UpdateDesignSystem({ id, buttons, texts }) {
             id: id,
             ownerId: user?.id,
             designTexts: [...ToBD, ...bToBD],
+            images: [],
           },
         });
       }}
