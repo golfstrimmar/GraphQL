@@ -11,6 +11,7 @@ import dynamic from "next/dynamic";
 import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
 import DesigntTextNodes from "./DesigntTextNodes";
 import DesignButtons from "./DesignButtons";
+import DesignImages from "./DesignImages";
 import "@/app/design/design.scss";
 import type { HtmlNode } from "@/types/HtmlNode";
 import type { DesignSystem, Text, DesignImage } from "@/types/DesignSystem";
@@ -22,7 +23,11 @@ const ModalCreateDesignSystem = dynamic(
   () => import("./ModalCreateDesignSystem"),
   { ssr: false, loading: () => <Loading /> },
 );
-
+type LocalImage = {
+  id: string;
+  name: string;
+  url: string; // ObjectURL для превью
+};
 // ====🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
 export default function ListDesignSystems({
   designSystems,
@@ -37,7 +42,12 @@ export default function ListDesignSystems({
   const [texts, setTexts] = useState<(Text | null)[]>(Array(10).fill(null));
   const [buttons, setButtons] = useState<(Text | null)[]>(Array(10).fill(null));
   const [isTransformed, setIsTransformed] = useState<boolean>(false);
-  const [images, setImages] = useState<DesignImage[]>([]);
+  const [images, setImages] = useState<LocalImage[]>([]);
+  // --------------
+  useEffect(() => {
+    if (!images) return;
+    console.log("<=🟢🔹🟢==images===>", images);
+  }, [images]);
   // --------------
   const resetAll = () => {
     updateHtmlJson([]);
@@ -113,12 +123,10 @@ export default function ListDesignSystems({
   const validTexts: Text[] = texts?.filter((t): t is Text => t !== null) ?? [];
   const validButtons: Text[] =
     buttons?.filter((t): t is Text => t !== null) ?? [];
+  const validImages: LocalImage[] =
+    images?.filter((t): t is LocalImage => t !== null) ?? [];
   // --------------------
   const transformToHtmlJson = () => {
-    // if (!validTexts.length) return;
-    // if (!validButtons.length) return;
-
-    // ✅ Map только по непустым элементам
     const nodes: HtmlNode[] = validTexts.map((t) =>
       generateTextNode(t.tagName || "p", t.className, t.style),
     );
@@ -126,13 +134,30 @@ export default function ListDesignSystems({
       generateTextNode("button", t.className, t.style),
     );
 
+    const imageNodes: HtmlNode[] =
+      images.map((img) => ({
+        tag: "img",
+        text: "",
+        class: "",
+        style: "",
+        children: [],
+        attributes: {
+          alt: "image",
+          src: img.url,
+        },
+      })) ?? [];
+
     const result = ensureNodeKeys(nodes);
     const resultButtons = ensureNodeKeys(nodesButtons);
-    updateHtmlJson((prev) => {
-      return [...prev, ...result, ...resultButtons];
-    });
+    const resultImages = ensureNodeKeys(imageNodes);
 
-    // ✅ Добавляем обработку состояния isTransformed
+    updateHtmlJson((prev) => [
+      ...prev,
+      ...result,
+      ...resultButtons,
+      ...resultImages,
+    ]);
+
     setIsTransformed(true);
     setTimeout(() => {
       setIsTransformed(false);
@@ -193,7 +218,9 @@ export default function ListDesignSystems({
         buttons={buttons}
         images={images}
       />
-      {(validTexts.length > 0 || validButtons.length > 0) && (
+      {(validTexts.length > 0 ||
+        validButtons.length > 0 ||
+        validImages.length > 0) && (
         <div className="flex items-center mt-[30px] mb-2 gap-2 w-full bg-navy rounded shadow-xl p-2   border border-slate-200 ">
           <button
             className="btn btn-teal    text-[14px]"
@@ -241,23 +268,29 @@ export default function ListDesignSystems({
           <span className="bg-[var(--teal)] w-2 h-2 rounded-full"></span> Image
           Nodes
         </h6>
-        {images.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-2">
-            {images.map((img) => (
-              <div
-                key={img.id}
-                className="w-24 h-24 overflow-hidden rounded border border-slate-600"
-              >
-                <img
-                  src={img.url}
-                  alt={img.alt || img.publicId}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            ))}
-          </div>
-        )}
+        <DesignImages
+          resetAll={resetAll}
+          images={images}
+          setImages={setImages}
+        />
       </div>
+
+      {images.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-2">
+          {images.map((img) => (
+            <div
+              key={img.id}
+              className="w-24 h-24 overflow-hidden rounded border border-slate-600"
+            >
+              <img
+                src={img.url}
+                alt={img.alt || img.publicId}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
