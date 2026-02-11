@@ -4,11 +4,12 @@ import { useStateContext } from "@/providers/StateProvider";
 import { useMutation, useQuery, useLazyQuery } from "@apollo/client";
 import { AnimatePresence, motion } from "framer-motion";
 import Input from "@/components/ui/Input/Input";
-import { CREATE_DESIGN_SYSTEM } from "@/apollo/mutations";
+import { CREATE_DESIGN_SYSTEM, UPLOAD_ULON_IMAGE } from "@/apollo/mutations";
 import Spinner from "@/components/icons/Spinner";
 import { useRouter } from "next/navigation";
-
+import { getImageById, type StoredImage } from "./utils/imageStore";
 // 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹
+
 export default function ModalCreateDesignSystem({
   modalCreateOpen,
   setModalCreateOpen,
@@ -19,6 +20,21 @@ export default function ModalCreateDesignSystem({
   const { user, showModal } = useStateContext();
   const router = useRouter();
   const [name, setName] = useState<string>("");
+  // --------------
+  const [uploadImage, { loading: uploadLoading }] = useMutation(
+    UPLOAD_ULON_IMAGE,
+    {
+      onCompleted: (data) => {
+        if (data?.uploadImage) {
+          console.log("<===data.url===>", data.uploadImage.url);
+          console.log("<===data.filename===>", data.uploadImage.filename);
+        }
+      },
+      onError: (error) => {
+        console.log("error", error);
+      },
+    },
+  );
   //   // -----------------------
   const [createDesignSystem, { data, loading }] = useMutation(
     CREATE_DESIGN_SYSTEM,
@@ -39,6 +55,34 @@ export default function ModalCreateDesignSystem({
       },
     },
   );
+  // ---------------
+  async function uploadAllImagesToCloudinary(images: { id: string }[]) {
+    const uploaded: { publicId: string; url: string; alt?: string | null }[] =
+      [];
+
+    for (const img of images) {
+      const stored = await getImageById(img.id);
+      if (!stored) {
+        console.warn("Image not found in IndexedDB", img.id);
+        continue;
+      }
+
+      const file = new File([stored.blob], stored.name, {
+        type: stored.blob.type || "image/*",
+      });
+
+      const { data } = await uploadImage({ variables: { file } });
+      if (data?.uploadImage) {
+        uploaded.push({
+          publicId: data.uploadImage.filename,
+          url: data.uploadImage.url,
+          alt: null,
+        });
+      }
+    }
+
+    return uploaded;
+  }
 
   // ---------------
   // есть хотя бы один текст (не null)
@@ -65,7 +109,7 @@ export default function ModalCreateDesignSystem({
             }}
           >
             <form
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
                 if (!name || !user || !hasAtLeastOneText) {
                   showModal(
@@ -74,32 +118,41 @@ export default function ModalCreateDesignSystem({
                   );
                   return;
                 }
-                let ToBD = texts
-                  ?.filter((foo) => {
-                    return foo !== null;
-                  })
+
+                const ToBD = texts
+                  ?.filter((foo) => foo !== null)
                   .map((t) => ({
                     tagText: t.tagName || "div",
                     classText: t.className || "",
                     styleText: t.style || "",
                   }));
+
                 const bToBD = buttons
-                  .filter((foo) => {
-                    return foo !== null;
-                  })
+                  .filter((foo) => foo !== null)
                   .map((b) => ({
                     tagText: "button",
                     classText: b.className || "",
                     styleText: b.style || "",
                   }));
-                createDesignSystem({
-                  variables: {
-                    ownerId: user?.id,
-                    name: name,
-                    designTexts: [...ToBD, ...bToBD],
-                    images: [], // пока без картинок
-                  },
-                });
+
+                try {
+                  // 1) грузим все картинки из IndexedDB -> Cloudinary
+                  const uploadedImages =
+                    await uploadAllImagesToCloudinary(images);
+
+                  // 2) вызываем createDesignSystem с нормальным массивом images
+                  await createDesignSystem({
+                    variables: {
+                      ownerId: user?.id,
+                      name,
+                      designTexts: [...ToBD, ...bToBD],
+                      images: uploadedImages, // [{ publicId, url, alt }]
+                    },
+                  });
+                } catch (error) {
+                  console.error("Error saving images:", error);
+                  showModal("Failed to save images", "error");
+                }
               }}
               className="modal-content flex flex-col  bg-slate-400 p-1 rounded-lg w-full gap-4"
             >
@@ -117,7 +170,7 @@ export default function ModalCreateDesignSystem({
                   type="submit"
                   disabled={loading}
                 >
-                  {loading ? <Spinner /> : "Save"}
+                  {loading || uploadLoading ? <Spinner /> : "Save"}
                 </button>
                 <button
                   className="btn btn-allert"

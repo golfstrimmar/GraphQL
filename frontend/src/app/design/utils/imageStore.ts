@@ -79,3 +79,17 @@ export async function deleteImage(id: string): Promise<void> {
     tx.onerror = () => reject(tx.error);
   });
 }
+
+export async function getImageById(id: string): Promise<StoredImage | null> {
+  const db = await openDB();
+  const tx = db.transaction(STORE_NAME, "readonly");
+  const store = tx.objectStore(STORE_NAME);
+
+  return new Promise((resolve, reject) => {
+    const req = store.get(id);
+    req.onsuccess = () => {
+      resolve((req.result as StoredImage) ?? null);
+    };
+    req.onerror = () => reject(req.error);
+  });
+}

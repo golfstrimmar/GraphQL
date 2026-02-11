@@ -1,4 +1,5 @@
 "use client";
+
 import Spinner from "@/components/icons/Spinner";
 import React, { useEffect, useState } from "react";
 import ClearIcon from "@/components/icons/ClearIcon";
@@ -16,6 +17,7 @@ type LocalImage = {
   url: string; // ObjectURL для превью
 };
 
+// ----------------------
 export default function DesignImages({
   images,
   setImages,
@@ -120,7 +122,7 @@ export default function DesignImages({
               />
               <button
                 type="button"
-                className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 text-xs text-white flex items-center justify-center z-20"
+                className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 text-xs text-white flex items-center justify-center z-20 btn btn-allert"
                 onClick={() => handleDeleteOne(img.id)}
               >
                 ×

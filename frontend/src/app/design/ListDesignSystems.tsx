@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from "react";
 import Spinner from "@/components/icons/Spinner";
 import { useStateContext } from "@/providers/StateProvider";
-import { useLazyQuery } from "@apollo/client";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import { GET_DESIGN_SYSTEM } from "@/apollo/queries";
+
 import RemoveDesignSystem from "./RemoveDesignSystem";
 import Loading from "@/components/ui/Loading/Loading";
 import UpdateDesignSystem from "./UpdateDesignSystem";
@@ -18,6 +19,13 @@ import type { DesignSystem, Text, DesignImage } from "@/types/DesignSystem";
 import { useRouter } from "next/navigation";
 import ClearIcon from "@/components/icons/ClearIcon";
 import { CONTENT, dTN, dBT } from "@/app/design/defaults";
+import {
+  saveImage,
+  getAllImages,
+  clearImages,
+  deleteImage,
+  type StoredImage,
+} from "./utils/imageStore";
 // -----------
 const ModalCreateDesignSystem = dynamic(
   () => import("./ModalCreateDesignSystem"),
@@ -35,7 +43,6 @@ export default function ListDesignSystems({
   designSystems: DesignSystem[];
 }) {
   const router = useRouter();
-
   const { showModal, updateHtmlJson } = useStateContext();
   const [modalCreateOpen, setModalCreateOpen] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<string>("");
@@ -43,6 +50,7 @@ export default function ListDesignSystems({
   const [buttons, setButtons] = useState<(Text | null)[]>(Array(10).fill(null));
   const [isTransformed, setIsTransformed] = useState<boolean>(false);
   const [images, setImages] = useState<LocalImage[]>([]);
+
   // --------------
   useEffect(() => {
     if (!images) return;
@@ -53,6 +61,8 @@ export default function ListDesignSystems({
     updateHtmlJson([]);
     setTexts(Array(10).fill(null));
     setButtons(Array(10).fill(null));
+    clearImages();
+    setImages([]);
   };
   // --------------
   function generateTextNode(
@@ -127,6 +137,7 @@ export default function ListDesignSystems({
     images?.filter((t): t is LocalImage => t !== null) ?? [];
   // --------------------
   const transformToHtmlJson = () => {
+    setIsTransformed(true);
     const nodes: HtmlNode[] = validTexts.map((t) =>
       generateTextNode(t.tagName || "p", t.className, t.style),
     );
@@ -158,11 +169,10 @@ export default function ListDesignSystems({
       ...resultImages,
     ]);
 
-    setIsTransformed(true);
     setTimeout(() => {
       setIsTransformed(false);
       router.push("/plaza");
-    }, 500);
+    }, 1000);
   };
 
   // --------------------
@@ -180,6 +190,7 @@ export default function ListDesignSystems({
             <div className="flex items-center " key={system.id}>
               <button
                 onClick={() => {
+                  resetAll();
                   loadDesignSystem({ variables: { id: system.id } });
                   setSelectedId(system.id);
                 }}
@@ -268,14 +279,10 @@ export default function ListDesignSystems({
           <span className="bg-[var(--teal)] w-2 h-2 rounded-full"></span> Image
           Nodes
         </h6>
-        <DesignImages
-          resetAll={resetAll}
-          images={images}
-          setImages={setImages}
-        />
+        <DesignImages images={images} setImages={setImages} />
       </div>
 
-      {images.length > 0 && (
+      {/*{images.length > 0 && (
         <div className="mt-2 flex flex-wrap gap-2">
           {images.map((img) => (
             <div
@@ -290,7 +297,7 @@ export default function ListDesignSystems({
             </div>
           ))}
         </div>
-      )}
+      )}*/}
     </div>
   );
 }

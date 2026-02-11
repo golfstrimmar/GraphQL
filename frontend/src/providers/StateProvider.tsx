@@ -15,6 +15,7 @@ import {
   USER_UPDATED,
   USER_DELETED,
 } from "@/apollo/subscriptions";
+import { clearImages } from "@/app/design/utils/imageStore";
 
 const ModalMessage = dynamic(
   () => import("@/components/ModalMessage/ModalMessage"),
@@ -141,7 +142,13 @@ export function StateProvider({
     variables: { name: "initialTags" },
     fetchPolicy: "network-only",
   });
+  // ------------------------
 
+  useEffect(() => {
+    if (!user) {
+      clearImages();
+    }
+  }, [user]);
   // ------------------------ INIT HTML JSON ------------------------
   const resetHtmlJson = () => {
     setUndoStack([]);
