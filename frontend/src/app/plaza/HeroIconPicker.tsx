@@ -24,6 +24,7 @@ export default function HeroIconPicker({
   openSVGModal,
   onClose,
 }: Props) {
+  // ====>====>====>====>====>====>====>====>====>====>
   useEffect(() => {
     if (openSVGModal) {
       document.body.style.maxHeight = "100vh";
@@ -33,6 +34,7 @@ export default function HeroIconPicker({
       document.body.style.overflow = "auto";
     }
   }, [openSVGModal]);
+  // ====>====>====>====>====>====>====>====>====>====>
   return (
     <AnimatePresence>
       {openSVGModal && (
@@ -80,7 +82,7 @@ export default function HeroIconPicker({
                 }`}
                 title={label}
               >
-                <Component className="w-5 h-5 mb-1" color="red" />
+                <Component className="w-5 h-5 mb-1" color="white" />
                 <span className="truncate max-w-[80px]">{label}</span>
               </button>
             ))}

@@ -117,14 +117,18 @@ const AdminComponent = () => {
   const HEROICONS_BASE =
     "https://cdn.jsdelivr.net/npm/heroicons@latest/24/outline/";
   function heroiconNameToFile(name: string) {
-    // "HomeIcon" -> "home"
     const base = name.replace(/Icon$/, "");
-    // "UserCircle" -> "user-circle"
-    return base.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+    // Сначала разбиваем границу «буква (любая) → заглавная + маленькая»
+    const step1 = base.replace(/(.)([A-Z][a-z])/g, "$1-$2");
+    // Потом границу «маленькая/цифра → заглавная»
+    const step2 = step1.replace(/([a-z0-9])([A-Z])/g, "$1-$2");
+    return step2.toLowerCase();
   }
+
   function heroiconSrc(name: string) {
     return `${HEROICONS_BASE}${heroiconNameToFile(name)}.svg`;
   }
+
   function RenderHeroIcon() {
     if (!selectedIcon) return null;
 

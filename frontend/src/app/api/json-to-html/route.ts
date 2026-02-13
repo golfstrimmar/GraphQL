@@ -1,81 +1,110 @@
 import { NextResponse } from "next/server";
-const GROQ_API_KEY = process.env.GROQ_API_KEY;
-const selfClosingTags = new Set([
-  "area",
-  "base",
-  "br",
-  "col",
-  "embed",
-  "hr",
-  "img",
-  "input",
-  "link",
-  "meta",
-  "param",
-  "source",
-  "track",
-  "wbr",
-]);
+import { DOMParser as XmldomParser } from "xmldom";
+import defaults from "@/app/api/json-to-html/utils/default";
 
-const SERVICE_TEXTS = [
-  "section",
-  "container",
-  "flex row",
-  "flex col",
-  "link",
-  "span",
-  "div",
-  "div__wrap",
-  "a",
-  "button",
-  "ul",
-  "flex",
-  "ul flex row",
-  "ul flex col",
-  "grid minmax",
-  "grid 100px_1fr",
-  "li",
-  "nav",
-  "h1",
-  "h2",
-  "h3",
-  "h4",
-  "h5",
-  "h6",
-  "p",
-  "legend",
-  "article",
-  "aside",
-  "fieldset",
-  "form",
-  "header",
-  "ol",
-  "option",
-  "optgroup",
-  "select",
-  "imgs",
-  "img",
-  "img-container",
-  "img container",
-  "hero__wrap",
-  "hero__title",
-  "hero__content",
-  "hero img",
-  "hero__img",
-  "hero__info",
-  "hero__items",
-  "slotes",
-  "slotes__wrap",
-  "slotes__title",
-  "slotes__title title",
-  "slotes__cards",
-  "slotes__cards cards",
-  "cards__card",
-  "cards__card card",
-  "card__title",
-  "card__button",
-  "grid minmax",
-];
+const { selfClosingTags, SERVICE_TEXTS } = defaults;
+
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
+
+// === ICONS: img[src] -> inline SVG =======================
+
+function getIconNameFromSrc(src: string): string | null {
+  try {
+    const url = new URL(src);
+    const file = url.pathname.split("/").pop() || "";
+    if (!file.endsWith(".svg")) return null;
+    return file.replace(/\.svg$/i, ""); // "home.svg" -> "home"
+  } catch {
+    return null;
+  }
+}
+
+async function fetchHeroiconSvgByFileName(
+  fileName: string,
+): Promise<string | null> {
+  const url = `https://cdn.jsdelivr.net/npm/heroicons@latest/24/outline/${fileName}.svg`;
+  const res = await fetch(url);
+  if (!res.ok) return null;
+  return await res.text();
+}
+
+function svgTextToProjectNode(svgText: string, baseNode: any): any {
+  const parser = new XmldomParser();
+  const doc = parser.parseFromString(svgText, "image/svg+xml");
+  const svgEl = doc.getElementsByTagName("svg")[0];
+  if (!svgEl) return baseNode;
+
+  const svgAttrs: Record<string, string> = {};
+  for (let i = 0; i < svgEl.attributes.length; i++) {
+    const attr = svgEl.attributes.item(i);
+    if (!attr) continue;
+    svgAttrs[attr.name] = attr.value;
+  }
+
+  const children: any[] = [];
+  for (let i = 0; i < svgEl.childNodes.length; i++) {
+    const node = svgEl.childNodes.item(i);
+    if (node.nodeType !== 1) continue; // ELEMENT_NODE
+    const el = node as any;
+
+    const childAttrs: Record<string, string> = {};
+    for (let j = 0; j < el.attributes.length; j++) {
+      const attr = el.attributes.item(j);
+      if (!attr) continue;
+      childAttrs[attr.name] = attr.value;
+    }
+
+    children.push({
+      tag: el.tagName,
+      text: "",
+      class: "",
+      style: "",
+      attributes: childAttrs,
+      children: [],
+    });
+  }
+
+  return {
+    tag: "svg",
+    text: "",
+    class: baseNode.class || "svg-icon",
+    style: baseNode.style || "",
+    attributes: {
+      ...svgAttrs,
+      stroke: "currentColor", // чтобы цвет шёл из CSS
+    },
+    children,
+  };
+}
+
+async function transformIconsBySrc(nodes: any[]): Promise<any[]> {
+  const result: any[] = [];
+
+  for (const node of nodes) {
+    let transformed = { ...node };
+
+    if (node.children && Array.isArray(node.children)) {
+      transformed.children = await transformIconsBySrc(node.children);
+    }
+
+    if (node.tag === "img" && node.attributes?.src) {
+      const src = String(node.attributes.src);
+      const fileName = getIconNameFromSrc(src); // "home"
+      if (fileName) {
+        const svgText = await fetchHeroiconSvgByFileName(fileName);
+        if (svgText) {
+          transformed = svgTextToProjectNode(svgText, node);
+        }
+      }
+    }
+
+    result.push(transformed);
+  }
+
+  return result;
+}
+
+// === UTILS ==================================================
 
 function normalizeClasses(cls?: string): string[] {
   if (!cls) return [];
@@ -193,24 +222,12 @@ function renderNodesAndCollectScss(nodes: any[]): {
       childScssBlocks = childRes.scssBlocks;
     }
 
-    // if (style && style.trim()) {
-    //   scssBlocks.push({
-    //     selector,
-    //     style: style.trim(),
-    //     children: childScssBlocks,
-    //   });
-    // } else if (childScssBlocks.length > 0) {
-    //   scssBlocks.push({
-    //     selector,
-    //     style: "",
-    //     children: childScssBlocks,
-    //   });
-    // }
     scssBlocks.push({
       selector,
       style: style.trim(),
       children: childScssBlocks,
     });
+
     const attrsStr = buildAttrs(node);
     const cleanedText = cleanServiceText(text);
     let htmlItem: string;
@@ -241,39 +258,6 @@ function scssBlocksToString(blocks: any[], indent = ""): string {
     }
     out += " }\n";
   });
-  // const cleaned = out
-  //   .replace(/background:\s*rgb\(220,\s*230,\s*220\);?/g, "")
-  //   .replace(/background:\s*rgb\(226,\s*232,\s*240\);?/g, "")
-  //   .replace(/padding:\s*2px\s*4px;?/g, "")
-  //   .replace(/border:\s*1px\s*solid\s*#adadad;?/g, "")
-  //   .replace(/background:\s*dodgerblue;?/g, "")
-  //   .replace(/background:\s*#22c55e;?/g, "")
-  //   .replace(/background:\s*#8b5cf6;?/g, "")
-  //   .replace(/background:\s*#f97316;?/g, "")
-  //   .replace(/background:\s*#eab308;?/g, "")
-  //   .replace(/background:\s*#0ea5e9;?/g, "")
-  //   .replace(/background:\s*#3b82f6;?/g, "")
-  //   .replace(/background:\s*#06b6d4;?/g, "")
-  //   .replace(/background:\s*#14b8a6;?/g, "")
-  //   .replace(/background:\s*#ef4444;?/g, "")
-  //   .replace(/background:\s*#f59e0b;?/g, "")
-  //   .replace(/background:\s*#84cc16;?/g, "")
-  //   .replace(/background:\s*#6366f1;?/g, "")
-  //   .replace(/background:\s*#ec4899;?/g, "")
-  //   .replace(/background:\s*#737373;?/g, "")
-  //   .replace(/background:\s*#71717a;?/g, "")
-  //   .replace(/background:\s*#f43f5e;?/g, "")
-  //   .replace(/background:\s*#a855f7;?/g, "")
-  //   .replace(/background:\s*#d946ef;?/g, "")
-  //   .replace(/background:\s*#38bdf8;?/g, "")
-  //   .replace(/background:\s*powderblue;?/g, "")
-  //   .replace(/\.imgs\s*\{[^}]*img\s*\{\s*[^}]*\}[^}]*\}/g, "")
-  //   .replace(/\s*\n\s*/g, " ")
-  //   .replace(/\s{2,}/g, " ")
-  //   .replace(/\s*{\s*/g, " { ")
-  //   .replace(/\s*}\s*/g, " } ")
-  //   .replace(/\s*;\s*/g, ";")
-  //   .trim();
   return out;
 }
 
@@ -353,12 +337,13 @@ function postFixScss(scss: string) {
       /(&\\.)?([a-zA-Z0-9_-]+)\\s*\\{\\s*@extend\\s+\\.\\\\2\\s*;\\s*}/g,
       "",
     )
-    .replace(/&(\\.[a-zA-Z0-9_-]+)/g, "$1")
-    .replace(/^\\s*\\.[a-zA-Z0-9_-]+\\s*;$/gm, "")
+    .replace(/&(\.[a-zA-Z0-9_-]+)/g, "$1")
+    .replace(/^\s*\.[a-zA-Z0-9_-]+\s*;$/gm, "")
     .trim();
 }
 
-// 🔹 вызов Groq для чистки SCSS
+// === GROQ ==================================================
+
 async function callGroq(scss: string): Promise<string> {
   if (!GROQ_API_KEY) throw new Error("GROQ_API_KEY is missing");
 
@@ -426,13 +411,17 @@ ${scss}
   return cleaned;
 }
 
-// --------🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹-------
+// === ROUTE =================================================
+
 export async function POST(request: Request) {
   try {
     const body = await request.json(); // htmlJson
     const nodes = body || [];
 
-    const { html, scssBlocks, pug } = renderNodesAndCollectScss(nodes);
+    const transformedNodes = await transformIconsBySrc(nodes);
+
+    const { html, scssBlocks, pug } =
+      renderNodesAndCollectScss(transformedNodes);
     const rawScss = removeDuplicateLiBlocks(scssBlocksToString(scssBlocks));
 
     let finalScss = rawScss;
