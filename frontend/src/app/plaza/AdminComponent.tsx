@@ -9,6 +9,15 @@ import { GET_JSON_DOCUMENT } from "@/apollo/queries";
 import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
 import ServicesButtons from "./ServicesButtons";
 import { applyDSHeadersToTree } from "@/app/plaza/utils/applyDSHeadersToTree";
+import ReactDOMServer from "react-dom/server";
+import * as OutlineIcons from "@heroicons/react/24/outline";
+import dynamic from "next/dynamic";
+import Loading from "@/components/ui/Loading/Loading";
+const HeroIconPicker = dynamic(() => import("./HeroIconPicker"), {
+  ssr: false,
+  loading: () => <Loading />,
+});
+
 const TagsNamen1 = [
   { tag: "a", color: "#3b82f6" }, // blue
   { tag: "button", color: "#06b6d4" }, // cyan
@@ -75,18 +84,24 @@ type ProjectData = {
   _key?: string;
   children: ProjectData[] | string;
 };
-// =====================================
+// ==>==>==>==>==>==>==>==>==>==>==>==>==>
+// ==>==>==>==>==>==>==>==>==>==>==>==>==>
+// ==>==>==>==>==>==>==>==>==>==>==>==>==>
 
 const AdminComponent = () => {
   const { updateHtmlJson } = useStateContext();
   const [name, setName] = useState<string | null>(null);
-
+  const [selectedIcon, setSelectedIcon] = useState<string>("");
+  const [openSVGModal, setopenSVGModal] = useState<boolean>(false);
   const { refetch: refetchJson } = useQuery(GET_JSON_DOCUMENT, {
     variables: { name },
     skip: !name,
     fetchPolicy: "no-cache",
   });
-
+  useEffect(() => {
+    if (!openSVGModal) setSelectedIcon("");
+  }, [openSVGModal]);
+  // ==>==>==>==>==>==>==>==>==>==>==>==>==>
   const handleLoad = async (tag: string) => {
     if (!tag) return;
     setName(tag);
@@ -98,6 +113,45 @@ const AdminComponent = () => {
     updateHtmlJson((prev) => [...prev, ...resultWithKeys]);
   };
 
+  // ==>==>==>==>==>==>==>==>==>==>==>==>==>
+  const HEROICONS_BASE =
+    "https://cdn.jsdelivr.net/npm/heroicons@latest/24/outline/";
+  function heroiconNameToFile(name: string) {
+    // "HomeIcon" -> "home"
+    const base = name.replace(/Icon$/, "");
+    // "UserCircle" -> "user-circle"
+    return base.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+  }
+  function heroiconSrc(name: string) {
+    return `${HEROICONS_BASE}${heroiconNameToFile(name)}.svg`;
+  }
+  function RenderHeroIcon() {
+    if (!selectedIcon) return null;
+
+    const content: ProjectData[] = [
+      {
+        tag: "img",
+        text: "",
+        class: "svg-wrapper",
+        style: "width: 30px;height: 30px;",
+        children: [],
+        attributes: {
+          src: heroiconSrc(selectedIcon),
+        },
+      },
+    ];
+
+    const resultWithKeys = ensureNodeKeys(content) as ProjectData[];
+    updateHtmlJson((prev) => [...prev, ...resultWithKeys]);
+
+    return null; // чтобы ничего не рисовать в JSX
+  }
+
+  useEffect(() => {
+    if (!selectedIcon) return;
+    RenderHeroIcon();
+  }, [selectedIcon]);
+  // ==>==>==>==>==>==>==>==>==>==>==>==>==>
   const renderTags = (tags) => (
     <div className=" flex flex-wrap gap-1 bg-slate-200 p-1 ">
       {tags.map((el, i) => (
@@ -106,30 +160,43 @@ const AdminComponent = () => {
           className="btn adminButton px-1.5! border-1 border-[#aaa] text-black text-[12px]"
           style={{ background: el.color }}
           type="button"
-          onClick={() => handleLoad(el.tag)}
+          onClick={() => {
+            if (el.tag === "svg") {
+              setopenSVGModal(true);
+            } else {
+              handleLoad(el.tag);
+            }
+          }}
         >
           {el.tag}
         </button>
       ))}
     </div>
   );
-
+  // ==>==>==>==>==>==>==>==>==>==>==>==>==>
   return (
-    <div className="bg-black/60 backdrop-blur-lg py-1">
-      <ServicesButtons />
-      {renderTags(TagsNamen1)}
-      {renderTags(TagsNamen2)}
-      <hr className="bordered border-slate-200 my-0.5 " />
-      {renderTags(TagsNamen4)}
-      <hr className="bordered border-slate-200 my-0.5" />
-      {renderTags(TagsNamen5)}
-    </div>
+    <>
+      <HeroIconPicker
+        value={selectedIcon}
+        onChange={(name) => {
+          setSelectedIcon(name);
+        }}
+        openSVGModal={openSVGModal}
+        onClose={() => {
+          setopenSVGModal(false);
+        }}
+      />
+      <div className="bg-black/60 backdrop-blur-lg py-1">
+        <ServicesButtons />
+        {renderTags(TagsNamen1)}
+        {renderTags(TagsNamen2)}
+        <hr className="bordered border-slate-200 my-0.5 " />
+        {renderTags(TagsNamen4)}
+        <hr className="bordered border-slate-200 my-0.5" />
+        {renderTags(TagsNamen5)}
+      </div>
+    </>
   );
 };
 
 export default AdminComponent;
-// display: grid;
-// grid-template-columns: repeat(auto-fill, minmax(250px,1fr));
-// align-items: center;
-// gap: 10px;
-// [{"tag":"div","text":"grid 100px_1fr","class":"","style":"display: grid; grid-template-columns: 100px 1fr; align-items: center; gap: 10px;","children":[]}]

@@ -71,13 +71,31 @@ export default function ListDesignSystems({
     css: string,
   ): HtmlNode {
     const styleParts = [css].filter(Boolean).join(" ");
-    return {
-      tag: tagName,
-      text: CONTENT,
-      class: className,
-      style: styleParts,
-      children: [],
-    };
+    if (className.includes("icon")) {
+      return {
+        tag: tagName,
+        text: "",
+        class: className,
+        style: styleParts,
+        children: [
+          {
+            tag: "span",
+            text: CONTENT,
+            class: "",
+            style: "",
+            children: [],
+          },
+        ],
+      };
+    } else {
+      return {
+        tag: tagName,
+        text: CONTENT,
+        class: className,
+        style: styleParts,
+        children: [],
+      };
+    }
   }
   // --------------
   const [loadDesignSystem, { loading: loadingDesignSystem }] = useLazyQuery(

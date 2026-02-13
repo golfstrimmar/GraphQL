@@ -201,6 +201,7 @@ export default function DesignButtons({ dBT, resetAll, setButtons, buttons }) {
         );
       })}
       {/*-----------------*/}
+      <h6 className="text-sm text-gray-400 mt-4  mb-1">Add Buttons</h6>
       <button
         onClick={() => {
           const newButton = {
@@ -213,7 +214,23 @@ export default function DesignButtons({ dBT, resetAll, setButtons, buttons }) {
         }}
         className="btn btn-teal"
       >
-        <AddIcon width={18} height={18} />
+        Button <AddIcon width={18} height={18} />
+      </button>
+      {/*-------icon buttons----------*/}
+      <h6 className="text-sm text-gray-400 mt-4  mb-1">Add Icon Buttons</h6>
+      <button
+        onClick={() => {
+          const newButton = {
+            tagName: "button",
+            className: `icon-button${buttons.length + 1}`,
+            style:
+              "font-size:14px; font-weight:500; line-height:1; font-family:'Montserrat', sans-serif; display: flex;align-items: center; gap: 10px;padding: 12px 16px;border-radius: 8px;background-color: #022c22;border: 1px solid #021914;color: #a7f3d0;cursor: pointer; &:hover { background-color: #02a680; } &:active { transform: translateY(1px);}",
+          };
+          setButtons([...buttons, newButton]);
+        }}
+        className="btn btn-teal"
+      >
+        Icon Button <AddIcon width={18} height={18} />
       </button>
     </div>
   );

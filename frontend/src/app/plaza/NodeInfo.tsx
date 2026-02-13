@@ -110,7 +110,7 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
           transition={{ duration: 0.1, ease: [0.25, 0.8, 0.5, 1] }}
-          className="bg-[var(--navi-admin)]   p-1 pt-8   bottom-0 left-0 transform w-[calc(100vw-10px)] min-h-[170px]  fixed  z-5000"
+          className="bg-[var(--navi-admin)]   p-1 pt-8   bottom-0 left-0 transform w-[calc(100vw-10px)] min-h-[170px]  fixed  z-6000"
           style={{
             borderTop: "3px solid var(--teal)",
           }}
