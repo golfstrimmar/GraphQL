@@ -91,6 +91,7 @@ type ProjectData = {
 const AdminComponent = () => {
   const { updateHtmlJson } = useStateContext();
   const [name, setName] = useState<string | null>(null);
+  const [typeIcon, setTypeIcon] = useState<string>("outline");
   const [selectedIcon, setSelectedIcon] = useState<string>("");
   const [openSVGModal, setopenSVGModal] = useState<boolean>(false);
   const { refetch: refetchJson } = useQuery(GET_JSON_DOCUMENT, {
@@ -114,9 +115,19 @@ const AdminComponent = () => {
   };
 
   // ==>==>==>==>==>==>==>==>==>==>==>==>==>
-  const HEROICONS_BASE =
-    "https://cdn.jsdelivr.net/npm/heroicons@latest/24/outline/";
+  useEffect(() => {
+    if (!typeIcon) return;
+    console.log("<===typeIcon===>", typeIcon);
+  }, [typeIcon]);
+  let HEROICONS_BASE = "";
+  if (typeIcon === "outline") {
+    HEROICONS_BASE =
+      "https://cdn.jsdelivr.net/npm/heroicons@latest/24/outline/";
+  } else {
+    HEROICONS_BASE = "https://cdn.jsdelivr.net/npm/heroicons@latest/24/solid/";
+  }
   function heroiconNameToFile(name: string) {
+    console.log("<===typeIcon===>", typeIcon);
     const base = name.replace(/Icon$/, "");
     // Сначала разбиваем границу «буква (любая) → заглавная + маленькая»
     const step1 = base.replace(/(.)([A-Z][a-z])/g, "$1-$2");
@@ -182,8 +193,9 @@ const AdminComponent = () => {
     <>
       <HeroIconPicker
         value={selectedIcon}
-        onChange={(name) => {
+        onChange={(name, type) => {
           setSelectedIcon(name);
+          setTypeIcon(type);
         }}
         openSVGModal={openSVGModal}
         onClose={() => {

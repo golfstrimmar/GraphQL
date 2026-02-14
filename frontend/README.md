@@ -1,6 +1,29 @@
-от храилища к редактору кода---
-StateProvider.tsx --> orderIndexes --> jsonToHtml --> formatHtml --> monaco
---> document.getElementById("preview") визуализация
+anim --- AnimatePresence
+oc -- onClick
+mu -- useMutation front
+mucache --- useMutation с записью в кэш
+qu -- useQuery
+qul -- useLazyQuery – когда запрос нужен по действию пользователя или по особому условию: клик, сабмит, выбор таба, изменение фильтров и т.п.
+cc
+provider --useStateContext
+cl
+us
+ue
+ur -- useRef
+um -- useMemo
+uc -- useCallback
+af
+map
+filter
+click
+emoji
+
+
+
+
+
+
+
 
 --> плагины фигмы для снятия данных
 Figma to JSON Exporter

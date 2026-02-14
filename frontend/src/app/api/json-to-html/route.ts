@@ -11,27 +11,34 @@ const GROQ_API_KEY = process.env.GROQ_API_KEY;
 function getIconNameFromSrc(src: string): string | null {
   try {
     const url = new URL(src);
-    const file = url.pathname.split("/").pop() || "";
-    if (!file.endsWith(".svg")) return null;
-    return file.replace(/\.svg$/i, ""); // "home.svg" -> "home"
+    const pathname = url.pathname;
+    if (!pathname.endsWith(".svg")) return null;
+    // Берём ВСЁ после /24/ → outline/archive-box-x-mark.svg
+    const last24Index = pathname.lastIndexOf("/24/");
+    if (last24Index === -1) return null;
+    const iconPath = pathname.substring(last24Index + 4); // +4 = после "/24/"
+    return iconPath;
   } catch {
     return null;
   }
 }
 
+// ====>====>====>====>====>====>====>====>====>====>
 async function fetchHeroiconSvgByFileName(
   fileName: string,
 ): Promise<string | null> {
-  const url = `https://cdn.jsdelivr.net/npm/heroicons@latest/24/outline/${fileName}.svg`;
+  const url = `https://cdn.jsdelivr.net/npm/heroicons@latest/24/${fileName}`;
   const res = await fetch(url);
   if (!res.ok) return null;
   return await res.text();
 }
-
+// ====>====>====>====>====>====>====>====>====>====>
 function svgTextToProjectNode(svgText: string, baseNode: any): any {
   const parser = new XmldomParser();
+  // console.log("<===svgText===>", svgText);
   const doc = parser.parseFromString(svgText, "image/svg+xml");
   const svgEl = doc.getElementsByTagName("svg")[0];
+  // console.log("<===svgEl===>", svgEl);
   if (!svgEl) return baseNode;
 
   const svgAttrs: Record<string, string> = {};
@@ -76,7 +83,7 @@ function svgTextToProjectNode(svgText: string, baseNode: any): any {
     children,
   };
 }
-
+// ====>====>====>====>====>====>====>====>====>====>
 async function transformIconsBySrc(nodes: any[]): Promise<any[]> {
   const result: any[] = [];
 
@@ -89,7 +96,7 @@ async function transformIconsBySrc(nodes: any[]): Promise<any[]> {
 
     if (node.tag === "img" && node.attributes?.src) {
       const src = String(node.attributes.src);
-      const fileName = getIconNameFromSrc(src); // "home"
+      const fileName = getIconNameFromSrc(src);
       if (fileName) {
         const svgText = await fetchHeroiconSvgByFileName(fileName);
         if (svgText) {
@@ -427,7 +434,6 @@ export async function POST(request: Request) {
     let finalScss = rawScss;
     if (GROQ_API_KEY && rawScss && rawScss.trim()) {
       const cleanedByGroq = await callGroq(rawScss);
-      console.log("<===cleanedByGroq===>", cleanedByGroq);
       finalScss = postFixScss(cleanedByGroq || rawScss);
     } else {
       finalScss = postFixScss(rawScss);
