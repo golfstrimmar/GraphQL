@@ -33,6 +33,10 @@ export default function MobileAddStyle({
   const canRedo = historyIndex < history.length - 1;
   const modalRef = useRef<HTMLDivElement | null>(null);
 
+  // ====>====>====>====>====>====>====>====>====>====>
+
+  // ====>====>====>====>====>====>====>====>====>====>
+
   const scrollModalToTop = () => {
     const el = modalRef.current;
     if (!el) return;
@@ -69,44 +73,20 @@ export default function MobileAddStyle({
     setAddingScss(next);
   };
 
-  // --------------
+  // ====>====>====>====>====>====>====>====>====>====>
+
   const toAdd = (foo: string) => {
     setAddingScss((prev) => {
       const base = prev ?? "";
-      console.log("<===base===>", base);
-      console.log("<===foo===>", foo);
-
-      let next = base;
-      if (foo.includes("&:hover")) {
-        if (base.includes(":hover")) return base;
-
-        const lastBraceIndex = base.lastIndexOf("}");
-        const insertPos =
-          lastBraceIndex >= 0 ? lastBraceIndex + 1 : base.length;
-        const next = base.slice(0, insertPos) + foo + "\n";
-        applyValue(next);
-        return next;
-      }
-
-      if (foo.includes("background-color:")) {
-        if (base.includes("background-color:")) {
-          return base;
-        }
-        next = base + foo + "\n";
-      } else if (foo.includes("display:")) {
+      if (foo.includes("display:")) {
         if (base.includes("display:")) {
-          return base;
+          return applyValue(foo);
         }
-        next = base + foo + "\n";
-      } else {
-        if (base.includes(foo)) {
-          return base;
-        }
-        next = base + foo + "\n";
       }
-      console.log("<===next===>", next);
-      applyValue(next);
-      return next;
+      if (base.includes(foo)) {
+        return applyValue(base);
+      }
+      return applyValue(base + foo);
     });
   };
 
@@ -233,12 +213,7 @@ export default function MobileAddStyle({
 
             <div className="flex flex-col gap-2 mt-6">
               {/*========background-color===========*/}
-              <div className={ItemClass}>
-                <span className="text-[var(--navy)] font-bold text-[14px]">
-                  background-color:
-                </span>
-                <ColorPicker toAdd={toAdd} />
-              </div>
+              <div className={ItemClass}></div>
               {/*========Presets===========*/}
               <div className={ItemClass}>
                 <span className="text-[var(--navy)] font-bold text-[14px]">
@@ -296,4 +271,3 @@ export default function MobileAddStyle({
     </AnimatePresence>
   );
 }
-// [{"tag":"div","text":"grid 100px_1fr","class":"grid_100px_1fr","style":"display: grid; grid-template-columns: 100px 1fr; align-items: center; gap: 10px;","children":[]}]

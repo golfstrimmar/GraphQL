@@ -10,7 +10,7 @@ const textProps = [
   "font-style: italic;", // italian → italic
 
   // Color/Text
-  "color: #000000;",
+
   "letter-spacing: .010rem;",
   "text-shadow: 0 0 5px red;",
   "text-transform: uppercase;",

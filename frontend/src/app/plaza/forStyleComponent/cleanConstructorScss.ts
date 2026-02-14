@@ -1,7 +1,8 @@
 export default function cleanConstructorScss(scss: string): string {
+  if (!scss) return "";
   return (
+    // 1. Фоновые цвета конструктора
     scss
-      // 1. Фоновые цвета конструктора
       .replace(/background:\s*rgb\(220,\s*230,\s*220\);?/g, "")
       .replace(/background:\s*rgb\(226,\s*232,\s*240\);?/g, "")
       .replace(/background:\s*dodgerblue;?/g, "")

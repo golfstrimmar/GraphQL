@@ -1,8 +1,8 @@
 "use client";
-import React from "react";
-
-const commonProps1 = [
-  // Width/Height
+import React, { useState, useEffect } from "react";
+import ColorPicker from "./ColorPicker";
+const commonProps1 = ["color: ", "background-color:"] as const;
+const commonProps2 = [
   "width: 100%;",
   "height: 100%;",
   "width: 30px;",
@@ -14,7 +14,6 @@ const commonProps1 = [
   "min-height: 100vh;",
   "calc(100vw - 20px);",
 ] as const;
-const commonProps2 = [""] as const;
 const commonProps3 = [
   // Margin
   "margin: 20px 0;",
@@ -58,20 +57,41 @@ const commonProps7 = [
   "box-shadow: 0 0px 10px 0 rgba(40, 40, 40, 0.2);",
   "text-shadow: 0 0px 10px 0 rgba(40, 40, 40, 0.2);",
 ] as const;
-
+// ====>====>====>====>====>====>====>====>====>====>
+// ====>====>====>====>====>====>====>====>====>====>
+// ====>====>====>====>====>====>====>====>====>====>
 export default function CommonPropsPicker({
   toAdd,
 }: {
   toAdd: (v: string) => void;
 }) {
+  const [open, setOpen] = useState<boolean>(false);
+  const [currentProp, setCurrentProp] = useState<string>("");
+  const [actuelColor, setActuelColor] = useState<string>("");
+
+  useEffect(() => {
+    if (!actuelColor) return;
+    toAdd(currentProp + actuelColor);
+  }, [actuelColor]);
+
   return (
     <div className="flex flex-col gap-2">
+      <ColorPicker
+        toAdd={toAdd}
+        open={open}
+        setOpen={setOpen}
+        setActuelColor={setActuelColor}
+      />
       <div className="flex flex-wrap gap-2">
         {commonProps1.map((prop: string) => (
           <button
             key={prop}
             className="px-2 btn btn-empty text-[12px]"
-            onClick={() => toAdd(prop)}
+            // onClick={() => toAdd(prop)}
+            onClick={() => {
+              setCurrentProp(prop);
+              setOpen(true);
+            }}
             title={prop}
           >
             {prop.split(";")[0].trim()}
@@ -79,7 +99,7 @@ export default function CommonPropsPicker({
         ))}
       </div>
 
-      {/*<div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2">
         {commonProps2.map((prop: string) => (
           <button
             key={prop}
@@ -90,7 +110,7 @@ export default function CommonPropsPicker({
             {prop.split(";")[0].trim()}
           </button>
         ))}
-      </div>*/}
+      </div>
       <div className="flex flex-wrap gap-2">
         {commonProps3.map((prop: string) => (
           <button

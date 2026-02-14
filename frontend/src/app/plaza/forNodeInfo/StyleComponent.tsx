@@ -37,25 +37,20 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [openMobile, setOpenMobile] = useState(false);
+
   const adjustHeight = (el: HTMLTextAreaElement) => {
     el.style.height = "auto";
     el.style.height = `${el.scrollHeight}px`;
   };
 
-  useEffect(() => {
-    if (!node) return;
-    console.log("<===node===>", node);
-  }, [node]);
-  useEffect(() => {
-    if (!itemClass) return;
-    console.log("<===itemClass===>", itemClass);
-  }, [itemClass]);
-  // ================================
+  // ====>====>====>====>====>====>====>====>====>====>
   const formatStyleForDisplay = (raw: string): string => {
+    console.log("<===raw===>", raw);
+
     // Если уже есть переносы — пользователь редактировал вручную
     if (raw.includes("\n")) return raw;
 
-    const trimmed = raw.trim();
+    const trimmed = raw?.trim();
     if (!trimmed) return "";
 
     const hasTrailingSemicolon = trimmed.endsWith(";");
@@ -76,15 +71,15 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
     // Используем реальный \n — React и textarea его правильно отобразят
     return properties.join(";\n") + (hasTrailingSemicolon ? ";" : "");
   };
-  // ================================
 
+  // ====>====>====>====>====>====>====>====>====>====>
   const [styleText, setStyleText] = useState(
     node?.style ? formatStyleForDisplay(node.style) : "",
   );
 
   // синк при смене node / внешнего style
   useEffect(() => {
-    setStyleText(node?.style ? formatStyleForDisplay(node.style) : "");
+    setStyleText(node?.style ? formatStyleForDisplay(node?.style) : "");
   }, [node?._key, node?.style]);
 
   useEffect(() => {
@@ -95,10 +90,12 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
     }, 1000);
     return () => clearTimeout(id);
   }, [styleText]);
+
   useEffect(() => {
     console.log("StyleComponent node.style =", JSON.stringify(node?.style));
   }, [node?.style]);
-  // ================================
+
+  // ====>====>====>====>====>====>====>====>====>====>
   return (
     <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]   flex flex-col relative ">
       {openMobile && (
