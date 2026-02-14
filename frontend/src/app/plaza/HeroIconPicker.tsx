@@ -1,5 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useStateContext } from "@/providers/StateProvider";
+import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
 import * as OutlineIcons from "@heroicons/react/24/outline";
 import * as Solid24 from "@heroicons/react/24/solid";
 import { AnimatePresence, motion } from "framer-motion";
@@ -22,21 +24,96 @@ export const HERO_ICON_ENTRIES_SOLID = Object.entries(Solid24).map(
 );
 
 interface Props {
-  value: HeroIconName | null;
-  onChange: (name: HeroIconName, type: string) => void;
+  openSVGModal: boolean;
+  setopenSVGModal: (value: boolean) => void;
 }
 // ====>====>====>====>====>====>====>====>====>====>
 // ====>====>====>====>====>====>====>====>====>====>
 // ====>====>====>====>====>====>====>====>====>====>
 export default function HeroIconPicker({
-  value,
-  onChange,
   openSVGModal,
-  onClose,
-  setTypeIcon,
+  setopenSVGModal,
 }: Props) {
   const [outline, setOutline] = useState<boolean>(true);
   const [solid, setSolid] = useState<boolean>(false);
+  const [typeIcon, setTypeIcon] = useState<string>("outline");
+  const [selectedIcon, setSelectedIcon] = useState<string>("");
+  const [valueOnChange, setValueOnChange] = useState<string>("");
+  const { updateHtmlJson } = useStateContext();
+  // ====>====>====>====>====>====>====>====>====>====>
+  useEffect(() => {
+    if (!openSVGModal) setSelectedIcon("");
+  }, [openSVGModal]);
+  // ==>==>==>==>==>==>==>==>==>==>==>==>==>
+  let HEROICONS_BASE = "";
+  if (typeIcon === "outline") {
+    HEROICONS_BASE =
+      "https://cdn.jsdelivr.net/npm/heroicons@latest/24/outline/";
+  } else {
+    HEROICONS_BASE = "https://cdn.jsdelivr.net/npm/heroicons@latest/24/solid/";
+  }
+  function heroiconNameToFile(name: string) {
+    console.log("<===name===>", name);
+    const base = name.replace(/Icon$/, "");
+
+    // ТВОИ две строки БЕЗ ИЗМЕНЕНИЙ
+    const step1 = base.replace(/(.)([A-Z][a-z])/g, "$1-$2");
+    const step2 = step1.replace(/([a-z0-9])([A-Z])/g, "$1-$2");
+
+    // ДОБАВЛЯЕМ ТОЛЬКО ЭТО ДЛЯ battery0 → battery-0
+    const step3 = step2.replace(/([a-z])(\d)/g, "$1-$2");
+
+    return step3.toLowerCase();
+  }
+
+  function heroiconSrc(name: string) {
+    return `${HEROICONS_BASE}${heroiconNameToFile(name)}.svg`;
+  }
+  // ====>====>====>====>====>====>====>====>====>====>
+  function RenderHeroIcon() {
+    if (!selectedIcon) return null;
+
+    const content: ProjectData[] = [
+      {
+        tag: "img",
+        text: "",
+        class: "svg-wrapper",
+        style: "width: 30px;height: 30px;",
+        children: [],
+        attributes: {
+          src: heroiconSrc(selectedIcon),
+        },
+      },
+    ];
+
+    const resultWithKeys = ensureNodeKeys(content) as ProjectData[];
+    updateHtmlJson((prev) => [...prev, ...resultWithKeys]);
+
+    return null; // чтобы ничего не рисовать в JSX
+  }
+
+  useEffect(() => {
+    if (!selectedIcon) return;
+    RenderHeroIcon();
+  }, [selectedIcon]);
+
+  const onClose = () => {
+    setValueOnChange("");
+    setOutline(true);
+    setSolid(false);
+    setopenSVGModal(false);
+    setSelectedIcon("");
+    setTypeIcon("outline");
+  };
+  const onChange = (id: string, value: string) => {
+    setValueOnChange("");
+    setSelectedIcon(id);
+    setTypeIcon(value);
+    setTimeout(() => {
+      onClose();
+    }, 100);
+  };
+
   // ====>====>====>====>====>====>====>====>====>====>
   useEffect(() => {
     if (openSVGModal) {
@@ -72,7 +149,9 @@ export default function HeroIconPicker({
         >
           <button
             className="absolute block top-4 right-8 bg-white! rounded-full z-2140! p-2"
-            onClick={() => onClose()}
+            onClick={() => {
+              onClose();
+            }}
           >
             <Image
               src="./svg/cross-com.svg"
@@ -116,17 +195,17 @@ export default function HeroIconPicker({
                   key={id}
                   type="button"
                   onClick={() => {
-                    onClose();
                     onChange(id, "outline");
+                    setValueOnChange(id);
                   }}
                   className={`flex flex-col items-center p-2 border rounded text-[10px] ${
-                    value === id
-                      ? "border-teal-500 bg-teal-50"
+                    valueOnChange === id
+                      ? "border-teal-800 bg-teal-100"
                       : "border-slate-200"
                   }`}
                   title={label}
                 >
-                  <Component className="w-5 h-5 mb-1" color="white" />
+                  <Component className="w-5 h-5 mb-1" color="slate-800" />
                   <span className="truncate max-w-[80px]">{label}</span>
                 </button>
               ))}
@@ -140,17 +219,17 @@ export default function HeroIconPicker({
                   key={id}
                   type="button"
                   onClick={() => {
-                    onClose();
                     onChange(id, "solid");
+                    setValueOnChange(id);
                   }}
                   className={`flex flex-col items-center p-2 border rounded text-[10px] ${
-                    value === id
-                      ? "border-teal-500 bg-teal-50"
+                    valueOnChange === id
+                      ? "border-teal-500 bg-teal-100"
                       : "border-slate-200"
                   }`}
                   title={label}
                 >
-                  <Component className="w-5 h-5 mb-1" color="white" />
+                  <Component className="w-5 h-5 mb-1" color="slate-800" />
                   <span className="truncate max-w-[80px]">{label}</span>
                 </button>
               ))}

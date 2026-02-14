@@ -90,18 +90,14 @@ type ProjectData = {
 
 const AdminComponent = () => {
   const { updateHtmlJson } = useStateContext();
-  const [name, setName] = useState<string | null>(null);
-  const [typeIcon, setTypeIcon] = useState<string>("outline");
-  const [selectedIcon, setSelectedIcon] = useState<string>("");
   const [openSVGModal, setopenSVGModal] = useState<boolean>(false);
+  const [name, setName] = useState<string | null>(null);
+
   const { refetch: refetchJson } = useQuery(GET_JSON_DOCUMENT, {
     variables: { name },
     skip: !name,
     fetchPolicy: "no-cache",
   });
-  useEffect(() => {
-    if (!openSVGModal) setSelectedIcon("");
-  }, [openSVGModal]);
   // ==>==>==>==>==>==>==>==>==>==>==>==>==>
   const handleLoad = async (tag: string) => {
     if (!tag) return;
@@ -114,58 +110,6 @@ const AdminComponent = () => {
     updateHtmlJson((prev) => [...prev, ...resultWithKeys]);
   };
 
-  // ==>==>==>==>==>==>==>==>==>==>==>==>==>
-  useEffect(() => {
-    if (!typeIcon) return;
-    console.log("<===typeIcon===>", typeIcon);
-  }, [typeIcon]);
-  let HEROICONS_BASE = "";
-  if (typeIcon === "outline") {
-    HEROICONS_BASE =
-      "https://cdn.jsdelivr.net/npm/heroicons@latest/24/outline/";
-  } else {
-    HEROICONS_BASE = "https://cdn.jsdelivr.net/npm/heroicons@latest/24/solid/";
-  }
-  function heroiconNameToFile(name: string) {
-    console.log("<===typeIcon===>", typeIcon);
-    const base = name.replace(/Icon$/, "");
-    // Сначала разбиваем границу «буква (любая) → заглавная + маленькая»
-    const step1 = base.replace(/(.)([A-Z][a-z])/g, "$1-$2");
-    // Потом границу «маленькая/цифра → заглавная»
-    const step2 = step1.replace(/([a-z0-9])([A-Z])/g, "$1-$2");
-    return step2.toLowerCase();
-  }
-
-  function heroiconSrc(name: string) {
-    return `${HEROICONS_BASE}${heroiconNameToFile(name)}.svg`;
-  }
-
-  function RenderHeroIcon() {
-    if (!selectedIcon) return null;
-
-    const content: ProjectData[] = [
-      {
-        tag: "img",
-        text: "",
-        class: "svg-wrapper",
-        style: "width: 30px;height: 30px;",
-        children: [],
-        attributes: {
-          src: heroiconSrc(selectedIcon),
-        },
-      },
-    ];
-
-    const resultWithKeys = ensureNodeKeys(content) as ProjectData[];
-    updateHtmlJson((prev) => [...prev, ...resultWithKeys]);
-
-    return null; // чтобы ничего не рисовать в JSX
-  }
-
-  useEffect(() => {
-    if (!selectedIcon) return;
-    RenderHeroIcon();
-  }, [selectedIcon]);
   // ==>==>==>==>==>==>==>==>==>==>==>==>==>
   const renderTags = (tags) => (
     <div className=" flex flex-wrap gap-1 bg-slate-200 p-1 ">
@@ -192,15 +136,8 @@ const AdminComponent = () => {
   return (
     <>
       <HeroIconPicker
-        value={selectedIcon}
-        onChange={(name, type) => {
-          setSelectedIcon(name);
-          setTypeIcon(type);
-        }}
         openSVGModal={openSVGModal}
-        onClose={() => {
-          setopenSVGModal(false);
-        }}
+        setopenSVGModal={setopenSVGModal}
       />
       <div className="bg-black/60 backdrop-blur-lg py-1">
         <ServicesButtons />
