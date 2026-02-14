@@ -309,7 +309,7 @@ export default function CanvasComponent() {
               (el as HTMLElement).style.transition = "";
             });
           }}
-          className={`renderedNode ${node.class}`}
+          className={`renderedNode `}
           style={{
             ...parseInlineStyle(node.style),
             pointerEvents: "auto",
@@ -348,7 +348,7 @@ export default function CanvasComponent() {
         htmlFor={node.attributes?.for}
         href={node.attributes?.href}
         rel={node.attributes?.rel}
-        className={`renderedNode ${node.class}`}
+        className={`renderedNode `}
         style={getNodeStyle(node, activeKey)}
         onClick={(e) => handleClick(e, node)}
         draggable={true}

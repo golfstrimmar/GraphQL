@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import ColorPicker from "./ColorPicker";
-const commonProps1 = ["color: ", "background-color:"] as const;
+const commonProps1 = ["color: ", "background:"] as const;
 const commonProps2 = [
   "width: 100%;",
   "height: 100%;",
@@ -17,7 +17,7 @@ const commonProps2 = [
 const commonProps3 = [
   // Margin
   "margin: 20px 0;",
-  "padding: 20px 0;",
+  "padding: 20px 10px;",
   "margin: 0 auto;",
 ] as const;
 const commonProps4 = [

@@ -212,8 +212,6 @@ export default function MobileAddStyle({
             </div>
 
             <div className="flex flex-col gap-2 mt-6">
-              {/*========background-color===========*/}
-              <div className={ItemClass}></div>
               {/*========Presets===========*/}
               <div className={ItemClass}>
                 <span className="text-[var(--navy)] font-bold text-[14px]">
@@ -245,7 +243,7 @@ export default function MobileAddStyle({
               {/*========display===========*/}
               <div className={ItemClass}>
                 <span className="text-[var(--navy)] font-bold text-[14px]">
-                  display:
+                  Display
                 </span>
                 <DisplayPicker toAdd={toAdd} />
               </div>

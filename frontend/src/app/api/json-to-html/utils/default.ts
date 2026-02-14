@@ -73,6 +73,7 @@ const SERVICE_TEXTS = [
   "card__title",
   "card__button",
   "grid minmax",
+  "card-empty",
 ];
 
 export default { selfClosingTags, SERVICE_TEXTS };

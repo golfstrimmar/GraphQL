@@ -11,7 +11,6 @@ interface ColorPickerProps {
 }
 
 export default function ColorPicker({
-  toAdd,
   open,
   setOpen,
   setActuelColor,
@@ -26,6 +25,7 @@ export default function ColorPicker({
     "blue",
     "purple",
     "brown",
+    "gradient",
   ];
 
   return (
@@ -53,7 +53,7 @@ export default function ColorPicker({
           </button>
 
           <div className="modal-inner">
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-wrap gap-4">
               {groupsOrder.map((group) => {
                 const items = Colors.filter(
                   (c) => c.group === group,
@@ -62,20 +62,20 @@ export default function ColorPicker({
 
                 return (
                   <div key={group}>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex  flex-wrap gap-2">
                       {items.map((c) => (
                         <button
                           key={c.color}
                           type="button"
                           aria-label={`Set background color to ${c.color}`}
-                          className="w-6 h-6 rounded-full border border-black/10"
-                          style={{ backgroundColor: c.value }}
+                          className="w-8 h-6 rounded-full border border-black/10"
+                          style={{ background: c.value }}
                           title={c.color}
                           onClick={() => {
-                            setActuelColor(`${c.color};`);
+                            setActuelColor(`${c.value};`);
                             setOpen(false);
                           }}
-                        />
+                        ></button>
                       ))}
                     </div>
                   </div>

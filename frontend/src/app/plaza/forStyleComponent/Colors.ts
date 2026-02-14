@@ -7,7 +7,8 @@ type ColorGroup =
   | "cyan"
   | "blue"
   | "purple"
-  | "brown";
+  | "brown"
+  | "gradient";
 
 type ColorItem = {
   color: string;
@@ -164,6 +165,14 @@ export const Colors: ColorItem[] = [
   { color: "rebeccapurple", value: "rebeccapurple", group: "purple" },
   { color: "darkmagenta", value: "darkmagenta", group: "purple" },
   { color: "indigo", value: "indigo", group: "purple" },
+
+  // gradient
+  {
+    color: "green-gradient",
+    value:
+      "radial-gradient(circle at 20% 10%, rgba(34, 197, 94, 0.35),  rgba(34, 197, 94, 0.18) 40%, transparent 70%)",
+    group: "gradient",
+  },
 ];
 
 export default Colors;
