@@ -78,6 +78,9 @@ const TagsNamen5 = [
   { tag: "input-mail", color: "powderblue" },
   { tag: "input-tel", color: "powderblue" },
   { tag: "input-f-number", color: "powderblue" },
+  { tag: "input-check", color: "powderblue" },
+  { tag: "fieldset-radio", color: "powderblue" },
+  { tag: "fildset-rating", color: "powderblue" },
 ];
 type ProjectData = {
   tag: string;

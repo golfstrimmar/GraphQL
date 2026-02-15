@@ -331,53 +331,54 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
               )}*/}
           </div>
 
-          {NodeToSend?.attributes && (
-            <div className="flex gap-2 mt-6 rounded border-2 border-[var(--teal)] p-1 pt-6 text-[#000]">
-              {Object.entries(localAttrs).map(([k, value]) => (
-                <div
-                  key={k}
-                  className="bg-white  flex-[0_1_100%] flex flex-col relative rounded max-h-[min-content] "
-                >
-                  <p className={itemClass}>{k}:</p>
-                  <textarea
-                    value={String(value)}
-                    ref={(el) => {
-                      if (!el) return;
-                      textareaRef.current = el;
-                      adjustHeight(el);
-                    }}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      adjustHeight(e.target);
+          {NodeToSend?.attributes &&
+            Object.keys(NodeToSend.attributes).length > 0 && (
+              <div className="flex gap-2 mt-6 rounded border-2 border-[var(--teal)] p-1 pt-6 text-[#000]">
+                {Object.entries(localAttrs).map(([k, value]) => (
+                  <div
+                    key={k}
+                    className="bg-white  flex-[0_1_100%] flex flex-col relative rounded max-h-[min-content] "
+                  >
+                    <p className={itemClass}>{k}:</p>
+                    <textarea
+                      value={String(value)}
+                      ref={(el) => {
+                        if (!el) return;
+                        textareaRef.current = el;
+                        adjustHeight(el);
+                      }}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        adjustHeight(e.target);
 
-                      // 1. сразу обновляем локальный стейт — курсор остаётся
-                      setLocalAttrs((prev) => ({
-                        ...prev,
-                        [k]: val,
-                      }));
+                        // 1. сразу обновляем локальный стейт — курсор остаётся
+                        setLocalAttrs((prev) => ({
+                          ...prev,
+                          [k]: val,
+                        }));
 
-                      // 2. дебаунсим обновление дерева
-                      const timeouts = attrTimeoutsRef.current;
-                      if (timeouts[k]) {
-                        clearTimeout(timeouts[k]);
-                      }
+                        // 2. дебаунсим обновление дерева
+                        const timeouts = attrTimeoutsRef.current;
+                        if (timeouts[k]) {
+                          clearTimeout(timeouts[k]);
+                        }
 
-                      timeouts[k] = window.setTimeout(() => {
-                        updateNodeByKey(NodeToSend._key, {
-                          attributes: {
-                            ...NodeToSend.attributes,
-                            [k]: val,
-                          },
-                        });
-                      }, 300);
-                    }}
-                    className="textarea-styles"
-                    placeholder=""
-                  />
-                </div>
-              ))}
-            </div>
-          )}
+                        timeouts[k] = window.setTimeout(() => {
+                          updateNodeByKey(NodeToSend._key, {
+                            attributes: {
+                              ...NodeToSend.attributes,
+                              [k]: val,
+                            },
+                          });
+                        }, 300);
+                      }}
+                      className="textarea-styles"
+                      placeholder=""
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
         </motion.div>
       )}
     </AnimatePresence>
