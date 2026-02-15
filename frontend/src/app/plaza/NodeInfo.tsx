@@ -53,6 +53,13 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [Open, setOpen] = useState<boolean>(false);
   const [NodeToSend, setNodeToSend] = useState<HtmlNode | null>(null);
+  const [localAttrs, setLocalAttrs] = useState(NodeToSend?.attributes ?? {});
+  const attrTimeoutsRef = useRef<Record<string, number | undefined>>({});
+  // ====>====>====>====>====>====>====>====>====>====>
+  // синхронизируемся, когда NodeToSend сменился (другая нода)
+  useEffect(() => {
+    setLocalAttrs(NodeToSend?.attributes ?? {});
+  }, [NodeToSend?._key]); // важно: по ключу, а не по всему объекту
   // -------------
   const resetAll = () => {
     resetHtmlJson();
@@ -74,6 +81,7 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
     if (node) {
       setNodeToSend(node);
     }
+    console.log("<=🚀🚀🚀==node=🚀🚀🚀=>", node);
   }, [activeKey, htmlJson]);
   // ================================
   const updateNodeByKey = (key: string, changes: Partial<HtmlNode>) => {
@@ -92,7 +100,7 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
       return updateRecursively(prev);
     });
   };
-  // ================================
+  // ====>====>====>====>====>====>====>====>====>====>
   const adjustHeight = (el: HTMLTextAreaElement) => {
     el.style.height = "auto";
     el.style.height = `${el.scrollHeight}px`;
@@ -101,6 +109,8 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
     "flex flex-col items-start justify-center p-2 m-1 border border-gray-300 rounded bg-gray-100 text-sm";
   const itemClass =
     "absolute top-[-25px] !font-bold  inline-flex items-center gap-2 z-30 py-1 min-h-[26px] text-white w-[max-content]";
+
+  // ====>====>====>====>====>====>====>====>====>====>
   return (
     <AnimatePresence mode="wait">
       {activeKey && (
@@ -182,7 +192,8 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
               <ProjectsIcon width={16} height={16} />
             </button>
           </div>
-          <div className="grid grid-cols-[repeat(2_,max-content)_1fr_1fr] relative rounded border-2 border-[var(--teal)] p-1 pt-6  text-[#000] h-full">
+
+          <div className="grid grid-cols-[repeat(2_,max-content)_1fr_1fr] relative rounded border-2 border-[var(--teal)] p-1 pt-6  text-[#000] w-full h-full">
             {/*===============Tag=================*/}
             <TagComponent
               node={NodeToSend}
@@ -229,6 +240,7 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
                 />
               </div>
             )}
+
             {/* {node?.tag === "input" && (
               <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-10  flex flex-col relative ">
                 <p className={itemClass}>
@@ -318,6 +330,54 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
               </div>
               )}*/}
           </div>
+
+          {NodeToSend?.attributes && (
+            <div className="flex gap-2 mt-6 rounded border-2 border-[var(--teal)] p-1 pt-6 text-[#000]">
+              {Object.entries(localAttrs).map(([k, value]) => (
+                <div
+                  key={k}
+                  className="bg-white  flex-[0_1_100%] flex flex-col relative rounded max-h-[min-content] "
+                >
+                  <p className={itemClass}>{k}:</p>
+                  <textarea
+                    value={String(value)}
+                    ref={(el) => {
+                      if (!el) return;
+                      textareaRef.current = el;
+                      adjustHeight(el);
+                    }}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      adjustHeight(e.target);
+
+                      // 1. сразу обновляем локальный стейт — курсор остаётся
+                      setLocalAttrs((prev) => ({
+                        ...prev,
+                        [k]: val,
+                      }));
+
+                      // 2. дебаунсим обновление дерева
+                      const timeouts = attrTimeoutsRef.current;
+                      if (timeouts[k]) {
+                        clearTimeout(timeouts[k]);
+                      }
+
+                      timeouts[k] = window.setTimeout(() => {
+                        updateNodeByKey(NodeToSend._key, {
+                          attributes: {
+                            ...NodeToSend.attributes,
+                            [k]: val,
+                          },
+                        });
+                      }, 300);
+                    }}
+                    className="textarea-styles"
+                    placeholder=""
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </motion.div>
       )}
     </AnimatePresence>
