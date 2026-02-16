@@ -420,3 +420,9 @@ li {
     transform: scale(1);
   }
 }
+.renderedNode svg {
+  max-width: 20px;
+  max-height: 20px;
+  overflow: hidden;
+  display: block;
+}

@@ -81,6 +81,7 @@ const TagsNamen5 = [
   { tag: "input-check", color: "powderblue" },
   { tag: "fieldset-radio", color: "powderblue" },
   { tag: "fildset-rating", color: "powderblue" },
+  { tag: "range-wrap-js", color: "powderblue" },
 ];
 type ProjectData = {
   tag: string;

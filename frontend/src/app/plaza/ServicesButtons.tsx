@@ -41,7 +41,7 @@ export default function ServicesButtons() {
   };
 
   return (
-    <div className="bg-[var(--lightest-navy)] flex items-center gap-1 mb-1 py-1 ">
+    <div className="bg-[var(--navi)] flex items-center gap-1 mb-1 py-1 ">
       <button
         className="btn btn-allert !py-1"
         type="button"
@@ -49,7 +49,7 @@ export default function ServicesButtons() {
           resetAll();
         }}
       >
-        <ClearIcon width={16} height={16} />
+        <ClearIcon width={12} height={12} />
       </button>
       <button
         className="btn-teal   disabled:opacity-50"
@@ -57,7 +57,7 @@ export default function ServicesButtons() {
         onClick={undo}
         disabled={undoStack.length === 0}
       >
-        <СhevronLeft width={16} height={16} />
+        <СhevronLeft width={12} height={12} />
       </button>
       <button
         className="btn-teal    disabled:opacity-50 "
@@ -65,18 +65,18 @@ export default function ServicesButtons() {
         onClick={redo}
         disabled={redoStack.length === 0}
       >
-        <СhevronRight width={16} height={16} />
+        <СhevronRight width={12} height={12} />
       </button>
       <button
-        className="btn-teal  flex items-center  !gap-2 "
+        className="btn-teal flex-[1_0_140px]  flex items-center  !gap-2 "
         type="button"
         onClick={() => handleClean()}
       >
-        <ClearIcon width={16} height={16} />
-        <p className="!text-[12px] !lh-0">remove servises texts</p>
+        <ClearIcon width={12} height={12} />
+        <p className="!text-[10px] !lh-0">remove servises texts</p>
       </button>
       {/*-------------*/}
-      <div className="flex-[70%] center">
+      <div className="flex-[50%] center">
         <JsonToHtmlButton />
       </div>
       {/*------отложено! обратная генерация в htmlJson-------*/}
@@ -95,7 +95,7 @@ export default function ServicesButtons() {
           }
         }}
       >
-        <PreviewIcon width={18} height={18} />
+        <PreviewIcon width={12} height={12} />
       </button>
       <button
         className="btn-teal  flex-[140px] center"
@@ -108,7 +108,7 @@ export default function ServicesButtons() {
           }
         }}
       >
-        <WorkerIcon width={16} height={16} />
+        <WorkerIcon width={12} height={12} />
       </button>
       <button
         className="btn-teal    flex-[140px] center"
@@ -121,7 +121,7 @@ export default function ServicesButtons() {
           }
         }}
       >
-        <ProjectsIcon width={16} height={16} />
+        <ProjectsIcon width={12} height={12} />
       </button>
     </div>
   );

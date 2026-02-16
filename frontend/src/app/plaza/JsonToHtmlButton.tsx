@@ -48,7 +48,7 @@ export default function JsonToHtmlButton() {
     <button
       onClick={handleClick}
       disabled={loading}
-      className="btn-primary  rounded !text-[12px] !lh-0 w-full  !py-1 center"
+      className="btn-primary  rounded !text-[12px] !lh-0 w-full  !py-0.25 center"
     >
       {loading ? (
         <Spinner />

@@ -120,12 +120,12 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
           transition={{ duration: 0.1, ease: [0.25, 0.8, 0.5, 1] }}
-          className="bg-[var(--navi-admin)]   p-1 pt-8   bottom-0 left-0 transform w-[calc(100vw-10px)] min-h-[188px]  max-h-[370px] overflow-y-auto  fixed  z-6000"
+          className="bg-black/60 backdrop-blur-lg   p-1 pt-8   bottom-0 left-0 transform w-[calc(100vw-10px)] min-h-[188px]  max-h-[370px] overflow-y-auto  fixed  z-6000"
           style={{
-            borderTop: "3px solid var(--teal)",
+            borderTop: "5px solid var(--teal)",
           }}
         >
-          <div className="flex gap-1 w-[calc(100%-10px)] absolute top-0 left-1  !py-0.5 z-10">
+          <div className="flex gap-1 w-[calc(100%-10px)] absolute top-0 left-1  !py-1 z-10">
             <button
               className="btn btn-allert !py-1 flex-[40px]"
               type="button"
@@ -133,7 +133,7 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
                 resetAll();
               }}
             >
-              <ClearIcon width={16} height={16} />
+              <ClearIcon width={12} height={12} />
             </button>
             <button
               className="btn btn-primary  flex-[40px]"
@@ -142,8 +142,8 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
               <Image
                 src="./svg/cross-com.svg"
                 alt="close"
-                width={15}
-                height={15}
+                width={12}
+                height={12}
               />
             </button>
             <div className="flex-[70%]">
@@ -161,7 +161,7 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
                 }
               }}
             >
-              <PreviewIcon width={18} height={18} />
+              <PreviewIcon width={12} height={12} />
             </button>
             <button
               className="btn-teal  flex-[140px] center"
@@ -175,7 +175,7 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
                 }
               }}
             >
-              <WorkerIcon width={16} height={16} />
+              <WorkerIcon width={12} height={12} />
             </button>
             <button
               className="btn-teal  flex-[140px] center"
@@ -189,11 +189,11 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
                 }
               }}
             >
-              <ProjectsIcon width={16} height={16} />
+              <ProjectsIcon width={12} height={12} />
             </button>
           </div>
 
-          <div className="grid grid-cols-[repeat(2_,max-content)_1fr_1fr] relative rounded border-2 border-[var(--teal)] p-1 pt-6  text-[#000] w-full h-full">
+          <div className="grid grid-cols-[repeat(2_,max-content)_1fr_1fr] relative rounded border-2 border-[var(--teal)] p-1 pt-6  text-[#000] w-full h-full  bg-slate-200">
             {/*===============Tag=================*/}
             <TagComponent
               node={NodeToSend}
@@ -333,7 +333,7 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
 
           {NodeToSend?.attributes &&
             Object.keys(NodeToSend.attributes).length > 0 && (
-              <div className="flex gap-2 mt-6 rounded border-2 border-[var(--teal)] p-1 pt-6 text-[#000]">
+              <div className="flex gap-2 mt-6 rounded border-2 border-[var(--teal)] p-1 pt-6 text-[#000]  bg-slate-200">
                 {Object.entries(localAttrs).map(([k, value]) => (
                   <div
                     key={k}

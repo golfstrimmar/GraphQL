@@ -15,7 +15,7 @@ export default function Plaza() {
         <PreviewComponent />
         <CanvasComponent />
         <ProjectsList />
-        <div className="fixed bottom-0 left-0 w-full border-t-2 border-[var(--teal)] z-5000">
+        <div className="fixed bottom-0 left-0 w-full border-t-5 border-[var(--teal)] z-5000">
           <AdminComponent />
         </div>
       </div>
