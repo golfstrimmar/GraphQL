@@ -341,7 +341,7 @@ function removeDuplicateLiBlocks(str: string): string {
 function postFixScss(scss: string) {
   return scss
     .replace(
-      /(&\\.)?([a-zA-Z0-9_-]+)\\s*\\{\\s*@extend\\s+\\.\\\\2\\s*;\\s*}/g,
+      /(&\\.)?([a-zA-Z0-9_-]+)\\s*\\{\\s*@extend\\s+\\.\\2\\s*;\\s*}/g,
       "",
     )
     .replace(/&(\.[a-zA-Z0-9_-]+)/g, "$1")
@@ -438,12 +438,12 @@ export async function POST(request: Request) {
     const rawScss = removeDuplicateLiBlocks(scssBlocksToString(scssBlocks));
 
     let finalScss = rawScss;
-    if (GROQ_API_KEY && rawScss && rawScss.trim()) {
-      const cleanedByGroq = await callGroq(rawScss);
-      finalScss = postFixScss(cleanedByGroq || rawScss);
-    } else {
-      finalScss = postFixScss(rawScss);
-    }
+    // if (GROQ_API_KEY && rawScss && rawScss.trim()) {
+    //   const cleanedByGroq = await callGroq(rawScss);
+    //   finalScss = postFixScss(cleanedByGroq || rawScss);
+    // } else {
+    //   finalScss = postFixScss(rawScss);
+    // }
 
     return NextResponse.json({
       html,
@@ -455,3 +455,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
+
