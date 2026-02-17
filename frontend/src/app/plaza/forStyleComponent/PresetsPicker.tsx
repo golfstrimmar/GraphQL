@@ -20,7 +20,7 @@ export default function PresetsPicker({
       {presetsProps.map((prop: presetsPropValue, idx) => (
         <button
           key={idx}
-          className="px-2 py-1 btn btn-empty text-[12px] "
+          className="px-2 py-1 btn btn-empty text-[12px] text-[var(--slate-800)]"
           onClick={() => toAdd(prop)}
           title={prop}
         >

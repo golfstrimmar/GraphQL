@@ -72,7 +72,7 @@ const gapOptions = ["0", "4px", "8px", "12px", "16px", "24px"] as const;
 const commonClass = "px-2 btn btn-empty  text-[12px]";
 export default function GridContainerPicker({ toAdd }: PickerProps) {
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 text-[var(--slate-800)]">
       {/* grid-template-columns simple */}
       <div className="flex flex-wrap gap-2 items-center">
         <span className="text-xs opacity-70">grid-template-columns</span>

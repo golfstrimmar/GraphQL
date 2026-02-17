@@ -91,13 +91,9 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
     return () => clearTimeout(id);
   }, [styleText]);
 
-  useEffect(() => {
-    console.log("StyleComponent node.style =", JSON.stringify(node?.style));
-  }, [node?.style]);
-
   // ====>====>====>====>====>====>====>====>====>====>
   return (
-    <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]   flex flex-col relative ">
+    <>
       {openMobile && (
         <MobileAddStyle
           setStyleText={setStyleText}
@@ -106,36 +102,38 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
           nodeStyle={JSON.stringify(node?.style)}
         />
       )}
-      <p className={itemClass}>
-        <span>Style:</span>
-        <button
-          className="btn-teal text-[12px] !max-h-[20px]"
-          onClick={() =>
-            setOpenMobile(() => {
-              return !openMobile;
-            })
-          }
-        >
-          Add
-        </button>
-      </p>
-      <textarea
-        ref={(el) => {
-          if (!el) return;
-          textareaRef.current = el;
-          adjustHeight(el);
-        }}
-        value={cleanConstructorScss(styleText)}
-        // value={styleText}
-        onChange={(e) => {
-          setStyleText(e.target.value);
-          adjustHeight(e.target);
-        }}
-        onInput={(e) => adjustHeight(e.target as HTMLTextAreaElement)}
-        className="textarea-styles"
-        placeholder=""
-      />
-    </div>
+      <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]   flex flex-col relative ">
+        <p className={itemClass}>
+          <span>Style:</span>
+          <button
+            className="btn-teal text-[12px] !max-h-[20px]"
+            onClick={() =>
+              setOpenMobile(() => {
+                return !openMobile;
+              })
+            }
+          >
+            Add
+          </button>
+        </p>
+        <textarea
+          ref={(el) => {
+            if (!el) return;
+            textareaRef.current = el;
+            adjustHeight(el);
+          }}
+          value={cleanConstructorScss(styleText)}
+          // value={styleText}
+          onChange={(e) => {
+            setStyleText(e.target.value);
+            adjustHeight(e.target);
+          }}
+          onInput={(e) => adjustHeight(e.target as HTMLTextAreaElement)}
+          className="textarea-styles"
+          placeholder=""
+        />
+      </div>
+    </>
   );
 };
 

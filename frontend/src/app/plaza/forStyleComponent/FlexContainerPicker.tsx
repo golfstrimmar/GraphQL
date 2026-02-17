@@ -48,11 +48,11 @@ type PickerProps = {
   toAdd: (v: string) => void;
 };
 
-const commonClass = "px-2 btn btn-empty  text-[12px]";
+const commonClass = "px-2 btn btn-empty  text-[12px] ";
 
 export default function FlexContainerPicker({ toAdd }: PickerProps) {
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 text-[var(--slate-800)]">
       {/* flex*/}
       <div className="flex flex-wrap gap-2 items-center">
         <span className="text-xs opacity-70">flex</span>

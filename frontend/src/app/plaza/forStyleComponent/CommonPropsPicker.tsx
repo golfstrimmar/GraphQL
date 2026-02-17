@@ -75,7 +75,7 @@ export default function CommonPropsPicker({
   }, [actuelColor]);
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 ">
       <ColorPicker
         toAdd={toAdd}
         open={open}
@@ -86,7 +86,7 @@ export default function CommonPropsPicker({
         {commonProps1.map((prop: string) => (
           <button
             key={prop}
-            className="px-2 btn btn-empty text-[12px]"
+            className="px-2 btn btn-empty text-[12px] text-[var(--slate-800)]"
             // onClick={() => toAdd(prop)}
             onClick={() => {
               setCurrentProp(prop);
@@ -103,7 +103,7 @@ export default function CommonPropsPicker({
         {commonProps2.map((prop: string) => (
           <button
             key={prop}
-            className="px-2 btn btn-empty text-[12px]"
+            className="px-2 btn btn-empty text-[12px] text-[var(--slate-800)]"
             onClick={() => toAdd(prop)}
             title={prop}
           >
@@ -115,7 +115,7 @@ export default function CommonPropsPicker({
         {commonProps3.map((prop: string) => (
           <button
             key={prop}
-            className="px-2 btn btn-empty text-[12px]"
+            className="px-2 btn btn-empty text-[12px] text-[var(--slate-800)]"
             onClick={() => toAdd(prop)}
             title={prop}
           >
@@ -127,7 +127,7 @@ export default function CommonPropsPicker({
         {commonProps4.map((prop: string) => (
           <button
             key={prop}
-            className="px-2 btn btn-empty text-[12px]"
+            className="px-2 btn btn-empty text-[12px] text-[var(--slate-800)]"
             onClick={() => toAdd(prop)}
             title={prop}
           >
@@ -139,7 +139,7 @@ export default function CommonPropsPicker({
         {commonProps5.map((prop: string) => (
           <button
             key={prop}
-            className="px-2 btn btn-empty text-[12px]"
+            className="px-2 btn btn-empty text-[12px] text-[var(--slate-800)]"
             onClick={() => toAdd(prop)}
             title={prop}
           >
@@ -151,7 +151,7 @@ export default function CommonPropsPicker({
         {commonProps6.map((prop: string) => (
           <button
             key={prop}
-            className="px-2 btn btn-empty text-[12px]"
+            className="px-2 btn btn-empty text-[12px] text-[var(--slate-800)]"
             onClick={() => toAdd(prop)}
             title={prop}
           >
@@ -159,7 +159,7 @@ export default function CommonPropsPicker({
           </button>
         ))}
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 text-[var(--slate-800)]">
         {commonProps7.map((prop: string) => (
           <button
             key={prop}
