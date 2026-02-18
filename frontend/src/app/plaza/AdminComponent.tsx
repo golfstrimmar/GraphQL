@@ -19,11 +19,11 @@ const HeroIconPicker = dynamic(() => import("./HeroIconPicker"), {
 });
 
 const TagsNamen1 = [
+  { tag: "section", color: "rgb(220, 230, 220)" },
+  { tag: "div", color: "rgb(226, 232, 240)" },
+  { tag: "container", color: "dodgerblue" },
   { tag: "a", color: "#3b82f6" }, // blue
   { tag: "button", color: "#06b6d4" }, // cyan
-  { tag: "section", color: "rgb(220, 230, 220)" }, // slate
-  { tag: "container", color: "dodgerblue" }, // slate
-  { tag: "div", color: "rgb(226, 232, 240)" }, // slate
   { tag: "p", color: "#22c55e" }, // green
   { tag: "span", color: "#8b5cf6" }, // violet
   { tag: "ul", color: "#f97316" }, // orange
@@ -41,23 +41,23 @@ const TagsNamen1 = [
   { tag: "h6", color: "#ef4444" },
 ];
 const TagsNamen2 = [
-  { tag: "input", color: "#3b82f6" }, // blue
-  { tag: "textarea", color: "#6366f1" }, // indigo
-  { tag: "label", color: "#f97316" },
-  { tag: "legend", color: "#ec4899" }, // pink
-
-  { tag: "article", color: "#14b8a6" }, // teal
+  { tag: "form", color: "#ebebeb" },
+  { tag: "br", color: "#ebebeb" }, // gray
+  { tag: "hr", color: "#ebebeb" }, // zinc
   { tag: "aside", color: "#06b6d4" }, // cyan
-  { tag: "br", color: "#737373" }, // gray
-  { tag: "hr", color: "#71717a" }, // zinc
   { tag: "fieldset", color: "#f43f5e" },
-  { tag: "form", color: "#0ea5e9" }, // sky
+  { tag: "article", color: "#14b8a6" },
   { tag: "header", color: "#6366f1" }, // indigo
   { tag: "ol", color: "#f59e0b" }, // amber
   { tag: "option", color: "#a855f7" }, // purple
   { tag: "optgroup", color: "#d946ef" }, // fuchsia
   { tag: "select", color: "#8b5cf6" }, // violet
   { tag: "source", color: "#38bdf8" }, // sky-light
+  { tag: "legend", color: "#ec4899" }, // pink
+
+  // { tag: "input", color: "#3b82f6" }, // blue
+  // { tag: "textarea", color: "#6366f1" }, // indigo
+  // { tag: "label", color: "#f97316" },
 ];
 const TagsNamen4 = [
   { tag: "section container wrap", color: "powderblue" },
@@ -84,6 +84,7 @@ const TagsNamen5 = [
   { tag: "fildset-rating", color: "powderblue" },
   { tag: "range-wrap-js", color: "powderblue" },
   { tag: "search-f", color: "powderblue" },
+  { tag: "modal", color: "powderblue" },
 ];
 type ProjectData = {
   tag: string;
