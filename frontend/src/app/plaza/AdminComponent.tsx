@@ -75,6 +75,7 @@ const TagsNamen5 = [
   { tag: "CARD", color: "powderblue" },
   { tag: "CARD EMPTY", color: "powderblue" },
   { tag: "input-field", color: "powderblue" },
+  { tag: "input-name", color: "powderblue" },
   { tag: "input-mail", color: "powderblue" },
   { tag: "input-tel", color: "powderblue" },
   { tag: "input-f-number", color: "powderblue" },
