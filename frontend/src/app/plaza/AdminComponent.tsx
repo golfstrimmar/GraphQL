@@ -75,8 +75,8 @@ const TagsNamen5 = [
   { tag: "CARD", color: "powderblue" },
   { tag: "CARD EMPTY", color: "powderblue" },
   { tag: "input-field", color: "powderblue" },
-  { tag: "input-name", color: "powderblue" },
-  { tag: "input-mail", color: "powderblue" },
+  { tag: "input-name-svg", color: "powderblue" },
+  { tag: "input-mail-svg", color: "powderblue" },
   { tag: "input-tel", color: "powderblue" },
   { tag: "input-f-number", color: "powderblue" },
   { tag: "input-check", color: "powderblue" },
@@ -101,7 +101,7 @@ type ProjectData = {
 // ==>==>==>==>==>==>==>==>==>==>==>==>==>
 
 const AdminComponent = () => {
-  const { updateHtmlJson } = useStateContext();
+  const { updateHtmlJson, SCSS } = useStateContext();
   const [openSVGModal, setopenSVGModal] = useState<boolean>(false);
   const [name, setName] = useState<string | null>(null);
 
@@ -114,12 +114,50 @@ const AdminComponent = () => {
   const handleLoad = async (tag: string) => {
     if (!tag) return;
     setName(tag);
+
+    // 1. Грузим сам компонент
     const { data } = await refetchJson({ name: tag });
     const content = data?.jsonDocumentByName?.content;
     if (!content) return;
     const resultWithKeys = ensureNodeKeys(content) as ProjectData[];
 
-    updateHtmlJson((prev) => [...prev, ...resultWithKeys]);
+    const extraStyles: ProjectData[] = [];
+
+    // 2. Если это инпут — всегда грузим style-input-field
+    if (tag.includes("input")) {
+      const { data: stylesData } = await refetchJson({
+        name: "style-input-field",
+      });
+      const stylesContent = stylesData?.jsonDocumentByName?.content;
+      if (stylesContent) {
+        const stylesArray = Array.isArray(stylesContent)
+          ? stylesContent
+          : [stylesContent];
+        if (!SCSS.replace(/[\r\n\t]+/g, "").includes(stylesArray[0].text)) {
+          const stylesWithKeys = ensureNodeKeys(stylesArray) as ProjectData[];
+          extraStyles.push(...stylesWithKeys);
+        }
+      }
+    }
+
+    // 3. Если в названии есть svg — ДОПОЛНИТЕЛЬНО грузим style-input-svg
+    if (tag.includes("svg")) {
+      const { data: svgStylesData } = await refetchJson({
+        name: "style-input-svg",
+      });
+      const svgStylesContent = svgStylesData?.jsonDocumentByName?.content;
+      if (svgStylesContent) {
+        const svgStylesArray = Array.isArray(svgStylesContent)
+          ? svgStylesContent
+          : [svgStylesContent];
+        const svgStylesWithKeys = ensureNodeKeys(
+          svgStylesArray,
+        ) as ProjectData[];
+        extraStyles.push(...svgStylesWithKeys);
+      }
+    }
+    console.log("<=✨✨✨==extraStyles==✨✨✨=>", extraStyles);
+    updateHtmlJson((prev) => [...prev, ...extraStyles, ...resultWithKeys]);
   };
 
   // ==>==>==>==>==>==>==>==>==>==>==>==>==>

@@ -13,17 +13,15 @@ function getIconNameFromSrc(src: string): string | null {
     const url = new URL(src);
     const pathname = url.pathname;
     if (!pathname.endsWith(".svg")) return null;
-    // Берём ВСЁ после /24/ → outline/archive-box-x-mark.svg
     const last24Index = pathname.lastIndexOf("/24/");
     if (last24Index === -1) return null;
-    const iconPath = pathname.substring(last24Index + 4); // +4 = после "/24/"
+    const iconPath = pathname.substring(last24Index + 4);
     return iconPath;
   } catch {
     return null;
   }
 }
 
-// ====>====>====>====>====>====>====>====>====>====>
 async function fetchHeroiconSvgByFileName(
   fileName: string,
 ): Promise<string | null> {
@@ -32,13 +30,11 @@ async function fetchHeroiconSvgByFileName(
   if (!res.ok) return null;
   return await res.text();
 }
-// ====>====>====>====>====>====>====>====>====>====>
+
 function svgTextToProjectNode(svgText: string, baseNode: any): any {
   const parser = new XmldomParser();
-  // console.log("<===svgText===>", svgText);
   const doc = parser.parseFromString(svgText, "image/svg+xml");
   const svgEl = doc.getElementsByTagName("svg")[0];
-  // console.log("<===svgEl===>", svgEl);
   if (!svgEl) return baseNode;
 
   const svgAttrs: Record<string, string> = {};
@@ -51,7 +47,7 @@ function svgTextToProjectNode(svgText: string, baseNode: any): any {
   const children: any[] = [];
   for (let i = 0; i < svgEl.childNodes.length; i++) {
     const node = svgEl.childNodes.item(i);
-    if (node.nodeType !== 1) continue; // ELEMENT_NODE
+    if (node.nodeType !== 1) continue;
     const el = node as any;
 
     const childAttrs: Record<string, string> = {};
@@ -78,12 +74,12 @@ function svgTextToProjectNode(svgText: string, baseNode: any): any {
     style: baseNode.style || "",
     attributes: {
       ...svgAttrs,
-      stroke: "currentColor", // чтобы цвет шёл из CSS
+      stroke: "currentColor",
     },
     children,
   };
 }
-// ====>====>====>====>====>====>====>====>====>====>
+
 async function transformIconsBySrc(nodes: any[]): Promise<any[]> {
   const result: any[] = [];
 
@@ -205,10 +201,12 @@ function renderNodesAndCollectScss(nodes: any[]): {
   html: string;
   scssBlocks: any[];
   pug: string;
+  inlineScss: string;
 } {
   let html = "";
   let scssBlocks: any[] = [];
   let pug = "";
+  let inlineScss = "";
 
   nodes.forEach((node) => {
     const {
@@ -219,22 +217,38 @@ function renderNodesAndCollectScss(nodes: any[]): {
       children = [],
     } = node;
 
+    // special case: <style> — забираем text как SCSS и не рендерим в HTML
+    if (tag === "style") {
+      if (text && text.trim()) {
+        inlineScss += text.trim() + "\n";
+      }
+
+      if (children.length > 0) {
+        const childRes = renderNodesAndCollectScss(children);
+        // html += childRes.html;
+        // scssBlocks.push(...childRes.scssBlocks);
+        // pug += (pug ? "\n" : "") + childRes.pug;
+        inlineScss += childRes.inlineScss;
+      }
+      return;
+    }
+
     const selector = getScssSelector(node);
 
     let childHtml = "";
     let childScssBlocks: any[] = [];
+    let childInlineScss = "";
     if (children.length > 0) {
       const childRes = renderNodesAndCollectScss(children);
       childHtml = childRes.html;
       childScssBlocks = childRes.scssBlocks;
+      childInlineScss = childRes.inlineScss;
     }
-
     scssBlocks.push({
       selector,
       style: style.trim(),
       children: childScssBlocks,
     });
-
     const attrsStr = buildAttrs(node);
     const cleanedText = cleanServiceText(text);
     let htmlItem: string;
@@ -250,9 +264,11 @@ function renderNodesAndCollectScss(nodes: any[]): {
 
     const pugNode = toPug([node]);
     pug += (pug ? "\n" : "") + pugNode;
+
+    inlineScss += childInlineScss;
   });
 
-  return { html, scssBlocks, pug: pug.trim() };
+  return { html, scssBlocks, pug: pug.trim(), inlineScss };
 }
 
 function scssBlocksToString(blocks: any[], indent = ""): string {
@@ -340,10 +356,7 @@ function removeDuplicateLiBlocks(str: string): string {
 
 function postFixScss(scss: string) {
   return scss
-    .replace(
-      /(&\\.)?([a-zA-Z0-9_-]+)\\s*\\{\\s*@extend\\s+\\.\\2\\s*;\\s*}/g,
-      "",
-    )
+    .replace(/(&\.)?([a-zA-Z0-9_-]+)\s*\{\s*@extend\s+\.\\2\s*;\s*}/g, "")
     .replace(/&(\.[a-zA-Z0-9_-]+)/g, "$1")
     .replace(/^\s*\.[a-zA-Z0-9_-]+\s*;$/gm, "")
     .trim();
@@ -375,7 +388,7 @@ async function callGroq(scss: string): Promise<string> {
     Ответ: только содержимое блока, начиная с ".selector {" и заканчивая "}".
     - убери дублирующиеся правила;
     - в ответе ТОЛЬКО чистый SCSS без комментариев.
-`.trim();
+  `.trim();
 
   const userPrompt = `
 Вот сырой SCSS. Очисти и отформатируй его по правилам.
@@ -389,7 +402,7 @@ async function callGroq(scss: string): Promise<string> {
 - только отформатировать: переносы строк и отступы.
 SCSS:
 ${scss}
-`.trim();
+  `.trim();
 
   const body = {
     model: "llama-3.1-8b-instant",
@@ -433,11 +446,18 @@ export async function POST(request: Request) {
 
     const transformedNodes = await transformIconsBySrc(nodes);
 
-    const { html, scssBlocks, pug } =
+    const { html, scssBlocks, pug, inlineScss } =
       renderNodesAndCollectScss(transformedNodes);
-    const rawScss = removeDuplicateLiBlocks(scssBlocksToString(scssBlocks));
+
+    const rawScssBlocks = removeDuplicateLiBlocks(
+      scssBlocksToString(scssBlocks),
+    );
+
+    // style-тэги -> inlineScss, style-поля нод -> rawScssBlocks
+    const rawScss = (inlineScss ? inlineScss + "\n" : "") + rawScssBlocks;
 
     let finalScss = rawScss;
+    // если захочешь чистить через Groq — раскомментируй:
     // if (GROQ_API_KEY && rawScss && rawScss.trim()) {
     //   const cleanedByGroq = await callGroq(rawScss);
     //   finalScss = postFixScss(cleanedByGroq || rawScss);
@@ -455,4 +475,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
-

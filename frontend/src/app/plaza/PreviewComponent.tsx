@@ -88,6 +88,7 @@ export default function PreviewComponent() {
 
   // -----------SCSS
   useEffect(() => {
+    // console.log("<===SCSS===>", SCSS);
     if (!SCSS) {
       setCodeCss("");
       return;

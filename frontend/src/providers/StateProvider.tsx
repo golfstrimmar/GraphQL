@@ -142,8 +142,9 @@ export function StateProvider({
     variables: { name: "initialTags" },
     fetchPolicy: "network-only",
   });
-  // ------------------------
+  // ==>==>==>==>==>==>==>==>==>==>==>
 
+  // ==>==>==>==>==>==>==>==>==>==>==>
   useEffect(() => {
     if (!user) {
       clearImages();
