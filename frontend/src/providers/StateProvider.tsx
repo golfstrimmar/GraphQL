@@ -238,34 +238,106 @@ export function StateProvider({
   }, [usersData, subscribeToUsers]);
 
   // ------------------------ UNDO/REDO ------------------------
+  // const updateHtmlJson = (
+  //   nextHtmlJson: HtmlNode[] | ((prev: HtmlNode[]) => HtmlNode[]),
+  // ) => {
+  //   console.log("<===nextHtmlJson===>", nextHtmlJson);
+
+  //   setUndoStack((prev) => [...prev, JSON.parse(JSON.stringify(htmlJson))]);
+  //   setRedoStack([]);
+  //   if (typeof nextHtmlJson === "function") {
+  //     console.log("<===undoStack==function=>", undoStack);
+  //     setHtmlJson((prev) => {
+  //       const prevClone = JSON.parse(JSON.stringify(prev));
+  //       const next = nextHtmlJson(prevClone);
+
+  //       // в undo кладём именно prevClone
+  //       setUndoStack((stack) => [...stack, prevClone]);
+  //       setRedoStack([]);
+  //       return next;
+  //     });
+  //   } else {
+  //     console.log("<===undoStack===>", undoStack);
+  //     setHtmlJson((prev) => {
+  //       const prevClone = JSON.parse(JSON.stringify(prev));
+  //       const nextClone = JSON.parse(JSON.stringify(nextHtmlJson));
+  //       setUndoStack((stack) => [...stack, prevClone]);
+  //       setRedoStack([]);
+  //       return nextClone;
+  //     });
+  //   }
+  // };
+
+  // const undo = () => {
+  //   if (undoStack.length === 0) return;
+  //   const prev = undoStack[undoStack.length - 1];
+  //   setUndoStack((stack) => stack.slice(0, -1));
+  //   setRedoStack((stack) => [...stack, JSON.parse(JSON.stringify(htmlJson))]);
+  //   setHtmlJson(prev);
+  // };
+
+  // const redo = () => {
+  //   if (redoStack.length === 0) return;
+  //   const next = redoStack[redoStack.length - 1];
+  //   setRedoStack((stack) => stack.slice(0, -1));
+  //   setUndoStack((stack) => [...stack, JSON.parse(JSON.stringify(htmlJson))]);
+  //   setHtmlJson(next);
+  // };
+
   const updateHtmlJson = (
     nextHtmlJson: HtmlNode[] | ((prev: HtmlNode[]) => HtmlNode[]),
   ) => {
-    setUndoStack((prev) => [...prev, JSON.parse(JSON.stringify(htmlJson))]);
-    setRedoStack([]);
     if (typeof nextHtmlJson === "function") {
-      setHtmlJson((prev) => nextHtmlJson(JSON.parse(JSON.stringify(prev))));
+      setHtmlJson((prev) => {
+        const prevClone = JSON.parse(JSON.stringify(prev));
+        const next = nextHtmlJson(prevClone);
+
+        setUndoStack((stack) => [...stack, prevClone]);
+        setRedoStack([]);
+
+        return next;
+      });
     } else {
-      setHtmlJson(JSON.parse(JSON.stringify(nextHtmlJson)));
+      setHtmlJson((prev) => {
+        const prevClone = JSON.parse(JSON.stringify(prev));
+        const nextClone = JSON.parse(JSON.stringify(nextHtmlJson));
+
+        setUndoStack((stack) => [...stack, prevClone]);
+        setRedoStack([]);
+
+        return nextClone;
+      });
     }
   };
 
   const undo = () => {
-    if (undoStack.length === 0) return;
-    const prev = undoStack[undoStack.length - 1];
-    setUndoStack((stack) => stack.slice(0, -1));
-    setRedoStack((stack) => [...stack, JSON.parse(JSON.stringify(htmlJson))]);
-    setHtmlJson(prev);
+    setHtmlJson((current) => {
+      if (undoStack.length === 0) return current;
+
+      const prev = undoStack[undoStack.length - 1];
+      setUndoStack((stack) => stack.slice(0, -1));
+      setRedoStack((stack) => [...stack, JSON.parse(JSON.stringify(current))]);
+
+      return prev;
+    });
   };
 
   const redo = () => {
-    if (redoStack.length === 0) return;
-    const next = redoStack[redoStack.length - 1];
-    setRedoStack((stack) => stack.slice(0, -1));
-    setUndoStack((stack) => [...stack, JSON.parse(JSON.stringify(htmlJson))]);
-    setHtmlJson(next);
+    setHtmlJson((current) => {
+      if (redoStack.length === 0) return current;
+
+      const next = redoStack[redoStack.length - 1];
+      setRedoStack((stack) => stack.slice(0, -1));
+      setUndoStack((stack) => [...stack, JSON.parse(JSON.stringify(current))]);
+
+      return next;
+    });
   };
 
+  useEffect(() => {
+    if (!htmlJson) return;
+    console.log("<===htmlJson===>", htmlJson);
+  }, [htmlJson]);
   return (
     <StateContext.Provider
       value={{

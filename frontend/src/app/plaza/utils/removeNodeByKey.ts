@@ -1,13 +1,27 @@
 import type { HtmlNode } from "@/types/HtmlNode";
-type Tree = HtmlNode | HtmlNode[];
+
+type Tree = HtmlNode[];
+
+export type RemovedMeta = {
+  removed: HtmlNode | null;
+  removedClass: string | null;
+  marks: {
+    hasCheck: boolean;
+    hasRadio: boolean;
+    hasNumber: boolean;
+    hasSvg: boolean;
+    hasTextarea: boolean;
+    hasInputF: boolean;
+  };
+};
 
 function removeNodeByKey(
   tree: Tree,
   key: string,
-): { tree: Tree; removed: HtmlNode | null } {
+): { tree: Tree; meta: RemovedMeta } {
   const removeFromArray = (
     arr: HtmlNode[],
-  ): { arr: HtmlNode[]; removed: HtmlNode | null } => {
+  ): { arr: HtmlNode[]; meta: RemovedMeta } => {
     let removed: HtmlNode | null = null;
 
     const newArr = arr.flatMap((node) => {
@@ -15,28 +29,43 @@ function removeNodeByKey(
         removed = node;
         return [];
       }
-      if (node.children?.length) {
-        const { arr: newChildren, removed: childRemoved } = removeFromArray(
+
+      if (Array.isArray(node.children) && node.children.length > 0) {
+        const { arr: newChildren, meta: childMeta } = removeFromArray(
           node.children,
         );
-        if (childRemoved) removed = childRemoved;
+        if (childMeta.removed && !removed) {
+          removed = childMeta.removed;
+        }
         return [{ ...node, children: newChildren }];
       }
+
       return [node];
     });
 
-    return { arr: newArr, removed };
+    const cls = removed?.class ?? null;
+    const classStr = cls ?? "";
+
+    return {
+      arr: newArr,
+      meta: {
+        removed,
+        removedClass: cls,
+        marks: {
+          hasCheck: classStr.includes("check"),
+          hasRadio: classStr.includes("radio"),
+          hasNumber: classStr.includes("number"),
+          hasSvg: classStr.includes("svg"),
+          hasTextarea: classStr.includes("field-t"),
+          hasInputF: classStr.includes("input-f"),
+        },
+      },
+    };
   };
 
-  if (Array.isArray(tree)) {
-    const { arr, removed } = removeFromArray(tree);
-    return { tree: arr, removed };
-  } else {
-    if (tree._key === key) {
-      return { tree: [], removed: tree };
-    }
-    const { arr, removed } = removeFromArray([tree]);
-    return { tree: arr, removed };
-  }
+  const baseArray = Array.isArray(tree) ? tree : [tree];
+  const { arr, meta } = removeFromArray(baseArray);
+  return { tree: arr, meta };
 }
+
 export default removeNodeByKey;

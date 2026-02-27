@@ -77,9 +77,9 @@ const TagsNamen5 = [
   { tag: "input-field", color: "powderblue" },
   { tag: "input-name-svg", color: "powderblue" },
   { tag: "input-mail-svg", color: "powderblue" },
-  { tag: "input-tel", color: "powderblue" },
-  { tag: "input-f-number", color: "powderblue" },
-  { tag: "input-check", color: "powderblue" },
+  { tag: "input-tel-svg", color: "powderblue" },
+  { tag: "f-number", color: "powderblue" },
+  { tag: "f-check", color: "powderblue" },
   { tag: "textarea-field", color: "powderblue" },
   { tag: "fieldset-radio", color: "powderblue" },
   { tag: "fildset-rating", color: "powderblue" },
@@ -123,7 +123,6 @@ const AdminComponent = () => {
 
     const extraStyles: ProjectData[] = [];
 
-    // 2. Если это инпут — всегда грузим style-input-field
     if (tag.includes("input")) {
       const { data: stylesData } = await refetchJson({
         name: "style-input-field",
@@ -140,7 +139,6 @@ const AdminComponent = () => {
       }
     }
 
-    // 3. Если в названии есть svg — ДОПОЛНИТЕЛЬНО грузим style-input-svg
     if (tag.includes("svg")) {
       const { data: svgStylesData } = await refetchJson({
         name: "style-input-svg",
@@ -156,7 +154,68 @@ const AdminComponent = () => {
         extraStyles.push(...svgStylesWithKeys);
       }
     }
-    console.log("<=✨✨✨==extraStyles==✨✨✨=>", extraStyles);
+    if (tag.includes("check")) {
+      const { data: checkStylesData } = await refetchJson({
+        name: "style-check",
+      });
+      const checkStylesContent = checkStylesData?.jsonDocumentByName?.content;
+      if (checkStylesContent) {
+        const checkStylesArray = Array.isArray(checkStylesContent)
+          ? checkStylesContent
+          : [checkStylesContent];
+        const checkStylesWithKeys = ensureNodeKeys(
+          checkStylesArray,
+        ) as ProjectData[];
+        extraStyles.push(...checkStylesWithKeys);
+      }
+    }
+    if (tag.includes("number")) {
+      const { data: numberStylesData } = await refetchJson({
+        name: "style-number",
+      });
+      const numberStylesContent = numberStylesData?.jsonDocumentByName?.content;
+      if (numberStylesContent) {
+        const numberStylesArray = Array.isArray(numberStylesContent)
+          ? numberStylesContent
+          : [numberStylesContent];
+        const numberStylesWithKeys = ensureNodeKeys(
+          numberStylesArray,
+        ) as ProjectData[];
+        extraStyles.push(...numberStylesWithKeys);
+      }
+    }
+    if (tag.includes("radio")) {
+      const { data: radioStylesData } = await refetchJson({
+        name: "style-radio",
+      });
+      const radioStylesContent = radioStylesData?.jsonDocumentByName?.content;
+      if (radioStylesContent) {
+        const radioStylesArray = Array.isArray(radioStylesContent)
+          ? radioStylesContent
+          : [radioStylesContent];
+        const radioStylesWithKeys = ensureNodeKeys(
+          radioStylesArray,
+        ) as ProjectData[];
+        extraStyles.push(...radioStylesWithKeys);
+      }
+    }
+    if (tag.includes("textarea")) {
+      const { data: textareaStylesData } = await refetchJson({
+        name: "style-textarea",
+      });
+      const textareaStylesContent =
+        textareaStylesData?.jsonDocumentByName?.content;
+      if (textareaStylesContent) {
+        const textareaStylesArray = Array.isArray(textareaStylesContent)
+          ? textareaStylesContent
+          : [textareaStylesContent];
+        const textareaStylesWithKeys = ensureNodeKeys(
+          textareaStylesArray,
+        ) as ProjectData[];
+        extraStyles.push(...textareaStylesWithKeys);
+      }
+    }
+
     updateHtmlJson((prev) => [...prev, ...extraStyles, ...resultWithKeys]);
   };
 

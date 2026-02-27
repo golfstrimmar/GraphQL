@@ -6,9 +6,11 @@ import Loading from "@/components/ui/Loading/Loading";
 import voidTags from "./utils/voidTags";
 import dynamic from "next/dynamic";
 import addNodeToTargetByKey from "./utils/addNodeToTargetByKey";
-import removeNodeByKey from "./utils/removeNodeByKey";
+import removeNodeByKey, { RemovedMeta } from "./utils/removeNodeByKey";
 import validateHtmlStructure from "./utils/validateHtmlStructure";
-import applyDropByOverlay from "./utils/applyDropByOverlay";
+import applyDropByOverlay, {
+  OverlayState as OverlayStateLocal,
+} from "./utils/applyDropByOverlay";
 import duplicateNodeAfter from "./utils/duplicateNodeAfter";
 import { OverlayState, HtmlNode } from "@/types/HtmlNode";
 
@@ -19,12 +21,10 @@ const NodeInfo = dynamic(() => import("./NodeInfo"), {
 
 type Tree = HtmlNode | HtmlNode[];
 
-// ============🔹🟢🔹🟢
 export default function CanvasComponent() {
   const [openInfoModal, setOpenInfoModal] = useState<boolean>(false);
   const [clickTimeout, setClickTimeout] = useState<NodeJS.Timeout | null>(null);
   const [overlay, setOverlay] = useState<OverlayState | null>(null);
-
   const {
     htmlJson,
     updateHtmlJson,
@@ -33,9 +33,60 @@ export default function CanvasComponent() {
     dragKey,
     setDragKey,
     preview,
+    setHTML,
+    setSCSS,
+    showModal,
   } = useStateContext();
 
-  // ---------- утилиты ----------
+  const handleUpdateHtmlJson = async () => {
+    if (!htmlJson || htmlJson.length === 0) return;
+    setHTML("");
+    setSCSS("");
+    // setLoading(true);
+
+    // очистка дубликатов style по text
+    const styleNodes = htmlJson.filter((n) => n.tag === "style");
+    const nonStyleNodes = htmlJson.filter((n) => n.tag !== "style");
+
+    const map = new Map<string, (typeof styleNodes)[number]>();
+    for (const item of styleNodes) {
+      if (!map.has(item.text)) {
+        map.set(item.text, item);
+      }
+    }
+    const uniqueStyleNodes = Array.from(map.values());
+    const cleanedHtmlJson = [...nonStyleNodes, ...uniqueStyleNodes];
+
+    //  сохранить очищенное в провайдер
+    updateHtmlJson(cleanedHtmlJson);
+
+    try {
+      const res = await fetch("/api/json-to-html", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cleanedHtmlJson),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        showModal(data.error || "Unknown error", "error");
+        return;
+      }
+
+      setHTML(data.html);
+      setSCSS(data.scss);
+      const el = document.getElementById("preview-section");
+      if (el) {
+        const y = el.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      }
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      showModal(message, "error");
+    } finally {
+      // setLoading(false);
+    }
+  };
 
   const parseInlineStyle = (styleString: string): React.CSSProperties => {
     if (!styleString) return {};
@@ -65,37 +116,6 @@ export default function CanvasComponent() {
       ...activeStyle,
     };
   };
-
-  // поиск родителя по _key
-  const findParentKey = (
-    tree: Tree,
-    childKey: string,
-    parentKey: string | "__ROOT__" = "__ROOT__",
-  ): string | "__ROOT__" => {
-    if (!tree) return "__ROOT__";
-
-    if (Array.isArray(tree)) {
-      for (const n of tree) {
-        const res = findParentKey(n, childKey, "__ROOT__");
-        if (res) return res;
-      }
-      return "__ROOT__";
-    }
-
-    const node = tree;
-    if (node._key === childKey) return parentKey;
-
-    if (Array.isArray(node.children)) {
-      for (const ch of node.children) {
-        const res = findParentKey(ch, childKey, node._key || parentKey);
-        if (res) return res;
-      }
-    }
-
-    return "__ROOT__";
-  };
-
-  // ---------- drag start / click ----------
 
   const handleDragStart = (e: React.DragEvent<HTMLElement>, node: any) => {
     e.stopPropagation();
@@ -140,14 +160,30 @@ export default function CanvasComponent() {
     if (!node._key) return;
     const sourceKey = node._key;
     setActiveKey(null);
-    updateHtmlJson((prevTree: any) => {
+    updateHtmlJson((prevTree: HtmlNode[]) => {
       if (!prevTree) return prevTree;
-      const { tree: withoutSource } = removeNodeByKey(prevTree, sourceKey);
-      return withoutSource || prevTree;
+
+      const currentRoot: HtmlNode[] = Array.isArray(prevTree)
+        ? prevTree
+        : [prevTree];
+
+      const { tree: withoutSource, meta } = removeNodeByKey(
+        currentRoot,
+        sourceKey,
+      );
+
+      const withoutSourceArray: HtmlNode[] = Array.isArray(withoutSource)
+        ? withoutSource
+        : withoutSource
+          ? [withoutSource]
+          : [];
+
+      // здесь dragKey уже либо null, либо другой; но мы знаем, что это не dnd,
+      // поэтому можно чистить стили по meta
+      const cleaned = cleanupStylesAfterRemove(meta, withoutSourceArray);
+      return cleaned;
     });
   };
-
-  // ---------- overlay-плейсхолдеры (before/after) ----------
 
   const handleDragOver = (
     e: React.DragEvent<HTMLElement>,
@@ -174,6 +210,7 @@ export default function CanvasComponent() {
     const topZone = rect.top + h * 0.15;
     const bottomZone = rect.top + h * 0.85;
 
+    type OverlayMode = "before" | "after" | "inside";
     let mode: OverlayMode;
     if (mouseY < topZone) mode = "before";
     else if (mouseY > bottomZone) mode = "after";
@@ -183,23 +220,100 @@ export default function CanvasComponent() {
       visible: true,
       mode,
       top:
-        mode === "before" ? relTop : mode === "after" ? relTop + h - 4 : relTop, // inside — можно использовать top элемента
+        mode === "before" ? relTop : mode === "after" ? relTop + h - 4 : relTop,
       left: relLeft,
       width: rect.width,
       parentKey,
       siblingKey: node._key,
-    });
+    } as OverlayState);
   };
 
-  // ---------- DragLeave ----------
   const handleDragLeave = (e: React.DragEvent<HTMLElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    // можно ничего не делать, чтобы линия не мигала между элементами
-    // при необходимости можно добавить setOverlay(null) при выходе из зоны
   };
 
-  // ---------- drop с использованием overlay ----------
+  const cleanupStylesAfterRemove = (
+    meta: RemovedMeta,
+    nextHtml: HtmlNode[],
+  ): HtmlNode[] => {
+    if (dragKey) return nextHtml;
+    const { removed, removedClass, marks } = meta;
+    if (!removed) return nextHtml;
+
+    const cls = removedClass ?? "";
+    let res = nextHtml;
+
+    const hasNodesWithMark = (mark: string) =>
+      res.some(
+        (el) =>
+          el.tag !== "style" &&
+          typeof el.class === "string" &&
+          el.class.includes(mark),
+      );
+
+    const maybeRemoveStyle = (cssMark: string, classMark: string) => {
+      const stillHasNodes = hasNodesWithMark(classMark);
+      if (!stillHasNodes) {
+        res = res.filter(
+          (el) =>
+            !(
+              el.tag === "style" &&
+              typeof el.text === "string" &&
+              el.text.includes(cssMark)
+            ),
+        );
+      }
+    };
+
+    if (marks.hasCheck) {
+      maybeRemoveStyle("input-check", "check");
+    }
+    if (marks.hasRadio) {
+      maybeRemoveStyle("field-radio", "radio");
+    }
+    if (marks.hasNumber) {
+      maybeRemoveStyle("f-number", "number");
+    }
+    if (marks.hasSvg) {
+      maybeRemoveStyle("input-svg", "svg");
+    }
+    if (marks.hasTextarea) {
+      maybeRemoveStyle("field-t", "field-t");
+    }
+    if (marks.hasInputF) {
+      maybeRemoveStyle("input-f", "input-f");
+    }
+
+    if (
+      !marks.hasCheck &&
+      !marks.hasRadio &&
+      !marks.hasNumber &&
+      !marks.hasSvg &&
+      !marks.hasTextarea &&
+      !marks.hasInputF &&
+      cls
+    ) {
+      const stillHasSameClass = res.some(
+        (el) =>
+          el.tag !== "style" &&
+          typeof el.class === "string" &&
+          el.class.includes(cls),
+      );
+      if (!stillHasSameClass) {
+        res = res.filter(
+          (el) =>
+            !(
+              el.tag === "style" &&
+              typeof el.text === "string" &&
+              el.text.includes(cls)
+            ),
+        );
+      }
+    }
+
+    return res;
+  };
 
   const handleDrop = (
     e: React.DragEvent<HTMLElement>,
@@ -217,65 +331,91 @@ export default function CanvasComponent() {
 
     const sourceKey = e.dataTransfer.getData("text/plain") || dragKey;
 
-    // ничего не перетащили → просто убираем overlay
     if (!sourceKey) {
       setOverlay(null);
       return;
     }
 
-    // 🔹 1. Есть overlay — используем его
+    // 🔹 1. overlay-режим
     if (overlay && overlay.visible && overlay.siblingKey) {
-      updateHtmlJson((prevTree: any) => {
-        if (!prevTree) return prevTree;
-        const res = applyDropByOverlay(sourceKey, overlay, prevTree);
-        return res;
+      updateHtmlJson((prevTree: HtmlNode[]) => {
+        const { tree: newTree, meta } = applyDropByOverlay(
+          sourceKey,
+          overlay as OverlayStateLocal,
+          prevTree,
+        );
+        const normalized = Array.isArray(newTree) ? newTree : [newTree];
+        const cleaned = cleanupStylesAfterRemove(meta, normalized);
+        return cleaned;
       });
 
       setDragKey(null);
-      setOverlay(null); // ← важный сброс
+      setOverlay(null);
       return;
     }
 
-    // 🔹 2. Fallback: drop на таргет/базу
-    updateHtmlJson((prevTree: any) => {
+    // 🔹 2. Fallback: drop без overlay (в т.ч. на корень / .baza)
+    updateHtmlJson((prevTree: HtmlNode[]) => {
       if (!prevTree) return prevTree;
 
-      const { tree: withoutSource, removed } = removeNodeByKey(
-        prevTree,
-        sourceKey,
-      );
-      if (!removed) return prevTree;
+      const currentRoot: HtmlNode[] = Array.isArray(prevTree)
+        ? prevTree
+        : [prevTree];
 
+      // 🔸 0. Дроп на самого себя → вообще не удаляем, просто дублируем
       if (targetNode && targetNode._key === sourceKey) {
-        return duplicateNodeAfter(prevTree, sourceKey);
+        const next = duplicateNodeAfter(currentRoot, sourceKey as string);
+        // здесь НЕ вызываем cleanupStylesAfterRemove, потому что ничего не удаляли
+        return next;
       }
 
+      // дальше — обычный перенос: сначала remove, потом вставка
+
+      const { tree: withoutSource, meta } = removeNodeByKey(
+        currentRoot,
+        sourceKey as string,
+      );
+
+      const removed = meta.removed;
+      if (!removed) return currentRoot;
+
+      const withoutSourceArray: HtmlNode[] = Array.isArray(withoutSource)
+        ? withoutSource
+        : withoutSource
+          ? [withoutSource]
+          : [];
+
+      // дроп на корень / .baza
       if (!targetNode || el.classList.contains("baza")) {
-        const asArray = Array.isArray(withoutSource)
-          ? withoutSource
-          : [withoutSource];
-        return [...asArray, removed];
+        const next = [...withoutSourceArray, removed];
+        const cleaned = cleanupStylesAfterRemove(meta, next);
+        return cleaned;
       }
 
-      if (!targetNode._key) return prevTree;
-      const res = addNodeToTargetByKey(withoutSource, targetNode._key, removed);
+      if (!targetNode._key) return currentRoot;
+
+      const res = addNodeToTargetByKey(
+        withoutSourceArray,
+        targetNode._key,
+        removed,
+      );
+
       if (!validateHtmlStructure(res)) {
         console.warn("Invalid HTML structure! Drop cancelled.");
         el.classList.add("tag-scale-pulse");
         setTimeout(() => {
           el.classList.remove("tag-scale-pulse");
         }, 1000);
-        return prevTree;
+        return currentRoot;
       }
 
-      return res;
+      const cleaned = cleanupStylesAfterRemove(meta, res);
+      return cleaned;
     });
 
     setDragKey(null);
-    setOverlay(null); // ← и здесь тоже
+    setOverlay(null);
   };
-
-  // ---------- renderNode с overlay-логикой ----------
 
   const renderNode = (
     node: any,
@@ -326,8 +466,7 @@ export default function CanvasComponent() {
           renderNode(child, node._key || parentKey),
         )
       : null;
-    const isSvgInner =
-      node.tag === "circle" || node.tag === "path" || node.tag === "rect";
+
     return (
       <Tag
         data-key={node._key}
@@ -359,13 +498,9 @@ export default function CanvasComponent() {
     );
   };
 
-  // ---------- корневой уровень ----------
-
   const renderContent = Array.isArray(htmlJson)
-    ? htmlJson.map((n: any, i: number) => renderNode(n, "__ROOT__"))
+    ? htmlJson.map((n: any) => renderNode(n, "__ROOT__"))
     : renderNode(htmlJson, "__ROOT__");
-
-  // ---------- JSX ----------
 
   return (
     <div
@@ -385,7 +520,7 @@ export default function CanvasComponent() {
               top: overlay.top,
               left: overlay.left,
               width: overlay.width,
-              height: 4, // или 6 — выбери один вариант
+              height: 4,
               background:
                 "repeating-linear-gradient(45deg, black, black 4px, yellow 4px, yellow 8px)",
               pointerEvents: "none",

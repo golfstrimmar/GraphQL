@@ -7,8 +7,9 @@ import Spinner from "@/components/icons/Spinner";
 export default function JsonToHtmlButton() {
   const [loading, setLoading] = useState(false);
 
-  const { htmlJson, setHtmlJson, setHTML, setSCSS, showModal } =
+  const { htmlJson, updateHtmlJson, setHTML, setSCSS, showModal } =
     useStateContext();
+  // ===>===>===>===>===>===>===>===>===>===>
   const handleClick = async () => {
     if (!htmlJson || htmlJson.length === 0) return;
     setHTML("");
@@ -29,7 +30,7 @@ export default function JsonToHtmlButton() {
     const cleanedHtmlJson = [...nonStyleNodes, ...uniqueStyleNodes];
 
     //  сохранить очищенное в провайдер
-    setHtmlJson(cleanedHtmlJson);
+    updateHtmlJson(cleanedHtmlJson);
 
     try {
       const res = await fetch("/api/json-to-html", {
