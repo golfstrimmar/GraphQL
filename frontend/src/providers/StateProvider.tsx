@@ -143,6 +143,17 @@ export function StateProvider({
     fetchPolicy: "network-only",
   });
   // ==>==>==>==>==>==>==>==>==>==>==>
+  // 3. проверяем стиле тэги на повторение
+  const uniqueStyleTags = (nodes) => {
+    const seen = new Set<string>();
+    return nodes.filter((node) => {
+      if (node.tag !== "style") return true;
+      const key = String(node.text || "");
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  };
 
   // ==>==>==>==>==>==>==>==>==>==>==>
   useEffect(() => {
@@ -237,52 +248,7 @@ export function StateProvider({
     };
   }, [usersData, subscribeToUsers]);
 
-  // ------------------------ UNDO/REDO ------------------------
-  // const updateHtmlJson = (
-  //   nextHtmlJson: HtmlNode[] | ((prev: HtmlNode[]) => HtmlNode[]),
-  // ) => {
-  //   console.log("<===nextHtmlJson===>", nextHtmlJson);
-
-  //   setUndoStack((prev) => [...prev, JSON.parse(JSON.stringify(htmlJson))]);
-  //   setRedoStack([]);
-  //   if (typeof nextHtmlJson === "function") {
-  //     console.log("<===undoStack==function=>", undoStack);
-  //     setHtmlJson((prev) => {
-  //       const prevClone = JSON.parse(JSON.stringify(prev));
-  //       const next = nextHtmlJson(prevClone);
-
-  //       // в undo кладём именно prevClone
-  //       setUndoStack((stack) => [...stack, prevClone]);
-  //       setRedoStack([]);
-  //       return next;
-  //     });
-  //   } else {
-  //     console.log("<===undoStack===>", undoStack);
-  //     setHtmlJson((prev) => {
-  //       const prevClone = JSON.parse(JSON.stringify(prev));
-  //       const nextClone = JSON.parse(JSON.stringify(nextHtmlJson));
-  //       setUndoStack((stack) => [...stack, prevClone]);
-  //       setRedoStack([]);
-  //       return nextClone;
-  //     });
-  //   }
-  // };
-
-  // const undo = () => {
-  //   if (undoStack.length === 0) return;
-  //   const prev = undoStack[undoStack.length - 1];
-  //   setUndoStack((stack) => stack.slice(0, -1));
-  //   setRedoStack((stack) => [...stack, JSON.parse(JSON.stringify(htmlJson))]);
-  //   setHtmlJson(prev);
-  // };
-
-  // const redo = () => {
-  //   if (redoStack.length === 0) return;
-  //   const next = redoStack[redoStack.length - 1];
-  //   setRedoStack((stack) => stack.slice(0, -1));
-  //   setUndoStack((stack) => [...stack, JSON.parse(JSON.stringify(htmlJson))]);
-  //   setHtmlJson(next);
-  // };
+  // ------------------------ updateHtmlJson ------------------------
 
   const updateHtmlJson = (
     nextHtmlJson: HtmlNode[] | ((prev: HtmlNode[]) => HtmlNode[]),
@@ -290,26 +256,31 @@ export function StateProvider({
     if (typeof nextHtmlJson === "function") {
       setHtmlJson((prev) => {
         const prevClone = JSON.parse(JSON.stringify(prev));
-        const next = nextHtmlJson(prevClone);
+        const rawNext = nextHtmlJson(prevClone);
+        const nextClone = JSON.parse(JSON.stringify(rawNext));
+        const cleaned = uniqueStyleTags(nextClone);
 
+        // в undo кладём ИМЕННО предыдущее состояние
         setUndoStack((stack) => [...stack, prevClone]);
+        // при любом новом действии редо очищаем
         setRedoStack([]);
 
-        return next;
+        return cleaned;
       });
     } else {
       setHtmlJson((prev) => {
         const prevClone = JSON.parse(JSON.stringify(prev));
         const nextClone = JSON.parse(JSON.stringify(nextHtmlJson));
+        const cleaned = uniqueStyleTags(nextClone);
 
         setUndoStack((stack) => [...stack, prevClone]);
         setRedoStack([]);
 
-        return nextClone;
+        return cleaned;
       });
     }
   };
-
+  // ------------------------ UNDO/REDO ------------------------
   const undo = () => {
     setHtmlJson((current) => {
       if (undoStack.length === 0) return current;

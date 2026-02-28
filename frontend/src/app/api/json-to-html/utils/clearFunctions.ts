@@ -62,7 +62,6 @@ const buildScss = (nodes, isRoot = true) => {
   let resSCSS = "";
   const StyleTags = nodes.filter((node) => node.tag === "style");
   if (StyleTags.length > 0) {
-    console.log("<===StyleTags===>", StyleTags);
     StyleTags.forEach((styleTag) => {
       const styleContent = styleTag.text || "";
       resSCSS += styleContent;
@@ -103,3 +102,5 @@ const clearFunctions = {
 };
 
 export default clearFunctions;
+//
+// .input-svg svg{position:absolute;width:18px;height:18px;top:50%;left:5px;transform:translateY(-50%);z-index:20;transition:all 0.2s ease-in-out;pointer-events:none;background:transparent;color:#cfd8dc;}.input-svg input+label{left:30px;}.input-svg:hover > svg {color: #455a64;}.input-f.input-svg input {padding-left: 25px;}

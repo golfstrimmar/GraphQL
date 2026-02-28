@@ -113,16 +113,28 @@ const AdminComponent = () => {
   // ==>==>==>==>==>==>==>==>==>==>==>==>==>
   const handleLoad = async (tag: string) => {
     if (!tag) return;
-    setName(tag);
+    // 1.грузим стилевые тэги
     let resultWithKeysStyles = [] as ProjectData[];
     if (tag.includes("input")) {
       const { data: stylesData } = await refetchJson({
         name: "style-input-field",
       });
+
       const contentStyles = stylesData?.jsonDocumentByName?.content;
-      resultWithKeysStyles = ensureNodeKeys(contentStyles) as ProjectData[];
+      const r = ensureNodeKeys(contentStyles) as ProjectData[];
+      resultWithKeysStyles.push(...resultWithKeysStyles, ...r);
     }
-    // 1. Грузим сам компонент
+    if (tag.includes("svg")) {
+      const { data: stylesData } = await refetchJson({
+        name: "style-input-svg",
+      });
+
+      const contentStyles = stylesData?.jsonDocumentByName?.content;
+      const r = ensureNodeKeys(contentStyles) as ProjectData[];
+      resultWithKeysStyles.push(...resultWithKeysStyles, ...r);
+    }
+
+    // 2. Грузим сам компонент
     const { data } = await refetchJson({ name: tag });
     const content = data?.jsonDocumentByName?.content;
     if (!content) return;
