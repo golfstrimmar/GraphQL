@@ -17,26 +17,26 @@ export default function JsonToHtmlButton() {
     setLoading(true);
 
     // очистка дубликатов style по text
-    const styleNodes = htmlJson.filter((n) => n.tag === "style");
-    const nonStyleNodes = htmlJson.filter((n) => n.tag !== "style");
+    // const styleNodes = htmlJson.filter((n) => n.tag === "style");
+    // const nonStyleNodes = htmlJson.filter((n) => n.tag !== "style");
 
-    const map = new Map<string, (typeof styleNodes)[number]>();
-    for (const item of styleNodes) {
-      if (!map.has(item.text)) {
-        map.set(item.text, item);
-      }
-    }
-    const uniqueStyleNodes = Array.from(map.values());
-    const cleanedHtmlJson = [...nonStyleNodes, ...uniqueStyleNodes];
+    // const map = new Map<string, (typeof styleNodes)[number]>();
+    // for (const item of styleNodes) {
+    //   if (!map.has(item.text)) {
+    //     map.set(item.text, item);
+    //   }
+    // }
+    // const uniqueStyleNodes = Array.from(map.values());
+    // const cleanedHtmlJson = [...nonStyleNodes, ...uniqueStyleNodes];
 
     //  сохранить очищенное в провайдер
-    updateHtmlJson(cleanedHtmlJson);
+    // updateHtmlJson(cleanedHtmlJson);
 
     try {
       const res = await fetch("/api/json-to-html", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(cleanedHtmlJson),
+        body: JSON.stringify(htmlJson),
       });
 
       const data = await res.json();

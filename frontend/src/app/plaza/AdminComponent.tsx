@@ -119,104 +119,108 @@ const AdminComponent = () => {
     const { data } = await refetchJson({ name: tag });
     const content = data?.jsonDocumentByName?.content;
     if (!content) return;
+
     const resultWithKeys = ensureNodeKeys(content) as ProjectData[];
 
-    const extraStyles: ProjectData[] = [];
+    // const extraStyles: ProjectData[] = [];
 
-    if (tag.includes("input")) {
-      const { data: stylesData } = await refetchJson({
-        name: "style-input-field",
-      });
-      const stylesContent = stylesData?.jsonDocumentByName?.content;
-      if (stylesContent) {
-        const stylesArray = Array.isArray(stylesContent)
-          ? stylesContent
-          : [stylesContent];
-        if (!SCSS.replace(/[\r\n\t]+/g, "").includes(stylesArray[0].text)) {
-          const stylesWithKeys = ensureNodeKeys(stylesArray) as ProjectData[];
-          extraStyles.push(...stylesWithKeys);
-        }
-      }
-    }
+    // if (tag.includes("input")) {
+    //   const { data: stylesData } = await refetchJson({
+    //     name: "style-input-field",
+    //   });
+    //   const stylesContent = stylesData?.jsonDocumentByName?.content;
+    //   console.log("<===stylesContent[0]===>", stylesContent[0].text);
+    //   resultWithKeys[0].style = stylesContent[0].text;
+    //   console.log("<===resultWithKeys===>", resultWithKeys[0].style);
+    //   // if (stylesContent) {
+    //   //   const stylesArray = Array.isArray(stylesContent)
+    //   //     ? stylesContent
+    //   //     : [stylesContent];
+    //   //   if (!SCSS.replace(/[\r\n\t]+/g, "").includes(stylesArray[0].text)) {
+    //   //     const stylesWithKeys = ensureNodeKeys(stylesArray) as ProjectData[];
+    //   //     extraStyles.push(...stylesWithKeys);
+    //   //   }
+    //   // }
+    // }
 
-    if (tag.includes("svg")) {
-      const { data: svgStylesData } = await refetchJson({
-        name: "style-input-svg",
-      });
-      const svgStylesContent = svgStylesData?.jsonDocumentByName?.content;
-      if (svgStylesContent) {
-        const svgStylesArray = Array.isArray(svgStylesContent)
-          ? svgStylesContent
-          : [svgStylesContent];
-        const svgStylesWithKeys = ensureNodeKeys(
-          svgStylesArray,
-        ) as ProjectData[];
-        extraStyles.push(...svgStylesWithKeys);
-      }
-    }
-    if (tag.includes("check")) {
-      const { data: checkStylesData } = await refetchJson({
-        name: "style-check",
-      });
-      const checkStylesContent = checkStylesData?.jsonDocumentByName?.content;
-      if (checkStylesContent) {
-        const checkStylesArray = Array.isArray(checkStylesContent)
-          ? checkStylesContent
-          : [checkStylesContent];
-        const checkStylesWithKeys = ensureNodeKeys(
-          checkStylesArray,
-        ) as ProjectData[];
-        extraStyles.push(...checkStylesWithKeys);
-      }
-    }
-    if (tag.includes("number")) {
-      const { data: numberStylesData } = await refetchJson({
-        name: "style-number",
-      });
-      const numberStylesContent = numberStylesData?.jsonDocumentByName?.content;
-      if (numberStylesContent) {
-        const numberStylesArray = Array.isArray(numberStylesContent)
-          ? numberStylesContent
-          : [numberStylesContent];
-        const numberStylesWithKeys = ensureNodeKeys(
-          numberStylesArray,
-        ) as ProjectData[];
-        extraStyles.push(...numberStylesWithKeys);
-      }
-    }
-    if (tag.includes("radio")) {
-      const { data: radioStylesData } = await refetchJson({
-        name: "style-radio",
-      });
-      const radioStylesContent = radioStylesData?.jsonDocumentByName?.content;
-      if (radioStylesContent) {
-        const radioStylesArray = Array.isArray(radioStylesContent)
-          ? radioStylesContent
-          : [radioStylesContent];
-        const radioStylesWithKeys = ensureNodeKeys(
-          radioStylesArray,
-        ) as ProjectData[];
-        extraStyles.push(...radioStylesWithKeys);
-      }
-    }
-    if (tag.includes("textarea")) {
-      const { data: textareaStylesData } = await refetchJson({
-        name: "style-textarea",
-      });
-      const textareaStylesContent =
-        textareaStylesData?.jsonDocumentByName?.content;
-      if (textareaStylesContent) {
-        const textareaStylesArray = Array.isArray(textareaStylesContent)
-          ? textareaStylesContent
-          : [textareaStylesContent];
-        const textareaStylesWithKeys = ensureNodeKeys(
-          textareaStylesArray,
-        ) as ProjectData[];
-        extraStyles.push(...textareaStylesWithKeys);
-      }
-    }
+    // if (tag.includes("svg")) {
+    //   const { data: svgStylesData } = await refetchJson({
+    //     name: "style-input-svg",
+    //   });
+    //   const svgStylesContent = svgStylesData?.jsonDocumentByName?.content;
+    //   if (svgStylesContent) {
+    //     const svgStylesArray = Array.isArray(svgStylesContent)
+    //       ? svgStylesContent
+    //       : [svgStylesContent];
+    //     const svgStylesWithKeys = ensureNodeKeys(
+    //       svgStylesArray,
+    //     ) as ProjectData[];
+    //     extraStyles.push(...svgStylesWithKeys);
+    //   }
+    // }
+    // if (tag.includes("check")) {
+    //   const { data: checkStylesData } = await refetchJson({
+    //     name: "style-check",
+    //   });
+    //   const checkStylesContent = checkStylesData?.jsonDocumentByName?.content;
+    //   if (checkStylesContent) {
+    //     const checkStylesArray = Array.isArray(checkStylesContent)
+    //       ? checkStylesContent
+    //       : [checkStylesContent];
+    //     const checkStylesWithKeys = ensureNodeKeys(
+    //       checkStylesArray,
+    //     ) as ProjectData[];
+    //     extraStyles.push(...checkStylesWithKeys);
+    //   }
+    // }
+    // if (tag.includes("number")) {
+    //   const { data: numberStylesData } = await refetchJson({
+    //     name: "style-number",
+    //   });
+    //   const numberStylesContent = numberStylesData?.jsonDocumentByName?.content;
+    //   if (numberStylesContent) {
+    //     const numberStylesArray = Array.isArray(numberStylesContent)
+    //       ? numberStylesContent
+    //       : [numberStylesContent];
+    //     const numberStylesWithKeys = ensureNodeKeys(
+    //       numberStylesArray,
+    //     ) as ProjectData[];
+    //     extraStyles.push(...numberStylesWithKeys);
+    //   }
+    // }
+    // if (tag.includes("radio")) {
+    //   const { data: radioStylesData } = await refetchJson({
+    //     name: "style-radio",
+    //   });
+    //   const radioStylesContent = radioStylesData?.jsonDocumentByName?.content;
+    //   if (radioStylesContent) {
+    //     const radioStylesArray = Array.isArray(radioStylesContent)
+    //       ? radioStylesContent
+    //       : [radioStylesContent];
+    //     const radioStylesWithKeys = ensureNodeKeys(
+    //       radioStylesArray,
+    //     ) as ProjectData[];
+    //     extraStyles.push(...radioStylesWithKeys);
+    //   }
+    // }
+    // if (tag.includes("textarea")) {
+    //   const { data: textareaStylesData } = await refetchJson({
+    //     name: "style-textarea",
+    //   });
+    //   const textareaStylesContent =
+    //     textareaStylesData?.jsonDocumentByName?.content;
+    //   if (textareaStylesContent) {
+    //     const textareaStylesArray = Array.isArray(textareaStylesContent)
+    //       ? textareaStylesContent
+    //       : [textareaStylesContent];
+    //     const textareaStylesWithKeys = ensureNodeKeys(
+    //       textareaStylesArray,
+    //     ) as ProjectData[];
+    //     extraStyles.push(...textareaStylesWithKeys);
+    //   }
+    // }
 
-    updateHtmlJson((prev) => [...prev, ...extraStyles, ...resultWithKeys]);
+    updateHtmlJson((prev) => [...prev, ...resultWithKeys]);
   };
 
   // ==>==>==>==>==>==>==>==>==>==>==>==>==>

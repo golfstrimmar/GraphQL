@@ -70,18 +70,15 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
   };
   // -------------
   useEffect(() => {
-    console.log("<==!!!=activeKey===>", activeKey);
     if (!activeKey) {
       setNodeToSend("");
       setOpenInfoModal(false);
       return;
     }
-
     const node = findNodeByKey(htmlJson, activeKey);
     if (node) {
       setNodeToSend(node);
     }
-    console.log("<=🚀🚀🚀==node=🚀🚀🚀=>", node);
   }, [activeKey, htmlJson]);
   // ================================
   const updateNodeByKey = (key: string, changes: Partial<HtmlNode>) => {
