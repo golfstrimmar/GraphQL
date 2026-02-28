@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 import Navbar from "@/components/Navbar/Navbar";
 import { useStateContext } from "@/providers/StateProvider";
+import { usePreventAllScrollOnFocus } from "@/utils/usePreventAllScrollOnFocus";
+
 export default function ClientLayout({
   children,
 }: {
@@ -54,6 +56,7 @@ export default function ClientLayout({
   return (
     <>
       <Navbar />
+      {usePreventAllScrollOnFocus()}
       {children}
     </>
   );

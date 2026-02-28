@@ -45,11 +45,7 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
 
   // ====>====>====>====>====>====>====>====>====>====>
   const formatStyleForDisplay = (raw: string): string => {
-    console.log("<===raw===>", raw);
-
-    // Если уже есть переносы — пользователь редактировал вручную
     if (raw.includes("\n")) return raw;
-
     const trimmed = raw?.trim();
     if (!trimmed) return "";
 
@@ -68,7 +64,6 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
         return `${key}: ${value}`;
       });
 
-    // Используем реальный \n — React и textarea его правильно отобразят
     return properties.join(";\n") + (hasTrailingSemicolon ? ";" : "");
   };
 

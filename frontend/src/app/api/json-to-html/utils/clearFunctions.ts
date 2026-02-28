@@ -9,7 +9,9 @@ function buildAttrs(node) {
 
   Object.entries(attributes).forEach(([key, value]) => {
     if (value == null || value === "") return;
-    attrs.push(`${key}="${String(value)}"`);
+    if (value !== "style") {
+      attrs.push(`${key}="${String(value)}"`);
+    }
   });
 
   return attrs.length ? " " + attrs.join(" ") + "" : "";
@@ -31,11 +33,9 @@ const parseHtml = (nodes) => {
   let html = "";
 
   nodes.forEach((node) => {
-    if (!node || !node.tag) return;
-
+    if (!node || !node.tag || node.tag === "style") return;
     const { tag, text, attributes = {}, children = [] } = node;
-
-    const attrsStr = buildAttrs(node); // внутри учитывай только class + attributes
+    const attrsStr = buildAttrs(node);
     const cleanedText = cleanServiceText(text || "");
 
     let childHtml = "";
@@ -60,7 +60,14 @@ const parseHtml = (nodes) => {
 // ===>===> scss ===>===>===>===>===>===>===>===>
 const buildScss = (nodes, isRoot = true) => {
   let resSCSS = "";
-
+  const StyleTags = nodes.filter((node) => node.tag === "style");
+  if (StyleTags.length > 0) {
+    console.log("<===StyleTags===>", StyleTags);
+    StyleTags.forEach((styleTag) => {
+      const styleContent = styleTag.text || "";
+      resSCSS += styleContent;
+    });
+  }
   nodes.forEach((node) => {
     if (!node || !node.tag) return;
 

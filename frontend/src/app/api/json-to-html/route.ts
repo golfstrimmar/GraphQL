@@ -10,6 +10,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json(); // htmlJson
     const nodes = body || [];
+    if (nodes === []) return NextResponse.json({ html: "", scss: "", pug: "" });
     const html = parseHtml(nodes);
     const scss = buildScss(nodes);
     // console.log("<===html===>", html);

@@ -19,6 +19,7 @@ const commonProps3 = [
   "margin: 20px 0;",
   "padding: 20px 10px;",
   "margin: 0 auto;",
+  "!important",
 ] as const;
 const commonProps4 = [
   // Hover states

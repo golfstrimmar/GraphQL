@@ -82,6 +82,9 @@ export default function MobileAddStyle({
       if (base.includes(foo)) {
         return applyValue(base);
       }
+      if (foo.includes("!important")) {
+        return applyValue(base.replace(";", "") + foo + ";");
+      }
       return applyValue(base + foo);
     });
   };

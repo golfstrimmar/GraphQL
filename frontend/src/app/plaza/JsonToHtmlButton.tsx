@@ -11,7 +11,13 @@ export default function JsonToHtmlButton() {
     useStateContext();
   // ===>===>===>===>===>===>===>===>===>===>
   const handleClick = async () => {
-    if (!htmlJson || htmlJson.length === 0) return;
+    if (!htmlJson || htmlJson.length === 0) {
+      setHTML("");
+      setSCSS("");
+      setLoading(false);
+      return;
+    }
+
     setHTML("");
     setSCSS("");
     setLoading(true);
