@@ -1,17 +1,12 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useStateContext } from "@/providers/StateProvider";
-import ButtonUnit from "@/components/ButtonUnit/ButtonUnit";
-import { AnimatePresence, motion } from "framer-motion";
-import Input from "@/components/ui/Input/Input";
 import { useQuery } from "@apollo/client";
 import { GET_JSON_DOCUMENT } from "@/apollo/queries";
 import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
 import ServicesButtons from "./ServicesButtons";
-import { applyDSHeadersToTree } from "@/app/plaza/utils/applyDSHeadersToTree";
-import ReactDOMServer from "react-dom/server";
-import * as OutlineIcons from "@heroicons/react/24/outline";
 import dynamic from "next/dynamic";
+import Spinner from "@/components/icons/Spinner";
 import Loading from "@/components/ui/Loading/Loading";
 const HeroIconPicker = dynamic(() => import("./HeroIconPicker"), {
   ssr: false,
@@ -104,34 +99,80 @@ const AdminComponent = () => {
   const { updateHtmlJson, SCSS } = useStateContext();
   const [openSVGModal, setopenSVGModal] = useState<boolean>(false);
   const [name, setName] = useState<string | null>(null);
-
+  const [clicked, setClicked] = useState<string>("");
+  const [loading, setLoading] = useState(false);
   const { refetch: refetchJson } = useQuery(GET_JSON_DOCUMENT, {
     variables: { name },
     skip: !name,
     fetchPolicy: "no-cache",
   });
   // ==>==>==>==>==>==>==>==>==>==>==>==>==>
+  const TAGS = [
+    "input",
+    "svg",
+    "number",
+    "check",
+    "textarea",
+    "radio",
+    "rating",
+    "range",
+    "search",
+    "modal",
+  ];
   const handleLoad = async (tag: string) => {
     if (!tag) return;
+    setLoading(true);
     // 1.грузим стилевые тэги
     let resultWithKeysStyles = [] as ProjectData[];
-    if (tag.includes("input")) {
-      const { data: stylesData } = await refetchJson({
-        name: "style-input-field",
-      });
 
-      const contentStyles = stylesData?.jsonDocumentByName?.content;
-      const r = ensureNodeKeys(contentStyles) as ProjectData[];
-      resultWithKeysStyles.push(...resultWithKeysStyles, ...r);
+    async function processStylesData(sD) {
+      console.log("<===sD===>", sD);
+      if (sD.includes("input")) {
+        const { data: stylesData, loading: styleLoading } = await refetchJson({
+          name: `style-input-field`,
+        });
+        const contentStyles = stylesData?.jsonDocumentByName?.content;
+
+        if (!contentStyles) {
+          setLoading(false);
+          return;
+        }
+        const r = ensureNodeKeys(contentStyles) as ProjectData[];
+        resultWithKeysStyles.push(...resultWithKeysStyles, ...r);
+      }
+
+      if (sD.includes("svg")) {
+        const { data: stylesData } = await refetchJson({
+          name: `style-input-svg`,
+        });
+        const contentStyles = stylesData?.jsonDocumentByName?.content;
+        if (!contentStyles) {
+          setLoading(false);
+          return;
+        }
+        const r = ensureNodeKeys(contentStyles) as ProjectData[];
+        resultWithKeysStyles.push(...resultWithKeysStyles, ...r);
+      }
+
+      if (!sD.includes("input") && !sD.includes("svg")) {
+        const { data: stylesData } = await refetchJson({
+          name: `style-${sD}`,
+        });
+        const contentStyles = stylesData?.jsonDocumentByName?.content;
+        if (!contentStyles) {
+          setLoading(false);
+          return;
+        }
+        const r = ensureNodeKeys(contentStyles) as ProjectData[];
+        resultWithKeysStyles.push(...resultWithKeysStyles, ...r);
+      }
     }
-    if (tag.includes("svg")) {
-      const { data: stylesData } = await refetchJson({
-        name: "style-input-svg",
-      });
+    // находим все совпадения
+    const matchedList = TAGS.filter((foo) => tag.includes(foo));
 
-      const contentStyles = stylesData?.jsonDocumentByName?.content;
-      const r = ensureNodeKeys(contentStyles) as ProjectData[];
-      resultWithKeysStyles.push(...resultWithKeysStyles, ...r);
+    // вызываем стили для каждого совпадения
+    for (const m of matchedList) {
+      await processStylesData(m);
     }
 
     // 2. Грузим сам компонент
@@ -140,105 +181,8 @@ const AdminComponent = () => {
     if (!content) return;
 
     const resultWithKeys = ensureNodeKeys(content) as ProjectData[];
-
-    // const extraStyles: ProjectData[] = [];
-
-    // if (tag.includes("input")) {
-    //   const { data: stylesData } = await refetchJson({
-    //     name: "style-input-field",
-    //   });
-    //   const stylesContent = stylesData?.jsonDocumentByName?.content;
-    //   console.log("<===stylesContent[0]===>", stylesContent[0].text);
-    //   resultWithKeys[0].style = stylesContent[0].text;
-    //   console.log("<===resultWithKeys===>", resultWithKeys[0].style);
-    //   // if (stylesContent) {
-    //   //   const stylesArray = Array.isArray(stylesContent)
-    //   //     ? stylesContent
-    //   //     : [stylesContent];
-    //   //   if (!SCSS.replace(/[\r\n\t]+/g, "").includes(stylesArray[0].text)) {
-    //   //     const stylesWithKeys = ensureNodeKeys(stylesArray) as ProjectData[];
-    //   //     extraStyles.push(...stylesWithKeys);
-    //   //   }
-    //   // }
-    // }
-
-    // if (tag.includes("svg")) {
-    //   const { data: svgStylesData } = await refetchJson({
-    //     name: "style-input-svg",
-    //   });
-    //   const svgStylesContent = svgStylesData?.jsonDocumentByName?.content;
-    //   if (svgStylesContent) {
-    //     const svgStylesArray = Array.isArray(svgStylesContent)
-    //       ? svgStylesContent
-    //       : [svgStylesContent];
-    //     const svgStylesWithKeys = ensureNodeKeys(
-    //       svgStylesArray,
-    //     ) as ProjectData[];
-    //     extraStyles.push(...svgStylesWithKeys);
-    //   }
-    // }
-    // if (tag.includes("check")) {
-    //   const { data: checkStylesData } = await refetchJson({
-    //     name: "style-check",
-    //   });
-    //   const checkStylesContent = checkStylesData?.jsonDocumentByName?.content;
-    //   if (checkStylesContent) {
-    //     const checkStylesArray = Array.isArray(checkStylesContent)
-    //       ? checkStylesContent
-    //       : [checkStylesContent];
-    //     const checkStylesWithKeys = ensureNodeKeys(
-    //       checkStylesArray,
-    //     ) as ProjectData[];
-    //     extraStyles.push(...checkStylesWithKeys);
-    //   }
-    // }
-    // if (tag.includes("number")) {
-    //   const { data: numberStylesData } = await refetchJson({
-    //     name: "style-number",
-    //   });
-    //   const numberStylesContent = numberStylesData?.jsonDocumentByName?.content;
-    //   if (numberStylesContent) {
-    //     const numberStylesArray = Array.isArray(numberStylesContent)
-    //       ? numberStylesContent
-    //       : [numberStylesContent];
-    //     const numberStylesWithKeys = ensureNodeKeys(
-    //       numberStylesArray,
-    //     ) as ProjectData[];
-    //     extraStyles.push(...numberStylesWithKeys);
-    //   }
-    // }
-    // if (tag.includes("radio")) {
-    //   const { data: radioStylesData } = await refetchJson({
-    //     name: "style-radio",
-    //   });
-    //   const radioStylesContent = radioStylesData?.jsonDocumentByName?.content;
-    //   if (radioStylesContent) {
-    //     const radioStylesArray = Array.isArray(radioStylesContent)
-    //       ? radioStylesContent
-    //       : [radioStylesContent];
-    //     const radioStylesWithKeys = ensureNodeKeys(
-    //       radioStylesArray,
-    //     ) as ProjectData[];
-    //     extraStyles.push(...radioStylesWithKeys);
-    //   }
-    // }
-    // if (tag.includes("textarea")) {
-    //   const { data: textareaStylesData } = await refetchJson({
-    //     name: "style-textarea",
-    //   });
-    //   const textareaStylesContent =
-    //     textareaStylesData?.jsonDocumentByName?.content;
-    //   if (textareaStylesContent) {
-    //     const textareaStylesArray = Array.isArray(textareaStylesContent)
-    //       ? textareaStylesContent
-    //       : [textareaStylesContent];
-    //     const textareaStylesWithKeys = ensureNodeKeys(
-    //       textareaStylesArray,
-    //     ) as ProjectData[];
-    //     extraStyles.push(...textareaStylesWithKeys);
-    //   }
-    // }
-
+    setLoading(false);
+    setClicked("");
     updateHtmlJson((prev) => [
       ...prev,
       ...resultWithKeys,
@@ -253,17 +197,18 @@ const AdminComponent = () => {
         <button
           key={i}
           className="btn adminButton px-1.5! border-1 border-[#aaa] text-black text-[12px]"
-          style={{ background: el.color }}
+          style={{ background: el.color, minWidth: "80px", height: "auto" }}
           type="button"
           onClick={() => {
             if (el.tag === "svg") {
               setopenSVGModal(true);
             } else {
+              setClicked(el.tag);
               handleLoad(el.tag);
             }
           }}
         >
-          {el.tag}
+          {loading && clicked === el.tag ? <Spinner /> : <span>{el.tag}</span>}
         </button>
       ))}
     </div>

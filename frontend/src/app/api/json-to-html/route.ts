@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
-import { DOMParser as XmldomParser } from "xmldom";
+// const GROQ_API_KEY = process.env.GROQ_API_KEY;
 import clearFunctions from "@/app/api/json-to-html/utils/clearFunctions";
 const { parseHtml, buildScss } = clearFunctions;
-
-const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
 // ===> ROUTE  ===>===>===>===>===>===>
 export async function POST(request: Request) {
@@ -11,7 +9,7 @@ export async function POST(request: Request) {
     const body = await request.json(); // htmlJson
     const nodes = body || [];
     if (nodes === []) return NextResponse.json({ html: "", scss: "", pug: "" });
-    const html = parseHtml(nodes);
+    const html = await parseHtml(nodes);
     const scss = buildScss(nodes);
     // console.log("<===html===>", html);
     // console.log("<===scss===>", scss);
