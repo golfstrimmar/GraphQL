@@ -48,6 +48,7 @@ const AdminComponent = () => {
     "range",
     "search",
     "modal",
+    "select",
   ];
 
   async function loadStyle(name: string): Promise<HtmlNode[]> {
@@ -55,6 +56,13 @@ const AdminComponent = () => {
     const contentStyles = stylesData?.jsonDocumentByName?.content;
     if (!contentStyles) return [];
     return ensureNodeKeys(contentStyles) as HtmlNode[];
+  }
+
+  async function loadScript(name: string): Promise<HtmlNode[]> {
+    const { data: scriptsData } = await refetchJson({ name });
+    const contentScripts = scriptsData?.jsonDocumentByName?.content;
+    if (!contentScripts) return [];
+    return ensureNodeKeys(contentScripts) as HtmlNode[];
   }
 
   async function processStylesData(sD: string) {

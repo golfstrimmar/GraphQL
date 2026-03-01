@@ -66,4 +66,5 @@ export const TagsNamen5 = [
   { tag: "range-wrap-js", color: "powderblue" },
   { tag: "search-f", color: "powderblue" },
   { tag: "modal", color: "powderblue" },
+  { tag: "custom-select", color: "powderblue" },
 ];

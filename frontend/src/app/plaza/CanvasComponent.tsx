@@ -303,21 +303,6 @@ export default function CanvasComponent() {
     setOverlay(null);
   };
   // ====>====>====>====>====>====>====>====>====>====>
-  // const handleClick = (e: React.MouseEvent<HTMLElement>, node: any) => {
-  //   e.stopPropagation();
-  //   if (clickTimeout) {
-  //     clearTimeout(clickTimeout);
-  //     setClickTimeout(null);
-  //     handleDoubleClick(e, node);
-  //   } else {
-  //     const timeout = setTimeout(() => {
-  //       setActiveKey((prev) => (prev === node._key ? null : node._key));
-  //       setOpenInfoModal(true);
-  //       setClickTimeout(null);
-  //     }, 250);
-  //     setClickTimeout(timeout);
-  //   }
-  // };
   const handleClick = (e: React.MouseEvent<HTMLElement>, node: any) => {
     e.stopPropagation();
 
@@ -339,19 +324,6 @@ export default function CanvasComponent() {
   const handleDoubleClick = (e: React.MouseEvent<HTMLElement>, node: any) => {
     e.stopPropagation();
     if (!node._key) return;
-    console.log("<===Double e.target===>", e.target);
-    // const target = e.target as HTMLElement;
-
-    // // если двойной клик был по label или input – НЕ удаляем ноду
-    // if (
-    //   target.tagName === "LABEL" ||
-    //   target.tagName === "INPUT" ||
-    //   target.tagName === "TEXTAREA" ||
-    //   target.tagName === "SELECT"
-    // ) {
-    //   return;
-    // }
-
     const sourceKey = node._key;
     setActiveKey(null);
 
