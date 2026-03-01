@@ -303,27 +303,58 @@ export default function CanvasComponent() {
     setOverlay(null);
   };
   // ====>====>====>====>====>====>====>====>====>====>
+  // const handleClick = (e: React.MouseEvent<HTMLElement>, node: any) => {
+  //   e.stopPropagation();
+  //   if (clickTimeout) {
+  //     clearTimeout(clickTimeout);
+  //     setClickTimeout(null);
+  //     handleDoubleClick(e, node);
+  //   } else {
+  //     const timeout = setTimeout(() => {
+  //       setActiveKey((prev) => (prev === node._key ? null : node._key));
+  //       setOpenInfoModal(true);
+  //       setClickTimeout(null);
+  //     }, 250);
+  //     setClickTimeout(timeout);
+  //   }
+  // };
   const handleClick = (e: React.MouseEvent<HTMLElement>, node: any) => {
     e.stopPropagation();
+
     if (clickTimeout) {
       clearTimeout(clickTimeout);
       setClickTimeout(null);
       handleDoubleClick(e, node);
     } else {
       const timeout = setTimeout(() => {
-        setActiveKey((prev) => (prev === node._key ? null : node._key));
+        setActiveKey(node._key ?? null);
         setOpenInfoModal(true);
         setClickTimeout(null);
       }, 250);
       setClickTimeout(timeout);
     }
   };
+
   // ====>====>====>====>====>====>====>====>====>====>
   const handleDoubleClick = (e: React.MouseEvent<HTMLElement>, node: any) => {
     e.stopPropagation();
     if (!node._key) return;
+    console.log("<===Double e.target===>", e.target);
+    // const target = e.target as HTMLElement;
+
+    // // если двойной клик был по label или input – НЕ удаляем ноду
+    // if (
+    //   target.tagName === "LABEL" ||
+    //   target.tagName === "INPUT" ||
+    //   target.tagName === "TEXTAREA" ||
+    //   target.tagName === "SELECT"
+    // ) {
+    //   return;
+    // }
+
     const sourceKey = node._key;
     setActiveKey(null);
+
     updateHtmlJson((prevTree: HtmlNode[]) => {
       if (!prevTree) return prevTree;
 
@@ -346,6 +377,7 @@ export default function CanvasComponent() {
       return cleaned;
     });
   };
+
   // ====>====>====>====>====>====>====>====>====>====>
   const renderNode = (
     node: any,
@@ -358,7 +390,6 @@ export default function CanvasComponent() {
 
     const Tag = node.tag as keyof JSX.IntrinsicElements;
     if (!Tag) return null;
-
     const isVoid = voidTags.includes(node.tag);
 
     if (isVoid) {
@@ -366,7 +397,9 @@ export default function CanvasComponent() {
         <Tag
           key={node._key ?? crypto.randomUUID()}
           {...(node.attributes || {})}
-          onClick={(e) => handleClick(e, node)}
+          onClick={(e) => {
+            handleClick(e, node);
+          }}
           onDragStart={(e) => handleDragStart(e, node)}
           onDragOver={(e) => handleDragOver(e, node, parentKey)}
           onDragLeave={handleDragLeave}
@@ -378,6 +411,10 @@ export default function CanvasComponent() {
               (el as HTMLElement).style.opacity = "1";
               (el as HTMLElement).style.transition = "";
             });
+          }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
           }}
           className={`renderedNode `}
           style={{
@@ -420,6 +457,10 @@ export default function CanvasComponent() {
         className={`renderedNode `}
         style={getNodeStyle(node, activeKey)}
         onClick={(e) => handleClick(e, node)}
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
         draggable={true}
       >
         {node.class === "baza" ? "" : node.text}

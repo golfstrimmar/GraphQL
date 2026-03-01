@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import Navbar from "@/components/Navbar/Navbar";
 import { useStateContext } from "@/providers/StateProvider";
 import { usePreventAllScrollOnFocus } from "@/utils/usePreventAllScrollOnFocus";
-
+import { usePreventLabelInputDoubleClick } from "@/utils/usePreventLabelInputDoubleClick";
 export default function ClientLayout({
   children,
 }: {
@@ -56,6 +56,7 @@ export default function ClientLayout({
   return (
     <>
       <Navbar />
+      {usePreventLabelInputDoubleClick()}
       {usePreventAllScrollOnFocus()}
       {children}
     </>
