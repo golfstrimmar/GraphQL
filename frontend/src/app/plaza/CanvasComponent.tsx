@@ -3,11 +3,12 @@ import React, { useState, useEffect } from "react";
 import PageHeader from "./PageHeader";
 import { useStateContext } from "@/providers/StateProvider";
 import Loading from "@/components/ui/Loading/Loading";
-import voidTags from "./utils/voidTags";
+import voidTags from "./helpers/voidTags";
 import dynamic from "next/dynamic";
 import addNodeToTargetByKey from "./utils/addNodeToTargetByKey";
 import removeNodeByKey, { RemovedMeta } from "./utils/removeNodeByKey";
 import validateHtmlStructure from "./utils/validateHtmlStructure";
+import parseInlineStyle from "./utils/parseInlineStyle";
 import applyDropByOverlay, {
   OverlayState as OverlayStateLocal,
 } from "./utils/applyDropByOverlay";
@@ -18,8 +19,6 @@ const NodeInfo = dynamic(() => import("./NodeInfo"), {
   ssr: false,
   loading: () => <Loading />,
 });
-
-type Tree = HtmlNode | HtmlNode[];
 
 export default function CanvasComponent() {
   const [openInfoModal, setOpenInfoModal] = useState<boolean>(false);
@@ -32,75 +31,8 @@ export default function CanvasComponent() {
     setActiveKey,
     dragKey,
     setDragKey,
-    preview,
-    setHTML,
-    setSCSS,
-    showModal,
   } = useStateContext();
-
-  const handleUpdateHtmlJson = async () => {
-    if (!htmlJson || htmlJson.length === 0) return;
-    setHTML("");
-    setSCSS("");
-    // setLoading(true);
-
-    // очистка дубликатов style по text
-    const styleNodes = htmlJson.filter((n) => n.tag === "style");
-    const nonStyleNodes = htmlJson.filter((n) => n.tag !== "style");
-
-    const map = new Map<string, (typeof styleNodes)[number]>();
-    for (const item of styleNodes) {
-      if (!map.has(item.text)) {
-        map.set(item.text, item);
-      }
-    }
-    const uniqueStyleNodes = Array.from(map.values());
-    const cleanedHtmlJson = [...nonStyleNodes, ...uniqueStyleNodes];
-
-    //  сохранить очищенное в провайдер
-    updateHtmlJson(cleanedHtmlJson);
-
-    try {
-      const res = await fetch("/api/json-to-html", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(cleanedHtmlJson),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        showModal(data.error || "Unknown error", "error");
-        return;
-      }
-
-      setHTML(data.html);
-      setSCSS(data.scss);
-      const el = document.getElementById("preview-section");
-      if (el) {
-        const y = el.getBoundingClientRect().top + window.scrollY - 80;
-        window.scrollTo({ top: y, behavior: "smooth" });
-      }
-    } catch (e) {
-      const message = e instanceof Error ? e.message : String(e);
-      showModal(message, "error");
-    } finally {
-      // setLoading(false);
-    }
-  };
-
-  const parseInlineStyle = (styleString: string): React.CSSProperties => {
-    if (!styleString) return {};
-    const finalStyle = styleString + ";cursor: pointer;";
-    return finalStyle.split(";").reduce((acc, rule) => {
-      const [prop, value] = rule.split(":").map((s) => s.trim());
-      if (prop && value) {
-        const jsProp = prop.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
-        (acc as any)[jsProp] = value;
-      }
-      return acc;
-    }, {} as React.CSSProperties);
-  };
-
+  // ====>====>====>====>====>====>====>====>====>====>
   const getNodeStyle = (node: HtmlNode, activeKeyValue: string) => {
     const parsedStyle = parseInlineStyle(node.style);
     const baseLayout = Object.fromEntries(
@@ -116,7 +48,7 @@ export default function CanvasComponent() {
       ...activeStyle,
     };
   };
-
+  // ====>====>====>====>====>====>====>====>====>====>
   const handleDragStart = (e: React.DragEvent<HTMLElement>, node: any) => {
     e.stopPropagation();
     if (!node._key) return;
@@ -138,53 +70,7 @@ export default function CanvasComponent() {
     e.dataTransfer.setData("text/plain", node._key);
     setDragKey(node._key);
   };
-
-  const handleClick = (e: React.MouseEvent<HTMLElement>, node: any) => {
-    e.stopPropagation();
-    if (clickTimeout) {
-      clearTimeout(clickTimeout);
-      setClickTimeout(null);
-      handleDoubleClick(e, node);
-    } else {
-      const timeout = setTimeout(() => {
-        setActiveKey((prev) => (prev === node._key ? null : node._key));
-        setOpenInfoModal(true);
-        setClickTimeout(null);
-      }, 250);
-      setClickTimeout(timeout);
-    }
-  };
-
-  const handleDoubleClick = (e: React.MouseEvent<HTMLElement>, node: any) => {
-    e.stopPropagation();
-    if (!node._key) return;
-    const sourceKey = node._key;
-    setActiveKey(null);
-    updateHtmlJson((prevTree: HtmlNode[]) => {
-      if (!prevTree) return prevTree;
-
-      const currentRoot: HtmlNode[] = Array.isArray(prevTree)
-        ? prevTree
-        : [prevTree];
-
-      const { tree: withoutSource, meta } = removeNodeByKey(
-        currentRoot,
-        sourceKey,
-      );
-
-      const withoutSourceArray: HtmlNode[] = Array.isArray(withoutSource)
-        ? withoutSource
-        : withoutSource
-          ? [withoutSource]
-          : [];
-
-      // здесь dragKey уже либо null, либо другой; но мы знаем, что это не dnd,
-      // поэтому можно чистить стили по meta
-      const cleaned = cleanupStylesAfterRemove(meta, withoutSourceArray);
-      return cleaned;
-    });
-  };
-
+  // ====>====>====>====>====>====>====>====>====>====>
   const handleDragOver = (
     e: React.DragEvent<HTMLElement>,
     node: HtmlNode,
@@ -227,12 +113,12 @@ export default function CanvasComponent() {
       siblingKey: node._key,
     } as OverlayState);
   };
-
+  // ====>====>====>====>====>====>====>====>====>====>
   const handleDragLeave = (e: React.DragEvent<HTMLElement>) => {
     e.preventDefault();
     e.stopPropagation();
   };
-
+  // ====>====>====>====>====>====>====>====>====>====>
   const cleanupStylesAfterRemove = (
     meta: RemovedMeta,
     nextHtml: HtmlNode[],
@@ -314,7 +200,7 @@ export default function CanvasComponent() {
 
     return res;
   };
-
+  // ====>====>====>====>====>====>====>====>====>====>
   const handleDrop = (
     e: React.DragEvent<HTMLElement>,
     targetNode: HtmlNode | null,
@@ -416,7 +302,51 @@ export default function CanvasComponent() {
     setDragKey(null);
     setOverlay(null);
   };
+  // ====>====>====>====>====>====>====>====>====>====>
+  const handleClick = (e: React.MouseEvent<HTMLElement>, node: any) => {
+    e.stopPropagation();
+    if (clickTimeout) {
+      clearTimeout(clickTimeout);
+      setClickTimeout(null);
+      handleDoubleClick(e, node);
+    } else {
+      const timeout = setTimeout(() => {
+        setActiveKey((prev) => (prev === node._key ? null : node._key));
+        setOpenInfoModal(true);
+        setClickTimeout(null);
+      }, 250);
+      setClickTimeout(timeout);
+    }
+  };
+  // ====>====>====>====>====>====>====>====>====>====>
+  const handleDoubleClick = (e: React.MouseEvent<HTMLElement>, node: any) => {
+    e.stopPropagation();
+    if (!node._key) return;
+    const sourceKey = node._key;
+    setActiveKey(null);
+    updateHtmlJson((prevTree: HtmlNode[]) => {
+      if (!prevTree) return prevTree;
 
+      const currentRoot: HtmlNode[] = Array.isArray(prevTree)
+        ? prevTree
+        : [prevTree];
+
+      const { tree: withoutSource, meta } = removeNodeByKey(
+        currentRoot,
+        sourceKey,
+      );
+
+      const withoutSourceArray: HtmlNode[] = Array.isArray(withoutSource)
+        ? withoutSource
+        : withoutSource
+          ? [withoutSource]
+          : [];
+
+      const cleaned = cleanupStylesAfterRemove(meta, withoutSourceArray);
+      return cleaned;
+    });
+  };
+  // ====>====>====>====>====>====>====>====>====>====>
   const renderNode = (
     node: any,
     parentKey: string | "__ROOT__" = "__ROOT__",
@@ -501,7 +431,9 @@ export default function CanvasComponent() {
   const renderContent = Array.isArray(htmlJson)
     ? htmlJson.map((n: any) => renderNode(n, "__ROOT__"))
     : renderNode(htmlJson, "__ROOT__");
-
+  // ====>====>====>====>====>====>====>====>====>====>
+  // ====>====>====>====>====>====>====>====>====>====>
+  // ====>====>====>====>====>====>====>====>====>====>
   return (
     <div
       id="canvas-section"

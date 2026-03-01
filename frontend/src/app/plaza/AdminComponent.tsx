@@ -8,89 +8,19 @@ import ServicesButtons from "./ServicesButtons";
 import dynamic from "next/dynamic";
 import Spinner from "@/components/icons/Spinner";
 import Loading from "@/components/ui/Loading/Loading";
+import type { HtmlNode } from "@/types/HtmlNode";
+import {
+  TagsNamen1,
+  TagsNamen2,
+  TagsNamen4,
+  TagsNamen5,
+} from "@/app/plaza/helpers/TagsNamen";
+
 const HeroIconPicker = dynamic(() => import("./HeroIconPicker"), {
   ssr: false,
   loading: () => <Loading />,
 });
 
-const TagsNamen1 = [
-  { tag: "section", color: "rgb(220, 230, 220)" },
-  { tag: "div", color: "rgb(226, 232, 240)" },
-  { tag: "container", color: "dodgerblue" },
-  { tag: "a", color: "#3b82f6" }, // blue
-  { tag: "button", color: "#06b6d4" }, // cyan
-  { tag: "p", color: "#22c55e" }, // green
-  { tag: "span", color: "#8b5cf6" }, // violet
-  { tag: "ul", color: "#f97316" }, // orange
-  { tag: "li", color: "#eab308" }, // yellow
-  { tag: "is", color: "#0ea5e9" },
-  { tag: "img", color: "#0ea5e9" }, // sky
-  { tag: "svg", color: "#06b6d4" }, // cyan
-  { tag: "nav", color: "#14b8a6" }, // teal
-
-  { tag: "h1", color: "#ef4444" }, // red
-  { tag: "h2", color: "#ef4444" },
-  { tag: "h3", color: "#ef4444" },
-  { tag: "h4", color: "#ef4444" },
-  { tag: "h5", color: "#ef4444" },
-  { tag: "h6", color: "#ef4444" },
-];
-const TagsNamen2 = [
-  { tag: "form", color: "#ebebeb" },
-  { tag: "br", color: "#ebebeb" }, // gray
-  { tag: "hr", color: "#ebebeb" }, // zinc
-  { tag: "aside", color: "#06b6d4" }, // cyan
-  { tag: "fieldset", color: "#f43f5e" },
-  { tag: "article", color: "#14b8a6" },
-  { tag: "header", color: "#6366f1" }, // indigo
-  { tag: "ol", color: "#f59e0b" }, // amber
-  { tag: "option", color: "#a855f7" }, // purple
-  { tag: "optgroup", color: "#d946ef" }, // fuchsia
-  { tag: "select", color: "#8b5cf6" }, // violet
-  { tag: "source", color: "#38bdf8" }, // sky-light
-  { tag: "legend", color: "#ec4899" }, // pink
-
-  // { tag: "input", color: "#3b82f6" }, // blue
-  // { tag: "textarea", color: "#6366f1" }, // indigo
-  // { tag: "label", color: "#f97316" },
-];
-const TagsNamen4 = [
-  { tag: "section container wrap", color: "powderblue" },
-  { tag: "flex row", color: "powderblue" },
-  { tag: "flex col", color: "powderblue" },
-  { tag: "grid 100px_1fr", color: "powderblue" },
-  { tag: "grid minmax", color: "powderblue" },
-  { tag: "ul flex row", color: "powderblue" },
-  { tag: "ul flex col", color: "powderblue" },
-];
-const TagsNamen5 = [
-  // { tag: "SECTION", color: "powderblue" },
-  // { tag: "HERO", color: "powderblue" },
-  { tag: "CARDS", color: "powderblue" },
-  { tag: "CARD", color: "powderblue" },
-  { tag: "CARD EMPTY", color: "powderblue" },
-  { tag: "input-field", color: "powderblue" },
-  { tag: "input-name-svg", color: "powderblue" },
-  { tag: "input-mail-svg", color: "powderblue" },
-  { tag: "input-tel-svg", color: "powderblue" },
-  { tag: "f-number", color: "powderblue" },
-  { tag: "f-check", color: "powderblue" },
-  { tag: "textarea-field", color: "powderblue" },
-  { tag: "fieldset-radio", color: "powderblue" },
-  { tag: "fildset-rating", color: "powderblue" },
-  { tag: "range-wrap-js", color: "powderblue" },
-  { tag: "search-f", color: "powderblue" },
-  { tag: "modal", color: "powderblue" },
-];
-type ProjectData = {
-  tag: string;
-  text: string;
-  class: string;
-  style: string;
-  attributes?: Record<string, string>;
-  _key?: string;
-  children: ProjectData[] | string;
-};
 // ==>==>==>==>==>==>==>==>==>==>==>==>==>
 // ==>==>==>==>==>==>==>==>==>==>==>==>==>
 // ==>==>==>==>==>==>==>==>==>==>==>==>==>
@@ -119,60 +49,54 @@ const AdminComponent = () => {
     "search",
     "modal",
   ];
+
+  async function loadStyle(name: string): Promise<HtmlNode[]> {
+    const { data: stylesData } = await refetchJson({ name });
+    const contentStyles = stylesData?.jsonDocumentByName?.content;
+    if (!contentStyles) return [];
+    return ensureNodeKeys(contentStyles) as HtmlNode[];
+  }
+
+  async function processStylesData(sD: string) {
+    let r: HtmlNode[] = [];
+
+    if (sD.includes("input")) {
+      const re = await loadStyle("style-input-field");
+      r.push(...re);
+    }
+
+    if (sD.includes("svg")) {
+      const re = await loadStyle("style-input-svg");
+      r.push(...re);
+    }
+
+    if (!sD.includes("input") && !sD.includes("svg")) {
+      const re = await loadStyle(`style-${sD}`);
+      r.push(...re);
+    }
+
+    return r;
+  }
+
   const handleLoad = async (tag: string) => {
     if (!tag) return;
+    let resultWithKeysStyles = [] as HtmlNode[];
     setLoading(true);
     // 1.грузим стилевые тэги
-    let resultWithKeysStyles = [] as ProjectData[];
-
-    async function processStylesData(sD) {
-      console.log("<===sD===>", sD);
-      if (sD.includes("input")) {
-        const { data: stylesData, loading: styleLoading } = await refetchJson({
-          name: `style-input-field`,
-        });
-        const contentStyles = stylesData?.jsonDocumentByName?.content;
-
-        if (!contentStyles) {
-          setLoading(false);
-          return;
-        }
-        const r = ensureNodeKeys(contentStyles) as ProjectData[];
-        resultWithKeysStyles.push(...resultWithKeysStyles, ...r);
-      }
-
-      if (sD.includes("svg")) {
-        const { data: stylesData } = await refetchJson({
-          name: `style-input-svg`,
-        });
-        const contentStyles = stylesData?.jsonDocumentByName?.content;
-        if (!contentStyles) {
-          setLoading(false);
-          return;
-        }
-        const r = ensureNodeKeys(contentStyles) as ProjectData[];
-        resultWithKeysStyles.push(...resultWithKeysStyles, ...r);
-      }
-
-      if (!sD.includes("input") && !sD.includes("svg")) {
-        const { data: stylesData } = await refetchJson({
-          name: `style-${sD}`,
-        });
-        const contentStyles = stylesData?.jsonDocumentByName?.content;
-        if (!contentStyles) {
-          setLoading(false);
-          return;
-        }
-        const r = ensureNodeKeys(contentStyles) as ProjectData[];
-        resultWithKeysStyles.push(...resultWithKeysStyles, ...r);
-      }
+    const stylesPart = await processStylesData(tag);
+    if (stylesPart?.length) {
+      resultWithKeysStyles.push(...stylesPart);
     }
+
     // находим все совпадения
     const matchedList = TAGS.filter((foo) => tag.includes(foo));
 
     // вызываем стили для каждого совпадения
     for (const m of matchedList) {
-      await processStylesData(m);
+      const stylesPart = await processStylesData(m);
+      if (stylesPart?.length) {
+        resultWithKeysStyles.push(...stylesPart);
+      }
     }
 
     // 2. Грузим сам компонент
@@ -180,7 +104,7 @@ const AdminComponent = () => {
     const content = data?.jsonDocumentByName?.content;
     if (!content) return;
 
-    const resultWithKeys = ensureNodeKeys(content) as ProjectData[];
+    const resultWithKeys = ensureNodeKeys(content) as HtmlNode[];
     setLoading(false);
     setClicked("");
     updateHtmlJson((prev) => [
