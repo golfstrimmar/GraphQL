@@ -38,8 +38,12 @@ export function usePreventLabelInputDoubleClick() {
       // 🔹 2. Клик по <input> или <textarea> сразу после label
       if (rawTarget.tagName === "INPUT" || rawTarget.tagName === "TEXTAREA") {
         const id = rawTarget.getAttribute("id");
+        const type = (rawTarget as HTMLInputElement).type;
+
+        // не трогаем чекбоксы и радиокнопки
+        if (type === "checkbox" || type === "radio") return;
+
         if (id && lastLabelFor === id && now - lastLabelTime < THRESHOLD) {
-          // это "второй" технический клик от браузера – глушим
           event.stopPropagation();
           event.preventDefault();
         }

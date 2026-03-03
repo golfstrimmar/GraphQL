@@ -67,4 +67,5 @@ export const TagsNamen5 = [
   { tag: "search-f", color: "powderblue" },
   { tag: "modal", color: "powderblue" },
   { tag: "custom-select", color: "powderblue" },
+  { tag: "input-datalist", color: "powderblue" },
 ];
