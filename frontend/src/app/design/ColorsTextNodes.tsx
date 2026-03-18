@@ -23,6 +23,7 @@ export default function ColorsTextNodes({
 
     const trimmed = cssString.trim();
     const withSemicolon = trimmed.endsWith(";") ? trimmed : trimmed + ";";
+
     return `${withSemicolon} color:${newColor};`;
   };
 
