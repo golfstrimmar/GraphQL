@@ -88,6 +88,8 @@ interface StateContextType {
   setHTML: React.Dispatch<React.SetStateAction<string>>;
   SCSS: string;
   setSCSS: React.Dispatch<React.SetStateAction<string>>;
+  JS: string;
+  setJS: React.Dispatch<React.SetStateAction<string>>;
   colors: string[];
   setColors: React.Dispatch<React.SetStateAction<string[]>>;
   preview: Preview | null;
@@ -126,6 +128,7 @@ export function StateProvider({
   const [redoStack, setRedoStack] = useState<HtmlNode[][]>([]);
   const [HTML, setHTML] = useState<string>("");
   const [SCSS, setSCSS] = useState<string>("");
+  const [JS, setJS] = useState<string>("");
   const [preview, setPreview] = useState<Preview | null>(null);
   const [ScssMixVar, setScssMixVar] = useState<string>("");
   const [activeKey, setActiveKey] = useState<string | null>(null);
@@ -143,14 +146,24 @@ export function StateProvider({
     fetchPolicy: "network-only",
   });
   // ==>==>==>==>==>==>==>==>==>==>==>
-  // 3. проверяем стиле тэги на повторение
-  const uniqueStyleTags = (nodes) => {
-    const seen = new Set<string>();
+  // 3. проверяем style и script тэги на повторение
+  const uniqueServiceTags = (nodes) => {
+    const seenStyles = new Set<string>();
+    const seenScripts = new Set<string>();
+
     return nodes.filter((node) => {
-      if (node.tag !== "style") return true;
-      const key = String(node.text || "");
-      if (seen.has(key)) return false;
-      seen.add(key);
+      if (node.tag === "style") {
+        const key = String(node.text || "");
+        if (seenStyles.has(key)) return false;
+        seenStyles.add(key);
+        return true;
+      }
+      if (node.tag === "script") {
+        const key = String(node.text || "");
+        if (seenScripts.has(key)) return false;
+        seenScripts.add(key);
+        return true;
+      }
       return true;
     });
   };
@@ -258,7 +271,7 @@ export function StateProvider({
         const prevClone = JSON.parse(JSON.stringify(prev));
         const rawNext = nextHtmlJson(prevClone);
         const nextClone = JSON.parse(JSON.stringify(rawNext));
-        const cleaned = uniqueStyleTags(nextClone);
+        const cleaned = uniqueServiceTags(nextClone);
 
         // в undo кладём ИМЕННО предыдущее состояние
         setUndoStack((stack) => [...stack, prevClone]);
@@ -271,7 +284,7 @@ export function StateProvider({
       setHtmlJson((prev) => {
         const prevClone = JSON.parse(JSON.stringify(prev));
         const nextClone = JSON.parse(JSON.stringify(nextHtmlJson));
-        const cleaned = uniqueStyleTags(nextClone);
+        const cleaned = uniqueServiceTags(nextClone);
 
         setUndoStack((stack) => [...stack, prevClone]);
         setRedoStack([]);
@@ -338,6 +351,8 @@ export function StateProvider({
         setHTML,
         SCSS,
         setSCSS,
+        JS,
+        setJS,
         colors,
         setColors,
         preview,

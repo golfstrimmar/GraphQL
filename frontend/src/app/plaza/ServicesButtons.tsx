@@ -24,6 +24,7 @@ export default function ServicesButtons() {
     setDragKey,
     setHTML,
     setSCSS,
+    setJS,
 
     HTML,
   } = useStateContext();
@@ -34,6 +35,7 @@ export default function ServicesButtons() {
     setDragKey(null);
     setHTML("");
     setSCSS("");
+    setJS("");
   };
 
   const handleClean = () => {

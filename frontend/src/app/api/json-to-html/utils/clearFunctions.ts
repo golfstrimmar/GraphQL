@@ -137,7 +137,7 @@ function parseHtmlSync(nodes: any[]): string {
   let html = "";
 
   nodes.forEach((node) => {
-    if (!node || !node.tag || node.tag === "style") return;
+    if (!node || !node.tag || node.tag === "style" || node.tag === "script") return;
 
     const { tag, text, children = [] } = node;
     const attrsStr = buildAttrs(node);
@@ -209,9 +209,25 @@ const buildScss = (nodes: any[]): string => {
   return resSCSS;
 };
 
+// === JS ===
+const buildJs = (nodes: any[]): string => {
+  let resJS = "";
+  nodes.forEach((node) => {
+    if (!node || !node.tag) return;
+    if (node.tag === "script") {
+      resJS += (node.text || "") + "\n";
+    }
+    if (Array.isArray(node.children) && node.children.length > 0) {
+      resJS += buildJs(node.children);
+    }
+  });
+  return resJS;
+};
+
 const clearFunctions = {
   parseHtml,
   buildScss,
+  buildJs,
 };
 
 export default clearFunctions;

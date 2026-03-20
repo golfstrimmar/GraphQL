@@ -65,6 +65,27 @@ const AdminComponent = () => {
     return ensureNodeKeys(contentScripts) as HtmlNode[];
   }
 
+  async function processScriptsData(sD: string) {
+    let r: HtmlNode[] = [];
+
+    if (sD.includes("input")) {
+      const re = await loadScript("script-input-field");
+      r.push(...re);
+    }
+
+    if (sD.includes("svg")) {
+      const re = await loadScript("script-input-svg");
+      r.push(...re);
+    }
+
+    if (!sD.includes("input") && !sD.includes("svg")) {
+      const re = await loadScript(`script-${sD}`);
+      r.push(...re);
+    }
+
+    return r;
+  }
+
   async function processStylesData(sD: string) {
     let r: HtmlNode[] = [];
 
@@ -90,27 +111,39 @@ const AdminComponent = () => {
     if (!tag) return;
     let resultWithKeysStyles = [] as HtmlNode[];
     setLoading(true);
-    // 1.грузим стилевые тэги
+    
+    // 1.грузим стилевые тэги и скрипты
     const stylesPart = await processStylesData(tag);
     if (stylesPart?.length) {
       resultWithKeysStyles.push(...stylesPart);
+    }
+    const jsPart = await processScriptsData(tag);
+    if (jsPart?.length) {
+      resultWithKeysStyles.push(...jsPart);
     }
 
     // находим все совпадения
     const matchedList = TAGS.filter((foo) => tag.includes(foo));
 
-    // вызываем стили для каждого совпадения
+    // вызываем стили и скрипты для каждого совпадения
     for (const m of matchedList) {
-      const stylesPart = await processStylesData(m);
-      if (stylesPart?.length) {
-        resultWithKeysStyles.push(...stylesPart);
+      const sp = await processStylesData(m);
+      if (sp?.length) {
+        resultWithKeysStyles.push(...sp);
+      }
+      const jp = await processScriptsData(m);
+      if (jp?.length) {
+        resultWithKeysStyles.push(...jp);
       }
     }
 
     // 2. Грузим сам компонент
     const { data } = await refetchJson({ name: tag });
     const content = data?.jsonDocumentByName?.content;
-    if (!content) return;
+    if (!content) {
+      setLoading(false);
+      return;
+    }
 
     const resultWithKeys = ensureNodeKeys(content) as HtmlNode[];
     setLoading(false);

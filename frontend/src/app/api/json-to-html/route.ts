@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 // const GROQ_API_KEY = process.env.GROQ_API_KEY;
 import clearFunctions from "@/app/api/json-to-html/utils/clearFunctions";
-const { parseHtml, buildScss } = clearFunctions;
+const { parseHtml, buildScss, buildJs } = clearFunctions;
 
 // ===> ROUTE  ===>===>===>===>===>===>
 export async function POST(request: Request) {
@@ -11,6 +11,7 @@ export async function POST(request: Request) {
     if (nodes === []) return NextResponse.json({ html: "", scss: "", pug: "" });
     const html = await parseHtml(nodes);
     const scss = buildScss(nodes);
+    const js = buildJs(nodes);
     // console.log("<===html===>", html);
     // console.log("<===scss===>", scss);
     // const transformedNodes = await transformIconsBySrc(nodes);
@@ -36,6 +37,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       html,
       scss,
+      js,
       pug: "",
     });
   } catch (e) {

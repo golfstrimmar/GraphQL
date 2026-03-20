@@ -7,19 +7,21 @@ import Spinner from "@/components/icons/Spinner";
 export default function JsonToHtmlButton() {
   const [loading, setLoading] = useState(false);
 
-  const { htmlJson, updateHtmlJson, setHTML, setSCSS, showModal } =
+  const { htmlJson, updateHtmlJson, setHTML, setSCSS, setJS, showModal } =
     useStateContext();
   // ===>===>===>===>===>===>===>===>===>===>
   const handleClick = async () => {
     if (!htmlJson || htmlJson.length === 0) {
       setHTML("");
       setSCSS("");
+      setJS("");
       setLoading(false);
       return;
     }
 
     setHTML("");
     setSCSS("");
+    setJS("");
     setLoading(true);
 
     // очистка дубликатов style по text
@@ -53,6 +55,7 @@ export default function JsonToHtmlButton() {
 
       setHTML(data.html);
       setSCSS(data.scss);
+      if (data.js !== undefined) setJS(data.js);
       const el = document.getElementById("preview-section");
       if (el) {
         const y = el.getBoundingClientRect().top + window.scrollY - 80;
