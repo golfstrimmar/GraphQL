@@ -123,7 +123,7 @@ const AdminComponent = () => {
   };
 
   // ==>==>==>==>==>==>==>==>==>==>==>==>==>
-  const renderTags = (tags) => (
+  const renderTags = (tags: { tag: string; color: string }[]) => (
     <div className=" flex flex-wrap gap-1 bg-slate-200 p-1 ">
       {tags.map((el, i) => (
         <button
