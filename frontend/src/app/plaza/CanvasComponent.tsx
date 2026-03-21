@@ -465,7 +465,7 @@ export default function CanvasComponent() {
         htmlFor={node.attributes?.for}
         href={node.attributes?.href}
         rel={node.attributes?.rel}
-        className={`renderedNode `}
+        className={`renderedNode`}
         style={getNodeStyle(node, activeKey)}
         onClick={(e) => handleClick(e, node)}
         onSubmit={(e) => {
@@ -475,6 +475,7 @@ export default function CanvasComponent() {
         draggable={true}
       >
         {node.class === "baza" ? "" : node.text}
+        <button className="togle-button">{node.class === "baza" ? "" : node.tag ? node.tag : ''}</button>
         {children}
       </Tag>
     );
