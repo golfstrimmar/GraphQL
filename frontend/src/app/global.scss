@@ -196,6 +196,7 @@ span {
     box-shadow: 0px 0px 3px 2px rgba(1, 111, 161, 0.67);
   }
 }
+
 /* b {
   font-size: 16px;
   color:  #ffffff;
@@ -224,10 +225,12 @@ span {
   color: var(--grey-00);
   border: 1px solid var(--primary);
   padding: 0 5px;
+
   &:hover {
     border: 1px solid #8892b0;
     background-color: var(--slate);
   }
+
   &:active {
     transform: translateY(1px);
     background-color: #64ffda;
@@ -239,6 +242,7 @@ span {
   color: var(--grey-00);
   border: 1px solid var(--primary);
   padding: 0 5px;
+
   &:active {
     transform: translateY(1px);
     background-color: rgb(255, 0, 0, 0.8);
@@ -248,6 +252,7 @@ span {
 .btn-empty {
   border: 1px solid var(--primary);
   display: inline-block;
+
   &:active {
     transform: translateY(1px);
     background-color: #64ffda;
@@ -272,6 +277,7 @@ span {
     color: var(--teal);
     background-color: var(--teal-light);
   }
+
   &:active {
     transform: translateY(1px);
     background-color: #64ffda;
@@ -329,8 +335,8 @@ li {
     width: 0px;
   }
 
-  input[type="radio"]:checked + label,
-  input[type="radio"]:not(:checked) + label {
+  input[type="radio"]:checked+label,
+  input[type="radio"]:not(:checked)+label {
     display: inline-block;
     position: relative;
     cursor: pointer;
@@ -345,8 +351,8 @@ li {
     }
   }
 
-  input[type="radio"]:checked + label::before,
-  input[type="radio"]:not(:checked) + label::before {
+  input[type="radio"]:checked+label::before,
+  input[type="radio"]:not(:checked)+label::before {
     content: "";
     position: absolute;
     left: 0px !important;
@@ -360,8 +366,8 @@ li {
     border: solid 2px #cfd4da;
   }
 
-  input[type="radio"]:checked + label::after,
-  input[type="radio"]:not(:checked) + label::after {
+  input[type="radio"]:checked+label::after,
+  input[type="radio"]:not(:checked)+label::after {
     content: "";
     position: absolute !important;
     width: 12px;
@@ -375,11 +381,11 @@ li {
     transition: all 0.3s;
   }
 
-  input[type="radio"]:checked + label::after {
+  input[type="radio"]:checked+label::after {
     opacity: 1;
   }
 
-  input[type="radio"]:not(:checked) + label::after {
+  input[type="radio"]:not(:checked)+label::after {
     opacity: 0;
   }
 }
@@ -409,17 +415,21 @@ li {
     background-color: red;
     opacity: 0.3;
   }
+
   50% {
     opacity: 1;
     background-color: red;
-    transform: scale(1.01); /* чуть увеличился */
+    transform: scale(1.01);
+    /* чуть увеличился */
   }
+
   100% {
     opacity: 0.3;
     background-color: red;
     transform: scale(1);
   }
 }
+
 .renderedNode svg {
   max-width: 20px;
   max-height: 20px;

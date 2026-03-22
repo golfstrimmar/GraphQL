@@ -19,6 +19,7 @@ const cleanupStylesAfterRemove = (
     const visit = (node: HtmlNode): boolean => {
       if (
         node.tag !== "style" &&
+        node.tag !== "script" &&
         typeof node.class === "string" &&
         node.class.includes(mark)
       ) {
@@ -78,6 +79,17 @@ const cleanupStylesAfterRemove = (
     return result;
   };
 
+  // "custom-select foo" → ["custom-select","custom","select","foo"]
+  const expandTokens = (tokens: string[]): string[] => {
+    const set = new Set<string>();
+    for (const token of tokens) {
+      set.add(token);
+      const parts = token.split(/[-__]+/).filter((p) => p.length >= 3);
+      for (const part of parts) set.add(part);
+    }
+    return Array.from(set);
+  };
+
   const maybeRemoveStyle = (cssMark: string, classMark: string) => {
     const stillHasNodes = hasNodesWithMark(classMark);
     if (!stillHasNodes) {
@@ -92,18 +104,11 @@ const cleanupStylesAfterRemove = (
   if (marks.hasTextarea) maybeRemoveStyle("field-t",     "field-t");
   if (marks.hasInputF)   maybeRemoveStyle("input-f",     "input-f");
 
-  if (
-    !marks.hasCheck &&
-    !marks.hasRadio &&
-    !marks.hasNumber &&
-    !marks.hasSvg &&
-    !marks.hasTextarea &&
-    !marks.hasInputF &&
-    cls
-  ) {
-    const stillHasSameClass = hasNodesWithMark(cls);
-    if (!stillHasSameClass) {
-      res = filterStylesDeep(res, cls);
+  // Финальная очистка по всем токенам удаленного класса
+  const allTokens = expandTokens(cls.split(/\s+/).filter(Boolean));
+  for (const token of allTokens) {
+    if (!hasNodesWithMark(token)) {
+      res = filterStylesDeep(res, token);
     }
   }
 

@@ -20,6 +20,7 @@ const cleanupScriptsAfterRemove = (
     const visit = (node: HtmlNode): boolean => {
       if (
         node.tag !== "script" &&
+        node.tag !== "style" &&
         typeof node.class === "string" &&
         node.class.includes(mark)
       ) {

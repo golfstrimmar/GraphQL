@@ -51,9 +51,8 @@ export const TagsNamen4 = [
 export const TagsNamen5 = [
   // { tag: "SECTION", color: "powderblue" },
   // { tag: "HERO", color: "powderblue" },
-  // { tag: "CARDS", color: "powderblue" },
-  // { tag: "CARD", color: "powderblue" },
-  // { tag: "CARD EMPTY", color: "powderblue" },
+  { tag: "CARDS", color: "powderblue" },
+  { tag: "CARD", color: "powderblue" },
   { tag: "input-field", color: "powderblue" },
   { tag: "input-name-svg", color: "powderblue" },
   { tag: "input-mail-svg", color: "powderblue" },
@@ -69,4 +68,5 @@ export const TagsNamen5 = [
   { tag: "custom-select", color: "powderblue" },
   { tag: "input-datalist", color: "powderblue" },
   { tag: "accordion", color: "powderblue" },
+  { tag: "tabs", color: "powderblue" },
 ];
