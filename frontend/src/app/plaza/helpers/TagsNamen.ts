@@ -69,4 +69,5 @@ export const TagsNamen5 = [
   { tag: "input-datalist", color: "powderblue" },
   { tag: "accordion", color: "powderblue" },
   { tag: "tabs", color: "powderblue" },
+  { tag: "hero", color: "powderblue" },
 ];
