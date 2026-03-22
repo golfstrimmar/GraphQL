@@ -13,6 +13,8 @@ import applyDropByOverlay, {
   OverlayState as OverlayStateLocal,
 } from "./utils/applyDropByOverlay";
 import duplicateNodeAfter from "./utils/duplicateNodeAfter";
+import cleanupStylesAfterRemove from "./utils/cleanupStylesAfterRemove";
+import cleanupScriptsAfterRemove from "./utils/cleanupScriptsAfterRemove";
 import { OverlayState, HtmlNode } from "@/types/HtmlNode";
 
 const NodeInfo = dynamic(() => import("./NodeInfo"), {
@@ -119,124 +121,18 @@ export default function CanvasComponent() {
     e.stopPropagation();
   };
   // ====>====>====>====>====>====>====>====>====>====>
-  const cleanupStylesAfterRemove = (
+ 
+
+
+
+  // ====>====>====>====>====>====>====>====>====>====>
+  // Применяет обе очистки последовательно
+  const cleanupAfterRemove = (
     meta: RemovedMeta,
     nextHtml: HtmlNode[],
   ): HtmlNode[] => {
-    if (dragKey) return nextHtml;
-    const { removed, removedClass, marks } = meta;
-    if (!removed) return nextHtml;
-
-    const cls = removedClass ?? "";
-    let res = nextHtml;
-
-    const hasNodesWithMark = (mark: string): boolean => {
-      const arr = Array.isArray(res) ? res : [res];
-
-      const visit = (node: HtmlNode): boolean => {
-        if (
-          node.tag !== "style" &&
-          typeof node.class === "string" &&
-          node.class.includes(mark)
-        ) {
-          return true;
-        }
-
-        if (Array.isArray(node.children)) {
-          for (const child of node.children) {
-            if (typeof child === "string") continue;
-            if (visit(child)) return true;
-          }
-        }
-
-        return false;
-      };
-
-      for (const n of arr) {
-        if (visit(n)) return true;
-      }
-      return false;
-    };
-
-    const filterStylesDeep = (
-      nodes: HtmlNode[],
-      cssMark: string,
-    ): HtmlNode[] => {
-      const visit = (node: HtmlNode): HtmlNode | null => {
-        if (
-          node.tag === "style" &&
-          typeof node.text === "string" &&
-          node.text.includes(cssMark)
-        ) {
-          return null;
-        }
-
-        if (Array.isArray(node.children)) {
-          const newChildren: (HtmlNode | string)[] = [];
-          for (const ch of node.children) {
-            if (typeof ch === "string") {
-              newChildren.push(ch);
-            } else {
-              const v = visit(ch);
-              if (v) newChildren.push(v);
-            }
-          }
-          return { ...node, children: newChildren };
-        }
-
-        return node;
-      };
-
-      const result: HtmlNode[] = [];
-      for (const n of nodes) {
-        const v = visit(n);
-        if (v) result.push(v);
-      }
-      return result;
-    };
-
-    const maybeRemoveStyle = (cssMark: string, classMark: string) => {
-      const stillHasNodes = hasNodesWithMark(classMark);
-      if (!stillHasNodes) {
-        res = filterStylesDeep(res, cssMark);
-      }
-    };
-
-    if (marks.hasCheck) {
-      maybeRemoveStyle("input-check", "check");
-    }
-    if (marks.hasRadio) {
-      maybeRemoveStyle("field-radio", "radio");
-    }
-    if (marks.hasNumber) {
-      maybeRemoveStyle("f-number", "number");
-    }
-    if (marks.hasSvg) {
-      maybeRemoveStyle("input-svg", "svg");
-    }
-    if (marks.hasTextarea) {
-      maybeRemoveStyle("field-t", "field-t");
-    }
-    if (marks.hasInputF) {
-      maybeRemoveStyle("input-f", "input-f");
-    }
-
-    if (
-      !marks.hasCheck &&
-      !marks.hasRadio &&
-      !marks.hasNumber &&
-      !marks.hasSvg &&
-      !marks.hasTextarea &&
-      !marks.hasInputF &&
-      cls
-    ) {
-      const stillHasSameClass = hasNodesWithMark(cls);
-      if (!stillHasSameClass) {
-        res = filterStylesDeep(res, cls);
-      }
-    }
-
-    return res;
+    const afterStyles = cleanupStylesAfterRemove(meta, nextHtml, !!dragKey);
+    return cleanupScriptsAfterRemove(meta, afterStyles, !!dragKey);
   };
 
   // ====>====>====>====>====>====>====>====>====>====>
@@ -270,7 +166,7 @@ export default function CanvasComponent() {
           prevTree,
         );
         const normalized = Array.isArray(newTree) ? newTree : [newTree];
-        const cleaned = cleanupStylesAfterRemove(meta, normalized);
+        const cleaned = cleanupAfterRemove(meta, normalized);
         return cleaned;
       });
 
@@ -313,7 +209,7 @@ export default function CanvasComponent() {
       // дроп на корень / .baza
       if (!targetNode || el.classList.contains("baza")) {
         const next = [...withoutSourceArray, removed];
-        const cleaned = cleanupStylesAfterRemove(meta, next);
+        const cleaned = cleanupAfterRemove(meta, next);
         return cleaned;
       }
 
@@ -334,7 +230,7 @@ export default function CanvasComponent() {
         return currentRoot;
       }
 
-      const cleaned = cleanupStylesAfterRemove(meta, res);
+      const cleaned = cleanupAfterRemove(meta, res);
       return cleaned;
     });
 
@@ -384,11 +280,28 @@ export default function CanvasComponent() {
           ? [withoutSource]
           : [];
 
-      const cleaned = cleanupStylesAfterRemove(meta, withoutSourceArray);
+      const cleaned = cleanupAfterRemove(meta, withoutSourceArray);
       return cleaned;
     });
   };
 
+  // ====>====>====>====>====>====>====>====>====>====>
+  const handleToggle = (e: React.MouseEvent<HTMLButtonElement>, node: any) => {
+    e.stopPropagation();
+    console.log("<===node===>", node);
+    if (!node._key) return;
+    const btn = e.currentTarget as HTMLButtonElement;
+    const parentEl = btn.parentElement as HTMLElement;
+    if (!parentEl) return;
+    const isHidden = parentEl.classList.contains("_hidden");
+    if (isHidden) {
+      btn.innerHTML = "↕";
+      parentEl.classList.remove("_hidden");
+    } else {
+      btn.innerHTML = parentEl.tagName + "." + node.class;
+      parentEl.classList.add("_hidden");
+    }
+  };
   // ====>====>====>====>====>====>====>====>====>====>
   const renderNode = (
     node: any,
@@ -475,7 +388,7 @@ export default function CanvasComponent() {
         draggable={true}
       >
         {node.class === "baza" ? "" : node.text}
-        <button className="togle-button">{node.class === "baza" ? "" : node.tag ? node.tag : ''}</button>
+       {children && children.length >0 && <button onClick={(e)=>handleToggle(e,node)} className="togle-button ">{node.class === "baza" ? "" : node.tag  ? "↕" : ''}</button>} 
         {children}
       </Tag>
     );

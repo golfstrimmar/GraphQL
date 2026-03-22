@@ -96,7 +96,7 @@
     rgba(0, 0, 0, 0.1) 4px 0px 6px,
     rgba(0, 0, 0, 0.1) -4px 0px 6px !important;
   margin: 5px;
-  padding: 5px;
+  padding: 5px 5px 5px 15px;
   color: black;
   cursor: pointer;
   font-size: 12px;
@@ -114,6 +114,33 @@
 
   &.container {
     margin: 5px !important;
+  }
+
+  &._hidden {
+    width: 20px !important;
+    height: 20px !important;
+    padding: 0px !important;
+    margin: 2px !important;
+    min-width: 20px !important;
+    min-height: 20px !important;
+    font-size: 0;
+    overflow: visible;
+    box-shadow: none !important;
+    background: transparent !important;
+
+    *:not(.togle-button) {
+      display: none !important;
+    }
+
+    &>.togle-button {
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      font-size: 12px;
+      transform: none;
+      padding: 2px 3px;
+      white-space: nowrap;
+    }
   }
 }
 
@@ -135,14 +162,14 @@ img.renderedNode {
 
 .togle-button {
   position: absolute;
-  top: 0px;
+  top: 0;
   left: 0;
-  z-index: 1;
+  z-index: 5;
   background: white;
-  border: 1px solid var(--teal);
+  outline: 2px solid var(--teal);
   padding: 0 3px;
   border-radius: 5px;
   cursor: pointer;
-  white-space: nowrap;
-  font-size: 10px;
 }
+
+// ===================================
