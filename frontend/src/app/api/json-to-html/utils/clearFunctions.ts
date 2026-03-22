@@ -184,25 +184,28 @@ const buildScss = (nodes: any[]): string => {
 
   // 2) inline style + вложенность
   nodes.forEach((node) => {
-    if (!node || !node.tag) return;
+    if (!node || !node.tag || node.tag === "style" || node.tag === "script")
+      return;
 
-    const cls = node.class;
-    const styleStr = node.style || "";
-    const tag = node.tag;
+    const rawCls = typeof node.class === "string" ? node.class.trim() : "";
+    const styleStr = (node.style || "").trim();
 
-    const currentSelector = cls ? `.${cls}` : tag;
+    // Исправлено: .swiper.mySwiper вместо .swiper mySwiper
+    const currentSelector = rawCls
+      ? "." + rawCls.split(/\s+/).join(".")
+      : node.tag;
 
     const childrenScss =
       Array.isArray(node.children) && node.children.length > 0
         ? buildScss(node.children)
         : "";
 
-    let blockBody = "";
-    if (styleStr) blockBody += styleStr;
-    if (childrenScss) blockBody += childrenScss;
-
-    if (blockBody) {
-      resSCSS += `${currentSelector}{${blockBody}}`;
+    if (styleStr) {
+      // Если есть свои стили - оборачиваем и вкладываем детей
+      resSCSS += `${currentSelector} { ${styleStr} ${childrenScss} }`;
+    } else if (childrenScss) {
+      // Если своих стилей нет, не плодим обертку, просто выводим стили детей
+      resSCSS += childrenScss;
     }
   });
 

@@ -4,6 +4,7 @@ import { useStateContext } from "@/providers/StateProvider";
 import PageHeader from "./PageHeader";
 import CustomSlider from "@/components/ui/CustomSlider/CustomSlider";
 import Editor, { useMonaco } from "@monaco-editor/react";
+import Script from "next/script";
 
 //=== 🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢
 export default function PreviewComponent() {
@@ -143,12 +144,42 @@ export default function PreviewComponent() {
     }, 100);
   }, [codeJs]);
 
+  const [compiledCss, setCompiledCss] = useState<string>("");
+
+  useEffect(() => {
+    if (!SCSS) {
+      setCompiledCss("");
+      return;
+    }
+
+    // Попытка скомпилировать SCSS в CSS
+    // Используем sass.js если он доступен
+    try {
+      // @ts-ignore
+      if (typeof Sass !== "undefined") {
+        // @ts-ignore
+        Sass.compile(SCSS, (result) => {
+          if (result.status === 0) {
+            setCompiledCss(result.text);
+          } else {
+            console.warn("Sass compilation error:", result.message);
+            setCompiledCss(SCSS); // fallback to raw
+          }
+        });
+      } else {
+        setCompiledCss(SCSS);
+      }
+    } catch (e) {
+      setCompiledCss(SCSS);
+    }
+  }, [SCSS]);
+
   const srcDoc = `
     <html>
       <head>
         <style>
           body { font-family: sans-serif; margin: 0; padding: 0; }
-          ${SCSS || ""}
+          ${compiledCss || SCSS || ""}
         </style>
       </head>
       <body>
@@ -177,6 +208,10 @@ export default function PreviewComponent() {
         className="bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 relative mt-[25px] mb-4"
       >
         {PageHeader("PreviewIcon", "Preview")}
+        <Script 
+          src="https://cdn.jsdelivr.net/npm/sass.js@0.11.1/dist/sass.sync.js" 
+          strategy="beforeInteractive"
+        />
         {/*{htmlJson.length > 0 && <pre>{JSON.stringify(htmlJson, null, 2)}</pre>}*/}
         {/*<div className="mt-4 mb-2">
           <CustomSlider

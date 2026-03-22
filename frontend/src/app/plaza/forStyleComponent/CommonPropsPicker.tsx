@@ -53,7 +53,8 @@ const commonProps6 = [
   "cursor: pointer;",
 ] as const;
 const commonProps7 = [
-  // Box-shadow
+    "filter: blur(4px);",
+      "transform: scale(1.1);",
   "box-shadow: inset 0 0 5px red;",
   "box-shadow: 0 0px 10px 0 rgba(40, 40, 40, 0.2);",
   "text-shadow: 0 0px 10px 0 rgba(40, 40, 40, 0.2);",

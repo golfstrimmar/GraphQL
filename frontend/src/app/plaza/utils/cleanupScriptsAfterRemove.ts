@@ -22,7 +22,7 @@ const cleanupScriptsAfterRemove = (
         node.tag !== "script" &&
         node.tag !== "style" &&
         typeof node.class === "string" &&
-        node.class.includes(mark)
+        new RegExp(`(^|\\s)${mark}(\\s|$)`).test(node.class)
       ) {
         return true;
       }
@@ -69,18 +69,8 @@ const cleanupScriptsAfterRemove = (
     return result;
   };
 
-  // "custom-select foo" → ["custom-select","custom","select","foo"]
-  const expandTokens = (tokens: string[]): string[] => {
-    const set = new Set<string>();
-    for (const token of tokens) {
-      set.add(token);
-      const parts = token.split(/[-__]+/).filter((p) => p.length >= 3);
-      for (const part of parts) set.add(part);
-    }
-    return Array.from(set);
-  };
-
-  const allTokens = expandTokens(cls.split(/\s+/).filter(Boolean));
+  // "custom-select foo" -> ["custom-select", "foo"]
+  const allTokens = cls.split(/\s+/).filter((t) => t.length >= 3);
 
   for (const token of allTokens) {
     if (!hasNodesWithMark(token, res)) {

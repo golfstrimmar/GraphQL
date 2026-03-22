@@ -40,6 +40,7 @@ const NodeInfo: React.FC<NodeInfoProps> = ({
     setDragKey,
     setHTML,
     setSCSS,
+    setJS,
   } = useStateContext();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [nodeToSend, setNodeToSend] = useState<HtmlNode | null>(null);
@@ -56,7 +57,7 @@ const NodeInfo: React.FC<NodeInfoProps> = ({
     setActiveKey(null);
     setDragKey(null);
     setHTML("");
-    setSCSS("");
+    setSCSS("");setJS("");
   };
   // -------------
   useEffect(() => {

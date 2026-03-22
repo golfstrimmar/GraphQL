@@ -44,7 +44,6 @@ function removeNodeByKey(
     });
 
     const cls = removed?.class ?? null;
-    const classStr = cls ?? "";
 
     return {
       arr: newArr,
@@ -52,12 +51,12 @@ function removeNodeByKey(
         removed,
         removedClass: cls,
         marks: {
-          hasCheck: classStr.includes("check"),
-          hasRadio: classStr.includes("radio"),
-          hasNumber: classStr.includes("number"),
-          hasSvg: classStr.includes("svg"),
-          hasTextarea: classStr.includes("field-t"),
-          hasInputF: classStr.includes("input-f"),
+          hasCheck: (cls || "").includes("check"),
+          hasRadio: (cls || "").includes("radio"),
+          hasNumber: (cls || "").includes("number"),
+          hasSvg: (cls || "").includes("svg"),
+          hasTextarea: (cls || "").includes("field-t"),
+          hasInputF: (cls || "").includes("input-f"),
         },
       },
     };
