@@ -40,11 +40,11 @@ const cleanupScriptsAfterRemove = (
   // Удаляет все script-ноды, чей text содержит jsMark
   const filterScriptsDeep = (nodes: HtmlNode[], jsMark: string): HtmlNode[] => {
     const visit = (node: HtmlNode): HtmlNode | null => {
-      if (
-        node.tag === "script" &&
-        typeof node.text === "string" &&
-        node.text.includes(jsMark)
-      ) {
+    if (
+      node.tag === "script" &&
+      typeof node.text === "string" &&
+      node.text.toLowerCase().includes(jsMark.toLowerCase())
+    ) {
         return null;
       }
       if (Array.isArray(node.children)) {

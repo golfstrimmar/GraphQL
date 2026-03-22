@@ -70,4 +70,8 @@ export const TagsNamen5 = [
   { tag: "accordion", color: "powderblue" },
   { tag: "tabs", color: "powderblue" },
   { tag: "hero", color: "powderblue" },
+  { tag: "slider", color: "powderblue" },
+  { tag: "fade-slider", color: "powderblue" },
+  { tag: "carousel", color: "powderblue" },
+  { tag: "double-slider", color: "powderblue" },
 ];
