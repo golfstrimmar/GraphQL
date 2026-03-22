@@ -8,20 +8,12 @@ const ModalTexts = dynamic(() => import("../forTextComponent/ModalTexts"), {
   loading: () => <Loading />,
 });
 
-type NodeToSend = {
-  _key: string;
-  tag: string;
-  text: string;
-  class: string;
-  style: string;
-  attributes?: Record<string, string>;
-  children: NodeToSend[] | string;
-};
+import type { HtmlNode } from "@/types/HtmlNode";
 
 interface TextComponentProps {
-  node: NodeToSend;
+  node: HtmlNode;
   itemClass: string;
-  updateNodeByKey: (key: string, changes: Partial<NodeToSend>) => void;
+  updateNodeByKey: (key: string, changes: Partial<HtmlNode>) => void;
 }
 
 const TextComponent: React.FC<TextComponentProps> = ({
@@ -50,8 +42,9 @@ const TextComponent: React.FC<TextComponentProps> = ({
   }, [texts]);
 
   const handleTextChange = (newValue: string) => {
+    if (!node._key) return () => {};
     const id = setTimeout(() => {
-      updateNodeByKey(node._key, { text: newValue });
+      updateNodeByKey(node._key!, { text: newValue });
     }, 1000);
     return () => clearTimeout(id);
   };
@@ -87,10 +80,12 @@ const TextComponent: React.FC<TextComponentProps> = ({
           className="btn-teal !max-h-[20px] text-sm"
           onClick={() => {
             setTextValue("Lorem");
-            const id = setTimeout(() => {
-              updateNodeByKey(node._key, { text: "Lorem" });
-            }, 100);
-            return () => clearTimeout(id);
+            if (node._key) {
+              const id = setTimeout(() => {
+                updateNodeByKey(node._key!, { text: "Lorem" });
+              }, 100);
+              return () => clearTimeout(id);
+            }
           }}
         >
           Lorem 1
@@ -99,12 +94,14 @@ const TextComponent: React.FC<TextComponentProps> = ({
           className="btn-teal !max-h-[20px] text-sm"
           onClick={() => {
             setTextValue("Lorem ipsum dolor sit amet.");
-            const id = setTimeout(() => {
-              updateNodeByKey(node._key, {
-                text: "Lorem ipsum dolor sit amet.",
-              });
-            }, 100);
-            return () => clearTimeout(id);
+            if (node._key) {
+              const id = setTimeout(() => {
+                updateNodeByKey(node._key!, {
+                  text: "Lorem ipsum dolor sit amet.",
+                });
+              }, 100);
+              return () => clearTimeout(id);
+            }
           }}
         >
           Lorem 5
@@ -115,12 +112,14 @@ const TextComponent: React.FC<TextComponentProps> = ({
             setTextValue(
               "Lorem ipsum dolor sit amet consectetur adipisicing elit. Alias reiciendis consequatur iure neque praesentium iste.",
             );
-            const id = setTimeout(() => {
-              updateNodeByKey(node._key, {
-                text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Alias reiciendis consequatur iure neque praesentium iste.",
-              });
-            }, 100);
-            return () => clearTimeout(id);
+            if (node._key) {
+              const id = setTimeout(() => {
+                updateNodeByKey(node._key!, {
+                  text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Alias reiciendis consequatur iure neque praesentium iste.",
+                });
+              }, 100);
+              return () => clearTimeout(id);
+            }
           }}
         >
           Lorem 15
@@ -131,12 +130,14 @@ const TextComponent: React.FC<TextComponentProps> = ({
             setTextValue(
               "Lorem ipsum dolor sit amet consectetur adipisicing elit. Tenetur consequuntur adipisci nulla velit mollitia cum quis, cumque reprehenderit natus illum doloribus consectetur ipsam iste quisquam!",
             );
-            const id = setTimeout(() => {
-              updateNodeByKey(node._key, {
-                text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Tenetur consequuntur adipisci nulla velit mollitia cum quis, cumque reprehenderit natus illum doloribus consectetur ipsam iste quisquam!",
-              });
-            }, 100);
-            return () => clearTimeout(id);
+            if (node._key) {
+              const id = setTimeout(() => {
+                updateNodeByKey(node._key!, {
+                  text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Tenetur consequuntur adipisci nulla velit mollitia cum quis, cumque reprehenderit natus illum doloribus consectetur ipsam iste quisquam!",
+                });
+              }, 100);
+              return () => clearTimeout(id);
+            }
           }}
         >
           Lorem 25
@@ -145,12 +146,14 @@ const TextComponent: React.FC<TextComponentProps> = ({
           className="btn-teal !max-h-[20px] text-sm"
           onClick={() => {
             setTextValue("");
-            const id = setTimeout(() => {
-              updateNodeByKey(node._key, {
-                text: "",
-              });
-            }, 100);
-            return () => clearTimeout(id);
+            if (node._key) {
+              const id = setTimeout(() => {
+                updateNodeByKey(node._key!, {
+                  text: "",
+                });
+              }, 100);
+              return () => clearTimeout(id);
+            }
           }}
         >
           🧹
@@ -167,10 +170,12 @@ const TextComponent: React.FC<TextComponentProps> = ({
         onChange={(e) => {
           e.preventDefault();
           setTextValue(e.target.value);
-          const id = setTimeout(() => {
-            updateNodeByKey(node._key, { text: e.target.value });
-          }, 2000);
-          return () => clearTimeout(id);
+          if (node._key) {
+            const id = setTimeout(() => {
+              updateNodeByKey(node._key!, { text: e.target.value });
+            }, 2000);
+            return () => clearTimeout(id);
+          }
         }}
         className="textarea-styles"
       />

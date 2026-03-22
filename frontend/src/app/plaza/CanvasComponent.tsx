@@ -16,6 +16,7 @@ import duplicateNodeAfter from "./utils/duplicateNodeAfter";
 import cleanupStylesAfterRemove from "./utils/cleanupStylesAfterRemove";
 import cleanupScriptsAfterRemove from "./utils/cleanupScriptsAfterRemove";
 import { OverlayState, HtmlNode } from "@/types/HtmlNode";
+import { useRef } from "react";
 
 const NodeInfo = dynamic(() => import("./NodeInfo"), {
   ssr: false,
@@ -34,8 +35,61 @@ export default function CanvasComponent() {
     dragKey,
     setDragKey,
   } = useStateContext();
+
+  const scrollInterval = useRef<NodeJS.Timeout | null>(null);
+
+  const stopAutoScroll = () => {
+    if (scrollInterval.current) {
+      clearInterval(scrollInterval.current);
+      scrollInterval.current = null;
+    }
+  };
+
+  // === AUTO SCROLL LOGIC ===
+  const updateAutoScroll = (mouseY: number) => {
+    const topThreshold = 150;
+    const bottomThreshold = 250;
+    const maxSpeed = 15;
+    const { innerHeight } = window;
+
+    if (mouseY < topThreshold) {
+      const speed = Math.max(2, (1 - mouseY / topThreshold) * maxSpeed);
+      startAutoScroll("up", speed);
+    } else if (mouseY > innerHeight - bottomThreshold) {
+      const distFromBottom = innerHeight - mouseY;
+      const speed = Math.max(2, (1 - distFromBottom / bottomThreshold) * maxSpeed);
+      startAutoScroll("down", speed);
+    } else {
+      stopAutoScroll();
+    }
+  };
+
+  const startAutoScroll = (direction: "up" | "down", speed: number) => {
+    stopAutoScroll();
+    scrollInterval.current = setInterval(() => {
+      window.scrollBy(0, direction === "up" ? -speed : speed);
+    }, 16); // ~60fps
+  };
+
+  useEffect(() => {
+    const handleGlobalDragOver = (e: DragEvent) => {
+      if (dragKey) {
+        updateAutoScroll(e.clientY);
+      }
+    };
+
+    if (dragKey) {
+      window.addEventListener("dragover", handleGlobalDragOver);
+    } else {
+      stopAutoScroll();
+    }
+
+    return () => {
+      window.removeEventListener("dragover", handleGlobalDragOver);
+    };
+  }, [dragKey]);
   // ====>====>====>====>====>====>====>====>====>====>
-  const getNodeStyle = (node: HtmlNode, activeKeyValue: string) => {
+  const getNodeStyle = (node: HtmlNode, activeKeyValue: string | null) => {
     const parsedStyle = parseInlineStyle(node.style);
     const baseLayout = Object.fromEntries(
       Object.entries(parsedStyle).filter(([key]) =>
@@ -114,16 +168,13 @@ export default function CanvasComponent() {
       parentKey,
       siblingKey: node._key,
     } as OverlayState);
+
   };
   // ====>====>====>====>====>====>====>====>====>====>
   const handleDragLeave = (e: React.DragEvent<HTMLElement>) => {
     e.preventDefault();
     e.stopPropagation();
   };
-  // ====>====>====>====>====>====>====>====>====>====>
- 
-
-
 
   // ====>====>====>====>====>====>====>====>====>====>
   // Применяет обе очистки последовательно
@@ -143,6 +194,7 @@ export default function CanvasComponent() {
     e.preventDefault();
     e.stopPropagation();
     setActiveKey(null);
+    stopAutoScroll();
 
     const el = e.currentTarget as HTMLElement;
     if (el.classList.contains("renderedNode")) {
@@ -331,12 +383,13 @@ export default function CanvasComponent() {
           onDragEnd={() => {
             setOverlay(null);
             setDragKey(null);
+            stopAutoScroll();
             document.querySelectorAll(".renderedNode").forEach((el) => {
               (el as HTMLElement).style.opacity = "1";
               (el as HTMLElement).style.transition = "";
             });
           }}
-          onSubmit={(e) => {
+          onSubmit={(e: React.FormEvent) => {
             e.preventDefault();
             e.stopPropagation();
           }}
@@ -361,13 +414,16 @@ export default function CanvasComponent() {
     return (
       <Tag
         data-key={node._key}
-        onDragStart={(e) => handleDragStart(e, node)}
-        onDragOver={(e) => handleDragOver(e, node, parentKey)}
+        onDragStart={(e: React.DragEvent<HTMLElement>) => handleDragStart(e, node)}
+        onDragOver={(e: React.DragEvent<HTMLElement>) =>
+          handleDragOver(e, node, parentKey)
+        }
         onDragLeave={handleDragLeave}
-        onDrop={(e) => handleDrop(e, node)}
+        onDrop={(e: React.DragEvent<HTMLElement>) => handleDrop(e, node)}
         onDragEnd={() => {
           setOverlay(null);
           setDragKey(null);
+          stopAutoScroll();
           document.querySelectorAll(".renderedNode").forEach((el) => {
             (el as HTMLElement).style.opacity = "1";
             (el as HTMLElement).style.transition = "";
@@ -380,16 +436,22 @@ export default function CanvasComponent() {
         rel={node.attributes?.rel}
         className={`renderedNode`}
         style={getNodeStyle(node, activeKey)}
-        onClick={(e) => handleClick(e, node)}
-        onSubmit={(e) => {
+        onClick={(e: React.MouseEvent<HTMLElement>) => handleClick(e, node)}
+        onSubmit={(e: React.FormEvent) => {
           e.preventDefault();
           e.stopPropagation();
         }}
         draggable={true}
       >
         {node.class === "baza" ? "" : node.text}
-       {children && children.length >0 && <button onClick={(e)=>handleToggle(e,node)} className="togle-button ">{node.class === "baza" ? "" : node.tag  ? "↕" : ''}</button>} 
-        {children}
+       {children && children.length > 0 && (
+         <button
+           onClick={(e: React.MouseEvent<HTMLButtonElement>) => handleToggle(e, node)}
+           className="togle-button "
+         >
+           {node.class === "baza" ? "" : node.tag ? "↕" : ""}
+         </button>
+       )}        {children}
       </Tag>
     );
   };
@@ -430,7 +492,9 @@ export default function CanvasComponent() {
           className="baza"
           draggable={true}
           onDrop={(e) => handleDrop(e, null)}
-          onDragOver={(e) => e.preventDefault()}
+          onDragOver={(e: React.DragEvent<HTMLElement>) => {
+            e.preventDefault();
+          }}
         >
           {renderContent}
         </div>

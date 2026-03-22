@@ -1,20 +1,12 @@
 "use client";
 import React, { useRef, useEffect, useState } from "react";
 import Spinner from "@/components/icons/Spinner";
-type NodeToSend = {
-  _key: string;
-  tag: string;
-  text: string;
-  class: string;
-  style: string;
-  attributes?: Record<string, string>;
-  children: NodeToSend[] | string;
-};
+import type { HtmlNode } from "@/types/HtmlNode";
 
 interface ClassComponentProps {
-  node: NodeToSend;
+  node: HtmlNode;
   itemClass: string;
-  updateNodeByKey: (key: string, changes: Partial<NodeToSend>) => void;
+  updateNodeByKey: (key: string, changes: Partial<HtmlNode>) => void;
 }
 
 //🔹🟢🔹🟢🔹🟢🔹🟢
@@ -71,9 +63,11 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
     if (!node?._key) return;
 
     const id = setTimeout(() => {
-      updateNodeByKey(node._key, {
-        class: classText,
-      });
+      if (node._key) {
+        updateNodeByKey(node._key!, {
+            class: classText,
+        });
+      }
     }, 1000);
 
     return () => clearTimeout(id);
@@ -83,40 +77,35 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
   //  Parent Class
   // утилита: рекурсивно пробегаем по дереву и обновляем классы
   function addParentToChildrenClasses(
-    node: NodeToSend,
+    node: HtmlNode,
     parentClass: string,
-  ): NodeToSend {
+  ): HtmlNode {
     const prefix = "__";
 
     const transformClass = (cls: string): string => {
       if (!cls) return cls;
-
-      // если нескольких классов нет — простая версия
       const parts = cls.split(/\s+/).filter(Boolean);
-
       const transformed = parts.map((part) => {
-        // интересует только классы начинающиеся с "__"
         if (part.startsWith(prefix)) {
           const childPart = part.slice(prefix.length);
-          // если уже содержит parentClass__, не трогаем
           if (childPart.startsWith(parentClass + "__")) return part;
           return `${parentClass}__${childPart}`;
         }
         return part;
       });
-
       return transformed.join(" ");
     };
 
-    const newNode: NodeToSend = {
+    const newNode: HtmlNode = {
       ...node,
-      class: transformClass(node.class),
+      class: transformClass(node.class || ""),
     };
 
     if (Array.isArray(node.children)) {
-      newNode.children = node.children.map((child) =>
-        addParentToChildrenClasses(child, parentClass),
-      );
+      newNode.children = node.children.map((child) => {
+          if (typeof child === "string") return child;
+          return addParentToChildrenClasses(child, parentClass);
+      });
     }
 
     return newNode;
@@ -158,7 +147,7 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
           </button>
         )}
       </p>
-      <input
+      <textarea
         ref={(el) => {
           if (!el) return;
           textareaRef.current = el;

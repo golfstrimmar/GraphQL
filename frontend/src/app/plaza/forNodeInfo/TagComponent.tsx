@@ -1,19 +1,11 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-type NodeToSend = {
-  _key: string;
-  tag: string;
-  text: string;
-  class: string;
-  style: string;
-  attributes?: Record<string, string>;
-  children: NodeToSend[] | string;
-};
+import type { HtmlNode } from "@/types/HtmlNode";
 
 interface TagComponentProps {
-  node: NodeToSend;
+  node: HtmlNode;
   itemClass: string;
-  updateNodeByKey: (key: string, changes: Partial<NodeToSend>) => void;
+  updateNodeByKey: (key: string, changes: Partial<HtmlNode>) => void;
 }
 
 // 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹
@@ -34,7 +26,9 @@ const TagComponent: React.FC<TagComponentProps> = ({
 
   const handleTagChange = (newValue: string) => {
     setTagValue(newValue);
-    updateNodeByKey(node._key, { tag: newValue });
+    if (node._key) {
+      updateNodeByKey(node._key, { tag: newValue });
+    }
   };
 
   // 🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢

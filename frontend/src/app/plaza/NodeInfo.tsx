@@ -7,8 +7,6 @@ import StyleComponent from "./forNodeInfo/StyleComponent";
 import ClassComponent from "./forNodeInfo/ClassComponent";
 import TextComponent from "./forNodeInfo/TextComponent";
 import TagComponent from "./forNodeInfo/TagComponent";
-import { useHtmlFromJson } from "@/hooks/useHtmlFromJson";
-import { useScssFromJson } from "@/hooks/useScssFromJson";
 import { useStateContext } from "@/providers/StateProvider";
 import CreateIcon from "@/components/icons/CreateIcon";
 import CloseIcon from "@/components/icons/CloseIcon";
@@ -21,21 +19,14 @@ import PreviewIcon from "@/components/icons/PreviewIcon";
 import type { HtmlNode } from "@/types/HtmlNode";
 import Image from "next/image";
 
-interface InfoProjectProps {
-  setProject: React.Dispatch<React.SetStateAction<ProjectData>>;
-  project: ProjectData;
-  setOpenInfoKey: React.Dispatch<React.SetStateAction<string>>;
-  openInfoKey: string;
-  setModalTextsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  editMode: boolean;
-}
-interface InfoProjectProps {
-  project: ProjectData;
-  setProject: React.Dispatch<React.SetStateAction<ProjectData>>;
+interface NodeInfoProps {
+  openInfoModal: boolean;
+  setOpenInfoModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setActiveKey: (key: string | null) => void;
 }
 
 // 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹
-const NodeInfo: React.FC<InfoProjectProps> = ({
+const NodeInfo: React.FC<NodeInfoProps> = ({
   openInfoModal,
   setOpenInfoModal,
   setActiveKey,
@@ -51,15 +42,14 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
     setSCSS,
   } = useStateContext();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const [Open, setOpen] = useState<boolean>(false);
-  const [NodeToSend, setNodeToSend] = useState<HtmlNode | null>(null);
-  const [localAttrs, setLocalAttrs] = useState(NodeToSend?.attributes ?? {});
-  const attrTimeoutsRef = useRef<Record<string, number | undefined>>({});
+  const [nodeToSend, setNodeToSend] = useState<HtmlNode | null>(null);
+  const [localAttrs, setLocalAttrs] = useState(nodeToSend?.attributes ?? {});
+  const attrTimeoutsRef = useRef<Record<string, any>>({});
   // ====>====>====>====>====>====>====>====>====>====>
   // синхронизируемся, когда NodeToSend сменился (другая нода)
   useEffect(() => {
-    setLocalAttrs(NodeToSend?.attributes ?? {});
-  }, [NodeToSend?._key]); // важно: по ключу, а не по всему объекту
+    setLocalAttrs(nodeToSend?.attributes ?? {});
+  }, [nodeToSend?._key]); // важно: по ключу, а не по всему объекту
   // -------------
   const resetAll = () => {
     resetHtmlJson();
@@ -71,7 +61,7 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
   // -------------
   useEffect(() => {
     if (!activeKey) {
-      setNodeToSend("");
+      setNodeToSend(null);
       setOpenInfoModal(false);
       return;
     }
@@ -191,46 +181,48 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
           </div>
 
           <div className="grid grid-cols-[repeat(2_,max-content)_1fr_1fr] relative rounded border-2 border-[var(--teal)] p-1 pt-6  text-[#000] w-full h-full  bg-slate-200">
-            {/*===============Tag=================*/}
-            <TagComponent
-              node={NodeToSend}
-              itemClass={itemClass}
-              updateNodeByKey={updateNodeByKey}
-            />
-            {/*===============Class=================*/}
-            <ClassComponent
-              node={NodeToSend}
-              itemClass={itemClass}
-              updateNodeByKey={updateNodeByKey}
-            />
-            {/*===============Style=================*/}
-            <StyleComponent
-              node={NodeToSend}
-              itemClass={itemClass}
-              updateNodeByKey={updateNodeByKey}
-            />
-            {/*===============Tag=================*/}
-            <TextComponent
-              node={NodeToSend}
-              itemClass={itemClass}
-              updateNodeByKey={updateNodeByKey}
-            />
-            {NodeToSend?.tag === "img" && (
+            {nodeToSend && (
+              <>
+                <TagComponent
+                  node={nodeToSend}
+                  itemClass={itemClass}
+                  updateNodeByKey={updateNodeByKey}
+                />
+                <ClassComponent
+                  node={nodeToSend}
+                  itemClass={itemClass}
+                  updateNodeByKey={updateNodeByKey}
+                />
+                <StyleComponent
+                  node={nodeToSend}
+                  itemClass={itemClass}
+                  updateNodeByKey={updateNodeByKey}
+                />
+                <TextComponent
+                  node={nodeToSend}
+                  itemClass={itemClass}
+                  updateNodeByKey={updateNodeByKey}
+                />
+              </>
+            )}
+            {nodeToSend?.tag === "img" && (
               <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-10  flex flex-col relative ">
                 <p className={itemClass}>
                   <span>Src:</span>
                 </p>
                 <textarea
-                  value={NodeToSend?.attributes?.src || ""}
+                  value={nodeToSend?.attributes?.src || ""}
                   ref={(el) => {
                     if (!el) return;
                     textareaRef.current = el;
                     adjustHeight(el);
                   }}
                   onChange={(e) => {
-                    updateNodeByKey(NodeToSend._key, {
-                      attributes: { src: e.target.value },
-                    });
+                    if (nodeToSend && nodeToSend._key) {
+                      updateNodeByKey(nodeToSend._key!, {
+                        attributes: { ...nodeToSend.attributes, src: e.target.value },
+                      });
+                    }
                   }}
                   className="textarea-styles"
                   placeholder=""
@@ -328,8 +320,8 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
               )}*/}
           </div>
 
-          {NodeToSend?.attributes &&
-            Object.keys(NodeToSend.attributes).length > 0 && (
+          {nodeToSend?.attributes &&
+            Object.keys(nodeToSend.attributes).length > 0 && (
               <div className="flex gap-2 mt-6 rounded border-2 border-[var(--teal)] p-1 pt-6 text-[#000]  bg-slate-200">
                 {Object.entries(localAttrs).map(([k, value]) => (
                   <div
@@ -361,12 +353,14 @@ const NodeInfo: React.FC<InfoProjectProps> = ({
                         }
 
                         timeouts[k] = window.setTimeout(() => {
-                          updateNodeByKey(NodeToSend._key, {
-                            attributes: {
-                              ...NodeToSend.attributes,
-                              [k]: val,
-                            },
-                          });
+                          if (nodeToSend) {
+                            updateNodeByKey(nodeToSend._key, {
+                              attributes: {
+                                ...nodeToSend.attributes,
+                                [k]: val,
+                              },
+                            });
+                          }
                         }, 300);
                       }}
                       className="textarea-styles"

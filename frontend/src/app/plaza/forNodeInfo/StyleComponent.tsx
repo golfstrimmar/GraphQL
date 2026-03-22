@@ -11,20 +11,12 @@ const MobileAddStyle = dynamic(
     loading: () => <Loading />,
   },
 );
-type NodeToSend = {
-  _key: string;
-  tag: string;
-  text: string;
-  class: string;
-  style: string;
-  attributes?: Record<string, string>;
-  children: NodeToSend[] | string;
-};
+import type { HtmlNode } from "@/types/HtmlNode";
 
 interface StyleComponentProps {
-  node: NodeToSend;
+  node: HtmlNode;
   itemClass: string;
-  updateNodeByKey: (key: string, changes: Partial<NodeToSend>) => void;
+  updateNodeByKey: (key: string, changes: Partial<HtmlNode>) => void;
 }
 
 // ================================
@@ -81,7 +73,9 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
     if (!node?._key) return;
     console.log("<===styleText===>", styleText);
     const id = setTimeout(() => {
-      updateNodeByKey(node._key, { style: styleText });
+      if (node._key) {
+          updateNodeByKey(node._key, { style: styleText });
+      }
     }, 1000);
     return () => clearTimeout(id);
   }, [styleText]);
