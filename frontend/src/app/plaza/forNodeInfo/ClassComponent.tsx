@@ -25,9 +25,9 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
 
   const formatClassForDisplay = (raw: string): string => {
     // Если уже есть переносы — пользователь редактировал вручную
-    if (raw.includes("\n")) return raw;
+    if (raw && typeof raw === "string" && raw?.includes("\n")) return raw;
 
-    const trimmed = raw.trim();
+    const trimmed = raw?.trim();
     if (!trimmed) return "";
 
     const hasTrailingSemicolon = trimmed.endsWith(";");

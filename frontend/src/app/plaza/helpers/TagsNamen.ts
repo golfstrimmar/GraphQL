@@ -74,4 +74,8 @@ export const TagsNamen5 = [
   { tag: "fade-slider", color: "powderblue" },
   { tag: "carousel", color: "powderblue" },
   { tag: "double-slider", color: "powderblue" },
+  { tag: "gallery", color: "powderblue" },
+  { tag: "gallery-popup", color: "powderblue" },
+  { tag: "gallery-slider-popup", color: "powderblue" },
 ];
+

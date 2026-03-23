@@ -146,11 +146,43 @@ export default function PreviewComponent() {
 
   const [compiledCss, setCompiledCss] = useState<string>("");
 
+  // Константа со сбросом стилей (null.scss)
+  const NULL_CSS = `
+* { padding: 0px; margin: 0; border: 0px; box-sizing: border-box; }
+*:before, *:after { box-sizing: border-box; }
+:focus, :active { outline: none; }
+a:focus, a:active { outline: none; }
+aside, nav, footer, header, section { display: block; }
+html { max-width: 100vw; }
+body { max-width: 100vw; text-size-adjust: 100%; }
+input, button, textarea { resize: none; }
+input { margin: 0; padding: 0; }
+input::-ms-clear { display: none; }
+button { cursor: pointer; }
+button::-moz-focus-inner { padding: 0; border: 0px; }
+h1,h2,h3,h4,h5,h6{ display: block; }
+a { text-decoration: none !important; }
+a:active, a:hover { outline: 0; }
+a:visited { text-decoration: none !important; }
+img { vertical-align: top; }
+ul, li { list-style-type: none; margin: 0; padding: 0; }
+img, audio, video { height: auto; }
+audio, canvas, iframe, video, img, svg { vertical-align: middle; }
+iframe { border: 0; }
+textarea { resize: none; overflow: auto; vertical-align: top; box-shadow: none; }
+input, textarea, select, button { outline: none; border: none; font-size: 100%; margin: 0; }
+button, input { line-height: normal; }
+table { border-collapse: collapse; border-spacing: 0; }
+td, th { padding: 0; text-align: left; }
+`;
+
   useEffect(() => {
     if (!SCSS) {
       setCompiledCss("");
       return;
     }
+
+    const fullScss = `${NULL_CSS}\n${SCSS}`;
 
     // Попытка скомпилировать SCSS в CSS
     // Используем sass.js если он доступен
@@ -158,27 +190,30 @@ export default function PreviewComponent() {
       // @ts-ignore
       if (typeof Sass !== "undefined") {
         // @ts-ignore
-        Sass.compile(SCSS, (result) => {
+        Sass.compile(fullScss, (result) => {
           if (result.status === 0) {
             setCompiledCss(result.text);
           } else {
             console.warn("Sass compilation error:", result.message);
-            setCompiledCss(SCSS); // fallback to raw
+            setCompiledCss(fullScss); // fallback to raw
           }
         });
       } else {
-        setCompiledCss(SCSS);
+        setCompiledCss(fullScss);
       }
     } catch (e) {
-      setCompiledCss(SCSS);
+      setCompiledCss(fullScss);
     }
   }, [SCSS]);
 
-  const srcDoc = `
-    <html>
+  const srcDoc = `<html>
       <head>
+        <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <style>
-          body { font-family: sans-serif; margin: 0; padding: 0; }
+          html, body { margin: 0; padding: 0; }
+          *, *::before, *::after { box-sizing: border-box; }
+          body { font-family: sans-serif; }
           ${compiledCss || SCSS || ""}
         </style>
       </head>
@@ -190,8 +225,7 @@ export default function PreviewComponent() {
           } catch(e) { console.error(e); }
         </script>
       </body>
-    </html>
-  `;
+    </html>`;
 
   // const handleImgLoad = () => {
   //   if (!imgRef.current) return;
@@ -228,7 +262,7 @@ export default function PreviewComponent() {
               title="preview-iframe"
               srcDoc={srcDoc}
               sandbox="allow-scripts allow-same-origin allow-modals"
-              className="w-full h-full max-w-[100vw] min-h-[500px] border-none pointer-events-auto"
+              className="block w-full h-full max-w-[100vw] min-h-[500px] border-none pointer-events-auto"
             />
           </div>
         )}
