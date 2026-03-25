@@ -34,7 +34,47 @@ export default function CanvasComponent() {
     setActiveKey,
     dragKey,
     setDragKey,
+    SCSS,
+    colors,
+    designTexts,
   } = useStateContext();
+
+  const [aiPrompt, setAiPrompt] = useState<string>("");
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
+
+  const handleAiCompose = async () => {
+    if (!aiPrompt) return;
+    setIsGenerating(true);
+
+    try {
+      const response = await fetch("/api/ai-compose", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: aiPrompt,
+          context: {
+            colors,
+            designTexts,
+            scss: SCSS,
+          },
+          currentJson: htmlJson,
+        }),
+      });
+
+      const data = await response.json();
+      console.log("<===data.nodes===>", data.nodes);
+      if (data.nodes) {
+        updateHtmlJson(data.nodes);
+        setAiPrompt("");
+      } else {
+        console.error("AI Error:", data.error);
+      }
+    } catch (error) {
+      console.error("AI Compose failed:", error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const scrollInterval = useRef<NodeJS.Timeout | null>(null);
 
@@ -472,6 +512,26 @@ export default function CanvasComponent() {
         id="plaza-render-area"
         className="flex flex-col gap-2 mb-2 relative text-[#000] rounded overflow-hidden"
       >
+        {/* AI PROMPT AREA */}
+        <div className="flex gap-2 p-2 bg-slate-100 border-b border-slate-200">
+          <input
+            type="text"
+            className="flex-1 px-3 py-1 text-sm border rounded outline-none focus:border-teal-500"
+            placeholder="Опиши секцию (например: 'Hero секция с кнопкой')..."
+            value={aiPrompt}
+            onChange={(e) => setAiPrompt(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleAiCompose()}
+          />
+          <button
+            onClick={handleAiCompose}
+            disabled={isGenerating}
+            className={`px-4 py-1 text-xs font-bold text-white rounded transition-colors ${
+              isGenerating ? "bg-slate-400" : "bg-teal-600 hover:bg-teal-700"
+            }`}
+          >
+            {isGenerating ? "Создаем..." : "AI Генерация"}
+          </button>
+        </div>
         {overlay?.visible && overlay.mode !== "inside" && (
           <div
             className="overlay-drop"
