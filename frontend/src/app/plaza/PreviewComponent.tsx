@@ -257,7 +257,7 @@ td, th { padding: 0; text-align: left; }
           />
         </div>*/}
         {(HTML || JS) && (
-          <div className="max-w-[100vw] min-h-[500px] border-2 border-[var(--teal)] rounded-md overflow-hidden ">
+          <div className="max-w-[100vw] min-h-[1000px] border-2 border-[var(--teal)] rounded-md overflow-hidden ">
             <iframe
               title="preview-iframe"
               srcDoc={srcDoc}
@@ -417,3 +417,5 @@ td, th { padding: 0; text-align: left; }
 
   );
 }
+
+

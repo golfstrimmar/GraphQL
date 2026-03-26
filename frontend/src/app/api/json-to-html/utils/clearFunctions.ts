@@ -11,8 +11,8 @@ function buildAttrs(node) {
   if (cls) attrs.push(`class="${cls}"`);
 
   Object.entries(attributes).forEach(([key, value]) => {
-    if (value == null || value === "") return;
-    // не пропускаем style по ключу, стиль у тебя лежит отдельно в node.style
+    if (value == null) return;
+    // разрешаем пустые строки для булевых атрибутов (controls, playsinline и т.д.)
     attrs.push(`${key}="${String(value)}"`);
   });
 
