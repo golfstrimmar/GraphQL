@@ -5,10 +5,11 @@ import { useQuery } from "@apollo/client";
 import { GET_JSON_DOCUMENT } from "@/apollo/queries";
 import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
 import ServicesButtons from "./ServicesButtons";
-import dynamic from "next/dynamic";
 import Spinner from "@/components/icons/Spinner";
 import Loading from "@/components/ui/Loading/Loading";
 import type { HtmlNode } from "@/types/HtmlNode";
+import dynamic from "next/dynamic";
+
 import {
   TagsNamen1,
   TagsNamen2,
@@ -20,7 +21,12 @@ const HeroIconPicker = dynamic(() => import("./HeroIconPicker"), {
   ssr: false,
   loading: () => <Loading />,
 });
-
+const ModSliders = dynamic(
+  () => import("./ModSliders"),
+  {
+    ssr: false,
+  }
+);
 // ==>==>==>==>==>==>==>==>==>==>==>==>==>
 // ==>==>==>==>==>==>==>==>==>==>==>==>==>
 // ==>==>==>==>==>==>==>==>==>==>==>==>==>
@@ -31,6 +37,7 @@ const AdminComponent = () => {
   const [name, setName] = useState<string | null>(null);
   const [clicked, setClicked] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [openModSliders, setOpenModSliders] = useState<boolean>(false);
   const { refetch: refetchJson } = useQuery(GET_JSON_DOCUMENT, {
     variables: { name },
     skip: !name,
@@ -111,7 +118,7 @@ const AdminComponent = () => {
     if (!tag) return;
     let resultWithKeysStyles = [] as HtmlNode[];
     setLoading(true);
-    
+
     // 1.грузим стилевые тэги и скрипты
     const stylesPart = await processStylesData(tag);
     if (stylesPart?.length) {
@@ -185,6 +192,10 @@ const AdminComponent = () => {
         openSVGModal={openSVGModal}
         setopenSVGModal={setopenSVGModal}
       />
+      <ModSliders
+        openModSliders={openModSliders}
+        setOpenModSliders={setOpenModSliders}
+      />
       <div className="bg-black/60 backdrop-blur-lg py-1">
         <ServicesButtons />
         {renderTags(TagsNamen1)}
@@ -193,6 +204,11 @@ const AdminComponent = () => {
         {renderTags(TagsNamen4)}
         <hr className="bordered border-slate-200 my-0.5" />
         {renderTags(TagsNamen5)}
+        <hr className="bordered border-slate-200 my-0.5" />
+        <div className=" flex flex-wrap gap-1 bg-slate-200 p-1 ">
+          <button className="btn adminButton px-1.5! border-1 border-[#aaa] text-white text-[12px]" style={{ background: "steelblue", minWidth: "80px", height: "auto" }} onClick={() => setOpenModSliders(true)}>sliders</button>
+        </div>
+
       </div>
     </>
   );

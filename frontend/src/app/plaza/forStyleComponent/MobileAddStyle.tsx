@@ -21,6 +21,7 @@ import TextPropsPicker from "./TextPropsPicker";
 import PositionPropsPicker from "./PositionPropsPicker";
 import PresetsPicker from "./PresetsPicker";
 import СhevronDown from "@/components/icons/ChevronDown";
+import CloseIcon from "@/components/icons/CloseIcon";
 
 export default function MobileAddStyle({
   setStyleText,
@@ -28,7 +29,7 @@ export default function MobileAddStyle({
   setOpenMobile,
   nodeStyle,
 }) {
-  const {} = useStateContext();
+  const { } = useStateContext();
   const [addingScss, setAddingScss] = useState<string>("");
   const [history, setHistory] = useState<string[]>([""]);
   const [historyIndex, setHistoryIndex] = useState(0);
@@ -97,170 +98,142 @@ export default function MobileAddStyle({
   const ItemClass =
     "grid grid-cols-[100px_1fr] gap-2 rounded-2xl shadow-xl p-2 bg-[var(--lightest-slate)] border border-slate-200";
 
-  // useEffect(() => {
-  //   if (openMobile && typeof window !== "undefined") {
-  //     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
-  //     document.body.style.overflow = "hidden";
-  //   } else {
-  //     document.body.style.overflow = "";
-  //   }
-  // }, [openMobile]);
+  return createPortal(
+    <AnimatePresence>
+      {openMobile && (
+        <motion.div
+          key="modal-message"
+          initial={{ opacity: 0, scale: 0.2 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.1, transition: { duration: 0.2 } }}
+          transition={{ duration: 0.2 }}
+          className="  bg-black/60 backdrop-blur-lg fixed  w-[100vw] h-[100vh] overflow-y-scroll py-15 z-6050 top-0 left-0 "
+          onClick={(e) => {
+            e.stopPropagation();
+            if (
+              !(e.target as HTMLElement).closest(".modal-inner") &&
+              !(e.target as HTMLElement).closest(".button-top")
+            ) {
+              setOpenMobile(false);
+            }
+          }}
+        >
+          <button
+            className="w-4 h-4 block text-white absolute top-4 right-6 z-10000 hover:text-gray-500 cursor-pointer transition-colors duration-300"
+            onClick={() => setOpenMobile(false)}
+          >
+            <CloseIcon />
+          </button>
 
-  return (
-    <>
-      {openMobile &&
-        createPortal(
-          <AnimatePresence mode="wait">
-            <motion.div
-              key="modal-message"
-              initial={{ opacity: 0, scale: 0.2 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.1, transition: { duration: 0.2 } }}
-              transition={{ duration: 0.2 }}
-              className="  bg-black/60 backdrop-blur-lg fixed  w-[100vw] h-[100vh] overflow-y-scroll py-15 z-6050 top-0 left-0 "
-              onClick={(e) => {
-                e.stopPropagation();
-                if (
-                  !(e.target as HTMLElement).closest(".modal-inner") &&
-                  !(e.target as HTMLElement).closest(".button-top")
-                ) {
-                  setOpenMobile(false);
-                }
+          <div ref={modalRef} className="modal-inner     bg-white p-2 ">
+            <textarea
+              ref={(el) => {
+                if (!el) return;
+                adjustHeight(el);
               }}
-            >
+              value={addingScss}
+              onChange={(e) => {
+                const target = e.target.value;
+                applyValue(target);
+                adjustHeight(e.target);
+              }}
+              onInput={(e) => adjustHeight(e.target as HTMLTextAreaElement)}
+              className="textarea-styles text-[var(--slate-800)]"
+            />
+
+            <div className="flex items-center">
               <button
-                className="absolute block top-2 right-2 rounded-full z-[7140] p-2 cursor-pointer"
-                onClick={() => setOpenMobile(false)}
+                className="btn h-8 mr-2 px-1 btn btn-empty"
+                onClick={handleUndo}
+                disabled={!canUndo}
+              >
+                ⇦
+              </button>
+              <button
+                className="btn h-8 mr-2 px-1 btn btn-empty"
+                onClick={handleRedo}
+                disabled={!canRedo}
+              >
+                ⇨
+              </button>
+              <button
+                className="btn btn-allert h-8 mr-2"
+                onClick={() => applyValue("")}
               >
                 <Image
-                  src="./svg/cross.svg"
-                  alt="close"
-                  width={20}
-                  height={20}
+                  src="/svg/clear.svg"
+                  alt="clear"
+                  width={16}
+                  height={16}
                 />
               </button>
-
-              {/*<button
-                className="button-top absolute block rotate-[180deg] bottom-4 right-8 rounded-full z-[7140] p-2 cursor-pointer bg-[var(--lightest-slate)] border border-slate-200 hover:bg-[var(--slate-400)] hover:border-[var(--slate-500)] transition-all duration-200 text-[var(--slate-800)] hover:text-[var(--slate-200)]"
+              <button
                 onClick={() => {
-                  if (typeof window !== "undefined") {
-                    scrollModalToTop();
-                  }
+                  setStyleText((prev: string) => {
+                    return NormalizeSCSS(prev, addingScss);
+                  });
+                  setOpenMobile(false);
                 }}
+                className="btn btn-primary h-8 m-0 flex-[1_1_100%]"
               >
-                <СhevronDown width={20} height={20} />
-              </button>*/}
+                Add
+              </button>
+            </div>
 
-              <div ref={modalRef} className="modal-inner     bg-white p-2 ">
-                <textarea
-                  ref={(el) => {
-                    if (!el) return;
-                    adjustHeight(el);
-                  }}
-                  value={addingScss}
-                  onChange={(e) => {
-                    const target = e.target.value;
-                    applyValue(target);
-                    adjustHeight(e.target);
-                  }}
-                  onInput={(e) => adjustHeight(e.target as HTMLTextAreaElement)}
-                  className="textarea-styles text-[var(--slate-800)]"
-                />
-
-                <div className="flex items-center">
-                  <button
-                    className="btn h-8 mr-2 px-1 btn btn-empty"
-                    onClick={handleUndo}
-                    disabled={!canUndo}
-                  >
-                    ⇦
-                  </button>
-                  <button
-                    className="btn h-8 mr-2 px-1 btn btn-empty"
-                    onClick={handleRedo}
-                    disabled={!canRedo}
-                  >
-                    ⇨
-                  </button>
-                  <button
-                    className="btn btn-allert h-8 mr-2"
-                    onClick={() => applyValue("")}
-                  >
-                    <Image
-                      src="/svg/clear.svg"
-                      alt="clear"
-                      width={16}
-                      height={16}
-                    />
-                  </button>
-                  <button
-                    onClick={() => {
-                      setStyleText((prev: string) => {
-                        return NormalizeSCSS(prev, addingScss);
-                      });
-                      setOpenMobile(false);
-                    }}
-                    className="btn btn-primary h-8 m-0 flex-[1_1_100%]"
-                  >
-                    Add
-                  </button>
-                </div>
-
-                <div className="flex flex-col gap-2 mt-6">
-                  <div className={ItemClass}>
-                    <span className="text-[var(--navy)] font-bold text-[14px]">
-                      Presets
-                    </span>
-                    <PresetsPicker toAdd={toAdd} />
-                  </div>
-
-                  <div className={ItemClass}>
-                    <span className="text-[var(--navy)] font-bold text-[14px]">
-                      Common
-                    </span>
-                    <CommonPropsPicker toAdd={toAdd} />
-                  </div>
-
-                  <div className={ItemClass}>
-                    <span className="text-[var(--navy)] font-bold text-[14px]">
-                      Text
-                    </span>
-                    <TextPropsPicker toAdd={toAdd} />
-                  </div>
-
-                  <div className={ItemClass}>
-                    <span className="text-[var(--navy)] font-bold text-[14px]">
-                      Position
-                    </span>
-                    <PositionPropsPicker toAdd={toAdd} />
-                  </div>
-
-                  <div className={ItemClass}>
-                    <span className="text-[var(--navy)] font-bold text-[14px]">
-                      Display
-                    </span>
-                    <DisplayPicker toAdd={toAdd} />
-                  </div>
-
-                  <div className={ItemClass}>
-                    <span className="text-[var(--navy)] font-bold text-[14px]">
-                      Flex
-                    </span>
-                    <FlexContainerPicker toAdd={toAdd} />
-                  </div>
-
-                  <div className={ItemClass}>
-                    <span className="text-[var(--navy)] font-bold text-[14px]">
-                      Grid
-                    </span>
-                    <GridContainerPicker toAdd={toAdd} />
-                  </div>
-                </div>
+            <div className="flex flex-col gap-2 mt-6">
+              <div className={ItemClass}>
+                <span className="text-[var(--navy)] font-bold text-[14px]">
+                  Presets
+                </span>
+                <PresetsPicker toAdd={toAdd} />
               </div>
-            </motion.div>
-          </AnimatePresence>,
-          document.body,
-        )}
-    </>
+
+              <div className={ItemClass}>
+                <span className="text-[var(--navy)] font-bold text-[14px]">
+                  Common
+                </span>
+                <CommonPropsPicker toAdd={toAdd} />
+              </div>
+
+              <div className={ItemClass}>
+                <span className="text-[var(--navy)] font-bold text-[14px]">
+                  Text
+                </span>
+                <TextPropsPicker toAdd={toAdd} />
+              </div>
+
+              <div className={ItemClass}>
+                <span className="text-[var(--navy)] font-bold text-[14px]">
+                  Position
+                </span>
+                <PositionPropsPicker toAdd={toAdd} />
+              </div>
+
+              <div className={ItemClass}>
+                <span className="text-[var(--navy)] font-bold text-[14px]">
+                  Display
+                </span>
+                <DisplayPicker toAdd={toAdd} />
+              </div>
+
+              <div className={ItemClass}>
+                <span className="text-[var(--navy)] font-bold text-[14px]">
+                  Flex
+                </span>
+                <FlexContainerPicker toAdd={toAdd} />
+              </div>
+
+              <div className={ItemClass}>
+                <span className="text-[var(--navy)] font-bold text-[14px]">
+                  Grid
+                </span>
+                <GridContainerPicker toAdd={toAdd} />
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>,
+    document.body
   );
 }

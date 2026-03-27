@@ -83,14 +83,12 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
   // ====>====>====>====>====>====>====>====>====>====>
   return (
     <>
-      {openMobile && (
-        <MobileAddStyle
-          setStyleText={setStyleText}
-          openMobile={openMobile}
-          setOpenMobile={setOpenMobile}
-          nodeStyle={JSON.stringify(node?.style)}
-        />
-      )}
+      <MobileAddStyle
+        setStyleText={setStyleText}
+        openMobile={openMobile}
+        setOpenMobile={setOpenMobile}
+        nodeStyle={JSON.stringify(node?.style)}
+      />
       <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]   flex flex-col relative ">
         <p className={itemClass}>
           <span>Style:</span>
