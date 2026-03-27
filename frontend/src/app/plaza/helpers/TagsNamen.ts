@@ -77,7 +77,7 @@ export const TagsNamen5 = [
   { tag: "gallery", color: "powderblue" },
   { tag: "gallery-popup", color: "powderblue" },
   { tag: "gallery-slider-popup", color: "powderblue" },
-  { tag: "look", color: "powderblue" },
   { tag: "video-gallery-slider", color: "powderblue" },
+  { tag: "look", color: "powderblue" },
 ];
 
