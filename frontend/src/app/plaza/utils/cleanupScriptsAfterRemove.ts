@@ -43,7 +43,10 @@ const cleanupScriptsAfterRemove = (
     if (
       node.tag === "script" &&
       typeof node.text === "string" &&
-      node.text.toLowerCase().includes(jsMark.toLowerCase())
+      (node.text.toLowerCase().includes(`@component: .${jsMark.toLowerCase()}`) ||
+        node.text.toLowerCase().includes(`@isolate: ${jsMark.toLowerCase()}`) ||
+        node.text.includes(`/* @component: .${jsMark} */`) ||
+        node.text.includes(`/* @isolate: ${jsMark} */`))
     ) {
         return null;
       }
@@ -71,10 +74,27 @@ const cleanupScriptsAfterRemove = (
 
   // "custom-select foo" -> ["custom-select", "foo"]
   const allTokens = cls.split(/\s+/).filter((t) => t.length >= 3);
+  
+  // Ищем токен изоляции (swiper-isolate-...)
+  const isolationToken = allTokens.find(t => t.toLowerCase().includes('isolate-'));
 
   for (const token of allTokens) {
     if (!hasNodesWithMark(token, res)) {
-      res = filterScriptsDeep(res, token);
+      // Изоляция: удаляем смело, если токен исчез
+      if (token.toLowerCase().includes('isolate-')) {
+        console.log(`[Cleanup] Removing isolated script for: ${token}`);
+        res = filterScriptsDeep(res, token);
+        continue;
+      }
+
+      // Обычный токен (базовый класс): удаляем только если нет кода изоляции
+      // Это предотвращает удаление "общего" скрипта при удалении конкретного слайдера
+      if (!isolationToken) {
+        console.log(`[Cleanup] Removing base script for token: ${token}`);
+        res = filterScriptsDeep(res, token);
+      } else {
+        console.log(`[Cleanup] Skipping base script cleanup for token "${token}" because isolation token "${isolationToken}" was present`);
+      }
     }
   }
 

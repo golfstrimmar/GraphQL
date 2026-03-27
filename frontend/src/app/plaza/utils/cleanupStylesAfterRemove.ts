@@ -50,7 +50,10 @@ const cleanupStylesAfterRemove = (
       if (
         node.tag === "style" &&
         typeof node.text === "string" &&
-        node.text.includes(cssMark)
+        (node.text.includes(`@component: .${cssMark}`) ||
+          node.text.includes(`@isolate: ${cssMark}`) ||
+          node.text.includes(`/* @component: .${cssMark} */`) ||
+          node.text.includes(`/* @isolate: ${cssMark} */`))
       ) {
         return null;
       }
@@ -81,14 +84,28 @@ const cleanupStylesAfterRemove = (
 
   // Финальная очистка по всем токенам удаленного класса
   const allTokens = cls.split(/\s+/).filter((t) => t.length >= 3);
+  
+  // Ищем токен изоляции (swiper-isolate-...)
+  const isolationToken = allTokens.find(t => t.includes('isolate-'));
+
   for (const token of allTokens) {
     if (!hasNodesWithMark(token)) {
-      res = filterStylesDeep(res, token);
-    }
-  }
-  for (const token of allTokens) {
-    if (!hasNodesWithMark(token)) {
-      res = filterStylesDeep(res, token);
+      // Если это токен изоляции и его больше нет на странице - удаляем связанные стили смело
+      if (token.includes('isolate-')) {
+        console.log(`[Cleanup] Removing isolated styles for: ${token}`);
+        res = filterStylesDeep(res, token);
+        continue;
+      }
+
+      // Если это обычный класс, удаляем стили только если нет токена изоляции 
+      // или если мы специально хотим очистить "базовые" стили компонента.
+      // Но здесь важно не задеть другие экземпляры.
+      if (!isolationToken) {
+         console.log(`[Cleanup] Removing base styles for token: ${token}`);
+         res = filterStylesDeep(res, token);
+      } else {
+         console.log(`[Cleanup] Skipping base style cleanup for token "${token}" because isolation token "${isolationToken}" was present`);
+      }
     }
   }
 

@@ -4,6 +4,7 @@ import { useStateContext } from "@/providers/StateProvider";
 import { useQuery } from "@apollo/client";
 import { GET_JSON_DOCUMENT } from "@/apollo/queries";
 import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
+import { isolateSwiperNodes } from "@/utils/isolateSwiper";
 import ServicesButtons from "./ServicesButtons";
 import Spinner from "@/components/icons/Spinner";
 import Loading from "@/components/ui/Loading/Loading";
@@ -155,10 +156,16 @@ const AdminComponent = () => {
     const resultWithKeys = ensureNodeKeys(content) as HtmlNode[];
     setLoading(false);
     setClicked("");
-    updateHtmlJson((prev) => [
-      ...prev,
+    
+    // Глобальная изоляция всех Свайпер-слайдеров от базы
+    const isolatedNodes = isolateSwiperNodes([
       ...resultWithKeys,
       ...resultWithKeysStyles,
+    ]);
+
+    updateHtmlJson((prev) => [
+      ...prev,
+      ...isolatedNodes,
     ]);
   };
 

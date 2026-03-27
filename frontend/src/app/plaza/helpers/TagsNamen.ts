@@ -80,4 +80,3 @@ export const TagsNamen5 = [
   { tag: "video-gallery-slider", color: "powderblue" },
   { tag: "look", color: "powderblue" },
 ];
-
