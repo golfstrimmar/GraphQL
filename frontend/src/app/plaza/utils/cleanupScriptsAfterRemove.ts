@@ -40,15 +40,24 @@ const cleanupScriptsAfterRemove = (
   // Удаляет все script-ноды, чей text содержит jsMark
   const filterScriptsDeep = (nodes: HtmlNode[], jsMark: string): HtmlNode[] => {
     const visit = (node: HtmlNode): HtmlNode | null => {
-    if (
-      node.tag === "script" &&
-      typeof node.text === "string" &&
-      (node.text.toLowerCase().includes(`@component: .${jsMark.toLowerCase()}`) ||
-        node.text.toLowerCase().includes(`@isolate: ${jsMark.toLowerCase()}`) ||
-        node.text.includes(`/* @component: .${jsMark} */`) ||
-        node.text.includes(`/* @isolate: ${jsMark} */`))
-    ) {
-        return null;
+    if (node.tag === "script" && typeof node.text === "string") {
+        const txt = node.text;
+        // Более гибкий поиск маркеров
+        const hasMarker = 
+          txt.includes(`@component:.${jsMark}`) ||
+          txt.includes(`@component: .${jsMark}`) ||
+          txt.includes(`@component:  .${jsMark}`) ||
+          txt.includes(`@component:${jsMark}`) ||
+          txt.includes(`@component: ${jsMark}`) ||
+          txt.includes(`@isolate:${jsMark}`) ||
+          txt.includes(`@isolate: ${jsMark}`) ||
+          txt.includes(`@isolate:  ${jsMark}`);
+
+        if (hasMarker) return null;
+
+        // Финальный Regex-чек для максимальной гибкости
+        const markerRegex = new RegExp(`@(component|isolate):\\s*\\.?${jsMark}\\b`, 'i');
+        if (markerRegex.test(txt)) return null;
       }
       if (Array.isArray(node.children)) {
         const newChildren: (HtmlNode | string)[] = [];
@@ -74,27 +83,11 @@ const cleanupScriptsAfterRemove = (
 
   // "custom-select foo" -> ["custom-select", "foo"]
   const allTokens = cls.split(/\s+/).filter((t) => t.length >= 3);
-  
-  // Ищем токен изоляции (swiper-isolate-...)
-  const isolationToken = allTokens.find(t => t.toLowerCase().includes('isolate-'));
 
   for (const token of allTokens) {
     if (!hasNodesWithMark(token, res)) {
-      // Изоляция: удаляем смело, если токен исчез
-      if (token.toLowerCase().includes('isolate-')) {
-        console.log(`[Cleanup] Removing isolated script for: ${token}`);
-        res = filterScriptsDeep(res, token);
-        continue;
-      }
-
-      // Обычный токен (базовый класс): удаляем только если нет кода изоляции
-      // Это предотвращает удаление "общего" скрипта при удалении конкретного слайдера
-      if (!isolationToken) {
-        console.log(`[Cleanup] Removing base script for token: ${token}`);
-        res = filterScriptsDeep(res, token);
-      } else {
-        console.log(`[Cleanup] Skipping base script cleanup for token "${token}" because isolation token "${isolationToken}" was present`);
-      }
+      console.log(`[Cleanup] No more nodes with token: ${token}. Searching for script tags to remove.`);
+      res = filterScriptsDeep(res, token);
     }
   }
 
