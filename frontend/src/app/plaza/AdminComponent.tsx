@@ -5,7 +5,7 @@ import { useQuery } from "@apollo/client";
 import { GET_JSON_DOCUMENT } from "@/apollo/queries";
 import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
 import { isolateSwiperNodes } from "@/utils/isolateSwiper";
-import { isolateModalNodes } from "@/utils/isolateModal";
+import { isolateComponentNodes } from "@/utils/isolateComponent";
 import ServicesButtons from "./ServicesButtons";
 import Spinner from "@/components/icons/Spinner";
 import Loading from "@/components/ui/Loading/Loading";
@@ -160,13 +160,26 @@ const AdminComponent = () => {
     setLoading(false);
     setClicked("");
 
-    // Глобальная изоляция всех Свайпер-слайдеров от базы
-    const swiperIsolated = isolateSwiperNodes([
-      ...resultWithKeys,
-      ...resultWithKeysStyles,
-    ]);
+    // Маркируем служебные стили и скрипты как глобальные, 
+    // чтобы их текст не менялся при изоляции и они могли дедуплицироваться.
+    const globalizedServiceNodes = resultWithKeysStyles.map(node => ({
+      ...node,
+      text: `/* @component: ${tag} */\n${node.text}`,
+      attributes: { ...node.attributes, "data-global": "true" }
+    }));
 
-    const isolatedNodes = isolateModalNodes(swiperIsolated);
+    // Добавляем имя тега как класс к корневым элементам для отслеживания системой очистки
+    const resultWithTagClass = resultWithKeys.map((node) => {
+      if (node.tag !== "style" && node.tag !== "script") {
+        return { ...node, class: `${node.class} ${tag}`.trim() };
+      }
+      return node;
+    });
+
+    // Глобальная изоляция (теперь с учетом data-global)
+    const allNodes = [...resultWithTagClass, ...globalizedServiceNodes];
+    const swiperIsolated = isolateSwiperNodes(allNodes);
+    const isolatedNodes = isolateComponentNodes(swiperIsolated);
 
     updateHtmlJson((prev) => [
       ...prev,
@@ -211,7 +224,8 @@ const AdminComponent = () => {
       <div className="bg-black/60 backdrop-blur-lg py-1">
         <ServicesButtons />
         {renderTags(TagsNamen1)}
-        {/* {renderTags(TagsNamen2)} */}
+        <hr className="bordered border-slate-200 my-0.5 " />
+        {renderTags(TagsNamen2)}
         <hr className="bordered border-slate-200 my-0.5 " />
         {renderTags(TagsNamen4)}
         <hr className="bordered border-slate-200 my-0.5" />
@@ -231,3 +245,4 @@ const AdminComponent = () => {
 };
 
 export default AdminComponent;
+

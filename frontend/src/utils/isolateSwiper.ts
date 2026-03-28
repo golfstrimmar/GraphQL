@@ -24,10 +24,11 @@ export function isolateSwiperNodes(nodes: HtmlNode[]): HtmlNode[] {
       newClass = `${newClass} ${uniqClass}`.trim();
     }
 
+    const isGlobal = node.attributes?.["data-global"] === "true";
     let newText = node.text;
 
     // 2. Isolate Javascript Logic
-    if (node.tag === "script" && newText && newText.includes("Swiper")) {
+    if (node.tag === "script" && newText && newText.includes("Swiper") && !isGlobal) {
       newText = newText.replace(
         /(new\s+Swiper\s*\(\s*['"])([^'"]+)(['"])/g,
         `$1.${uniqClass} $2$3`
@@ -73,7 +74,7 @@ export function isolateSwiperNodes(nodes: HtmlNode[]): HtmlNode[] {
 
     // 2b. Isolate Style Tags (added)
     if (node.tag === "style" && newText) {
-       newText = `${newText}\n/* ISOLATED STYLE: ${uniqClass} */\n`;
+       newText = `${newText}\n/* @component: ${uniqClass} */\n`;
     }
 
     // 3. Process Children recursively (but they are not root)

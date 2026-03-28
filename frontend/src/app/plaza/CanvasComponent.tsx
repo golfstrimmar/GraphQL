@@ -26,6 +26,7 @@ const NodeInfo = dynamic(() => import("./NodeInfo"), {
 export default function CanvasComponent() {
   const [openInfoModal, setOpenInfoModal] = useState<boolean>(false);
   const [clickTimeout, setClickTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [lastClickedKey, setLastClickedKey] = useState<string | null>(null);
   const [overlay, setOverlay] = useState<OverlayState | null>(null);
   const {
     htmlJson,
@@ -331,17 +332,36 @@ export default function CanvasComponent() {
   };
   // ====>====>====>====>====>====>====>====>====>====>
   const handleClick = (e: React.MouseEvent<HTMLElement>, node: any) => {
+    const tag = node.tag?.toLowerCase();
+
+    // Prevent default behavior for labels to stop browser-simulated clicks on inputs
+    if (tag === "label") {
+      e.preventDefault();
+    }
+
+    // Ignore browser-simulated clicks on inputs
+    if (tag === "input" && e.detail === 0) {
+      return;
+    }
+
     e.stopPropagation();
 
-    if (clickTimeout) {
+    // Fix for Label->Input simulated clicks: 
+    // Double click only if the same node was clicked twice within the timeout.
+    if (clickTimeout && lastClickedKey === node._key) {
       clearTimeout(clickTimeout);
       setClickTimeout(null);
+      setLastClickedKey(null);
       handleDoubleClick(e, node);
     } else {
+      if (clickTimeout) clearTimeout(clickTimeout);
+
+      setLastClickedKey(node._key ?? null);
       const timeout = setTimeout(() => {
         setActiveKey(node._key ?? null);
         setOpenInfoModal(true);
         setClickTimeout(null);
+        setLastClickedKey(null);
       }, 250);
       setClickTimeout(timeout);
     }
