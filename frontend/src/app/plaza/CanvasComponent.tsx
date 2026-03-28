@@ -42,39 +42,39 @@ export default function CanvasComponent() {
   const [aiPrompt, setAiPrompt] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
 
-  const handleAiCompose = async () => {
-    if (!aiPrompt) return;
-    setIsGenerating(true);
+  // const handleAiCompose = async () => {
+  //   if (!aiPrompt) return;
+  //   setIsGenerating(true);
 
-    try {
-      const response = await fetch("/api/ai-compose", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: aiPrompt,
-          context: {
-            colors,
-            designTexts,
-            scss: SCSS,
-          },
-          currentJson: htmlJson,
-        }),
-      });
+  //   try {
+  //     const response = await fetch("/api/ai-compose", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         prompt: aiPrompt,
+  //         context: {
+  //           colors,
+  //           designTexts,
+  //           scss: SCSS,
+  //         },
+  //         currentJson: htmlJson,
+  //       }),
+  //     });
 
-      const data = await response.json();
-      console.log("<===data.nodes===>", data.nodes);
-      if (data.nodes) {
-        updateHtmlJson(data.nodes);
-        setAiPrompt("");
-      } else {
-        console.error("AI Error:", data.error);
-      }
-    } catch (error) {
-      console.error("AI Compose failed:", error);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
+  //     const data = await response.json();
+  //     console.log("<===data.nodes===>", data.nodes);
+  //     if (data.nodes) {
+  //       updateHtmlJson(data.nodes);
+  //       setAiPrompt("");
+  //     } else {
+  //       console.error("AI Error:", data.error);
+  //     }
+  //   } catch (error) {
+  //     console.error("AI Compose failed:", error);
+  //   } finally {
+  //     setIsGenerating(false);
+  //   }
+  // };
 
   const scrollInterval = useRef<NodeJS.Timeout | null>(null);
 
@@ -447,8 +447,8 @@ export default function CanvasComponent() {
 
     const children = Array.isArray(node.children)
       ? node.children.map((child: any) =>
-          renderNode(child, node._key || parentKey),
-        )
+        renderNode(child, node._key || parentKey),
+      )
       : null;
 
     return (
@@ -484,14 +484,14 @@ export default function CanvasComponent() {
         draggable={true}
       >
         {node.class === "baza" ? "" : node.text}
-       {children && children.length > 0 && (
-         <button
-           onClick={(e: React.MouseEvent<HTMLButtonElement>) => handleToggle(e, node)}
-           className="togle-button "
-         >
-           {node.class === "baza" ? "" : node.tag ? "↕" : ""}
-         </button>
-       )}        {children}
+        {children && children.length > 0 && (
+          <button
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => handleToggle(e, node)}
+            className="togle-button "
+          >
+            {node.class === "baza" ? "" : node.tag ? "↕" : ""}
+          </button>
+        )}        {children}
       </Tag>
     );
   };
@@ -512,7 +512,7 @@ export default function CanvasComponent() {
         id="plaza-render-area"
         className="flex flex-col gap-2 mb-2 relative text-[#000] rounded overflow-hidden"
       >
-        {/* AI PROMPT AREA */}
+        {/* AI PROMPT AREA 
         <div className="flex gap-2 p-2 bg-slate-100 border-b border-slate-200">
           <input
             type="text"
@@ -531,7 +531,7 @@ export default function CanvasComponent() {
           >
             {isGenerating ? "Создаем..." : "AI Генерация"}
           </button>
-        </div>
+        </div>*/}
         {overlay?.visible && overlay.mode !== "inside" && (
           <div
             className="overlay-drop"

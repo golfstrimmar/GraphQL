@@ -5,6 +5,7 @@ import { useQuery } from "@apollo/client";
 import { GET_JSON_DOCUMENT } from "@/apollo/queries";
 import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
 import { isolateSwiperNodes } from "@/utils/isolateSwiper";
+import { isolateModalNodes } from "@/utils/isolateModal";
 import ServicesButtons from "./ServicesButtons";
 import Spinner from "@/components/icons/Spinner";
 import Loading from "@/components/ui/Loading/Loading";
@@ -16,6 +17,8 @@ import {
   TagsNamen2,
   TagsNamen4,
   TagsNamen5,
+  TagsNamen6,
+  TagsNamen7,
 } from "@/app/plaza/helpers/TagsNamen";
 
 const HeroIconPicker = dynamic(() => import("./HeroIconPicker"), {
@@ -156,12 +159,14 @@ const AdminComponent = () => {
     const resultWithKeys = ensureNodeKeys(content) as HtmlNode[];
     setLoading(false);
     setClicked("");
-    
+
     // Глобальная изоляция всех Свайпер-слайдеров от базы
-    const isolatedNodes = isolateSwiperNodes([
+    const swiperIsolated = isolateSwiperNodes([
       ...resultWithKeys,
       ...resultWithKeysStyles,
     ]);
+
+    const isolatedNodes = isolateModalNodes(swiperIsolated);
 
     updateHtmlJson((prev) => [
       ...prev,
@@ -176,7 +181,7 @@ const AdminComponent = () => {
         <button
           key={i}
           className="btn adminButton px-1.5! border-1 border-[#aaa] text-black text-[12px]"
-          style={{ background: el.color, minWidth: "80px", height: "auto" }}
+          style={{ background: el.color, minWidth: "20px", height: "auto" }}
           type="button"
           onClick={() => {
             if (el.tag === "svg") {
@@ -206,14 +211,18 @@ const AdminComponent = () => {
       <div className="bg-black/60 backdrop-blur-lg py-1">
         <ServicesButtons />
         {renderTags(TagsNamen1)}
-        {renderTags(TagsNamen2)}
+        {/* {renderTags(TagsNamen2)} */}
         <hr className="bordered border-slate-200 my-0.5 " />
         {renderTags(TagsNamen4)}
         <hr className="bordered border-slate-200 my-0.5" />
         {renderTags(TagsNamen5)}
         <hr className="bordered border-slate-200 my-0.5" />
-        <div className=" flex flex-wrap gap-1 bg-slate-200 p-1 ">
-          <button className="btn adminButton px-1.5! border-1 border-[#aaa] text-white text-[12px]" style={{ background: "steelblue", minWidth: "80px", height: "auto" }} onClick={() => setOpenModSliders(true)}>sliders</button>
+        {renderTags(TagsNamen6)}
+
+        <hr className="bordered border-slate-200 my-0.5" />
+        <div className=" flex flex-wrap gap-1 bg-slate-200 p-1 items-center">
+          <button className="btn adminButton px-1.5! border-1 border-[#aaa] text-white text-[12px]" style={{ background: "steelblue", maxHeight: "20px" }} onClick={() => setOpenModSliders(true)}>sliders</button>
+          {renderTags(TagsNamen7)}
         </div>
 
       </div>

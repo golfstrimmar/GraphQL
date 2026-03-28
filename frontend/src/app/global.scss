@@ -284,6 +284,31 @@ span {
   }
 }
 
+.btn-num {
+  min-width: 28px;
+  min-height: 28px;
+  border-radius: 100%;
+  border: none;
+  background: rgba(156, 163, 175, 0.4);
+  backdrop-filter: blur(8px);
+  font-size: 18px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease-in-out;
+  line-height: 1;
+  color: #94a3b8;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+
+  &:hover {
+    background: rgba(156, 163, 175, 0.4);
+    outline-color: #14b8a6;
+    color: #14b8a6;
+  }
+}
+
 .project-item {
   gap: 0.5rem;
   width: 100%;

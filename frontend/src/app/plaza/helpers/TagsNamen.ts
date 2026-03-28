@@ -19,8 +19,7 @@ export const TagsNamen1 = [
   { tag: "h4", color: "#ef4444" },
   { tag: "h5", color: "#ef4444" },
   { tag: "h6", color: "#ef4444" },
-];
-export const TagsNamen2 = [
+
   { tag: "form", color: "#ebebeb" },
   { tag: "br", color: "#ebebeb" }, // gray
   { tag: "hr", color: "#ebebeb" }, // zinc
@@ -39,6 +38,20 @@ export const TagsNamen2 = [
   // { tag: "textarea", color: "#6366f1" }, // indigo
   // { tag: "label", color: "#f97316" },
 ];
+export const TagsNamen2 = [
+  { tag: "input-field", color: "powderblue" },
+  { tag: "input-name-svg", color: "powderblue" },
+  { tag: "input-mail-svg", color: "powderblue" },
+  { tag: "input-tel-svg", color: "powderblue" },
+  { tag: "f-number", color: "powderblue" },
+  { tag: "f-check", color: "powderblue" },
+  { tag: "textarea-field", color: "powderblue" },
+  { tag: "fieldset-radio", color: "powderblue" },
+  { tag: "fildset-rating", color: "powderblue" },
+  { tag: "range-wrap-js", color: "powderblue" },
+  { tag: "custom-select", color: "powderblue" },
+  { tag: "input-datalist", color: "powderblue" },
+];
 export const TagsNamen4 = [
   { tag: "section container wrap", color: "powderblue" },
   { tag: "flex row", color: "powderblue" },
@@ -51,32 +64,24 @@ export const TagsNamen4 = [
 export const TagsNamen5 = [
   // { tag: "SECTION", color: "powderblue" },
   // { tag: "HERO", color: "powderblue" },
-  { tag: "CARDS", color: "powderblue" },
-  { tag: "CARD", color: "powderblue" },
-  { tag: "input-field", color: "powderblue" },
-  { tag: "input-name-svg", color: "powderblue" },
-  { tag: "input-mail-svg", color: "powderblue" },
-  { tag: "input-tel-svg", color: "powderblue" },
-  { tag: "f-number", color: "powderblue" },
-  { tag: "f-check", color: "powderblue" },
-  { tag: "textarea-field", color: "powderblue" },
-  { tag: "fieldset-radio", color: "powderblue" },
-  { tag: "fildset-rating", color: "powderblue" },
-  { tag: "range-wrap-js", color: "powderblue" },
+  { tag: "cards", color: "powderblue" },
+  { tag: "card", color: "powderblue" },
+  { tag: "hero", color: "powderblue" },
   { tag: "search-f", color: "powderblue" },
   { tag: "modal", color: "powderblue" },
-  { tag: "custom-select", color: "powderblue" },
-  { tag: "input-datalist", color: "powderblue" },
   { tag: "accordion", color: "powderblue" },
   { tag: "tabs", color: "powderblue" },
-  { tag: "hero", color: "powderblue" },
-  { tag: "slider", color: "powderblue" },
-  { tag: "fade-slider", color: "powderblue" },
-  { tag: "carousel", color: "powderblue" },
-  { tag: "double-slider", color: "powderblue" },
+  { tag: "look", color: "powderblue" },
+];
+export const TagsNamen6 = [
   { tag: "gallery", color: "powderblue" },
   { tag: "gallery-popup", color: "powderblue" },
   { tag: "gallery-slider-popup", color: "powderblue" },
   { tag: "video-gallery-slider", color: "powderblue" },
-  { tag: "look", color: "powderblue" },
+];
+export const TagsNamen7 = [
+  { tag: "slider", color: "powderblue" },
+  { tag: "fade-slider", color: "powderblue" },
+  { tag: "carousel", color: "powderblue" },
+  { tag: "double-slider", color: "powderblue" },
 ];

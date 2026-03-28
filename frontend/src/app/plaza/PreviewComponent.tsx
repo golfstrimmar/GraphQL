@@ -5,6 +5,12 @@ import PageHeader from "./PageHeader";
 import CustomSlider from "@/components/ui/CustomSlider/CustomSlider";
 import Editor, { useMonaco } from "@monaco-editor/react";
 import Script from "next/script";
+import { motion, AnimatePresence } from "framer-motion";
+import CloseIcon from "@/components/icons/CloseIcon";
+interface ModalFullProps {
+  message: string;
+  open: boolean;
+}
 
 //=== 🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢
 export default function PreviewComponent() {
@@ -24,7 +30,7 @@ export default function PreviewComponent() {
   const jsEditorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(
     null,
   );
-
+  const [openModalFull, setOpenModalFull] = useState<boolean>(false);
   const [code, setCode] = useState<string>("");
   const [codeCss, setCodeCss] = useState<string>("");
   const [codeJs, setCodeJs] = useState<string>("");
@@ -241,28 +247,60 @@ td, th { padding: 0; text-align: left; }
         id="preview-section"
         className="bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 relative mt-[25px] mb-4"
       >
-        {PageHeader("PreviewIcon", "Preview")}
-        <Script 
-          src="https://cdn.jsdelivr.net/npm/sass.js@0.11.1/dist/sass.sync.js" 
+        <AnimatePresence>
+          {openModalFull && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.5, ease: [0.25, 0.8, 0.5, 1] }}
+              className="w-[100vw] overflow-y-auto fixed top-0 left-0 flex justify-center items-center bg-[rgba(0,0,0,.95)] z-100000  "
+            >
+              <button className="w-4 h-4 block text-red-500 absolute top-4 right-6 z-10000 hover:text-gray-500 cursor-pointer transition-colors duration-300"
+                onClick={() => {
+                  document.body.style.overflow = "auto"; document.body.style.maxHeight = "none";
+                  setOpenModalFull(false)
+                }}
+              >
+                <CloseIcon />
+              </button>
+              <div className="w-[100vw] min-h-[100vh] ">
+                <iframe
+                  title="preview-iframe"
+                  srcDoc={srcDoc}
+                  sandbox="allow-scripts allow-same-origin allow-modals"
+                  className="block w-full h-full max-w-[100vw] min-h-[100vh] border-none pointer-events-auto"
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <div className="flex gap-2 items-center mb-6">
+          <div className="-mb-6">
+            {PageHeader("PreviewIcon", "Preview")}
+          </div>
+
+          <button className="btn btn-primary m-0" onClick={() => { document.body.style.overflow = "hidden"; document.body.style.maxHeight = "100vh"; setOpenModalFull(true) }}>
+            <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" aria-hidden="true" data-slot="icon">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15">
+              </path>
+            </svg>
+          </button>
+        </div>
+        <Script
+          src="https://cdn.jsdelivr.net/npm/sass.js@0.11.1/dist/sass.sync.js"
           strategy="beforeInteractive"
         />
-        {/*{htmlJson.length > 0 && <pre>{JSON.stringify(htmlJson, null, 2)}</pre>}*/}
-        {/*<div className="mt-4 mb-2">
-          <CustomSlider
-            value={scale}
-            min={0.1}
-            max={2}
-            step={0.1}
-            onChange={setScale}
-          />
-        </div>*/}
+
         {(HTML || JS) && (
-          <div className="max-w-[100vw] min-h-[1000px] border-2 border-[var(--teal)] rounded-md overflow-hidden ">
+          <div className="max-w-[100vw] min-h-[1000px]  border-2 border-[var(--teal)] rounded-md overflow-hidden ">
             <iframe
               title="preview-iframe"
               srcDoc={srcDoc}
               sandbox="allow-scripts allow-same-origin allow-modals"
-              className="block w-full h-full max-w-[100vw] min-h-[500px] border-none pointer-events-auto"
+              className="block w-full h-full max-w-[100vw] min-h-[1000px] border-none pointer-events-auto"
             />
           </div>
         )}

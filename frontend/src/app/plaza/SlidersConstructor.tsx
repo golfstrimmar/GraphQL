@@ -1,15 +1,11 @@
 "use client";
-import React, { useState, useEffect, useMemo, useLayoutEffect, useRef } from "react";
+import React, { useState } from "react";
 import { useStateContext } from "@/providers/StateProvider";
-
-// import  Loading  from "@/components/ui/Loading/Loading";
-// import dynamic from "next/dynamic";
 
 import { useQuery } from "@apollo/client";
 import { GET_JSON_DOCUMENT } from "@/apollo/queries";
 import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
 import { HtmlNode } from "@/types/HtmlNode";
-import PageLoader from "next/dist/client/page-loader";
 import Spinner from "@/components/icons/Spinner";
 
 interface SlidersConstructorProps {
@@ -26,10 +22,10 @@ export default function SlidersConstructor({
   // Стейты для респонсива (Slides Per View / Space Between)
   const [spvMobile, setSpvMobile] = useState(1);
   const [spaceMobile, setSpaceMobile] = useState(10);
-  
+
   const [spvTablet, setSpvTablet] = useState(2);
   const [spaceTablet, setSpaceTablet] = useState(15);
-  
+
   const [spvDesktop, setSpvDesktop] = useState(3);
   const [spaceDesktop, setSpaceDesktop] = useState(20);
 
@@ -128,7 +124,7 @@ export default function SlidersConstructor({
       const scriptNodes = scriptNodesRaw.map((node: HtmlNode) => {
         if (node.tag === "script" && node.text) {
           const bpReplacement = `slidesPerView: ${spvMobile}, spaceBetween: ${spaceMobile}, breakpoints: { 768: { slidesPerView: ${spvTablet}, spaceBetween: ${spaceTablet} }, 1200: { slidesPerView: ${spvDesktop}, spaceBetween: ${spaceDesktop} } }`;
-          
+
           let newText = node.text;
 
           // ИЗОЛЯЦИЯ: перепривязываем инициализацию Swiper и элементы управления
@@ -136,26 +132,26 @@ export default function SlidersConstructor({
           newText = newText.replace(/nextEl:\s*['"]([^'"]+)['"]/g, `nextEl: '.${uniqClass} $1'`);
           newText = newText.replace(/prevEl:\s*['"]([^'"]+)['"]/g, `prevEl: '.${uniqClass} $1'`);
           newText = newText.replace(/el:\s*['"]([^'"]*pagination[^'"]*)['"]/g, `el: '.${uniqClass} $1'`);
-          
+
           // ИЗОЛЯЦИЯ функций: чтобы два скрипта на странице не переопределяли одну функцию
           newText = newText.replace(/initSwiper/g, `initSwiper_${uniqId}`);
 
           if (newText.includes("new Swiper")) {
             // Удаляем старые блоки breakpoints, если они были (заточены под типичные шаблоны)
             newText = newText.replace(/breakpoints:\s*\{[\s\S]*?(?:768|1024|1200)[^}]*\}\s*\},?/g, "");
-            
+
             // Удаляем старые корневые настройки
             newText = newText.replace(/slidesPerView:\s*[\d\.]+\s*,?/g, "");
             newText = newText.replace(/spaceBetween:\s*[\d\.]+\s*,?/g, "");
-            
+
             // Вставляем наш блок настроек в самом начале конфигурационного объекта Swiper
             newText = newText.replace(/(new\s+Swiper\s*\([^,]+,\s*\{)/, `$1\n    ${bpReplacement},`);
           }
-          
-          return { 
-             ...node, 
-             text: `\n/* @isolate: ${uniqClass} */\n${newText}`,
-             class: `${node.class || ""} ${uniqClass}`.trim() 
+
+          return {
+            ...node,
+            text: `\n/* @isolate: ${uniqClass} */\n${newText}`,
+            class: `${node.class || ""} ${uniqClass}`.trim()
           };
         }
         return node;
@@ -184,7 +180,7 @@ export default function SlidersConstructor({
 
   return (
     <>
-      <div className="flex flex-col gap-4 p-8 bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] min-w-[380px] border border-slate-100">
+      <div className="sliderConstructor flex flex-col gap-4 p-8 bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] min-w-[380px] border border-slate-100">
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-2xl font-black text-slate-800 tracking-tight">
             SLIDER <span className="text-blue-600">PRO</span>
@@ -202,7 +198,7 @@ export default function SlidersConstructor({
             <div className="sc-f-number">
               <button
                 type="button"
-                className="num-btn num-btn--dec"
+                className="btn-num btn-num--dec"
                 onClick={() => setSlideCount((c) => Math.max(1, c - 1))}
               >−</button>
               <input
@@ -214,7 +210,7 @@ export default function SlidersConstructor({
               />
               <button
                 type="button"
-                className="num-btn num-btn--inc"
+                className="btn-num btn-num--inc"
                 onClick={() => setSlideCount((c) => Math.min(20, c + 1))}
               >+</button>
             </div>
@@ -222,12 +218,12 @@ export default function SlidersConstructor({
 
           <div className="flex flex-col gap-2">
             <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-              Height (px)
+              Height of slider (px)
             </label>
             <div className="sc-f-number">
               <button
                 type="button"
-                className="num-btn num-btn--dec"
+                className="btn-num btn-num--dec"
                 onClick={() => setSlideHeight((h) => Math.max(50, h - 10))}
               >−</button>
               <input
@@ -240,7 +236,7 @@ export default function SlidersConstructor({
               />
               <button
                 type="button"
-                className="num-btn num-btn--inc"
+                className="btn-num btn-num--inc"
                 onClick={() => setSlideHeight((h) => Math.min(1000, h + 10))}
               >+</button>
             </div>
@@ -260,21 +256,21 @@ export default function SlidersConstructor({
               ].map((bp, i) => (
                 <div key={i} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 shadow-sm">
                   <div className="text-[11px] font-bold text-slate-600 w-1/3 leading-tight">{bp.label}</div>
-                  
+
                   <div className="flex gap-4">
                     <div className="flex flex-col gap-1 items-center">
                       <div className="sc-f-number" style={{ gap: '4px' }}>
-                        <button type="button" className="num-btn num-btn--dec !w-6 !h-6 !text-sm" onClick={() => bp.setSpv(c => Math.max(1, c - 1))}>−</button>
+                        <button type="button" className="btn-num btn-num--dec !w-6 !h-6 !text-sm" onClick={() => bp.setSpv(c => Math.max(1, c - 1))}>−</button>
                         <input type="number" value={bp.spv} onChange={(e) => bp.setSpv(parseInt(e.target.value) || 1)} style={{ width: '30px', maxWidth: '30px', height: '24px', fontSize: '12px' }} />
-                        <button type="button" className="num-btn num-btn--inc !w-6 !h-6 !text-sm" onClick={() => bp.setSpv(c => Math.min(10, c + 1))}>+</button>
+                        <button type="button" className="btn-num btn-num--inc !w-6 !h-6 !text-sm" onClick={() => bp.setSpv(c => Math.min(10, c + 1))}>+</button>
                       </div>
                     </div>
-                    
+
                     <div className="flex flex-col gap-1 items-center">
                       <div className="sc-f-number" style={{ gap: '4px' }}>
-                        <button type="button" className="num-btn num-btn--dec !w-6 !h-6 !text-sm" onClick={() => bp.setSpace(c => Math.max(0, c - 5))}>−</button>
+                        <button type="button" className="btn-num btn-num--dec !w-6 !h-6 !text-sm" onClick={() => bp.setSpace(c => Math.max(0, c - 5))}>−</button>
                         <input type="number" step="5" value={bp.space} onChange={(e) => bp.setSpace(parseInt(e.target.value) || 0)} style={{ width: '35px', maxWidth: '35px', height: '24px', fontSize: '12px' }} />
-                        <button type="button" className="num-btn num-btn--inc !w-6 !h-6 !text-sm" onClick={() => bp.setSpace(c => Math.min(100, c + 5))}>+</button>
+                        <button type="button" className="btn-num btn-num--inc !w-6 !h-6 !text-sm" onClick={() => bp.setSpace(c => Math.min(100, c + 5))}>+</button>
                       </div>
                     </div>
                   </div>
@@ -286,7 +282,7 @@ export default function SlidersConstructor({
           <button
             onClick={handleCreate}
             disabled={loading}
-            className={`btn btn-primary min-w-[100px]`}
+            className={`btn btn-primary w-full`}
           >
             {loading ? (
               <Spinner />
