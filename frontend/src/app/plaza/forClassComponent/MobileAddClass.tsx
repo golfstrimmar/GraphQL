@@ -206,7 +206,12 @@ export default function MobileAddClass({
               </button>
               <button
                 onClick={handleAdd}
-                className="btn btn-primary h-10 flex-1"
+                disabled={needsRevAssets && !hasRevAssets}
+                className={`btn btn-primary h-10 flex-1 transition-all ${
+                  needsRevAssets && !hasRevAssets 
+                    ? "opacity-40 cursor-not-allowed grayscale" 
+                    : ""
+                }`}
               >
                 Apply Classes
               </button>
