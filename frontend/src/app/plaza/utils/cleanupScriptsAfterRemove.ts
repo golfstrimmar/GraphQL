@@ -16,13 +16,20 @@ const cleanupScriptsAfterRemove = (
   let res = nextHtml;
 
   // Проверяет, есть ли в дереве хотя бы одна не-script нода с этим классом
-  const hasNodesWithMark = (mark: string, currentTree: HtmlNode[]): boolean => {
+  const hasNodesWithMark = (mark: string): boolean => {
+    // Сразу выходим, если это защищенный анимационный токен (rev--, rev-on-scroll, reveal и т.д.)
+    const isRev = /^rev/i.test(mark) || mark.toLowerCase().includes("scroll");
+    if (isRev) return true;
+
     const visit = (node: HtmlNode): boolean => {
+      const classMatches = typeof node.class === "string" && (
+        new RegExp(`(^|\\s)${mark}(\\s|$)`, 'i').test(node.class) // ищем точное совпадение
+      );
+
       if (
-        node.tag !== "script" &&
         node.tag !== "style" &&
-        typeof node.class === "string" &&
-        new RegExp(`(^|\\s)${mark}(\\s|$)`).test(node.class)
+        node.tag !== "script" &&
+        classMatches
       ) {
         return true;
       }
@@ -34,13 +41,13 @@ const cleanupScriptsAfterRemove = (
       }
       return false;
     };
-    return currentTree.some(visit);
+    return res.some(visit);
   };
 
   // Удаляет все script-ноды, чей text содержит jsMark
   const filterScriptsDeep = (nodes: HtmlNode[], jsMark: string): HtmlNode[] => {
     const visit = (node: HtmlNode): HtmlNode | null => {
-    if (node.tag === "script" && typeof node.text === "string") {
+      if (node.tag === "script" && typeof node.text === "string") {
         const txt = node.text;
         // Более гибкий поиск маркеров
         const hasMarker = 
@@ -85,7 +92,7 @@ const cleanupScriptsAfterRemove = (
   const allTokens = cls.split(/\s+/).filter((t) => t.length >= 3);
 
   for (const token of allTokens) {
-    if (!hasNodesWithMark(token, res)) {
+    if (!hasNodesWithMark(token)) {
       console.log(`[Cleanup] No more nodes with token: ${token}. Searching for script tags to remove.`);
       res = filterScriptsDeep(res, token);
     }

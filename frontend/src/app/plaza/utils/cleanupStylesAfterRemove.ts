@@ -7,21 +7,28 @@ const cleanupStylesAfterRemove = (
   isDragging = false,
 ): HtmlNode[] => {
   if (isDragging) return nextHtml;
-  const { removed, removedClass, marks } = meta;
+  const { removed, removedClass } = meta;
   if (!removed) return nextHtml;
 
   const cls = removedClass ?? "";
   let res = nextHtml;
 
   const hasNodesWithMark = (mark: string): boolean => {
+    // Сразу выходим, если это защищенный анимационный токен (rev--, rev-on-scroll, reveal и т.д.)
+    const isRev = /^rev/i.test(mark) || mark.toLowerCase().includes("scroll");
+    if (isRev) return true;
+
     const arr = Array.isArray(res) ? res : [res];
 
     const visit = (node: HtmlNode): boolean => {
+      const classMatches = typeof node.class === "string" && (
+        new RegExp(`(^|\\s)${mark}(\\s|$)`, 'i').test(node.class) // ищем точное совпадение
+      );
+
       if (
         node.tag !== "style" &&
         node.tag !== "script" &&
-        typeof node.class === "string" &&
-        new RegExp(`(^|\\s)${mark}(\\s|$)`).test(node.class)
+        classMatches
       ) {
         return true;
       }

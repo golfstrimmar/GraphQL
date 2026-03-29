@@ -2,6 +2,16 @@
 import React, { useRef, useEffect, useState } from "react";
 import Spinner from "@/components/icons/Spinner";
 import type { HtmlNode } from "@/types/HtmlNode";
+import dynamic from "next/dynamic";
+import Loading from "@/components/ui/Loading/Loading";
+
+const MobileAddClass = dynamic(
+  () => import("../forClassComponent/MobileAddClass"),
+  {
+    ssr: false,
+    loading: () => <Loading />,
+  },
+);
 
 interface ClassComponentProps {
   node: HtmlNode;
@@ -17,6 +27,8 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [isTransformed, setIsTransformed] = useState<boolean>(false);
+  const [openMobile, setOpenMobile] = useState(false);
+
   // ================================
   const adjustHeight = (el: HTMLTextAreaElement) => {
     el.style.height = "auto";
@@ -51,7 +63,7 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
   // ================================
 
   const [classText, setClassText] = useState(
-    node?.class ? formatClassForDisplay(node.style) : "",
+    node?.class ? formatClassForDisplay(node.class) : "",
   );
 
   useEffect(() => {
@@ -65,7 +77,7 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
     const id = setTimeout(() => {
       if (node._key) {
         updateNodeByKey(node._key!, {
-            class: classText,
+          class: classText,
         });
       }
     }, 1000);
@@ -103,8 +115,8 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
 
     if (Array.isArray(node.children)) {
       newNode.children = node.children.map((child) => {
-          if (typeof child === "string") return child;
-          return addParentToChildrenClasses(child, parentClass);
+        if (typeof child === "string") return child;
+        return addParentToChildrenClasses(child, parentClass);
       });
     }
 
@@ -115,7 +127,7 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
     if (node.tag !== "section") return;
 
     const sectionClass = node.class?.trim();
-    if (!sectionClass) return;
+    if (!sectionClass || !node._key) return;
 
     // можно взять первый класс как "класс секции"
     const parentClass = sectionClass.split(/\s+/)[0];
@@ -131,35 +143,49 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
 
   // ================================
   return (
-    <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]   flex flex-col relative   ">
-      <p className={itemClass}>
-        <span>Class:</span>
-        {node?.tag === "section" && (
-          <button
-            className="btn-teal text-[12px] !max-h-[20px]"
-            onClick={() => {
-              handleParentClass();
-              setIsTransformed(true);
-              setTimeout(() => setIsTransformed(false), 500);
-            }}
-          >
-            {isTransformed ? <Spinner /> : <span>Add parent class</span>}
-          </button>
-        )}
-      </p>
-      <textarea
-        ref={(el) => {
-          if (!el) return;
-          textareaRef.current = el;
-          adjustHeight(el);
-        }}
-        value={classText}
-        onChange={(e) => {
-          setClassText(e.target.value);
-        }}
-        className="textarea-styles "
+    <>
+      <MobileAddClass
+        setClassText={setClassText}
+        openMobile={openMobile}
+        setOpenMobile={setOpenMobile}
       />
-    </div>
+      <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]   flex flex-col relative   ">
+        <p className={itemClass}>
+          <span>Class:</span>
+          {node?.tag === "section" && (
+            <button
+              className="btn-teal text-[12px] !max-h-[20px]"
+              onClick={() => {
+                handleParentClass();
+                setIsTransformed(true);
+                setTimeout(() => setIsTransformed(false), 500);
+              }}
+            >
+              {isTransformed ? <Spinner /> : <span>Add parent class</span>}
+            </button>
+          )}
+          <button
+            className="btn-teal text-[12px] !max-h-[20px] ml-1"
+            onClick={() => setOpenMobile(!openMobile)}
+          >
+            Add
+          </button>
+        </p>
+        <textarea
+          ref={(el) => {
+            if (!el) return;
+            textareaRef.current = el;
+            adjustHeight(el);
+          }}
+          value={classText}
+          onChange={(e) => {
+            setClassText(e.target.value);
+            adjustHeight(e.target);
+          }}
+          className="textarea-styles "
+        />
+      </div>
+    </>
   );
 };
 
