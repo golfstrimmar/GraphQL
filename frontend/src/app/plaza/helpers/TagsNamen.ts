@@ -72,7 +72,7 @@ export const TagsNamen5 = [
   { tag: "tabs", color: "powderblue" },
   { tag: "look", color: "powderblue" },
   { tag: "cards-more", color: "powderblue" },
-  { tag: "reveal", color: "powderblue" },
+  // { tag: "reveal", color: "powderblue" },
   { tag: "header", color: "powderblue" },
 ];
 export const TagsNamen6 = [

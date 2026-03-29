@@ -1,12 +1,26 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import CloseIcon from "@/components/icons/CloseIcon";
+import { useStateContext } from "@/providers/StateProvider";
+import { useApolloClient } from "@apollo/client";
+import { GET_JSON_DOCUMENT } from "@/apollo/queries";
+import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
+import Spinner from "@/components/icons/Spinner";
+import type { HtmlNode } from "@/types/HtmlNode";
 
 const commonClasses = [
   "rev--on-scroll",
+  "rev--up",
+  "rev--down",
+  "rev--left",
+  "rev--right",
+  "rev--zoom",
+] as const;
+
+const directionClasses = [
   "rev--up",
   "rev--down",
   "rev--left",
@@ -23,17 +37,102 @@ export default function MobileAddClass({
   openMobile: boolean;
   setOpenMobile: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
+  const { htmlJson, updateHtmlJson } = useStateContext();
   const [addingClass, setAddingClass] = useState<string>("");
   const modalRef = useRef<HTMLDivElement | null>(null);
+  const [loadingAssets, setLoadingAssets] = useState(false);
+  const client = useApolloClient();
+
+  // 1. Check for animation resources in the current project
+  const hasRevAssets = useMemo(() => {
+    const check = (nodes: HtmlNode[]): boolean => {
+      for (const node of nodes) {
+        if (node.tag === "style" || node.tag === "script") {
+          const txt = node.text || "";
+          // Check for both possible markers
+          if (txt.includes("@component: reveal") || txt.includes("@component: rev--on-scroll")) return true;
+        }
+        if (Array.isArray(node.children)) {
+          if (check(node.children as HtmlNode[])) return true;
+        }
+      }
+      return false;
+    };
+    return check(htmlJson);
+  }, [htmlJson]);
+
+  // 2. Detect if rev resources are needed based on selected classes
+  const needsRevAssets = useMemo(() => {
+    return addingClass.toLowerCase().includes("rev--");
+  }, [addingClass]);
 
   const toggleClass = (className: string) => {
     setAddingClass((prev) => {
-      const parts = prev.split(/\s+/).filter(Boolean);
+      let parts = prev.split(/\s+/).filter(Boolean);
+      const isDirection = (directionClasses as readonly string[]).includes(className);
+
       if (parts.includes(className)) {
+        // Toggle off
         return parts.filter((p) => p !== className).join(" ");
       }
+
+      // Toggle on
+      if (isDirection) {
+        // Remove other directions first
+        parts = parts.filter((p) => !(directionClasses as readonly string[]).includes(p));
+      }
+
       return [...parts, className].join(" ");
     });
+  };
+
+  const handleAddRevAssets = async () => {
+    setLoadingAssets(true);
+    try {
+      // Fetching style-reveal and script-reveal separately as requested
+      const [styleRes, scriptRes] = await Promise.all([
+        client.query({ query: GET_JSON_DOCUMENT, variables: { name: "style-reveal" }, fetchPolicy: "no-cache" }),
+        client.query({ query: GET_JSON_DOCUMENT, variables: { name: "script-reveal" }, fetchPolicy: "no-cache" })
+      ]);
+
+      const styleContent = styleRes.data?.jsonDocumentByName?.content;
+      const scriptContent = scriptRes.data?.jsonDocumentByName?.content;
+
+      if (!styleContent && !scriptContent) {
+        alert("Animation assets (style-reveal / script-reveal) not found in database.");
+        return;
+      }
+
+      const allServiceNodes: HtmlNode[] = [];
+
+      if (styleContent) {
+        const nodes = ensureNodeKeys(styleContent) as HtmlNode[];
+        allServiceNodes.push(...nodes.map(n => ({
+          ...n,
+          text: `/* @component: reveal */\n${n.text}`,
+          attributes: { ...n.attributes, "data-global": "true" }
+        })));
+      }
+
+      if (scriptContent) {
+        const nodes = ensureNodeKeys(scriptContent) as HtmlNode[];
+        allServiceNodes.push(...nodes.map(n => ({
+          ...n,
+          text: `/* @component: reveal */\n${n.text}`,
+          attributes: { ...n.attributes, "data-global": "true" }
+        })));
+      }
+
+      if (allServiceNodes.length > 0) {
+        updateHtmlJson(prev => [...allServiceNodes, ...prev]);
+        console.log("Animation styles and scripts added successfully.");
+      }
+    } catch (e) {
+      console.error("GraphQL Error:", e);
+      alert("Failed to fetch animation assets from database.");
+    } finally {
+      setLoadingAssets(false);
+    }
   };
 
   const handleAdd = () => {
@@ -83,6 +182,21 @@ export default function MobileAddClass({
               placeholder="Selected classes will appear here..."
             />
 
+            {needsRevAssets && !hasRevAssets && (
+              <div className="mb-4 p-3 bg-amber-50 border-l-4 border-amber-400 text-amber-800 text-sm flex flex-col gap-2 rounded shadow-sm shadow-amber-200">
+                <span className="font-medium">⚠️ Animation Assets Required</span>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[12px] opacity-90 text-pretty">The 'reveal' engine was not found. Please click to add it.</span>
+                  <button 
+                    onClick={handleAddRevAssets}
+                    className="btn btn-primary !h-8 !px-4 !text-[12px] flex items-center gap-1 shadow-md whitespace-nowrap"
+                  >
+                    {loadingAssets ? <Spinner /> : <span>Load Reveal</span>}
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div className="flex gap-2 mb-4">
               <button
                 className="btn btn-allert h-10 px-4"
@@ -94,7 +208,7 @@ export default function MobileAddClass({
                 onClick={handleAdd}
                 className="btn btn-primary h-10 flex-1"
               >
-                Add to Node
+                Apply Classes
               </button>
             </div>
 
