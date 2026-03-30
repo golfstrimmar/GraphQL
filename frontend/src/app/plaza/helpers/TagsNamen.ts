@@ -75,7 +75,9 @@ export const TagsNamen5 = [
   { tag: "cards-more", color: "powderblue" },
   // { tag: "reveal", color: "powderblue" },
   { tag: "header", color: "powderblue" },
+  { tag: "header-dropdown", color: "powderblue" },
   { tag: "footer", color: "powderblue" },
+  
 ];
 export const TagsNamen6 = [
   { tag: "gallery", color: "powderblue" },
@@ -91,4 +93,3 @@ export const TagsNamen7 = [
 ];
 
 
-[{ "tag": "style", "text": ".search-f{display:flex;justify-content:center;align-items:center;position:relative;height:100%;max-height:30px;}.search-f label{position:absolute;top:50%;transform:translateY(-50%);left:20px;transition:all 0.3s ease-in-out;}.search-f input[type=\"text\"]::placeholder{opacity:0;}.search-f input[type=\"text\"]{width:100%;height:100%;cursor:pointer;position:relative;background:transparent;z-index:5;outline:1px solid grey;border:none;padding:10px 20px;transition:all 0.2s ease-in-out;border-radius:4px;font-size:16px;overflow:hidden;max-height:30px;}.search-f input[type=\"text\"]:focus,.search-f input[type=\"text\"]:not(:placeholder-shown){outline:2px solid #455a64;}.search-f input[type=\"text\"] + label{position:absolute;top:50%;left:20px;transform:translateY(-50%);z-index:20;transition:all 0.2s ease-in-out;pointer-events:none;background:transparent;font-size:14px;line-height:1;white-space:nowrap;}.search-f input[type=\"text\"]:hover + label{color:#455a64;}.search-f input[type=\"text\"]:focus + label,.search-f input[type=\"text\"]:not(:placeholder-shown) + label,.search-f input[type=\"text\"]:active + label{color:#38bdf8;top:0%;z-index:10;left:10px;font-size:12px;font-weight:400;padding:0 3px;border-radius:2px;}.search-f__submit{position:absolute;width:25px;height:24px;z-index:10;top:50%;transform:translateY(-50%);right:0;border:none;display:flex;justify-content:center;align-items:center;}.search-f__submit::after{content:\"\";position:absolute;width:25px;height:25px;top:0;left:0;}.search-f__submit input[type=\"submit\"]{position:relative;width:100%;height:100%;padding:0;font-size:0;z-index:10;background-color:transparent;cursor:pointer;border:none;outline:none;}.search-f__submit input[type=\"submit\"]:hover + svg{color:#455a64;}.search-f__submit svg{display:block;cursor:pointer;width:15px;height:15px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9;transition:all 0.3s ease-in-out;color:grey;}", "class": "", "style": "", "children": [], "attributes": {} }]

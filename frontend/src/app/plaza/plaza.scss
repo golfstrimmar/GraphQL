@@ -17,25 +17,6 @@
   }
 }
 
-/*.card {
-  min-width: 30px !important;
-  min-height: 10px !important;
-  background: rgb(236, 236, 236);
-  box-shadow:
-    rgba(0, 0, 0, 0.1) 0px 4px 6px,
-    rgba(0, 0, 0, 0.1) 0px -4px 6px,
-    rgba(0, 0, 0, 0.1) 4px 0px 6px,
-    rgba(0, 0, 0, 0.1) -4px 0px 6px !important;
-  margin: 10px;
-  color: black;
-  cursor: pointer;
-  cursor:
-    url(/svg/red-dot.svg) 5 5,
-    auto !important;
-  img {
-    max-height: 50px !important;
-  }
-} */
 .adminButton {
   &:active {
     transform: translateY(1px);

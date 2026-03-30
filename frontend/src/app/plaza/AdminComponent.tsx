@@ -31,6 +31,12 @@ const ModSliders = dynamic(
     ssr: false,
   }
 );
+const ModSocial = dynamic(
+  () => import("./ModSocial"),
+  {
+    ssr: false,
+  }
+);
 // ==>==>==>==>==>==>==>==>==>==>==>==>==>
 // ==>==>==>==>==>==>==>==>==>==>==>==>==>
 // ==>==>==>==>==>==>==>==>==>==>==>==>==>
@@ -42,6 +48,7 @@ const AdminComponent = () => {
   const [clicked, setClicked] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [openModSliders, setOpenModSliders] = useState<boolean>(false);
+  const [openModSocial, setOpenModSocial] = useState<boolean>(false);
   const { refetch: refetchJson } = useQuery(GET_JSON_DOCUMENT, {
     variables: { name },
     skip: !name,
@@ -225,6 +232,10 @@ const AdminComponent = () => {
         openModSliders={openModSliders}
         setOpenModSliders={setOpenModSliders}
       />
+      <ModSocial
+        openModSocial={openModSocial}
+        setOpenModSocial={setOpenModSocial}
+      />
       <div className="bg-black/60 backdrop-blur-lg py-1">
         <ServicesButtons />
         {renderTags(TagsNamen1)}
@@ -236,6 +247,12 @@ const AdminComponent = () => {
         {renderTags(TagsNamen5)}
         <hr className="bordered border-slate-200 my-0.5" />
         {renderTags(TagsNamen6)}
+
+        <hr className="bordered border-slate-200 my-0.5" />
+        <div className=" flex flex-wrap gap-1 bg-slate-200 p-1 items-center">
+          <button className="btn adminButton px-1.5! border-1 border-[#aaa] text-white text-[12px]" style={{ background: "steelblue", maxHeight: "20px" }} onClick={() => setOpenModSocial(true)}>social</button>
+          {renderTags(TagsNamen7)}
+        </div>
 
         <hr className="bordered border-slate-200 my-0.5" />
         <div className=" flex flex-wrap gap-1 bg-slate-200 p-1 items-center">
