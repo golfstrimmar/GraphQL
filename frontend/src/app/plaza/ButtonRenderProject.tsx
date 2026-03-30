@@ -27,8 +27,8 @@ export default function ButtonRenderProject({
 }) {
   const { updateHtmlJson, htmlJson, showModal } = useStateContext();
   const { refetch: refetchJson } = useQuery(GET_JSON_DOCUMENT, {
-    variables: { name },
-    skip: !name,
+    variables: { name: "" },
+    skip: true,
     fetchPolicy: "no-cache",
   });
   // ====>====>====>====>====>====>====>====>====>====>

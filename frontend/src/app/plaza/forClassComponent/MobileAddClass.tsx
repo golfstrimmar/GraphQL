@@ -137,8 +137,20 @@ export default function MobileAddClass({
 
   const handleAdd = () => {
     setClassText((prev: string) => {
-      const existing = prev.split(/\s+/).filter(Boolean);
+      let existing = prev.split(/\s+/).filter(Boolean);
       const toAdd = addingClass.split(/\s+/).filter(Boolean);
+
+      // Если мы добавляем направление, нужно убрать старые направления из существующих классов ноды
+      const hasNewDirection = toAdd.some((cls) =>
+        (directionClasses as readonly string[]).includes(cls)
+      );
+
+      if (hasNewDirection) {
+        existing = existing.filter(
+          (cls) => !(directionClasses as readonly string[]).includes(cls)
+        );
+      }
+
       const combined = Array.from(new Set([...existing, ...toAdd]));
       return combined.join(" ");
     });

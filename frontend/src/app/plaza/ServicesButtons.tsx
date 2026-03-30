@@ -10,6 +10,8 @@ import JsonToHtmlButton from "./JsonToHtmlButton";
 import ProjectsIcon from "@/components/icons/ProjectsIcon";
 import WorkerIcon from "@/components/icons/WorkerIcon";
 import PreviewIcon from "@/components/icons/PreviewIcon";
+import { themeManifests } from "./utils/themeManifests";
+
 // 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹
 export default function ServicesButtons() {
   const {
@@ -25,9 +27,11 @@ export default function ServicesButtons() {
     setHTML,
     setSCSS,
     setJS,
-
     HTML,
   } = useStateContext();
+
+  const [selectedTheme, setSelectedTheme] = React.useState("Neo-Brutalism");
+  const [isStylizing, setIsStylizing] = React.useState(false);
 
   const resetAll = () => {
     resetHtmlJson();
@@ -42,11 +46,34 @@ export default function ServicesButtons() {
     cleanServiceTexts(htmlJson, updateHtmlJson);
   };
 
+  const handleStylize = async () => {
+    if (htmlJson.length === 0) return;
+    
+    setIsStylizing(true);
+    try {
+      const res = await fetch("/api/ai-style-harmonize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ htmlJson, themeName: selectedTheme }),
+      });
+      const data = await res.json();
+      if (data.nodes) {
+        updateHtmlJson(data.nodes);
+        console.log("🤖 AI Harmonization complete!");
+      }
+    } catch (e) {
+      console.error("AI Stylize failed:", e);
+    } finally {
+      setIsStylizing(false);
+    }
+  };
+
   return (
     <div className="bg-[var(--navi)] flex items-center gap-1 mb-1 py-1 ">
       <button
         className="btn btn-allert !py-1"
         type="button"
+        title="Reset All"
         onClick={() => {
           resetAll();
         }}
@@ -69,6 +96,30 @@ export default function ServicesButtons() {
       >
         <СhevronRight width={12} height={12} />
       </button>
+
+      {/* --- STYLIZE SECTION --- */}
+      <div className="flex bg-[#1a1a1a] rounded mx-2 border border-[#444]">
+        <select
+          className="bg-transparent text-white text-[10px] px-2 outline-none cursor-pointer hover:bg-[#333] h-[28px]"
+          value={selectedTheme}
+          onChange={(e) => setSelectedTheme(e.target.value)}
+        >
+          {Object.keys(themeManifests).map(t => (
+            <option key={t} value={t} className="bg-[#1a1a1a]">{t}</option>
+          ))}
+        </select>
+        <button
+          className={`btn-teal !rounded-none border-l border-[#444] w-[max-content] flex items-center gap-2 px-3 ${isStylizing ? 'animate-pulse' : ''}`}
+          type="button"
+          disabled={isStylizing || htmlJson.length === 0}
+          onClick={handleStylize}
+        >
+          <p className="!text-[10px] uppercase font-bold tracking-wider ">
+            {isStylizing ? "Processing..." : "Stylize"}
+          </p>
+        </button>
+      </div>
+
       <button
         className="btn-teal flex-[1_0_140px]  flex items-center  !gap-2 "
         type="button"
