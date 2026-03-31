@@ -10,14 +10,23 @@ export function isolateComponentNodes(nodes: HtmlNode[]): HtmlNode[] {
   // Нам нужно определить, стоит ли изолировать этот набор узлов.
   // Обычно мы изолируем всё, что приходит из базы как отдельный блок,
   // если в нем есть хотя бы один ID или скрипт/стиль.
-  const needsIsolation = nodes.some(
-    (node) =>
-      node.tag === "script" ||
-      node.tag === "style" ||
-      node.attributes?.id ||
-      JSON.stringify(node).toLowerCase().includes("modal") ||
-      JSON.stringify(node).toLowerCase().includes("swiper")
-  );
+  const checkNeedsIsolation = (node: HtmlNode): boolean => {
+    // 1. Постоянные триггеры: ID, скрипты, стили
+    if (node.attributes?.id) return true;
+    if (node.tag === "script" || node.tag === "style") return true;
+
+    // 2. Специфические ключевые слова в тегах или атрибутах
+    const nodeHeader = (node.tag + JSON.stringify(node.attributes || "")).toLowerCase();
+    if (nodeHeader.includes("modal") || nodeHeader.includes("swiper")) return true;
+
+    // 3. Рекурсивный поиск в детях
+    if (node.children && Array.isArray(node.children)) {
+      return node.children.some(checkNeedsIsolation);
+    }
+    return false;
+  };
+
+  const needsIsolation = nodes.some(checkNeedsIsolation);
 
   if (!needsIsolation) return nodes;
 

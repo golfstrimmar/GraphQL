@@ -3,6 +3,7 @@ import React, { useRef, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import Loading from "@/components/ui/Loading/Loading";
 import cleanConstructorScss from "../forStyleComponent/cleanConstructorScss";
+import Editor, { useMonaco } from "@monaco-editor/react";
 
 const MobileAddStyle = dynamic(
   () => import("../forStyleComponent/MobileAddStyle"),
@@ -20,25 +21,59 @@ interface StyleComponentProps {
 }
 
 // ================================
-// ================================
-// ================================
 const StyleComponent: React.FC<StyleComponentProps> = ({
   node,
   itemClass,
   updateNodeByKey,
 }) => {
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [openMobile, setOpenMobile] = useState(false);
+  const monaco = useMonaco();
+  const editorRef = useRef<any>(null);
 
-  const adjustHeight = (el: HTMLTextAreaElement) => {
-    el.style.height = "auto";
-    el.style.height = `${el.scrollHeight}px`;
+  // ------------------------------- Monaco Theme Logic (matching PreviewComponent)
+  useEffect(() => {
+    if (!monaco) return;
+
+    monaco.editor.defineTheme("myCustomTheme", {
+      base: "vs-dark",
+      inherit: true,
+      rules: [
+        { token: "comment", foreground: "a0a0a0", fontStyle: "italic" },
+        { token: "string", foreground: "ce9178" },
+        { token: "keyword", foreground: "569cd6" },
+      ],
+      colors: {
+        "editor.background": "#1e1e1e",
+        "editorLineNumber.foreground": "#858585",
+      },
+    });
+
+    monaco.editor.setTheme("myCustomTheme");
+  }, [monaco]);
+
+  const handleEditorMount = (
+    editor: any,
+  ) => {
+    if (monaco) monaco.editor.setTheme("myCustomTheme");
+    editor.setScrollTop(0);
+    editor.revealLine(1);
+    editorRef.current = editor;
+
+    // Auto-format on mount
+    setTimeout(() => {
+      const action = editor.getAction("editor.action.formatDocument");
+      action?.run();
+    }, 100);
   };
 
   // ====>====>====>====>====>====>====>====>====>====>
   const formatStyleForDisplay = (raw: string): string => {
-    if (raw.includes("\n")) return raw;
-    const trimmed = raw?.trim();
+    if (!raw) return "";
+    // Если есть переносы или SCSS-конструкции ({}, &), лучше не форматировать наивно, 
+    // чтобы не сломать селекторы типа &:hover
+    if (raw.includes("\n") || raw.includes("{") || raw.includes("&")) return raw;
+
+    const trimmed = raw.trim();
     if (!trimmed) return "";
 
     const hasTrailingSemicolon = trimmed.endsWith(";");
@@ -71,14 +106,13 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
 
   useEffect(() => {
     if (!node?._key) return;
-    console.log("<===styleText===>", styleText);
     const id = setTimeout(() => {
       if (node._key) {
-          updateNodeByKey(node._key, { style: styleText });
+        updateNodeByKey(node._key, { style: styleText });
       }
     }, 1000);
-    return () => clearTimeout(id);
-  }, [styleText]);
+    return () => clearInterval(id);
+  }, [styleText, node?._key]);
 
   // ====>====>====>====>====>====>====>====>====>====>
   return (
@@ -89,36 +123,46 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
         setOpenMobile={setOpenMobile}
         nodeStyle={JSON.stringify(node?.style)}
       />
-      <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]   flex flex-col relative ">
+      <div className="bg-white rounded !max-h-[max-content] ml-[5px] flex flex-col relative ">
         <p className={itemClass}>
           <span>Style:</span>
           <button
             className="btn-teal text-[12px] !max-h-[20px]"
-            onClick={() =>
-              setOpenMobile(() => {
-                return !openMobile;
-              })
-            }
+            onClick={() => setOpenMobile(!openMobile)}
           >
             Add
           </button>
         </p>
-        <textarea
-          ref={(el) => {
-            if (!el) return;
-            textareaRef.current = el;
-            adjustHeight(el);
-          }}
-          value={cleanConstructorScss(styleText)}
-          // value={styleText}
-          onChange={(e) => {
-            setStyleText(e.target.value);
-            adjustHeight(e.target);
-          }}
-          onInput={(e) => adjustHeight(e.target as HTMLTextAreaElement)}
-          className="textarea-styles"
-          placeholder=""
-        />
+
+        <div className="border border-slate-200 rounded overflow-hidden">
+          <Editor
+            height="230px"
+            language="scss"
+            value={cleanConstructorScss(styleText)}
+            onChange={(value) => setStyleText(value || "")}
+            onMount={handleEditorMount}
+            theme="myCustomTheme"
+            options={{
+              fontSize: 13,
+              fontFamily: "Fira Code, monospace",
+              scrollBeyondLastLine: false,
+              minimap: { enabled: false },
+              scrollbar: {
+                verticalScrollbarSize: 8,
+                horizontalScrollbarSize: 8,
+              },
+              lineNumbers: "on",
+              glyphMargin: false,
+              folding: true,
+              lineDecorationsWidth: 0,
+              lineNumbersMinChars: 3,
+              wordWrap: "on",
+              automaticLayout: true,
+              tabSize: 2,
+              padding: { top: 10, bottom: 10 },
+            }}
+          />
+        </div>
       </div>
     </>
   );

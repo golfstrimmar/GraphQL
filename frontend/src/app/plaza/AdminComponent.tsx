@@ -175,20 +175,8 @@ const AdminComponent = () => {
       attributes: { ...node.attributes, "data-global": "true" }
     }));
 
-    // Добавляем имя тега как класс к корневым элементам для отслеживания системой очистки,
-    // но только если такого класса еще нет, чтобы избежать дублирования (например, "card card").
-    const resultWithTagClass = resultWithKeys.map((node) => {
-      if (node.tag !== "style" && node.tag !== "script") {
-        const existingClasses = (node.class || "").split(/\s+/).filter(Boolean);
-        if (!existingClasses.includes(tag)) {
-          return { ...node, class: [...existingClasses, tag].join(" ") };
-        }
-      }
-      return node;
-    });
-
     // Глобальная изоляция (теперь с учетом data-global)
-    const allNodes = [...resultWithTagClass, ...globalizedServiceNodes];
+    const allNodes = [...resultWithKeys, ...globalizedServiceNodes];
     const swiperIsolated = isolateSwiperNodes(allNodes);
     const isolatedNodes = isolateComponentNodes(swiperIsolated);
 
@@ -265,4 +253,9 @@ const AdminComponent = () => {
 };
 
 export default AdminComponent;
+
+
+
+
+
 

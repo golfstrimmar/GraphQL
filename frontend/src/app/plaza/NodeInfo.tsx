@@ -57,7 +57,7 @@ const NodeInfo: React.FC<NodeInfoProps> = ({
     setActiveKey(null);
     setDragKey(null);
     setHTML("");
-    setSCSS("");setJS("");
+    setSCSS(""); setJS("");
   };
   // -------------
   useEffect(() => {
@@ -96,7 +96,7 @@ const NodeInfo: React.FC<NodeInfoProps> = ({
   const itemStyle =
     "flex flex-col items-start justify-center p-2 m-1 border border-gray-300 rounded bg-gray-100 text-sm";
   const itemClass =
-    "absolute top-[-25px] !font-bold  inline-flex items-center gap-2 z-30 py-1 min-h-[26px] text-white w-[max-content]";
+    "absolute top-[-27px] !font-bold  inline-flex items-center gap-1 z-30 py-1 min-h-[26px] text-white w-[max-content]";
 
   // ====>====>====>====>====>====>====>====>====>====>
   return (
@@ -181,25 +181,28 @@ const NodeInfo: React.FC<NodeInfoProps> = ({
             </button>
           </div>
 
-          <div className="grid grid-cols-[repeat(2_,max-content)_1fr_1fr] relative rounded border-2 border-[var(--teal)] p-1 pt-6  text-[#000] w-full h-full  bg-slate-200">
+          <div className="grid grid-cols-[1fr_2fr] relative rounded border-2 border-[var(--teal)] p-1 pt-6  text-[#000] w-full h-full  bg-slate-200">
             {nodeToSend && (
               <>
-                <TagComponent
-                  node={nodeToSend}
-                  itemClass={itemClass}
-                  updateNodeByKey={updateNodeByKey}
-                />
-                <ClassComponent
-                  node={nodeToSend}
-                  itemClass={itemClass}
-                  updateNodeByKey={updateNodeByKey}
-                />
+                <div className="flex flex-col gap-8">
+                  <TagComponent
+                    node={nodeToSend}
+                    itemClass={itemClass}
+                    updateNodeByKey={updateNodeByKey}
+                  />
+                  <ClassComponent
+                    node={nodeToSend}
+                    itemClass={itemClass}
+                    updateNodeByKey={updateNodeByKey}
+                  />
+                  <TextComponent
+                    node={nodeToSend}
+                    itemClass={itemClass}
+                    updateNodeByKey={updateNodeByKey}
+                  />
+
+                </div>
                 <StyleComponent
-                  node={nodeToSend}
-                  itemClass={itemClass}
-                  updateNodeByKey={updateNodeByKey}
-                />
-                <TextComponent
                   node={nodeToSend}
                   itemClass={itemClass}
                   updateNodeByKey={updateNodeByKey}
@@ -231,7 +234,7 @@ const NodeInfo: React.FC<NodeInfoProps> = ({
               </div>
             )}
 
-            
+
           </div>
 
           {nodeToSend?.attributes &&

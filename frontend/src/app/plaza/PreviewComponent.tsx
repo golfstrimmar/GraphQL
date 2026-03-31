@@ -34,7 +34,7 @@ export default function PreviewComponent() {
   const [code, setCode] = useState<string>("");
   const [codeCss, setCodeCss] = useState<string>("");
   const [codeJs, setCodeJs] = useState<string>("");
-  const [editorHeight, setEditorHeight] = useState<number>(500);
+  const [editorHeight, setEditorHeight] = useState<number>(100);
   const monaco = useMonaco();
 
   // ------------------------------- Monaco Theme
@@ -323,7 +323,7 @@ td, th { padding: 0; text-align: left; }
       </div>
       {/* ============🚀 */}
       {(HTML || JS) && (
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2">
           <Editor
             height={editorHeight}
             defaultLanguage="html"

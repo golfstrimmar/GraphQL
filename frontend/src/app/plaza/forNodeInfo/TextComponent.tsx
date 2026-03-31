@@ -42,7 +42,7 @@ const TextComponent: React.FC<TextComponentProps> = ({
   }, [texts]);
 
   const handleTextChange = (newValue: string) => {
-    if (!node._key) return () => {};
+    if (!node._key) return () => { };
     const id = setTimeout(() => {
       updateNodeByKey(node._key!, { text: newValue });
     }, 1000);
@@ -62,11 +62,11 @@ const TextComponent: React.FC<TextComponentProps> = ({
         />
       )}
 
-      <p className={itemClass}>
+      <div className={itemClass}>
         <span>Text:</span>
         {texts && texts.length > 0 && (
           <button
-            className="btn-teal  text-[12px]"
+            className="btn-teal text-[10px]"
             onClick={() =>
               setModalTextsOpen(() => {
                 return !modalTextsOpen;
@@ -77,7 +77,7 @@ const TextComponent: React.FC<TextComponentProps> = ({
           </button>
         )}
         <button
-          className="btn-teal !max-h-[20px] text-sm"
+          className="btn-teal text-[10px] !max-h-[20px]"
           onClick={() => {
             setTextValue("Lorem");
             if (node._key) {
@@ -91,7 +91,7 @@ const TextComponent: React.FC<TextComponentProps> = ({
           Lorem 1
         </button>
         <button
-          className="btn-teal !max-h-[20px] text-sm"
+          className="btn-teal text-[10px]  !max-h-[20px]"
           onClick={() => {
             setTextValue("Lorem ipsum dolor sit amet.");
             if (node._key) {
@@ -107,7 +107,7 @@ const TextComponent: React.FC<TextComponentProps> = ({
           Lorem 5
         </button>
         <button
-          className="btn-teal !max-h-[20px] text-sm"
+          className="btn-teal text-[10px] !max-h-[20px]"
           onClick={() => {
             setTextValue(
               "Lorem ipsum dolor sit amet consectetur adipisicing elit. Alias reiciendis consequatur iure neque praesentium iste.",
@@ -125,7 +125,7 @@ const TextComponent: React.FC<TextComponentProps> = ({
           Lorem 15
         </button>
         <button
-          className="btn-teal !max-h-[20px] text-sm"
+          className="btn-teal text-[10px] !max-h-[20px]"
           onClick={() => {
             setTextValue(
               "Lorem ipsum dolor sit amet consectetur adipisicing elit. Tenetur consequuntur adipisci nulla velit mollitia cum quis, cumque reprehenderit natus illum doloribus consectetur ipsam iste quisquam!",
@@ -143,7 +143,7 @@ const TextComponent: React.FC<TextComponentProps> = ({
           Lorem 25
         </button>
         <button
-          className="btn-teal !max-h-[20px] text-sm"
+          className="btn-teal text-[10px] !max-h-[20px]"
           onClick={() => {
             setTextValue("");
             if (node._key) {
@@ -158,7 +158,7 @@ const TextComponent: React.FC<TextComponentProps> = ({
         >
           🧹
         </button>
-      </p>
+      </div>
 
       <textarea
         ref={(el) => {
