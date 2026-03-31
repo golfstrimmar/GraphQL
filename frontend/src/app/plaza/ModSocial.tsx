@@ -17,17 +17,23 @@ interface ModalSocialProps {
 const SOCIAL_ICONS = [
   "https://cdn.simpleicons.org/facebook",
   "https://cdn.simpleicons.org/instagram",
-  "https://cdn.simpleicons.org/x",
-  "https://cdn.simpleicons.org/youtube",
+  "https://cdn.simpleicons.org/viber",
+  "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons@8.3.0/icons/twitter.svg",
   "https://cdn.simpleicons.org/whatsapp",
   "https://cdn.simpleicons.org/telegram",
+  "https://cdn.simpleicons.org/x",
+  "https://cdn.simpleicons.org/pinterest",
+  "https://cdn.simpleicons.org/messenger",
+
   "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons@8.3.0/icons/linkedin.svg",
+
+
+
   "https://cdn.simpleicons.org/tiktok",
   "https://cdn.simpleicons.org/discord",
   "https://cdn.simpleicons.org/snapchat",
   "https://cdn.simpleicons.org/reddit",
-  "https://cdn.simpleicons.org/pinterest",
-  "https://cdn.simpleicons.org/messenger",
+  "https://cdn.simpleicons.org/youtube",
   "https://cdn.simpleicons.org/signal",
   "https://cdn.simpleicons.org/github",
   "https://cdn.simpleicons.org/gmail",
@@ -39,7 +45,7 @@ const SOCIAL_ICONS = [
   "https://cdn.simpleicons.org/vimeo",
   "https://cdn.jsdelivr.net/npm/simple-icons@v15/icons/slack.svg",
   "https://cdn.jsdelivr.net/npm/simple-icons@v15/icons/zoom.svg",
-  "https://cdn.simpleicons.org/viber",
+
   "https://cdn.simpleicons.org/wechat",
   "https://cdn.simpleicons.org/line",
   "https://cdn.simpleicons.org/threads",
@@ -62,7 +68,7 @@ const ModSocial: React.FC<ModalSocialProps> = ({ openModSocial, setOpenModSocial
       class: "social-link",
       attributes: { href: "#!", target: "_blank" },
       text: "",
-      style: "width: 24px; height: 24px;    display: inline-flex; justify-content: center; align-items: center; cursor: pointer; & > svg{fill:#000000}; &:hover > svg { fill: #64ffda; transition: all 0.3s ease; }",
+      style: "width: 24px; height: 24px;    display: inline-flex; justify-content: center; align-items: center; cursor: pointer; & > svg{fill:#000000}; &:hover > svg { fill:#64ffda; transition: all 0.3s ease; }",
 
       children: [
         {

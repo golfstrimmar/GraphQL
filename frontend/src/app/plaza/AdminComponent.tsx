@@ -243,17 +243,16 @@ const AdminComponent = () => {
         {renderTags(TagsNamen2)}
         <hr className="bordered border-slate-200 my-0.5 " />
         {renderTags(TagsNamen4)}
-        <hr className="bordered border-slate-200 my-0.5" />
-        {renderTags(TagsNamen5)}
-        <hr className="bordered border-slate-200 my-0.5" />
-        {renderTags(TagsNamen6)}
+
+
 
         <hr className="bordered border-slate-200 my-0.5" />
         <div className=" flex flex-wrap gap-1 bg-slate-200 p-1 items-center">
           <button className="btn adminButton px-1.5! border-1 border-[#aaa] text-white text-[12px]" style={{ background: "steelblue", maxHeight: "20px" }} onClick={() => setOpenModSocial(true)}>social</button>
-          {renderTags(TagsNamen7)}
+          {renderTags(TagsNamen5)}
         </div>
-
+        <hr className="bordered border-slate-200 my-0.5" />
+        {renderTags(TagsNamen6)}
         <hr className="bordered border-slate-200 my-0.5" />
         <div className=" flex flex-wrap gap-1 bg-slate-200 p-1 items-center">
           <button className="btn adminButton px-1.5! border-1 border-[#aaa] text-white text-[12px]" style={{ background: "steelblue", maxHeight: "20px" }} onClick={() => setOpenModSliders(true)}>sliders</button>

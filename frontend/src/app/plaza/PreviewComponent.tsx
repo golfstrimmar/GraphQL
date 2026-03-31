@@ -276,6 +276,19 @@ td, th { padding: 0; text-align: left; }
             </motion.div>
           )}
         </AnimatePresence>
+        {/* htmlJson Debug 
+        <div className="ml-4 flex-1 text-[14px] bg-slate-900/60 p-2 rounded-lg  overflow-auto border border-slate-700/50 shadow-inner">
+          <div className="flex justify-between items-center mb-1 pb-1 border-b border-slate-800">
+            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">debug: htmlJson</span>
+            <span className="text-[9px] text-teal-500/50 italic">{typeof htmlJson === 'object' ? Object.keys(htmlJson || {}).length : 0} props</span>
+          </div>
+          <pre className="text-teal-400 line-height-1">
+            {JSON.stringify(htmlJson, null, 2)}
+          </pre>
+        </div>
+
+        {/* --- */}
+
         <div className="flex gap-2 items-center mb-6">
           <div className="-mb-6">
             {PageHeader("PreviewIcon", "Preview")}
@@ -289,6 +302,8 @@ td, th { padding: 0; text-align: left; }
               </path>
             </svg>
           </button>
+
+
         </div>
         <Script
           src="https://cdn.jsdelivr.net/npm/sass.js@0.11.1/dist/sass.sync.js"
