@@ -34,9 +34,11 @@ export default function PreviewComponent() {
   const [code, setCode] = useState<string>("");
   const [codeCss, setCodeCss] = useState<string>("");
   const [codeJs, setCodeJs] = useState<string>("");
-  const [editorHeight, setEditorHeight] = useState<number>(100);
+  const [htmlEditorHeight, setHtmlEditorHeight] = useState<number>(100);
+  const [scssEditorHeight, setScssEditorHeight] = useState<number>(100);
+  const [jsEditorHeight, setJsEditorHeight] = useState<number>(100);
   const monaco = useMonaco();
-
+  const [openDebug, setOpenDebug] = useState<boolean>(false);
   // ------------------------------- Monaco Theme
   useEffect(() => {
     if (!monaco) return;
@@ -65,6 +67,13 @@ export default function PreviewComponent() {
     editor.setScrollTop(0);
     editor.revealLine(1);
     htmlEditorRef.current = editor;
+
+    const updateHeight = () => {
+      const contentHeight = editor.getContentHeight();
+      setHtmlEditorHeight(Math.min(500, Math.max(100, contentHeight)));
+    };
+    editor.onDidContentSizeChange(updateHeight);
+    updateHeight();
   };
 
   const handleScssEditorMount = (
@@ -74,6 +83,13 @@ export default function PreviewComponent() {
     editor.setScrollTop(0);
     editor.revealLine(1);
     scssEditorRef.current = editor;
+
+    const updateHeight = () => {
+      const contentHeight = editor.getContentHeight();
+      setScssEditorHeight(Math.min(500, Math.max(100, contentHeight)));
+    };
+    editor.onDidContentSizeChange(updateHeight);
+    updateHeight();
   };
 
   const handleJsEditorMount = (
@@ -83,6 +99,13 @@ export default function PreviewComponent() {
     editor.setScrollTop(0);
     editor.revealLine(1);
     jsEditorRef.current = editor;
+
+    const updateHeight = () => {
+      const contentHeight = editor.getContentHeight();
+      setJsEditorHeight(Math.min(500, Math.max(100, contentHeight)));
+    };
+    editor.onDidContentSizeChange(updateHeight);
+    updateHeight();
   };
   // ----------HTML
   useEffect(() => {
@@ -276,9 +299,11 @@ td, th { padding: 0; text-align: left; }
             </motion.div>
           )}
         </AnimatePresence>
-        {/* htmlJson Debug 
-        <div className="ml-4 flex-1 text-[14px] bg-slate-900/60 p-2 rounded-lg  overflow-auto border border-slate-700/50 shadow-inner">
-          <div className="flex justify-between items-center mb-1 pb-1 border-b border-slate-800">
+        {/* --- */}
+        <button className="btn btn-primary mb-4" onClick={() => { document.body.style.overflow = "hidden"; openDebug ? setOpenDebug(false) : setOpenDebug(true) }}>htmlJson Debug</button>
+
+        <div className={`${openDebug ? "block" : "hidden"} mb-4 flex-1 text-[14px] bg-slate-900/60 p-2 rounded-lg  overflow-auto border border-slate-700/50 shadow-inner`}>
+          <div className="flex justify-between items-center mb-1 pb-1 border-b border-slate-800 ">
             <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">debug: htmlJson</span>
             <span className="text-[9px] text-teal-500/50 italic">{typeof htmlJson === 'object' ? Object.keys(htmlJson || {}).length : 0} props</span>
           </div>
@@ -321,150 +346,151 @@ td, th { padding: 0; text-align: left; }
           </div>
         )}
       </div>
+
       {/* ============🚀 */}
       {(HTML || JS) && (
-        <div className="flex flex-col gap-2">
-          <Editor
-            height={editorHeight}
-            defaultLanguage="html"
-            language="html"
-            defaultValue={code}
-            value={code}
-            onChange={(value) => {
-              const next = value || "";
+        <div className="flex flex-col gap-2 ">
+          <div className="  border border-slate-500 rounded-md p-1">
 
-              if (debounceRefHtml.current) {
-                clearTimeout(debounceRefHtml.current);
-              }
+            <h5>HTML</h5>
+            <Editor
+              height={htmlEditorHeight}
+              defaultLanguage="html"
+              language="html"
+              defaultValue={code}
+              value={code}
+              onChange={(value) => {
+                const next = value || "";
 
-              debounceRefHtml.current = setTimeout(() => {
-                setHTML(next);
-              }, 2000);
-            }}
-            options={{
-              fontSize: 14,
-              fontFamily: "Fira Code, monospace",
-              scrollBeyondLastLine: true,
-              // minimap: {
-              //   enabled: true,
-              //   size: "fit",
-              //   showSlider: "always",
-              //   renderCharacters: false,
-              // },
-              minimap: {
-                enabled: false,
-              },
-              scrollbar: {
-                verticalScrollbarSize: 10,
-                horizontalScrollbarSize: 10,
-                handleMouseWheel: true,
-              },
-              hover: { enabled: false },
-              parameterHints: { enabled: false },
-              autoIndent: "full",
-              formatOnPaste: true,
-              formatOnType: true,
-            }}
-            onMount={handleHtmlEditorMount}
-            beforeMount={() => {
-              if (monaco) {
-                monaco.editor.defineTheme("myCustomTheme", {
-                  base: "vs-dark",
-                  inherit: true,
-                  rules: [],
-                  colors: { "editor.background": "#1e1e1e" },
-                });
-              }
-            }}
-          />
+                if (debounceRefHtml.current) {
+                  clearTimeout(debounceRefHtml.current);
+                }
 
-          <Editor
-            height={editorHeight}
-            language="scss"
-            value={codeCss}
-            onChange={(value) => {
-              const next = value || "";
+                debounceRefHtml.current = setTimeout(() => {
+                  setHTML(next);
+                }, 2000);
+              }}
+              options={{
+                fontSize: 14,
+                fontFamily: "Fira Code, monospace",
+                scrollBeyondLastLine: false,
+                // minimap: {
+                //   enabled: true,
+                //   size: "fit",
+                //   showSlider: "always",
+                //   renderCharacters: false,
+                // },
+                minimap: {
+                  enabled: false,
+                },
+                scrollbar: {
+                  verticalScrollbarSize: 10,
+                  horizontalScrollbarSize: 10,
+                  handleMouseWheel: true,
+                },
+                hover: { enabled: false },
+                parameterHints: { enabled: false },
+                autoIndent: "full",
+                formatOnPaste: true,
+                formatOnType: true,
+              }}
+              onMount={handleHtmlEditorMount}
+              beforeMount={() => {
+                if (monaco) {
+                  monaco.editor.defineTheme("myCustomTheme", {
+                    base: "vs-dark",
+                    inherit: true,
+                    rules: [],
+                    colors: { "editor.background": "#1e1e1e" },
+                  });
+                }
+              }}
+            />
+          </div>
+          <div className="flex gap-2 w-full">
+            <div className="flex flex-col gap-1 w-1/2   border border-slate-500 rounded-md p-1">
+              <h5>SCSS</h5>
+              <Editor
+                height={scssEditorHeight}
+                language="scss"
+                value={codeCss}
+                onChange={(value) => {
+                  const next = value || "";
 
-              if (debounceRef.current) {
-                clearTimeout(debounceRef.current);
-              }
+                  if (debounceRef.current) {
+                    clearTimeout(debounceRef.current);
+                  }
 
-              debounceRef.current = setTimeout(() => {
-                setSCSS(next);
-              }, 2000);
-            }}
-            options={{
-              fontSize: 14,
-              fontFamily: "Fira Code, monospace",
-              scrollBeyondLastLine: true,
-              minimap: {
-                enabled: false,
-              },
-              scrollbar: {
-                verticalScrollbarSize: 10,
-                horizontalScrollbarSize: 10,
-                handleMouseWheel: true,
-              },
-              hover: { enabled: false },
-              parameterHints: { enabled: false },
-              autoIndent: "full",
-            }}
-            onMount={handleScssEditorMount}
-            beforeMount={() => {
-              if (monaco) {
-                monaco.editor.defineTheme("myCustomTheme", {
-                  base: "vs-dark",
-                  inherit: true,
-                  rules: [],
-                  colors: { "editor.background": "#1e1e1e" },
-                });
-              }
-            }}
-          />
+                  debounceRef.current = setTimeout(() => {
+                    setSCSS(next);
+                  }, 2000);
+                }}
+                options={{
+                  fontSize: 14,
+                  fontFamily: "Fira Code, monospace",
+                  scrollBeyondLastLine: false,
+                  minimap: {
+                    enabled: false,
+                  },
+                  scrollbar: {
+                    verticalScrollbarSize: 10,
+                    horizontalScrollbarSize: 10,
+                    handleMouseWheel: true,
+                  },
+                  hover: { enabled: false },
+                  parameterHints: { enabled: false },
+                  autoIndent: "full",
+                }}
+                onMount={handleScssEditorMount}
+                beforeMount={() => {
+                  if (monaco) {
+                    monaco.editor.defineTheme("myCustomTheme", {
+                      base: "vs-dark",
+                      inherit: true,
+                      rules: [],
+                      colors: { "editor.background": "#1e1e1e" },
+                    });
+                  }
+                }}
+              />
+            </div>
+            <div className="flex flex-col gap-1 w-1/2  border border-slate-500 rounded-md p-1">
+              <h5>JS</h5>
+              <Editor
+                height={jsEditorHeight}
+                language="javascript"
+                value={codeJs}
+                onChange={(value) => {
+                  const next = value || "";
 
-          <Editor
-            height={editorHeight}
-            language="javascript"
-            value={codeJs}
-            onChange={(value) => {
-              const next = value || "";
+                  if (debounceRefJs.current) {
+                    clearTimeout(debounceRefJs.current);
+                  }
 
-              if (debounceRefJs.current) {
-                clearTimeout(debounceRefJs.current);
-              }
-
-              debounceRefJs.current = setTimeout(() => {
-                setJS(next);
-              }, 2000);
-            }}
-            options={{
-              fontSize: 14,
-              fontFamily: "Fira Code, monospace",
-              scrollBeyondLastLine: true,
-              minimap: {
-                enabled: false,
-              },
-              scrollbar: {
-                verticalScrollbarSize: 10,
-                horizontalScrollbarSize: 10,
-                handleMouseWheel: true,
-              },
-              hover: { enabled: false },
-              parameterHints: { enabled: false },
-              autoIndent: "full",
-            }}
-            onMount={handleJsEditorMount}
-            beforeMount={() => {
-              if (monaco) {
-                monaco.editor.defineTheme("myCustomTheme", {
-                  base: "vs-dark",
-                  inherit: true,
-                  rules: [],
-                  colors: { "editor.background": "#1e1e1e" },
-                });
-              }
-            }}
-          />
+                  debounceRefJs.current = setTimeout(() => {
+                    setJS(next);
+                  }, 2000);
+                }}
+                options={{
+                  fontSize: 14,
+                  fontFamily: "Fira Code, monospace",
+                  scrollBeyondLastLine: false,
+                  minimap: {
+                    enabled: false,
+                  },
+                  scrollbar: {
+                    verticalScrollbarSize: 10,
+                    horizontalScrollbarSize: 10,
+                    handleMouseWheel: true,
+                  },
+                  hover: { enabled: false },
+                  parameterHints: { enabled: false },
+                  autoIndent: "full",
+                }}
+                onMount={handleJsEditorMount}
+              />
+            </div>
+          </div>
         </div>
       )}
     </>

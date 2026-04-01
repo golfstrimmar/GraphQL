@@ -49,7 +49,6 @@ export const TagsNamen2 = [
   { tag: "fildset-rating", color: "powderblue" },
   { tag: "range-wrap-js", color: "powderblue" },
   { tag: "custom-select", color: "powderblue" },
-  { tag: "input-datalist", color: "powderblue" },
   { tag: "search-f", color: "powderblue" }
 ];
 export const TagsNamen4 = [
@@ -74,7 +73,7 @@ export const TagsNamen5 = [
   { tag: "look", color: "powderblue" },
   { tag: "cards-more", color: "powderblue" },
   { tag: "header", color: "powderblue" },
-  { tag: "header-dropdown", color: "powderblue" },
+  { tag: "header-item-dropdown", color: "powderblue" },
   { tag: "footer", color: "powderblue" },
   { tag: "pagination", color: "powderblue" },
   { tag: "contacts", color: "powderblue" },
@@ -93,5 +92,4 @@ export const TagsNamen7 = [
   { tag: "carousel", color: "powderblue" },
   { tag: "double-slider", color: "powderblue" },
 ];
-
 

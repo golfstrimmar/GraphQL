@@ -48,7 +48,7 @@ export default function ServicesButtons() {
 
   const handleStylize = async () => {
     if (htmlJson.length === 0) return;
-    
+
     setIsStylizing(true);
     try {
       const res = await fetch("/api/ai-style-harmonize", {
@@ -69,7 +69,7 @@ export default function ServicesButtons() {
   };
 
   return (
-    <div className="bg-[var(--navi)] flex items-center gap-1 mb-1 py-1 ">
+    <div className="bg-[var(--navi)] flex items-center gap-1 mb-1 px-1 ">
       <button
         className="btn btn-allert !py-1"
         type="button"
@@ -129,7 +129,7 @@ export default function ServicesButtons() {
         <p className="!text-[10px] !lh-0">remove servises texts</p>
       </button>
       {/*-------------*/}
-      <div className="flex-[50%] center">
+      <div className="flex-[60%] ">
         <JsonToHtmlButton />
       </div>
       {/*------отложено! обратная генерация в htmlJson-------*/}
@@ -138,7 +138,7 @@ export default function ServicesButtons() {
       {/*-------------*/}
       <hr className="border-2-[var(--grey-40)]  w-[25px] rotate-90" />
       <button
-        className="btn-teal flex-[140px] center"
+        className="btn-teal flex-[40px] center"
         type="button"
         onClick={() => {
           const el = document.getElementById("preview-section");
@@ -151,7 +151,7 @@ export default function ServicesButtons() {
         <PreviewIcon width={12} height={12} />
       </button>
       <button
-        className="btn-teal  flex-[140px] center"
+        className="btn-teal  flex-[40px] center"
         type="button"
         onClick={() => {
           const el = document.getElementById("canvas-section");
@@ -164,7 +164,7 @@ export default function ServicesButtons() {
         <WorkerIcon width={12} height={12} />
       </button>
       <button
-        className="btn-teal    flex-[140px] center"
+        className="btn-teal    flex-[40px] center"
         type="button"
         onClick={() => {
           const el = document.getElementById("projects-section");

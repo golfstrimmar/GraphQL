@@ -26,23 +26,42 @@ export function isolateComponentNodes(nodes: HtmlNode[]): HtmlNode[] {
     return false;
   };
 
+  // 1. Поиск существующего ID изоляции, чтобы не плодить классы
+  let existingId = "";
+  const findExistingId = (node: HtmlNode) => {
+    if (node.class && !["link", "style", "script"].includes(node.tag || "")) {
+      const match = node.class.match(/isolate-([a-z0-9]{6})/);
+      if (match) {
+        existingId = match[1];
+        return true;
+      }
+    }
+    if (node.children && Array.isArray(node.children)) {
+      return node.children.some(findExistingId);
+    }
+    return false;
+  };
+  nodes.some(findExistingId);
+
   const needsIsolation = nodes.some(checkNeedsIsolation);
+  if (!needsIsolation && !existingId) return nodes;
 
-  if (!needsIsolation) return nodes;
-
-  const uniqId = Math.random().toString(36).substring(2, 8);
+  const uniqId = existingId || Math.random().toString(36).substring(2, 8);
   const uniqClass = `isolate-${uniqId}`;
 
   const processNode = (node: HtmlNode, isRootContent: boolean): HtmlNode => {
     let newClass = node.class || "";
     const newAttributes = { ...node.attributes };
 
-    // 1. Привязка корневого уникального класса
+    // 1. Привязка корневого уникального класса и очистка дублей
     if (
       isRootContent &&
       !["link", "style", "script"].includes(node.tag || "")
     ) {
-      newClass = `${newClass} ${uniqClass}`.trim();
+      // Удаляем все упоминания isolate- (старые или лишние)
+      let cleanedClass = newClass.replace(/isolate-[a-z0-9]{6}/g, "").replace(/\s+/g, " ").trim();
+      // Добавляем наш актуальный класс
+      newClass = `${cleanedClass} ${uniqClass}`.trim();
     }
 
     // 2. Изоляция ID и связанных атрибутов в HTML
@@ -51,6 +70,9 @@ export function isolateComponentNodes(nodes: HtmlNode[]): HtmlNode[] {
     }
     if (newAttributes.for) {
       newAttributes.for = `${newAttributes.for}-${uniqId}`;
+    }
+    if (newAttributes.name) {
+      newAttributes.name = `${newAttributes.name}-${uniqId}`;
     }
     if (typeof newAttributes.href === 'string' && newAttributes.href.startsWith("#")) {
       newAttributes.href = `${newAttributes.href}-${uniqId}`;
@@ -64,19 +86,11 @@ export function isolateComponentNodes(nodes: HtmlNode[]): HtmlNode[] {
 
     // 3. Изоляция стилей (CSS)
     if (node.tag === "style" && newText && !isGlobal) {
-      // Пытаемся добавить префикс уникального класса ко всем селекторам, 
-      // если они еще не изолированы.
-      // Это базовая реализация: добавляем комментарий и оборачиваем (по возможности)
-      newText = `/* @component: ${uniqClass} */\n${newText}\n .${uniqClass} { /* base scope */ }`;
+      // 3a. Очистка старых пометок
+      newText = newText.replace(/\/\* @component: isolate-[a-z0-9]{6} \*\/\n/g, "");
       
-      // Нам также нужно убедиться, что универсальные селекторы типа input[type="checkbox"] 
-      // не ломают другие чекбоксы.
-      // Для этого мы можем попытаться принудительно добавить .uniqClass в начало правил.
-      // (В идеале здесь нужен полноценный CSS парсер, но пока обойдемся простым префиксом)
-      newText = newText.replace(/(^|[,{}\n])\s*([^{}\n]+)\s*\{/g, (match, p1, p2) => {
-          if (p2.includes('@') || p2.includes('from') || p2.includes('to') || p2.includes('%')) return match;
-          return `${p1}.${uniqClass} ${p2.trim()}, .${uniqClass}${p2.trim()} {`;
-      });
+      // 3b. Оставляем CSS как есть, только добавляем пометку
+      newText = `/* @component: ${uniqClass} */\n${newText}`;
     }
 
     // 4. Изоляция JS-логики
