@@ -1,5 +1,6 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import CloseIcon from "@/components/icons/CloseIcon";
 import { useStateContext } from "@/providers/StateProvider";
@@ -59,6 +60,11 @@ const SOCIAL_ICONS = [
 
 const ModSocial: React.FC<ModalSocialProps> = ({ openModSocial, setOpenModSocial }) => {
   const { updateHtmlJson } = useStateContext();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleClick = (url: string) => {
     console.log("<===url===>", url);
@@ -91,7 +97,9 @@ const ModSocial: React.FC<ModalSocialProps> = ({ openModSocial, setOpenModSocial
 
 
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {openModSocial && (
         <motion.div
@@ -99,7 +107,7 @@ const ModSocial: React.FC<ModalSocialProps> = ({ openModSocial, setOpenModSocial
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.8 }}
           transition={{ duration: 0.5, ease: [0.25, 0.8, 0.5, 1] }}
-          className="w-[100vw] h-[100vh] fixed top-0 left-0 flex justify-center items-center bg-[rgba(0,0,0,.98)] z-100 p-4"
+          className="w-[100vw] h-[100vh] fixed top-0 left-0 flex justify-center items-center bg-[rgba(0,0,0,.98)] z-[10000] p-4"
         >
           <div className="modSocial flex justify-center items-center gap-[10px] px-[10px] py-[5px] rounded-2xl border-2 min-w-[98vw] min-h-[98vh]" onClick={(e) => {
             e.stopPropagation(); if (!(e.target as HTMLElement).closest(".modSocial")) setOpenModSocial(false);
@@ -132,7 +140,8 @@ const ModSocial: React.FC<ModalSocialProps> = ({ openModSocial, setOpenModSocial
           </div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };
 

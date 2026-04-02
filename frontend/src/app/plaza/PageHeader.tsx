@@ -10,7 +10,7 @@ type PageHeaderProps = {
 
 function PageHeader(iconName, title) {
   return (
-    <div className="flex items-center gap-3 mb-6">
+    <div className="flex items-center gap-3 ">
       <div className="flex items-center gap-3">
         <div className="w-6 h-6 bg-gradient-to-br from-blue-800 to-cyan-300 rounded-lg flex items-center justify-center">
           <span>

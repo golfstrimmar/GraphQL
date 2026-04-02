@@ -77,6 +77,8 @@ export const TagsNamen5 = [
   { tag: "footer", color: "powderblue" },
   { tag: "pagination", color: "powderblue" },
   { tag: "contacts", color: "powderblue" },
+  { tag: "form-avatar", color: "powderblue" },
+  { tag: "form-common", color: "powderblue" },
   // { tag: "test", color: "powderblue" },
 
 ];

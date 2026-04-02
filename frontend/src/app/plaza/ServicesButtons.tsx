@@ -97,7 +97,7 @@ export default function ServicesButtons() {
         <СhevronRight width={12} height={12} />
       </button>
 
-      {/* --- STYLIZE SECTION --- */}
+      {/* --- STYLIZE SECTION ---
       <div className="flex bg-[#1a1a1a] rounded mx-2 border border-[#444]">
         <select
           className="bg-transparent text-white text-[10px] px-2 outline-none cursor-pointer hover:bg-[#333] h-[28px]"

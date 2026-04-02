@@ -45,8 +45,11 @@ export default async function ProjectsList() {
         id="projects-section"
         className="bg-navy rounded-2xl shadow-xl p-2   border border-slate-200  relative  mt-[25px]"
       >
-        {PageHeader("projectsIcon", "Your Ulon projects")}
-        <div className=" flex flex-col flex-wrap gap-2 mb-6 ">
+        <div className="flex items-center gap-2">
+          {PageHeader("projectsIcon", "Your Ulon projects")}
+          <CreateNewProject />
+        </div>
+        <div className=" flex flex-col flex-wrap gap-2 ">
           {projects.length > 0 &&
             projects.map((project) => {
               return <Project project={project} key={project.id} />;
@@ -54,7 +57,7 @@ export default async function ProjectsList() {
           {projects?.length === 0 && <Bage text="No projects yet" />}
         </div>
 
-        <CreateNewProject />
+
       </div>
     </>
   );

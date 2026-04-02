@@ -12,6 +12,8 @@ export default function Plaza() {
           title={"Plaza Editor"}
           description={"Build and manage your HTML/CSS projects"}
         />
+        <hr className="my-8 text-[transparent]" />
+
         <PreviewComponent />
         <CanvasComponent />
         <ProjectsList />

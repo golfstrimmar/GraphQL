@@ -17,6 +17,8 @@ import cleanupStylesAfterRemove from "./utils/cleanupStylesAfterRemove";
 import cleanupScriptsAfterRemove from "./utils/cleanupScriptsAfterRemove";
 import { OverlayState, HtmlNode } from "@/types/HtmlNode";
 import { useRef } from "react";
+import JsonToHtmlButton from "./JsonToHtmlButton";
+import PreviewIcon from "@/components/icons/PreviewIcon";
 
 const NodeInfo = dynamic(() => import("./NodeInfo"), {
   ssr: false,
@@ -527,10 +529,27 @@ export default function CanvasComponent() {
       id="canvas-section"
       className="bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 relative mt-[25px] "
     >
-      {PageHeader("canvasIcon", "Canvas")}
+
+      <div className="flex items-center gap-2">
+        {PageHeader("canvasIcon", "Canvas")}
+        <button
+          className="btn btn-primary m-0 w-[28px] h-[18px] "
+          type="button"
+          onClick={() => {
+            const el = document.getElementById("preview-section");
+            if (el) {
+              const y = el.getBoundingClientRect().top + window.scrollY - 80;
+              window.scrollTo({ top: y, behavior: "smooth" });
+            }
+          }}
+        >
+          <PreviewIcon width={12} height={12} />
+        </button>
+        <JsonToHtmlButton />
+      </div>
       <div
         id="plaza-render-area"
-        className="flex flex-col gap-2 mb-2 relative text-[#000] rounded overflow-hidden"
+        className="flex flex-col gap-2  relative text-[#000] rounded overflow-hidden"
       >
         {/* AI PROMPT AREA 
         <div className="flex gap-2 p-2 bg-slate-100 border-b border-slate-200">

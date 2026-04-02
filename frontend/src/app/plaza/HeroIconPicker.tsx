@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useStateContext } from "@/providers/StateProvider";
 import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
 import * as OutlineIcons from "@heroicons/react/24/outline";
@@ -39,7 +40,12 @@ export default function HeroIconPicker({
   const [typeIcon, setTypeIcon] = useState<string>("outline");
   const [selectedIcon, setSelectedIcon] = useState<string>("");
   const [valueOnChange, setValueOnChange] = useState<string>("");
+  const [mounted, setMounted] = useState(false);
   const { updateHtmlJson } = useStateContext();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   // ====>====>====>====>====>====>====>====>====>====>
   useEffect(() => {
     if (!openSVGModal) setSelectedIcon("");
@@ -127,7 +133,9 @@ export default function HeroIconPicker({
     }
   }, [openSVGModal]);
   // ====>====>====>====>====>====>====>====>====>====>
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {openSVGModal && (
         <motion.div
@@ -139,7 +147,7 @@ export default function HeroIconPicker({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.8, y: -100 }}
           transition={{ duration: 0.3 }}
-          className=" fixed top-0 left-0    bg-[rgba(0,0,0,0.95)] z-2130!  rounded-lg w-[100vw] h-[100vh] "
+          className=" fixed top-0 left-0 bg-[rgba(0,0,0,0.95)] z-[10000] rounded-lg w-[100vw] h-[100vh] "
           onClick={(e) => {
             e.stopPropagation();
             if (!e.target.closest(".modal-inner")) {
@@ -148,7 +156,7 @@ export default function HeroIconPicker({
           }}
         >
           <button
-            className="absolute block top-4 right-8 bg-white! rounded-full z-2140! p-2"
+            className="absolute block top-4 right-8 bg-white! rounded-full z-[10001] p-2"
             onClick={() => {
               onClose();
             }}
@@ -237,6 +245,7 @@ export default function HeroIconPicker({
           )}
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

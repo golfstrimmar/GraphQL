@@ -7,6 +7,8 @@ import Editor, { useMonaco } from "@monaco-editor/react";
 import Script from "next/script";
 import { motion, AnimatePresence } from "framer-motion";
 import CloseIcon from "@/components/icons/CloseIcon";
+import WorkerIcon from "@/components/icons/WorkerIcon";
+import PreviewIcon from "@/components/icons/PreviewIcon";
 interface ModalFullProps {
   message: string;
   open: boolean;
@@ -267,9 +269,23 @@ td, th { padding: 0; text-align: left; }
   // ------------------------
   return (
     <>
+      {/* --- */}
+      <button className="btn btn-primary mb-2 font-bold  text-slate-800" onClick={() => { document.body.style.overflow = "hidden"; openDebug ? setOpenDebug(false) : setOpenDebug(true) }}>htmlJson Debug</button>
+
+      <div className={`${openDebug ? "block" : "hidden"}  flex-1 text-[14px] bg-slate-900/60 p-2 rounded-lg  overflow-auto border border-slate-700/50 shadow-inner`}>
+        <div className="flex justify-between items-center mb-1 pb-1 border-b border-slate-800 ">
+          <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">debug: htmlJson</span>
+          <span className="text-[9px] text-teal-500/50 italic">{typeof htmlJson === 'object' ? Object.keys(htmlJson || {}).length : 0} props</span>
+        </div>
+        <pre className="text-teal-400 line-height-1">
+          {JSON.stringify(htmlJson, null, 2)}
+        </pre>
+      </div>
+
+      {/* --- */}
       <div
         id="preview-section"
-        className="bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 relative mt-[25px] mb-4"
+        className="bg-navy rounded-2xl shadow-xl p-2 border border-slate-200 relative  "
       >
         <AnimatePresence>
           {openModalFull && (
@@ -299,25 +315,12 @@ td, th { padding: 0; text-align: left; }
             </motion.div>
           )}
         </AnimatePresence>
-        {/* --- */}
-        <button className="btn btn-primary mb-4" onClick={() => { document.body.style.overflow = "hidden"; openDebug ? setOpenDebug(false) : setOpenDebug(true) }}>htmlJson Debug</button>
 
-        <div className={`${openDebug ? "block" : "hidden"} mb-4 flex-1 text-[14px] bg-slate-900/60 p-2 rounded-lg  overflow-auto border border-slate-700/50 shadow-inner`}>
-          <div className="flex justify-between items-center mb-1 pb-1 border-b border-slate-800 ">
-            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">debug: htmlJson</span>
-            <span className="text-[9px] text-teal-500/50 italic">{typeof htmlJson === 'object' ? Object.keys(htmlJson || {}).length : 0} props</span>
-          </div>
-          <pre className="text-teal-400 line-height-1">
-            {JSON.stringify(htmlJson, null, 2)}
-          </pre>
-        </div>
 
-        {/* --- */}
+        <div className="flex gap-2 items-center">
 
-        <div className="flex gap-2 items-center mb-6">
-          <div className="-mb-6">
-            {PageHeader("PreviewIcon", "Preview")}
-          </div>
+          {PageHeader("PreviewIcon", "Preview")}
+
 
           <button className="btn btn-primary m-0" onClick={() => { document.body.style.overflow = "hidden"; document.body.style.maxHeight = "100vh"; setOpenModalFull(true) }}>
             <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -327,7 +330,19 @@ td, th { padding: 0; text-align: left; }
               </path>
             </svg>
           </button>
-
+          <button
+            className="btn btn-primary m-0 w-[28px] h-[18px]"
+            type="button"
+            onClick={() => {
+              const el = document.getElementById("canvas-section");
+              if (el) {
+                const y = el.getBoundingClientRect().top + window.scrollY - 80;
+                window.scrollTo({ top: y, behavior: "smooth" });
+              }
+            }}
+          >
+            <WorkerIcon width={12} height={12} />
+          </button>
 
         </div>
         <Script

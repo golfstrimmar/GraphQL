@@ -1,5 +1,6 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import CloseIcon from "@/components/icons/CloseIcon"; import SlidersConstructor from "./SlidersConstructor";
 
@@ -8,7 +9,14 @@ interface ModalMessageProps {
   setOpenModSliders: (open: boolean) => void;
 }
 const ModSliders: React.FC<ModalMessageProps> = ({ openModSliders, setOpenModSliders }) => {
-  return (
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {openModSliders && (
         <motion.div
@@ -16,13 +24,13 @@ const ModSliders: React.FC<ModalMessageProps> = ({ openModSliders, setOpenModSli
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.8 }}
           transition={{ duration: 0.5, ease: [0.25, 0.8, 0.5, 1] }}
-          className="w-[100vw] h-[100vh] fixed top-0 left-0 flex justify-center items-center bg-[rgba(0,0,0,.98)] z-100 p-4"
+          className="w-[100vw] h-[100vh] fixed top-0 left-0 flex justify-center items-center bg-[rgba(0,0,0,.98)] z-[10000] p-4"
         >
           <div className="flex justify-center items-center gap-[10px] px-[10px] py-[5px] rounded-2xl border-2 min-w-[98vw] min-h-[98vh]" onClick={(e) => {
-            e.stopPropagation(); if (!e.target.closest(".sliderConstructor")) setOpenModSliders(false);
+            e.stopPropagation(); if (!(e.target as HTMLElement).closest(".sliderConstructor")) setOpenModSliders(false);
           }}>
             <SlidersConstructor setOpenModSliders={setOpenModSliders} />
-            <button className="w-4 h-4 block text-white absolute top-4 right-6 z-10000 hover:text-gray-500 cursor-pointer transition-colors duration-300"
+            <button className="w-4 h-4 block text-white absolute top-4 right-6 z-[10001] hover:text-gray-500 cursor-pointer transition-colors duration-300"
               onClick={() => {
                 setOpenModSliders(false);
               }}
@@ -32,7 +40,8 @@ const ModSliders: React.FC<ModalMessageProps> = ({ openModSliders, setOpenModSli
           </div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };
 export default ModSliders;

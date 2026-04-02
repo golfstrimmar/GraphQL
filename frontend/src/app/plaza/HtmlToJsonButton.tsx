@@ -47,13 +47,13 @@ export default function HtmlToJsonButton() {
       <button
         onClick={handleClick}
         disabled={loading}
-        className="btn-teal   px-1 rounded !text-[12px] !lh-0"
+        className="btn-teal  px-1 rounded !text-[12px] !lh-0"
       >
         {loading ? (
           <Spinner />
         ) : (
           <>
-            <HtmlIcon width={18} height={18} /> <span> ⇨ jsonHtml</span>
+            <HtmlIcon width={18} height={18} /> <span className=""> ⇨ jsonHtml</span>
           </>
         )}
       </button>

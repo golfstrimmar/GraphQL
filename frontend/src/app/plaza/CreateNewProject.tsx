@@ -110,48 +110,43 @@ const CreateNewProject = () => {
   // ------
 
   return (
-    <div className="createnewproject">
-      <hr className="bordered-2 border-slate-200 mt-2 mb-4" />
+    <div className="w-full">
       <div
         ref={projectsRef}
-        className="flex flex-col  gap-4 min-h-[40px]  transition-all duration-200"
+        className="flex items-center  gap-2   transition-all duration-200"
       >
         <button
           onClick={() => setOpenCreate(!openCreate)}
-          className=" h-6 flex items-center gap-2 btn  btn-primary font-bold text-slate-800"
+          className={` h-6  btn  btn-primary w-[28px] h-[18px] text-[#ffffff]  ${openCreate ? "admin-shimmer" : ""}`}
         >
-          {/*<span className=" mr-2 text-slate-800">
-            <CreateIcon width={18} height={18} />
-          </span>*/}
-
-          {!openCreate ? "Save as new Ulon project" : "⇧"}
+          <CreateIcon width={14} height={14} />
         </button>
         <AnimatePresence>
           {openCreate && (
-            <motion.div
-              initial={{ height: 0, opacity: 0, y: -10 }}
-              animate={{ height: "auto", opacity: 1, y: 0 }}
-              exit={{ height: 0, opacity: 0, y: -10 }}
-              transition={{ duration: 0.2, ease: "easeInOut" }}
-              className="w-full  flex-1 bg-slate-400 p-1 rounded-lg"
+            <motion.form
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: "100%", opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ duration: 0.1, ease: "easeInOut" }}
+              className="  bg-slate-400  rounded-lg !max-h-[24px] p-1 flex items-center gap-2"
             >
-              <form className="w-full">
-                <Input
-                  typeInput="text"
-                  data="Project name"
-                  value={newProjectName}
-                  onChange={(e) => setNewProjectName(e.target.value)}
-                />
-                <button
-                  type="button"
-                  className="btn  btn-primary font-bold text-slate-800  disabled:opacity-50 mt-2"
-                  onClick={createNewProject}
-                  disabled={createLoading}
-                >
-                  {createLoading ? <Spinner /> : "Save"}
-                </button>
-              </form>
-            </motion.div>
+              <input
+                type="text"
+                placeholder="Project name"
+                value={newProjectName}
+                onChange={(e) => setNewProjectName(e.target.value)}
+                className="!w-full !h-10 cursor-pointer relative transition-all duration-200 ease-in-out border border-[#adadad] bg-slate-300 !outline-none focus:!outline-none rounded-[5px] focus:bg-slate-100  [&:not(:placeholder-shown)]:bg-slate-100  !px-2.5 !py-0 !max-h-[22px] z-[2]"
+
+              />
+              <button
+                type="button"
+                className="btn  btn-primary max-h-[20px] font-bold text-slate-800 ease-in-out  disabled:opacity-50 "
+                onClick={createNewProject}
+                disabled={createLoading}
+              >
+                {createLoading ? <Spinner /> : "Save"}
+              </button>
+            </motion.form>
           )}
         </AnimatePresence>
       </div>
