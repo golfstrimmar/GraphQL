@@ -103,6 +103,8 @@ interface StateContextType {
   setDragKey: React.Dispatch<React.SetStateAction<string | null>>;
   designTexts: designText[];
   setDesignTexts: React.Dispatch<React.SetStateAction<designText[]>>;
+  isCollapsedAll: boolean;
+  setIsCollapsedAll: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const StateContext = createContext<StateContextType | null>(null);
@@ -135,6 +137,7 @@ export function StateProvider({
   const [dragKey, setDragKey] = useState<string | null>(null);
   const [colors, setColors] = useState<string[]>([]);
   const [designTexts, setDesignTexts] = useState<designText[]>([]);
+  const [isCollapsedAll, setIsCollapsedAll] = useState<boolean>(false);
 
   const { data: usersData, subscribeToMore: subscribeToUsers } = useQuery(
     GET_USERS,
@@ -366,6 +369,8 @@ export function StateProvider({
         setDragKey,
         designTexts,
         setDesignTexts,
+        isCollapsedAll,
+        setIsCollapsedAll,
       }}
     >
       <AnimatePresence initial={false} mode="wait">

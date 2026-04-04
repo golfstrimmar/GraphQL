@@ -79,7 +79,7 @@ export const TagsNamen5 = [
   { tag: "contacts", color: "powderblue" },
   { tag: "form-avatar", color: "powderblue" },
   { tag: "form-common", color: "powderblue" },
-  // { tag: "test", color: "powderblue" },
+  { tag: "test", color: "powderblue" },
 
 ];
 export const TagsNamen6 = [

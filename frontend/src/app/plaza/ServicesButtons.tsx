@@ -27,7 +27,7 @@ export default function ServicesButtons() {
     setHTML,
     setSCSS,
     setJS,
-    HTML,
+    HTML, setIsCollapsedAll
   } = useStateContext();
 
   const [selectedTheme, setSelectedTheme] = React.useState("Neo-Brutalism");
@@ -40,6 +40,7 @@ export default function ServicesButtons() {
     setHTML("");
     setSCSS("");
     setJS("");
+    setIsCollapsedAll(false);
   };
 
   const handleClean = () => {
@@ -118,7 +119,7 @@ export default function ServicesButtons() {
             {isStylizing ? "Processing..." : "Stylize"}
           </p>
         </button>
-      </div>
+      </div>*/}
 
       <button
         className="btn-teal flex-[1_0_140px]  flex items-center  !gap-2 "

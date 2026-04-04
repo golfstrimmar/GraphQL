@@ -40,6 +40,7 @@ export default function CanvasComponent() {
     SCSS,
     colors,
     designTexts,
+    setIsCollapsedAll,
   } = useStateContext();
 
   const [aiPrompt, setAiPrompt] = useState<string>("");
@@ -415,6 +416,8 @@ export default function CanvasComponent() {
       btn.innerHTML = parentEl.tagName + "." + node.class;
       parentEl.classList.add("_hidden");
     }
+    // Сбрасываем "глобальное" состояние кнопки Свернуть все
+    setIsCollapsedAll(false);
   };
   // ====>====>====>====>====>====>====>====>====>====>
   const renderNode = (
@@ -532,19 +535,6 @@ export default function CanvasComponent() {
 
       <div className="flex items-center gap-2">
         {PageHeader("canvasIcon", "Canvas")}
-        <button
-          className="btn btn-primary m-0 w-[28px] h-[18px] "
-          type="button"
-          onClick={() => {
-            const el = document.getElementById("preview-section");
-            if (el) {
-              const y = el.getBoundingClientRect().top + window.scrollY - 80;
-              window.scrollTo({ top: y, behavior: "smooth" });
-            }
-          }}
-        >
-          <PreviewIcon width={12} height={12} />
-        </button>
         <JsonToHtmlButton />
       </div>
       <div

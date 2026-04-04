@@ -270,14 +270,38 @@ td, th { padding: 0; text-align: left; }
   return (
     <>
       {/* --- */}
-      <button className="btn btn-primary mb-2 font-bold  text-slate-800" onClick={() => { document.body.style.overflow = "hidden"; openDebug ? setOpenDebug(false) : setOpenDebug(true) }}>htmlJson Debug</button>
+      <div className="flex gap-2 mb-4">
+        <button className="btn btn-teal h-[18px] " onClick={() => { document.body.style.overflow = "hidden"; openDebug ? setOpenDebug(false) : setOpenDebug(true) }}>htmlJson Debug</button>
+        <button
+          className="btn btn-teal   h-[18px] "
+          type="button"
+          onClick={async () => {
+            const el = document.getElementById("debug-htmlJson");
+            console.log("<===el===>", el);
+            if (!el) return;
+            const inn = el.innerHTML;
+            console.log("<===inn===>", inn);
+            if (inn) {
 
+              try {
+                await navigator.clipboard.writeText(inn);
+              } catch (err) {
+                console.error('Ошибка копирования:', err);
+              }
+
+            }
+          }}
+        >
+          Copy
+        </button>
+      </div>
+      {/* --- */}
       <div className={`${openDebug ? "block" : "hidden"}  flex-1 text-[14px] bg-slate-900/60 p-2 rounded-lg  overflow-auto border border-slate-700/50 shadow-inner`}>
         <div className="flex justify-between items-center mb-1 pb-1 border-b border-slate-800 ">
           <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">debug: htmlJson</span>
           <span className="text-[9px] text-teal-500/50 italic">{typeof htmlJson === 'object' ? Object.keys(htmlJson || {}).length : 0} props</span>
         </div>
-        <pre className="text-teal-400 line-height-1">
+        <pre id="debug-htmlJson" className=" text-teal-400 line-height-1">
           {JSON.stringify(htmlJson, null, 2)}
         </pre>
       </div>
@@ -330,7 +354,7 @@ td, th { padding: 0; text-align: left; }
               </path>
             </svg>
           </button>
-          <button
+          {/* <button
             className="btn btn-primary m-0 w-[28px] h-[18px]"
             type="button"
             onClick={() => {
@@ -342,7 +366,7 @@ td, th { padding: 0; text-align: left; }
             }}
           >
             <WorkerIcon width={12} height={12} />
-          </button>
+          </button> */}
 
         </div>
         <Script

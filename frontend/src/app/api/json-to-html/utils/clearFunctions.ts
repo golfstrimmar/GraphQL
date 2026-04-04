@@ -290,15 +290,39 @@ const SOCIAL_IMG_SCRIPT = `/* @component: .social-img */
 `;
 
 // рекурсивный сбор <script> тегов без побочных эффектов
-function collectJs(nodes: any[]): string {
+function collectJs(nodes: any[], seenItems = new Set<string>()): string {
   let resJS = "";
   nodes.forEach((node) => {
     if (!node || !node.tag) return;
     if (node.tag === "script") {
-      resJS += (node.text || "") + "\n";
+      const scriptText = (node.text || "").trim();
+      if (!scriptText) return;
+
+      // Ищем все маркеры вида /* @component: ... */
+      const markerRegex = /\/\*\s*@component:\s*(.+?)\s*\*\//g;
+      const markers: string[] = [];
+      let match;
+      while ((match = markerRegex.exec(scriptText)) !== null) {
+        markers.push(match[1].trim());
+      }
+
+      // Если нашли маркеры, проверяем их
+      if (markers.length > 0) {
+        const isDuplicate = markers.some((m) => seenItems.has(m));
+        if (!isDuplicate) {
+          markers.forEach((m) => seenItems.add(m));
+          resJS += scriptText + "\n";
+        }
+      } else {
+        // Резервный вариант на случай, если маркеров нет (дедупликация по всему тексту)
+        if (!seenItems.has(scriptText)) {
+          seenItems.add(scriptText);
+          resJS += scriptText + "\n";
+        }
+      }
     }
     if (Array.isArray(node.children) && node.children.length > 0) {
-      resJS += collectJs(node.children);
+      resJS += collectJs(node.children, seenItems);
     }
   });
   return resJS;
