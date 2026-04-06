@@ -85,16 +85,16 @@ const AdminComponent = () => {
 
   async function processScriptsData(sD: string) {
     let r: HtmlNode[] = [];
-
-    if (sD.includes("input")) {
-      const re = await loadScript("script-input-field");
+    console.log("<===sD===>", sD);
+    if (sD.includes("container-filled") || sD.includes("container-outlined") || sD.includes("container-empty")) {
+      const re = await loadScript("script-all-inputs");
       r.push(...re);
     }
 
-    if (sD.includes("svg")) {
-      const re = await loadScript("script-input-svg");
-      r.push(...re);
-    }
+    // if (sD.includes("svg")) {
+    //   const re = await loadScript("script-input-svg");
+    //   r.push(...re);
+    // }
 
     if (!sD.includes("input") && !sD.includes("svg")) {
       const re = await loadScript(`script-${sD}`);
@@ -117,10 +117,10 @@ const AdminComponent = () => {
       r.push(...re);
     }
 
-    if (!sD.includes("input") && !sD.includes("svg")) {
-      const re = await loadStyle(`style-${sD}`);
-      r.push(...re);
-    }
+    // if (!sD.includes("input") && !sD.includes("svg")) {
+    //   const re = await loadStyle(`style-${sD}`);
+    //   r.push(...re);
+    // }
 
     return r;
   }

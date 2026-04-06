@@ -38,7 +38,12 @@ export const TagsNamen1 = [
   // { tag: "label", color: "#f97316" },
 ];
 export const TagsNamen2 = [
-  { tag: "input-field", color: "powderblue" },
+  { tag: "container-filled", color: "powderblue" },
+  { tag: "container-outlined", color: "powderblue" },
+  { tag: "container-empty", color: "powderblue" },
+  { tag: "container-input-filled-svg", color: "powderblue" },
+  { tag: "container-input-outlined-svg", color: "powderblue" },
+  { tag: "container-input-standard-svg", color: "powderblue" },
   { tag: "input-name-svg", color: "powderblue" },
   { tag: "input-mail-svg", color: "powderblue" },
   { tag: "input-tel-svg", color: "powderblue" },
@@ -79,6 +84,7 @@ export const TagsNamen5 = [
   { tag: "contacts", color: "powderblue" },
   { tag: "form-avatar", color: "powderblue" },
   { tag: "form-common", color: "powderblue" },
+
   { tag: "test", color: "powderblue" },
 
 ];

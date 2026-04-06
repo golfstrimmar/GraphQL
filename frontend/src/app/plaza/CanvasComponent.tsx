@@ -460,7 +460,7 @@ export default function CanvasComponent() {
           }}
           className={`renderedNode `}
           style={{
-            ...parseInlineStyle(node.style),
+            // ...parseInlineStyle(node.style),
             pointerEvents: "auto",
             cursor: "pointer",
           }}
@@ -500,7 +500,7 @@ export default function CanvasComponent() {
         href={node.attributes?.href}
         rel={node.attributes?.rel}
         className={`renderedNode`}
-        style={getNodeStyle(node, activeKey)}
+        // style={getNodeStyle(node, activeKey)}
         onClick={(e: React.MouseEvent<HTMLElement>) => handleClick(e, node)}
         onSubmit={(e: React.FormEvent) => {
           e.preventDefault();

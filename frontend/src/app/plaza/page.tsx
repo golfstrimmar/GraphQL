@@ -12,7 +12,7 @@ export default function Plaza() {
     <section className=" pt-[80px] min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-slate-50 pb-[500px]">
       <div className="container">
         <ScrollButtons />
-       
+
         <PlazaHeader
           title={"Plaza Editor"}
           description={"Build and manage your HTML/CSS projects"}
