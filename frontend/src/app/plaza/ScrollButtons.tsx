@@ -24,7 +24,7 @@ export default function ScrollButtons() {
   const containerClass = isPlaza() ? "container" : "";
 
   return (
-    <div className="flex flex-col gap-4 fixed top-[400px] left-0 w-4  bg-[var(--lightest-slate)] admin-shimmer rounded-r-sm py-1 z-[5000]">
+    <div className=" fixed  flex flex-col gap-4 fixed top-[400px]  left-[2px] w-4  bg-[var(--lightest-slate)] admin-shimmer rounded-r-sm py-1 pb-[110px] z-[5000]">
       <button
         className="btn-teal !bg-[var(--navy)] w-full !p-0.25 flex-[40px] center"
         type="button"
@@ -55,7 +55,7 @@ export default function ScrollButtons() {
       <HiddenButton />
       <JsonToHtmlButton cN="!py-4" />
       <button
-        className="btn-teal !bg-[var(--navy)] w-full !p-0.25  flex-[100px] center"
+        className="btn-teal !bg-[var(--navy)] w-[300px] h-[100px] text-right !p-0.25 absolute bottom-[5px] right-[2px] flex-[100px] flex items-center justify-end"
         type="button"
         onMouseEnter={() => {
           const el = document.getElementById("admin-siction");

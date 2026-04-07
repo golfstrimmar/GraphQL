@@ -57,7 +57,8 @@ const NodeInfo: React.FC<NodeInfoProps> = ({
     setActiveKey(null);
     setDragKey(null);
     setHTML("");
-    setSCSS(""); setJS(""); setIsCollapsedAll(false);
+    setSCSS(""); setJS("");
+    setIsCollapsedAll(false);
   };
   // -------------
   useEffect(() => {

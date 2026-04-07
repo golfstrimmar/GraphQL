@@ -169,6 +169,7 @@ export default function MobileAddStyle({
               </button>
               <button
                 onClick={() => {
+                  setAddingScss("");
                   setStyleText((prev: string) => {
                     return NormalizeSCSS(prev, addingScss);
                   });

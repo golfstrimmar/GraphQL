@@ -1,0 +1,150 @@
+/* ====================== ОБЩИЙ КОНТЕЙНЕР ====================== */
+.react-aria-ColorPicker {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13px;
+  color: #e5e7eb;
+}
+
+/* ====================== COLOR AREA (Saturation + Brightness) ====================== */
+.react-aria-ColorArea {
+  width: 240px;
+  height: 160px;
+  border-radius: 8px;
+  border: 1px solid #4b5563;
+  overflow: hidden;
+  position: relative;
+  cursor: crosshair;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3) inset;
+}
+
+/* Thumb для ColorArea */
+.react-aria-ColorArea [data-rac-thumb] {
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px #00000080, 0 2px 4px rgba(0, 0, 0, 0.4);
+  background: transparent;
+}
+
+/* ====================== COLOR SLIDER ====================== */
+.react-aria-ColorSlider {
+  position: relative;
+  width: 240px;
+}
+
+/* Сам трек (дорожка с градиентом) */
+.react-aria-ColorSlider .react-aria-SliderTrack {
+  position: relative;
+  height: 16px;
+  border-radius: 9999px;
+  border: 1px solid #4b5563;
+  background: #111827;
+  /* fallback */
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) inset;
+}
+
+/* Для Hue слайдера градиент ставит сама библиотека — просто не перебиваем его */
+
+/* Для Alpha слайдера добавляем checkerboard-подложку (полупрозрачность) */
+.react-aria-ColorSlider[channel="alpha"] .react-aria-SliderTrack {
+  background:
+    linear-gradient(45deg, #666 25%, transparent 25%) -10px 0 / 20px 20px,
+    linear-gradient(45deg, transparent 25%, #666 25%) 0 10px / 20px 20px,
+    #111827;
+}
+
+/* Thumb (ползунок) для всех слайдеров */
+.react-aria-ColorSlider [data-rac-thumb] {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  border: 2.5px solid #e5e7eb;
+  background: #020617;
+  box-shadow:
+    0 0 0 2px rgba(15, 23, 42, 0.9),
+    0 2px 6px rgba(0, 0, 0, 0.5);
+  cursor: grab;
+}
+
+.react-aria-ColorSlider [data-rac-thumb]:active {
+  cursor: grabbing;
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* Фокус */
+.react-aria-ColorSlider [data-rac-thumb]:focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: 3px;
+}
+
+/* ====================== RGB ПОЛЯ ====================== */
+.react-aria-ColorField {
+  border: 1px solid #4b5563;
+  border-radius: 6px;
+  padding: 4px 6px;
+  background: #020617;
+  color: #e5e7eb;
+  font-size: 12px;
+  text-align: center;
+  width: 52px;
+}
+
+.react-aria-ColorField:focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: 2px;
+}
+
+/* Контейнер для RGB полей */
+.flex.gap-1.mt-2 {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+
+
+/* ... твой предыдущий CSS для ColorPicker, ColorArea, ColorField остаётся ... */
+
+/* ==================== SLIDER TRACK ==================== */
+.react-aria-ColorSliderTrack {
+  position: relative;
+  height: 16px;
+  width: 100%;
+  border-radius: 9999px;
+  border: 1px solid #4b5563;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) inset;
+  overflow: hidden;
+}
+
+/* Alpha-слайдер — checkerboard подложка */
+.react-aria-ColorSlider[channel="alpha"] .react-aria-ColorSliderTrack {
+  background-image:
+    linear-gradient(45deg, #555 25%, transparent 25%),
+    linear-gradient(-45deg, #555 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #555 75%),
+    linear-gradient(-45deg, transparent 75%, #555 75%);
+  background-size: 12px 12px;
+  background-position: 0 0, 0 6px, 6px -6px, -6px 0;
+}
+
+/* Thumb (ползунок) */
+.react-aria-ColorSlider [data-rac-thumb] {
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  border: 3px solid #e5e7eb;
+  background: #020617;
+  box-shadow: 0 0 0 2px #1e2937, 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.react-aria-ColorSlider [data-rac-thumb]:focus-visible {
+  outline: 3px solid #38bdf8;
+  outline-offset: 3px;
+}

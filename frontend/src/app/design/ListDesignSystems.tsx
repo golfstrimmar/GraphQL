@@ -313,9 +313,10 @@ export default function ListDesignSystems({
         </h6>
         <DesignImages images={images} setImages={setImages} />
       </div>
+      <hr className="bg-[var(--teal)] h-1 my-4" />
       <div className="flex flex-col gap-2 mb-2 w-full bg-navy rounded-2xl shadow-xl p-2   border border-slate-200 ">
         <h6 className="text-sm text-gray-400  mb-1">
-          <span className="bg-[var(--teal)] w-2 h-2 rounded-full"></span> Form
+          <span className="bg-[var(--blue-600)] w-2 h-2 rounded-full"></span> Form
           Nodes
         </h6>
 

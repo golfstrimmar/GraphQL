@@ -160,7 +160,7 @@ const AdminComponent = () => {
       setLoading(false);
       return;
     }
-
+    console.log("<== ✨ ✨ ✨ content ✨ ✨ ✨===>", content);
     const resultWithKeys = ensureNodeKeys(content) as HtmlNode[];
     setLoading(false);
     setClicked("");

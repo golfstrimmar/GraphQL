@@ -78,7 +78,7 @@ export default function JsonToHtmlButton({ cN = "py-0.75" }: JsonToHtmlButtonPro
     <button
       onClick={handleClick}
       disabled={loading}
-      className={`btn-primary  font-bold text-slate-800 rounded !text-[12px] !lh-0 w-full !px-0   center ${cN} ${loading ? "admin-shimmer--red" : ""}`}
+      className={`btn-primary  font-bold text-slate-800 rounded !text-[12px] !lh-0 w-full !px-0 !py-0.75  center ${cN} ${loading ? "admin-shimmer--red" : ""}`}
     >
       {loading ? (
         <Spinner />

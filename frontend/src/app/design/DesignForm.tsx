@@ -11,7 +11,8 @@ import Loading from "@/components/ui/Loading/Loading";
 import Spinner from "@/components/icons/Spinner";
 import AddIcon from "@/components/icons/AddIcon";
 import dynamic from "next/dynamic";
-
+import { ColorPickerField } from "@/components/ui/ColorPickerField/ColorPickerField";
+import { isolateComponentNodes } from "@/utils/isolateComponent";
 
 const ModalFormFont = dynamic(
   () => import("./ModalFormFont"),
@@ -32,8 +33,22 @@ type InputType = {
   borderColor: string;
   fontData: string;
 };
-
-
+type UpdateResult = {
+  nodes: HtmlNode[];
+  found: boolean;
+};
+const CheckboxNames = [
+  "filled",
+  "outlined",
+  "empty",
+  "svg-filled",
+  "svg-outlined",
+  "svg-empty",
+  "name-svg",
+  "mail-svg",
+  "tel-svg",
+  "textarea",
+]
 // --- 🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
 export default function DesignForm({ inputs, setInputs, dInp, resetAll }: { inputs: InputType[], setInputs: React.Dispatch<React.SetStateAction<InputType[]>>, dInp: string[], resetAll: () => void }) {
   const router = useRouter();
@@ -41,52 +56,29 @@ export default function DesignForm({ inputs, setInputs, dInp, resetAll }: { inpu
   const [loading, setLoading] = useState(false);
   const [openFontModal, setOpenFontModal] = useState<boolean>(false);
   const [currentInput, setCurrentInput] = useState<InputType | null>(null);
-  const { refetch: refetchJson } = useQuery(GET_JSON_DOCUMENT, {
-    variables: { name },
-    skip: !name,
-    fetchPolicy: "no-cache",
-  });
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
 
-  const CheckboxNames = [
-    "filled",
-    "outlined",
-    "empty",
-    "svg-filled",
-    "svg-outlined",
-    "svg-empty",
-    "name-svg",
-    "mail-svg",
-    "tel-svg",
-    "number",
-    "check",
-    "textarea",
-    "radio",
-    "rating",
-    "range",
-    "select",
-    "search"
-  ]
-  type UpdateResult = {
-    nodes: HtmlNode[];
-    found: boolean;
-  };
-  // const [getJsonDocument, {
-  //   data: dataProject,
-  //   loading: loadingProject,
-  //   error: errorProject,
-  // }] = useLazyQuery(GET_JSON_DOCUMENT, {
-  //   fetchPolicy: "network-only",
-  //   onCompleted: (data) => {
-  //     if (!data) return;
-  //     console.log('<===data===>', data.jsonDocumentByName.content);
-  //     const jsonContent = data.jsonDocumentByName.content;
-  //     console.log('<===jsonContent===>', jsonContent);
-  //     const nodes: HtmlNode[] = ensureNodeKeys(jsonContent);
-  //     updateHtmlJson(prev => [...prev, ...nodes]);
-  //   },
-  //   onError: (error) => { console.log("<======>", error); },
-  // });
+  const [openPicker, setOpenPicker] = useState<{
+    name: string;
+    field: "background" | "color" | "borderColor" | null;
+  } | null>(null);
 
+  const closeAllPickers = () => setOpenPicker(null);
+  const { refetch: refetchJson } = useQuery(GET_JSON_DOCUMENT, { fetchPolicy: "no-cache", });
+  // ====================
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (!wrapperRef.current) return;
+      if (!wrapperRef.current.contains(e.target as Node)) {
+        closeAllPickers();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
   // ==================== 
   useEffect(() => { if (!inputs) return; console.log('<===inputs===>', inputs); }, [inputs]);
   // ==================== 
@@ -96,7 +88,7 @@ export default function DesignForm({ inputs, setInputs, dInp, resetAll }: { inpu
       const existingInput = prevInputs.find(input => input.name === name);
       if (existingInput) {
         return prevInputs.filter(input => input.name !== name);
-      } else if (name === "filled") {
+      } else if (name.includes("filled")) {
         return [...prevInputs, { name, type: "", value: "", quantity: 1, checked, background: "#233554c9", color: "#e6f1ff", borderColor: "#8892b0f6", fontData: " font-weight:400;  font-family:'Montserrat', sans-serif;" }];
       } else {
         return [...prevInputs, { name, type: "", value: "", quantity: 1, checked, background: "", color: "#e6f1ff", borderColor: "#8892b0f6", fontData: "font-weight:400; font-family:'Montserrat', sans-serif;" }];
@@ -130,9 +122,7 @@ export default function DesignForm({ inputs, setInputs, dInp, resetAll }: { inpu
 
   // ---- color Label
   const isTargetLabel = (node: HtmlNode) =>
-    node.tag === "label" &&
-    node.class === "label-filled" &&
-    node.attributes?.for === "f1";
+    node.tag === "label";
 
 
   const updateLabelColorInner = (
@@ -235,56 +225,233 @@ export default function DesignForm({ inputs, setInputs, dInp, resetAll }: { inpu
 
   const transformResultColor = (content: HtmlNode[], input: InputType) => {
     const result = updateLabelColor(content, input.color);
-    console.log("<===result===>", result);
     return result;
   };
 
 
 
   const transformResultBorder = (content: any, input: InputType) => {
-    const result = content.map((item: any) => {
-      const updatedCss = item.style.replace(
-        /border:\s*[^;]+;/g,
-        `border: 2px solid ${input.borderColor};`
-      );
+    return content.map((item: any) => {
+      const style = item.style || "";
 
-      return {
-        ...item,
-        style: updatedCss,
-      };
+      if (input.name === "empty") {
+        // меняем только border-bottom
+        const updatedCss = style.replace(
+          /border-bottom:\s*[^;]+;/g,
+          `border-bottom: 2px solid ${input.borderColor};`
+        );
+
+        return {
+          ...item,
+          style: updatedCss,
+        };
+      } else {
+        // меняем полный border
+        const updatedCss = style.replace(
+          /border:\s*[^;]+;/g,
+          `border: 2px solid ${input.borderColor};`
+        );
+
+        return {
+          ...item,
+          style: updatedCss,
+        };
+      }
     });
-
-    return result;
   };
 
   const handleAddToJson = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     let result: HtmlNode[] = [];
 
-    for (const input of inputs) {
-      if (!input.checked) continue;
+    try {
+      for (const input of inputs) {
+        if (!input.checked) continue; // не отмечен — пропускаем
 
-      try {
         const { name, quantity } = input;
-        if (!input || name !== "filled") continue;
 
-        for (let i = 0; i < quantity; i++) {
-          setLoading(true);
-          const { data } = await refetchJson({ name: "container-" + name });
-          const content = data?.jsonDocumentByName?.content;
-          if (!content) {
-            setLoading(false);
-            return;
+        if (name === "filled") {
+          for (let i = 0; i < quantity; i++) {
+            setLoading(true);
+            const { data } = await refetchJson({ name: "container-filled" });
+            const content = data?.jsonDocumentByName?.content;
+            if (!content) {
+              setLoading(false);
+              return;
+            }
+
+            let local = transformResultBackground(content, input) as HtmlNode[];
+            local = transformResultColor(local, input) as HtmlNode[];
+            local = appendLabelFontData(local, input.fontData) as HtmlNode[];
+            local = transformResultBorder(local, input) as HtmlNode[];
+
+            // 1) ключи
+            local = ensureNodeKeys(local) as HtmlNode[];
+
+            // 2) изоляция КОНКРЕТНО этого экземпляра
+            local = isolateComponentNodes(local);
+
+            result = [...result, ...local];
           }
 
-          let local = transformResultBackground(content, input) as HtmlNode[];
-          local = transformResultColor(local, input) as HtmlNode[];
-          local = appendLabelFontData(local, input.fontData) as HtmlNode[];
-          local = transformResultBorder(local, input) as HtmlNode[];
+          continue;
+        }
+        if (name === "outlined") {
+          for (let i = 0; i < quantity; i++) {
+            setLoading(true);
+            const { data } = await refetchJson({ name: "container-outlined" });
+            const content = data?.jsonDocumentByName?.content;
+            if (!content) {
+              setLoading(false);
+              return;
+            }
 
-          result = [...result, ...local];
+            let local = transformResultColor(content, input) as HtmlNode[];
+            local = appendLabelFontData(local, input.fontData) as HtmlNode[];
+            local = transformResultBorder(local, input) as HtmlNode[];
+
+            // 1) ключи
+            local = ensureNodeKeys(local) as HtmlNode[];
+
+            // 2) изоляция КОНКРЕТНО этого экземпляра
+            local = isolateComponentNodes(local);
+
+            result = [...result, ...local];
+          }
+
+          continue;
+        }
+        if (name === "empty") {
+          for (let i = 0; i < quantity; i++) {
+            setLoading(true);
+            const { data } = await refetchJson({ name: "container-empty" });
+            const content = data?.jsonDocumentByName?.content;
+            if (!content) {
+              setLoading(false);
+              return;
+            }
+
+            let local = transformResultColor(content, input) as HtmlNode[];
+            local = appendLabelFontData(local, input.fontData) as HtmlNode[];
+            local = transformResultBorder(local, input) as HtmlNode[];
+
+            // 1) ключи
+            local = ensureNodeKeys(local) as HtmlNode[];
+
+            // 2) изоляция КОНКРЕТНО этого экземпляра
+            local = isolateComponentNodes(local);
+
+            result = [...result, ...local];
+          }
+
+          continue;
+        }
+        if (name === "svg-filled") {
+          for (let i = 0; i < quantity; i++) {
+            setLoading(true);
+            const { data } = await refetchJson({ name: "container-svg-filled" });
+            const content = data?.jsonDocumentByName?.content;
+            if (!content) {
+              setLoading(false);
+              return;
+            }
+
+            let local = transformResultBackground(content, input) as HtmlNode[];
+            local = transformResultColor(local, input) as HtmlNode[];
+            local = appendLabelFontData(local, input.fontData) as HtmlNode[];
+            local = transformResultBorder(local, input) as HtmlNode[];
+
+            // 1) ключи
+            local = ensureNodeKeys(local) as HtmlNode[];
+
+            // 2) изоляция КОНКРЕТНО этого экземпляра
+            local = isolateComponentNodes(local);
+
+            result = [...result, ...local];
+          }
+
+          continue;
+        }
+        if (name === "svg-outlined") {
+          for (let i = 0; i < quantity; i++) {
+            setLoading(true);
+            const { data } = await refetchJson({ name: "container-svg-outlined" });
+            const content = data?.jsonDocumentByName?.content;
+            if (!content) {
+              setLoading(false);
+              return;
+            }
+
+            let local = transformResultColor(content, input) as HtmlNode[];
+            local = appendLabelFontData(local, input.fontData) as HtmlNode[];
+            local = transformResultBorder(local, input) as HtmlNode[];
+
+            // 1) ключи
+            local = ensureNodeKeys(local) as HtmlNode[];
+
+            // 2) изоляция КОНКРЕТНО этого экземпляра
+            local = isolateComponentNodes(local);
+
+            result = [...result, ...local];
+          }
+
+          continue;
+        }
+        if (name === "svg-empty") {
+          for (let i = 0; i < quantity; i++) {
+            setLoading(true);
+            const { data } = await refetchJson({ name: "container-svg-empty" });
+            const content = data?.jsonDocumentByName?.content;
+            if (!content) {
+              setLoading(false);
+              return;
+            }
+
+            let local = transformResultColor(content, input) as HtmlNode[];
+            local = appendLabelFontData(local, input.fontData) as HtmlNode[];
+            local = transformResultBorder(local, input) as HtmlNode[];
+
+            // 1) ключи
+            local = ensureNodeKeys(local) as HtmlNode[];
+
+            // 2) изоляция КОНКРЕТНО этого экземпляра
+            local = isolateComponentNodes(local);
+
+            result = [...result, ...local];
+          }
+
+          continue;
+        }
+        if (name === "textarea") {
+          for (let i = 0; i < quantity; i++) {
+            setLoading(true);
+            const { data } = await refetchJson({ name: "textarea-field" });
+            const content = data?.jsonDocumentByName?.content;
+            if (!content) {
+              setLoading(false);
+              return;
+            }
+
+            let local = transformResultColor(content, input) as HtmlNode[];
+            local = appendLabelFontData(local, input.fontData) as HtmlNode[];
+            local = transformResultBorder(local, input) as HtmlNode[];
+
+            // 1) ключи
+            local = ensureNodeKeys(local) as HtmlNode[];
+
+            // 2) изоляция КОНКРЕТНО этого экземпляра
+            local = isolateComponentNodes(local);
+
+            result = [...result, ...local];
+          }
+
+          continue;
         }
 
+      }
+      console.log("<= ✔️ ✔️ ✔️==result== ✔️ ✔️ ✔️=>", result);
+      // один раз в конце добираем общий скрипт
+      if (result.length > 0) {
         const { data } = await refetchJson({ name: "script-all-inputs" });
         const content = data?.jsonDocumentByName?.content;
         if (!content) {
@@ -293,18 +460,33 @@ export default function DesignForm({ inputs, setInputs, dInp, resetAll }: { inpu
         }
 
         const newResult = [...result, ...content];
-        const resultWithKeys = ensureNodeKeys(newResult) as HtmlNode[];
-        updateHtmlJson((prev) => [...prev, ...resultWithKeys]);
+        // 2. ПОМЕЧАЕМ ВСЕ <script> КАК ГЛОБАЛЬНЫЕ
+        const newResultWithGlobalScripts = newResult.map((node) =>
+          node.tag === "script"
+            ? {
+              ...node,
+              attributes: {
+                ...(node.attributes || {}),
+                "data-global": "true",
+              },
+            }
+            : node
+        );
 
-        setLoading(false);
-      } catch (error) {
-        console.log("<======>", error);
-      } finally {
-        router.push("/plaza");
+        // 3. Ключи
+        const resultWithKeys = ensureNodeKeys(
+          newResultWithGlobalScripts
+        ) as HtmlNode[];
+
+        updateHtmlJson((prev) => [...prev, ...resultWithKeys]);
       }
+    } catch (error) {
+      console.log("<======>", error);
+    } finally {
+      setLoading(false);
+      router.push("/plaza");
     }
   };
-
 
   return (
     <div className="">
@@ -324,8 +506,8 @@ export default function DesignForm({ inputs, setInputs, dInp, resetAll }: { inpu
               </div>
             ))}
           </div>
-          {inputs.length > 0 && <div className="flex flex-col gap-2 border-l-1 border-l-[#e6f1ff] ">
-            <div className="input-data grid grid-cols-[repeat(5,7%)_1fr] items-center justify-items-center  text-sm gap-2">
+          {inputs.length > 0 && <div ref={wrapperRef} className="flex flex-col gap-2 border-l-1 border-l-[#e6f1ff] ">
+            <div className="input-data grid grid-cols-[8%_5%_15%_15%_15%_1fr] items-center justify-items-center  text-sm gap-2">
               <span >Name</span>
               <span >Quantity</span>
               <span >Background</span>
@@ -335,9 +517,8 @@ export default function DesignForm({ inputs, setInputs, dInp, resetAll }: { inpu
             </div>
             <hr className="mb-2 " />
             {inputs.map((input) => (
-              <div key={input.name} className="input-data grid grid-cols-[repeat(5,7%)_1fr] items-center justify-items-center gap-2">
+              <div key={input.name} className="input-data grid grid-cols-[8%_5%_15%_15%_15%_1fr] items-center justify-items-center gap-2">
                 <h5>{input.name}</h5>
-
                 <div className="f-number">
                   <button className="num-btn num-btn--dec" type="button"
                     onClick={() => {
@@ -346,53 +527,138 @@ export default function DesignForm({ inputs, setInputs, dInp, resetAll }: { inpu
                       }
                     }}
                   >−</button>
-                  <input id={`f-number-input-${input.name}`} max="10" min="0" name={`f-number-input-${input.name}`} step="1" type="number" value={input.quantity} placeholder="" />
+                  <input id={`f-number-input-${input.name}`} max="10" min="0" name={`f-number-input-${input.name}`} step="1" type="number" value={input.quantity} placeholder="" onChange={(e) => handleQuantityChange(input.name, Number(e.target.value))} />
                   <button className="num-btn num-btn--inc" type="button"
                     onClick={() => handleQuantityChange(input.name, input.quantity + 1)}
                   >+</button>
                 </div>
-                <div className="flex flex-col text-sm gap-0">
-                  <label htmlFor="background">{input.background}</label>
+                {!input.name.includes("outlined") && !input.name.includes("empty") && !input.name.includes("textarea") && <div className="flex flex-col text-sm gap-0">
 
-                  <input className="cursor-pointer" type="color" name="background" id="background" value={input.background}
-                    disabled={input.name !== "filled"}
+                  <div className="relative">
+                    <h6>{input.background}</h6>
+                    <button
 
-                    onChange={(e) => {
-                      const { value } = e.target;
-                      setInputs((prevInputs) =>
-                        prevInputs.map((item) =>
-                          item.name === input.name ? { ...item, background: value } : item
-                        )
+                      className="btn btn-empty px-0.5 font-bold text-sm h-[20px] w-[170px]"
+                      style={{ backgroundColor: input.background }}
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setOpenPicker((prev) =>
+                          prev &&
+                            prev.name === input.name &&
+                            prev.field === "background"
+                            ? null
+                            : { name: input.name, field: "background" }
+                        );
+                      }}
+                    />
+                    <div
+                      className={`absolute top-full left-0 z-10 ${openPicker &&
+                        openPicker.name === input.name &&
+                        openPicker.field === "background"
+                        ? ""
+                        : "hidden"
+                        }`}
+                    >
+                      <ColorPickerField
+                        value={input.background}
+                        onChange={(val) => {
+                          setInputs((prev) =>
+                            prev.map((item) =>
+                              item.name === input.name ? { ...item, background: val } : item
+                            )
+                          );
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>}
+
+                {/* {input.name === "svg-outlined" && <div className="flex flex-col text-sm gap-0"></div>} */}
+
+                {input.name.includes("outlined") && <div className="flex flex-col text-sm gap-0"></div>}
+                {input.name.includes("empty") && <div className="flex flex-col text-sm gap-0"></div>}
+                {input.name.includes("textarea") && <div className="flex flex-col text-sm gap-0"></div>}
+                <div className="relative">
+                  <h6>{input.color}</h6>
+                  <button
+
+                    type="button"
+                    className="btn btn-empty px-0.5 font-bold text-sm h-[20px] w-[170px]"
+                    style={{ backgroundColor: input.color }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setOpenPicker((prev) =>
+                        prev &&
+                          prev.name === input.name &&
+                          prev.field === "color"
+                          ? null
+                          : { name: input.name, field: "color" }
                       );
-                    }} />
+                    }}
+                  />
+                  <div
+                    className={`absolute top-full left-0 z-10 ${openPicker &&
+                      openPicker.name === input.name &&
+                      openPicker.field === "color"
+                      ? ""
+                      : "hidden"
+                      }`}
+                  >
+                    <ColorPickerField
+                      value={input.color}
+                      onChange={(val) => {
+                        setInputs((prev) =>
+                          prev.map((item) =>
+                            item.name === input.name ? { ...item, color: val } : item
+                          )
+                        );
+                      }}
+                    />
+                  </div>
                 </div>
+                <div className="relative">
+                  <h6>{input.borderColor}</h6>
+                  <button
 
-                <div className="flex flex-col  text-sm gap-0">
-                  <label htmlFor="color">{input.color}</label>
-                  <input className="cursor-pointer" type="color" name="color" id="color" value={input.color}
-
-                    onChange={(e) => {
-                      const { value } = e.target;
-                      setInputs((prevInputs) =>
-                        prevInputs.map((item) =>
-                          item.name === input.name ? { ...item, color: value } : item
-                        )
+                    type="button"
+                    className="btn btn-empty px-0.5 font-bold text-sm h-[20px] w-[170px]"
+                    style={{ backgroundColor: input.borderColor }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setOpenPicker((prev) =>
+                        prev &&
+                          prev.name === input.name &&
+                          prev.field === "borderColor"
+                          ? null
+                          : { name: input.name, field: "borderColor" }
                       );
-                    }} />
-
-
+                    }}
+                  />
+                  <div
+                    className={`absolute top-full left-0 z-10 ${openPicker &&
+                      openPicker.name === input.name &&
+                      openPicker.field === "borderColor"
+                      ? ""
+                      : "hidden"
+                      }`}
+                  >
+                    <ColorPickerField
+                      value={input.borderColor}
+                      onChange={(val) => {
+                        setInputs((prev) =>
+                          prev.map((item) =>
+                            item.name === input.name ? { ...item, borderColor: val } : item
+                          )
+                        );
+                      }}
+                    />
+                  </div>
                 </div>
-                <div className="flex flex-col  text-sm gap-0">
-                  <label htmlFor="borderColor">{input.borderColor}</label>
-                  <input className="cursor-pointer" type="color" name="borderColor" id="borderColor" value={input.borderColor} onChange={(e) => {
-                    const { value } = e.target;
-                    setInputs((prevInputs) =>
-                      prevInputs.map((item) =>
-                        item.name === input.name ? { ...item, borderColor: value } : item
-                      )
-                    );
-                  }} /></div>
-                <div className="field-t-input flex items-center gap-2  text-sm gap-0">
+                <div className="field-t-input flex  items-center gap-2  text-sm gap-0">
                   <textarea className="cursor-pointer max-h-[40px]" name="fontData" id="fontData" value={input.fontData} onChange={(e) => {
                     const { value } = e.target;
                     setInputs((prevInputs) =>
@@ -426,7 +692,7 @@ export default function DesignForm({ inputs, setInputs, dInp, resetAll }: { inpu
         <hr className="my-2 " />
         <h6 className="text-sm text-gray-400 mt-4  mb-1">Add Form
           Nodes</h6>
-        <button className="btn btn-teal mt-4" type="button" onClick={(e) => handleAddToJson(e)}>  {loading ? <Spinner /> : <AddIcon width={18} height={18} />}
+        <button className={`btn btn-teal mt-4 ${inputs.length > 0 ? "admin-shimmer" : ""}`} type="button" onClick={(e) => handleAddToJson(e)}>  {loading ? <Spinner /> : <AddIcon width={18} height={18} />}
         </button>
       </form>
     </div>

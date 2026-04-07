@@ -19,6 +19,9 @@ import { OverlayState, HtmlNode } from "@/types/HtmlNode";
 import { useRef } from "react";
 import JsonToHtmlButton from "./JsonToHtmlButton";
 import PreviewIcon from "@/components/icons/PreviewIcon";
+import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
+import { isolateComponentNodes } from "@/utils/isolateComponent";
+import { reIsolateClone } from "@/utils/reIsolateClone";
 
 const NodeInfo = dynamic(() => import("./NodeInfo"), {
   ssr: false,
@@ -279,13 +282,19 @@ export default function CanvasComponent() {
         ? prevTree
         : [prevTree];
 
-      // 🔸 0. Дроп на самого себя → вообще не удаляем, просто дублируем
+      //🔸🔸🔸🔸🔸🔸🔸 0. Дроп на самого себя → вообще не удаляем, просто дублируем
+      //Скопировать ноду.
+      //Выдать ей новые _key(через ensureNodeKeys).
+      //Прогнать только клон через isolateComponentNodes, чтобы он получил новый isolate - YYYYYY.
+
       if (targetNode && targetNode._key === sourceKey) {
         const next = duplicateNodeAfter(currentRoot, sourceKey as string);
-        // здесь НЕ вызываем cleanupStylesAfterRemove, потому что ничего не удаляли
-        return next;
-      }
 
+        // 1. Находим только что добавленный клон
+        const reIsolated = reIsolateClone(next, sourceKey as string);
+
+        return reIsolated;
+      }
       // дальше — обычный перенос: сначала remove, потом вставка
 
       const { tree: withoutSource, meta } = removeNodeByKey(
