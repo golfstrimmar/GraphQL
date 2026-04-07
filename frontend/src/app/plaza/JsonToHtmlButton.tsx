@@ -4,7 +4,12 @@ import { useStateContext } from "@/providers/StateProvider";
 import HtmlIcon from "@/components/icons/HtmlIcon";
 import Spinner from "@/components/icons/Spinner";
 
-export default function JsonToHtmlButton() {
+
+type JsonToHtmlButtonProps = {
+  cN?: string;
+};
+
+export default function JsonToHtmlButton({ cN = "py-0.75" }: JsonToHtmlButtonProps) {
   const [loading, setLoading] = useState(false);
 
   const { htmlJson, updateHtmlJson, setHTML, setSCSS, setJS, showModal } =
@@ -73,14 +78,14 @@ export default function JsonToHtmlButton() {
     <button
       onClick={handleClick}
       disabled={loading}
-      className="btn-primary  font-bold text-slate-800 rounded !text-[12px] !lh-0 w-full !px-0  !py-0.25 center"
+      className={`btn-primary  font-bold text-slate-800 rounded !text-[12px] !lh-0 w-full !px-0   center ${cN} ${loading ? "admin-shimmer--red" : ""}`}
     >
       {loading ? (
         <Spinner />
       ) : (
         <>
           {/* <span>jsonHtml ⇨</span> */}
-          <HtmlIcon width={18} height={18} />
+          <HtmlIcon width={14} height={14} />
         </>
       )}
     </button>

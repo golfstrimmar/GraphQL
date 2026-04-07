@@ -28,7 +28,7 @@ export default function ScrollButtons() {
       <button
         className="btn-teal !bg-[var(--navy)] w-full !p-0.25 flex-[40px] center"
         type="button"
-        onClick={() => {
+        onMouseEnter={() => {
           const el = document.getElementById("preview-section");
           if (el) {
             const y = el.getBoundingClientRect().top + window.scrollY - 80;
@@ -41,7 +41,7 @@ export default function ScrollButtons() {
       <button
         className="btn-teal !bg-[var(--navy)] w-full !p-0.25  flex-[40px] center"
         type="button"
-        onClick={() => {
+        onMouseEnter={() => {
           const el = document.getElementById("canvas-section");
           if (el) {
             const y = el.getBoundingClientRect().top + window.scrollY - 80;
@@ -53,7 +53,21 @@ export default function ScrollButtons() {
 
       </button>
       <HiddenButton />
-      <JsonToHtmlButton />
+      <JsonToHtmlButton cN="!py-4" />
+      <button
+        className="btn-teal !bg-[var(--navy)] w-full !p-0.25  flex-[100px] center"
+        type="button"
+        onMouseEnter={() => {
+          const el = document.getElementById("admin-siction");
+          el.classList.toggle("!translate-y-[0%]");
+        }}
+      >
+        A
+
+      </button>
+
+
+
     </div>
   );
 }

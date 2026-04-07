@@ -122,7 +122,7 @@ export default function ServicesButtons() {
       </div>*/}
 
       <button
-        className="btn-teal flex-[1_0_140px]  flex items-center  !gap-2 "
+        className="btn-teal    inline-block items-center  !gap-2 "
         type="button"
         onClick={() => handleClean()}
       >
@@ -130,14 +130,14 @@ export default function ServicesButtons() {
         <p className="!text-[10px] !lh-0">remove servises texts</p>
       </button>
       {/*-------------*/}
-      <div className="flex-[60%] ">
+      {/* <div className="flex-[60%] ">
         <JsonToHtmlButton />
-      </div>
+      </div> */}
       {/*------отложено! обратная генерация в htmlJson-------*/}
       {/*{HTML.length > 0 && <HtmlToJsonButton />}*/}
 
       {/*-------------*/}
-      <hr className="border-2-[var(--grey-40)]  w-[25px] rotate-90" />
+      {/* <hr className="border-2-[var(--grey-40)]  w-[25px] rotate-90" />
       <button
         className="btn-teal flex-[40px] center"
         type="button"
@@ -176,7 +176,7 @@ export default function ServicesButtons() {
         }}
       >
         <ProjectsIcon width={12} height={12} />
-      </button>
+      </button> */}
     </div>
   );
 }

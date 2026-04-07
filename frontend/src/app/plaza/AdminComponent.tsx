@@ -209,7 +209,7 @@ const AdminComponent = () => {
   );
   // ==>==>==>==>==>==>==>==>==>==>==>==>==>
   return (
-    <>
+    <section >
       <HeroIconPicker
         openSVGModal={openSVGModal}
         setopenSVGModal={setopenSVGModal}
@@ -246,7 +246,7 @@ const AdminComponent = () => {
         </div>
 
       </div>
-    </>
+    </section>
   );
 };
 
