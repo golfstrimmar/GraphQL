@@ -466,6 +466,10 @@ export default function CanvasComponent() {
           }}
           draggable={true}
           data-key={node._key}
+          onChange={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
         />
       );
     }
@@ -535,7 +539,7 @@ export default function CanvasComponent() {
 
       <div className="flex items-center gap-2">
         {PageHeader("canvasIcon", "Canvas")}
-        <JsonToHtmlButton />
+        {/* <JsonToHtmlButton /> */}
       </div>
       <div
         id="plaza-render-area"

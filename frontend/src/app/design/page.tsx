@@ -20,7 +20,7 @@ export default async function Design({
 
   return (
     <div className="container">
-      <div className="p-4 mt-[60px] mb-8 w-full">
+      <div className="py-4 mt-[60px] mb-8 w-full">
         {!userCookie && (
           <div className="mt-[100px]">
             <Bage text="Login required" />

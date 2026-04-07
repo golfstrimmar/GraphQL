@@ -37,6 +37,17 @@ type LocalImage = {
   name: string;
   url: string; // ObjectURL для превью
 };
+type InputType = {
+  name: string;
+  type: string;
+  value: string;
+  quantity: number;
+  checked: boolean;
+  background: string;
+  color: string;
+  borderColor: string;
+  fontData: string;
+};
 // ====🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
 export default function ListDesignSystems({
   designSystems,
@@ -51,7 +62,7 @@ export default function ListDesignSystems({
   const [buttons, setButtons] = useState<(Text | null)[]>(Array(10).fill(null));
   const [isTransformed, setIsTransformed] = useState<boolean>(false);
   const [images, setImages] = useState<LocalImage[]>([]);
-
+  const [inputs, setInputs] = useState<InputType[]>([]);
   // --------------
   useEffect(() => {
     if (!images) return;
@@ -64,6 +75,7 @@ export default function ListDesignSystems({
     setButtons(Array(10).fill(null));
     clearImages();
     setImages([]);
+    setInputs([]);
   };
   // --------------
   function generateTextNode(
@@ -154,6 +166,7 @@ export default function ListDesignSystems({
     buttons?.filter((t): t is Text => t !== null) ?? [];
   const validImages: LocalImage[] =
     images?.filter((t): t is LocalImage => t !== null) ?? [];
+  // const validInp: InputType[] = inputs?.filter((t): t is InputType => t !== null) ?? [];
   // --------------------
   const transformToHtmlJson = () => {
     setIsTransformed(true);
@@ -253,7 +266,7 @@ export default function ListDesignSystems({
         validImages.length > 0) && (
           <div className="flex items-center mt-[30px] mb-2 gap-2 w-full bg-navy rounded shadow-xl p-2   border border-slate-200 ">
             <button
-              className="btn btn-teal    text-[14px]"
+              className="btn btn-teal  admin-shimmer  text-[14px] text-white"
               onClick={transformToHtmlJson}
             >
               {isTransformed ? <Spinner /> : <span>Transform to htmlJson</span>}
@@ -306,7 +319,7 @@ export default function ListDesignSystems({
           Nodes
         </h6>
 
-        <DesignForm dInp={dInp} resetAll={resetAll} />
+        <DesignForm inputs={inputs} setInputs={setInputs} dInp={dInp} resetAll={resetAll} />
       </div>
 
       {/*{images.length > 0 && (
