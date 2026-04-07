@@ -13,12 +13,13 @@ import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
 import DesigntTextNodes from "./DesigntTextNodes";
 import DesignButtons from "./DesignButtons";
 import DesignImages from "./DesignImages";
+import DesignForm from "./DesignForm";
 import "@/app/design/design.scss";
 import type { HtmlNode } from "@/types/HtmlNode";
 import type { DesignSystem, Text, DesignImage } from "@/types/DesignSystem";
 import { useRouter } from "next/navigation";
 import ClearIcon from "@/components/icons/ClearIcon";
-import { CONTENT, dTN, dBT } from "@/app/design/defaults";
+import { CONTENT, dTN, dBT, dInp } from "@/app/design/defaults";
 import {
   saveImage,
   getAllImages,
@@ -250,23 +251,23 @@ export default function ListDesignSystems({
       {(validTexts.length > 0 ||
         validButtons.length > 0 ||
         validImages.length > 0) && (
-        <div className="flex items-center mt-[30px] mb-2 gap-2 w-full bg-navy rounded shadow-xl p-2   border border-slate-200 ">
-          <button
-            className="btn btn-teal    text-[14px]"
-            onClick={transformToHtmlJson}
-          >
-            {isTransformed ? <Spinner /> : <span>Transform to htmlJson</span>}
-          </button>
-          <button
-            className="btn btn-empty w-6 h-6 p-0.5 center !flex"
-            onClick={() => {
-              resetAll();
-            }}
-          >
-            <ClearIcon width={34} height={34} />
-          </button>
-        </div>
-      )}
+          <div className="flex items-center mt-[30px] mb-2 gap-2 w-full bg-navy rounded shadow-xl p-2   border border-slate-200 ">
+            <button
+              className="btn btn-teal    text-[14px]"
+              onClick={transformToHtmlJson}
+            >
+              {isTransformed ? <Spinner /> : <span>Transform to htmlJson</span>}
+            </button>
+            <button
+              className="btn btn-empty w-6 h-6 p-0.5 center !flex"
+              onClick={() => {
+                resetAll();
+              }}
+            >
+              <ClearIcon width={34} height={34} />
+            </button>
+          </div>
+        )}
 
       <div className="flex flex-col gap-2 mb-2 w-full bg-navy rounded-2xl shadow-xl p-2   border border-slate-200 ">
         <h6 className="text-sm text-gray-400  mb-1">
@@ -298,6 +299,14 @@ export default function ListDesignSystems({
           Nodes
         </h6>
         <DesignImages images={images} setImages={setImages} />
+      </div>
+      <div className="flex flex-col gap-2 mb-2 w-full bg-navy rounded-2xl shadow-xl p-2   border border-slate-200 ">
+        <h6 className="text-sm text-gray-400  mb-1">
+          <span className="bg-[var(--teal)] w-2 h-2 rounded-full"></span> Form
+          Nodes
+        </h6>
+
+        <DesignForm dInp={dInp} resetAll={resetAll} />
       </div>
 
       {/*{images.length > 0 && (

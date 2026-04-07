@@ -41,9 +41,11 @@ export const TagsNamen2 = [
   { tag: "container-filled", color: "powderblue" },
   { tag: "container-outlined", color: "powderblue" },
   { tag: "container-empty", color: "powderblue" },
-  { tag: "container-input-filled-svg", color: "powderblue" },
-  { tag: "container-input-outlined-svg", color: "powderblue" },
-  { tag: "container-input-standard-svg", color: "powderblue" },
+
+  { tag: "container-svg-filled", color: "powderblue" },
+  { tag: "container-svg-outlined", color: "powderblue" },
+  { tag: "container-svg-empty", color: "powderblue" },
+
   { tag: "input-name-svg", color: "powderblue" },
   { tag: "input-mail-svg", color: "powderblue" },
   { tag: "input-tel-svg", color: "powderblue" },

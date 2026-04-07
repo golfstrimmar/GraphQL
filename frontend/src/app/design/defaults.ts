@@ -24,3 +24,7 @@ export const dBT = [
   "font-size:28px; color:#000000; font-weight:800; line-height:1; font-family:'Montserrat', sans-serif;",
   "font-size:30px; color:#000000; font-weight:900; line-height:1; font-family:'Montserrat', sans-serif;",
 ];
+export const dInp = [
+  "",
+  "",
+]

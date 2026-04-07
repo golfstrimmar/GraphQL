@@ -85,8 +85,7 @@ const AdminComponent = () => {
 
   async function processScriptsData(sD: string) {
     let r: HtmlNode[] = [];
-    console.log("<===sD===>", sD);
-    if (sD.includes("container-filled") || sD.includes("container-outlined") || sD.includes("container-empty")) {
+    if (sD.includes("container-filled") || sD.includes("container-outlined") || sD.includes("container-empty") || sD.includes("container-svg-filled") || sD.includes("container-svg-outlined") || sD.includes("container-svg-empty")) {
       const re = await loadScript("script-all-inputs");
       r.push(...re);
     }
@@ -106,16 +105,15 @@ const AdminComponent = () => {
 
   async function processStylesData(sD: string) {
     let r: HtmlNode[] = [];
+    // if (sD.includes("container-filled") || sD.includes("container-outlined") || sD.includes("container-empty")) {
+    //   const re = await loadStyle("style-container-input");
+    //   r.push(...re);
+    // }
 
-    if (sD.includes("input")) {
-      const re = await loadStyle("style-input-field");
-      r.push(...re);
-    }
-
-    if (sD.includes("svg")) {
-      const re = await loadStyle("style-input-svg");
-      r.push(...re);
-    }
+    // if (sD.includes("svg")) {
+    //   const re = await loadStyle("style-input-svg");
+    //   r.push(...re);
+    // }
 
     // if (!sD.includes("input") && !sD.includes("svg")) {
     //   const re = await loadStyle(`style-${sD}`);
