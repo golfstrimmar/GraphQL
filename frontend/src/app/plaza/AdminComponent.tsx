@@ -85,7 +85,7 @@ const AdminComponent = () => {
 
   async function processScriptsData(sD: string) {
     let r: HtmlNode[] = [];
-    if (sD.includes("container-filled") || sD.includes("container-outlined") || sD.includes("container-empty") || sD.includes("container-svg-filled") || sD.includes("container-svg-outlined") || sD.includes("container-svg-empty")) {
+    if (sD.includes("textarea") || sD.includes("input")) {
       const re = await loadScript("script-all-inputs");
       r.push(...re);
     }

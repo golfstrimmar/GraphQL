@@ -12,7 +12,6 @@ function buildAttrs(node) {
 
   Object.entries(attributes).forEach(([key, value]) => {
     if (value == null) return;
-    // разрешаем пустые строки для булевых атрибутов (controls, playsinline и т.д.)
     attrs.push(`${key}="${String(value)}"`);
   });
 
@@ -58,8 +57,6 @@ async function fetchHeroiconSvgByFileName(
 
 // === Simple Icons (cdn.simpleicons.org) ===
 function getSimpleIconNameFromSrc(src: string): string | null {
-  // https://cdn.simpleicons.org/github        → "github"
-  // https://cdn.simpleicons.org/github/white  → "github"
   try {
     const url = new URL(src);
     if (!url.hostname.includes("simpleicons.org")) return null;
@@ -139,7 +136,6 @@ async function transformIconsBySrc(nodes: any[]): Promise<any[]> {
     if (node.tag === "img" && node.attributes?.src) {
       const src = String(node.attributes.src);
 
-      // --- Heroicons ---
       const heroFileName = getIconNameFromSrc(src);
       if (heroFileName) {
         const svgText = await fetchHeroiconSvgByFileName(heroFileName);
@@ -193,6 +189,33 @@ const parseHtml = async (nodes: any[]): Promise<string> => {
   return parseHtmlSync(transformedNodes);
 };
 
+// helper: выпиливаем блоки модификаторов из inline-стиля
+const stripVariantBlocks = (
+  css: string,
+  keepFilled: boolean,
+  keepEmpty: boolean,
+): string => {
+  let result = css;
+
+  // формат комментариев в text:
+  // /* _filled */ .... /* /_filled */
+  if (!keepFilled) {
+    result = result.replace(
+      /\/\* _filled \*\/[\s\S]*?\/\* \/_filled \*\//g,
+      "",
+    );
+  }
+
+  if (!keepEmpty) {
+    result = result.replace(
+      /\/\* _empty \*\/[\s\S]*?\/\* \/_empty \*\//g,
+      "",
+    );
+  }
+
+  return result;
+};
+
 // === SCSS ===
 const buildScss = (nodes: any[]): string => {
   let resSCSS = "";
@@ -207,34 +230,44 @@ const buildScss = (nodes: any[]): string => {
   }
 
   // 2) inline style + вложенность
-  // Группируем по селектору — всех детей объединяем в один массив,
-  // чтобы buildScss рекурсивно дедуплицировал их
   const selectorMap = new Map<string, { styleStr: string; allChildren: any[] }>();
 
   nodes.forEach((node) => {
     if (!node || !node.tag || node.tag === "style" || node.tag === "script") return;
 
     const rawCls = typeof node.class === "string" ? node.class.trim() : "";
-    const styleStr = (node.style || "").trim();
+    let styleStr = (node.style || "").trim();
+
+    const classParts = rawCls ? rawCls.split(/\s+/) : [];
+    const hasFilledClass = classParts.includes("_filled");
+    const hasEmptyClass = classParts.includes("_empty");
+
+    if (styleStr) {
+      styleStr = stripVariantBlocks(styleStr, hasFilledClass, hasEmptyClass);
+    }
 
     const currentSelector = rawCls
       ? "." + rawCls.split(/\s+/).join(".")
       : node.tag;
 
     if (!selectorMap.has(currentSelector)) {
-      selectorMap.set(currentSelector, { styleStr, allChildren: [] });
+      selectorMap.set(currentSelector, { styleStr: "", allChildren: [] });
     }
 
     const entry = selectorMap.get(currentSelector)!;
-    // собираем детей всех узлов с одинаковым селектором
+
+    if (styleStr) {
+      entry.styleStr = entry.styleStr
+        ? `${entry.styleStr}\n${styleStr}`
+        : styleStr;
+    }
+
     if (Array.isArray(node.children) && node.children.length > 0) {
       entry.allChildren.push(...node.children);
     }
   });
 
-  // Эмитируем один блок на уникальный селектор
   selectorMap.forEach(({ styleStr, allChildren }, selector) => {
-    // рекурсивно строим SCSS из объединённого пула детей
     const mergedChildren = allChildren.length > 0 ? buildScss(allChildren) : "";
     if (styleStr) {
       resSCSS += `${selector} { ${styleStr} ${mergedChildren} }`;
@@ -298,7 +331,6 @@ function collectJs(nodes: any[], seenItems = new Set<string>()): string {
       const scriptText = (node.text || "").trim();
       if (!scriptText) return;
 
-      // Ищем все маркеры вида /* @component: ... */
       const markerRegex = /\/\*\s*@component:\s*(.+?)\s*\*\//g;
       const markers: string[] = [];
       let match;
@@ -306,7 +338,6 @@ function collectJs(nodes: any[], seenItems = new Set<string>()): string {
         markers.push(match[1].trim());
       }
 
-      // Если нашли маркеры, проверяем их
       if (markers.length > 0) {
         const isDuplicate = markers.some((m) => seenItems.has(m));
         if (!isDuplicate) {
@@ -314,7 +345,6 @@ function collectJs(nodes: any[], seenItems = new Set<string>()): string {
           resJS += scriptText + "\n";
         }
       } else {
-        // Резервный вариант на случай, если маркеров нет (дедупликация по всему тексту)
         if (!seenItems.has(scriptText)) {
           seenItems.add(scriptText);
           resJS += scriptText + "\n";
@@ -329,9 +359,7 @@ function collectJs(nodes: any[], seenItems = new Set<string>()): string {
 }
 
 const buildJs = (nodes: any[]): string => {
-  // сначала собираем весь JS из дерева
   const resJS = collectJs(nodes);
-  // проверяем маркер один раз — против полного накопленного JS
   if (hasSocialImg(nodes) && !resJS.includes("/* @component: .social-img */")) {
     return resJS + SOCIAL_IMG_SCRIPT;
   }
@@ -345,5 +373,3 @@ const clearFunctions = {
 };
 
 export default clearFunctions;
-
-

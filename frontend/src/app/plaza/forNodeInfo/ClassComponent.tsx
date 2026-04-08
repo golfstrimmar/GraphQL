@@ -27,8 +27,8 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [isTransformed, setIsTransformed] = useState<boolean>(false);
-  const [openMobile, setOpenMobile] = useState(false);
-
+  const [openMobile, setOpenMobile] = useState<boolean>(false);
+  const [activeClassKey, setActiveClassKey] = useState<string>('');
   // ================================
   const adjustHeight = (el: HTMLTextAreaElement) => {
     el.style.height = "auto";
@@ -146,7 +146,8 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
   return (
     <>
       <MobileAddClass
-        setClassText={setClassText}
+        activeClassKey={activeClassKey}
+
         openMobile={openMobile}
         setOpenMobile={setOpenMobile}
       />
@@ -167,7 +168,7 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
           )}
           <button
             className="btn-teal text-[12px] !max-h-[20px] ml-1"
-            onClick={() => setOpenMobile(!openMobile)}
+            onClick={() => { setActiveClassKey(node._key || ''); setOpenMobile(!openMobile) }}
           >
             Add
           </button>
@@ -191,3 +192,4 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
 };
 
 export default ClassComponent;
+

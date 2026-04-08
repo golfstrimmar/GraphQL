@@ -38,20 +38,22 @@ export const TagsNamen1 = [
   // { tag: "label", color: "#f97316" },
 ];
 export const TagsNamen2 = [
-  { tag: "container-filled", color: "powderblue" },
-  { tag: "container-outlined", color: "powderblue" },
-  { tag: "container-empty", color: "powderblue" },
+  { tag: "input-field", color: "powderblue" },
+  { tag: "textarea-field", color: "powderblue" },
+  // { tag: "container-filled", color: "powderblue" },
+  // { tag: "container-outlined", color: "powderblue" },
+  // { tag: "container-empty", color: "powderblue" },
 
-  { tag: "container-svg-filled", color: "powderblue" },
-  { tag: "container-svg-outlined", color: "powderblue" },
-  { tag: "container-svg-empty", color: "powderblue" },
+  // { tag: "container-svg-filled", color: "powderblue" },
+  // { tag: "container-svg-outlined", color: "powderblue" },
+  // { tag: "container-svg-empty", color: "powderblue" },
 
-  { tag: "input-name-svg", color: "powderblue" },
-  { tag: "input-mail-svg", color: "powderblue" },
-  { tag: "input-tel-svg", color: "powderblue" },
+  // { tag: "input-name-svg", color: "powderblue" },
+  // { tag: "input-mail-svg", color: "powderblue" },
+  // { tag: "input-tel-svg", color: "powderblue" },
   { tag: "f-number", color: "powderblue" },
   { tag: "f-check", color: "powderblue" },
-  { tag: "textarea-field", color: "powderblue" },
+
   { tag: "fieldset-radio", color: "powderblue" },
   { tag: "fildset-rating", color: "powderblue" },
   { tag: "range-wrap-js", color: "powderblue" },
