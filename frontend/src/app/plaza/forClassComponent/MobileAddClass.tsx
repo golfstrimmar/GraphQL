@@ -22,6 +22,13 @@ const commonClasses = [
   "rev--zoom",
 ] as const;
 
+
+const inputClasses = [
+  "input-field-filled",
+  "input-field-outlined",
+  "input-field-standard",
+] as const;
+
 const directionClasses = [
   "rev--up",
   "rev--down",
@@ -30,13 +37,7 @@ const directionClasses = [
   "rev--zoom",
 ] as const;
 
-const inputClasses = [
-  "input-field-filled",
-  "input-field-outlined",
-  "input-field-standard",
-] as const;
-
-
+type DirectionClass = (typeof directionClasses)[number];
 export default function MobileAddClass({
   activeClassKey,
   openMobile,
@@ -89,6 +90,30 @@ export default function MobileAddClass({
 
     return Array.isArray(tree) ? walk(tree) : walk([tree])[0];
   };
+
+
+  // добавляет rev--on-scroll и один directionClass, убирая остальные rev--*
+  function applyRevClass(prevClass: string | undefined, dir: DirectionClass): string {
+    const parts = (prevClass ?? "")
+      .split(/\s+/)
+      .map((c) => c.trim())
+      .filter(Boolean);
+
+    const withoutRevDirections = parts.filter(
+      (c) => !directionClasses.includes(c as DirectionClass)
+    );
+
+    // гарантируем rev--on-scroll
+    if (!withoutRevDirections.includes("rev--on-scroll")) {
+      withoutRevDirections.push("rev--on-scroll");
+    }
+
+    // добавляем нужное направление
+    withoutRevDirections.push(dir);
+
+    // убираем дубли на всякий случай
+    return Array.from(new Set(withoutRevDirections)).join(" ");
+  }
   // ===========================================================================
 
   const handleAdd = async (arg: string) => {
@@ -159,15 +184,12 @@ export default function MobileAddClass({
       // 3. ОБНОВЛЯЕМ htmlJson
       updateHtmlJson((prev) => {
         let tree = prev;
-
-        // 3.1. Вешаем класс на активную ноду (если есть activeClassKey)
         if (activeClassKey) {
           tree = replaceNodeByKey(tree, activeClassKey, (node) => ({
             ...node,
-            class: `${node.class ?? ""} rev--on-scroll ${arg}`.trim(),
+            class: applyRevClass(node.class, arg as DirectionClass),
           })) as typeof prev;
         }
-
         // 3.2. Разворачиваем style/script‑ноды в конец дерева
         const extraNodes: HtmlNode[] = [];
 
