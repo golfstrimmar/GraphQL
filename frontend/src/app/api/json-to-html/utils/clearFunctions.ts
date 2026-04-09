@@ -1,375 +1,184 @@
-import defaults from "@/app/api/json-to-html/utils/default";
 import { DOMParser as XmldomParser } from "xmldom";
+import { JSDOM } from "jsdom";
 
+import defaults from "@/app/api/json-to-html/utils/default";
 const { selfClosingTags, SERVICE_TEXTS } = defaults;
 
-// === HTML ===
-function buildAttrs(node) {
-  const { class: cls, attributes = {} } = node;
-  const attrs: string[] = [];
+type HtmlNode = {
+  tag: string;
+  class?: string;
+  style?: string;
+  _key?: string;
+  text?: string;
+  children?: HtmlNode[];
+  attributes?: Record<string, string>;
+};
 
-  if (cls) attrs.push(`class="${cls}"`);
 
-  Object.entries(attributes).forEach(([key, value]) => {
-    if (value == null) return;
-    attrs.push(`${key}="${String(value)}"`);
-  });
 
-  return attrs.length ? " " + attrs.join(" ") : "";
+function parseHtml(nodes: HtmlNode[]): string {
+  const parseHtmlSync = (nodes: HtmlNode[]): string =>
+    nodes
+      .map((node) => {
+        if (!node.tag) return "";
+        if (node.tag === "script") return "";
+
+        const attrPairs: string[] = [];
+
+        if (node.attributes) {
+          for (const [key, value] of Object.entries(node.attributes)) {
+            if (value === undefined || value === null) continue;
+            attrPairs.push(`${key}="${String(value)}"`);
+          }
+        }
+
+        if (node.class && node.class.trim()) {
+          attrPairs.push(`class="${node.class}"`);
+        }
+        if (node.style && node.style.trim()) {
+          attrPairs.push(`style="${node.style}"`);
+        }
+        if (node._key) {
+          attrPairs.push(`data-key="${node._key}"`);
+        }
+
+        const attrsString = attrPairs.length ? " " + attrPairs.join(" ") : "";
+        const isSelfClosing = selfClosingTags.has(node.tag);
+
+        // текст без служебных значений
+        const rawText = node.text ?? "";
+        const innerText = SERVICE_TEXTS.includes(rawText.trim())
+          ? ""
+          : rawText;
+
+        if (isSelfClosing) {
+          return `<${node.tag}${attrsString} />`;
+        }
+
+        const childrenHtml =
+          node.children && node.children.length
+            ? parseHtmlSync(node.children)
+            : "";
+
+        return `<${node.tag}${attrsString}>${innerText}${childrenHtml}</${node.tag}>`;
+      })
+      .join("");
+
+  return parseHtmlSync(nodes);
 }
+// 2) сырой html → очищенный html + scss (иерархия = DOM)
+async function buildScssFromHtml(html: string): Promise<{
+  html: string;
+  scss: string;
+}> {
+  const dom = new JSDOM(html);
+  const { document } = dom.window;
 
-function cleanServiceText(raw: string): string {
-  if (!raw) return "";
-  let text = raw;
-  const sorted = [...SERVICE_TEXTS].sort((a, b) => b.length - a.length);
-  sorted.forEach((word) => {
-    const pattern = word.replace(/\s+/g, "\\s+");
-    const re = new RegExp(`^\\s*${pattern}\\s*$`, "i");
-    if (re.test(text)) text = "";
-  });
+  const baseLines: string[] = [];
+  const modLines: string[] = [];
 
-  return text;
-}
+  const isModifierSelector = (sel: string) =>
+    sel.includes("._filled") || sel.includes(".isolate-");
 
-// === IMG → SVG ===
-function getIconNameFromSrc(src: string): string | null {
-  try {
-    const url = new URL(src);
-    const pathname = url.pathname;
-    if (!pathname.endsWith(".svg")) return null;
-    const last24Index = pathname.lastIndexOf("/24/");
-    if (last24Index === -1) return null;
-    const iconPath = pathname.substring(last24Index + 4);
-    return iconPath;
-  } catch {
-    return null;
-  }
-}
-
-async function fetchHeroiconSvgByFileName(
-  fileName: string,
-): Promise<string | null> {
-  const url = `https://cdn.jsdelivr.net/npm/heroicons@latest/24/${fileName}`;
-  const res = await fetch(url);
-  if (!res.ok) return null;
-  return await res.text();
-}
-
-// === Simple Icons (cdn.simpleicons.org) ===
-function getSimpleIconNameFromSrc(src: string): string | null {
-  try {
-    const url = new URL(src);
-    if (!url.hostname.includes("simpleicons.org")) return null;
-    const parts = url.pathname.split("/").filter(Boolean);
-    return parts[0] ?? null;
-  } catch {
-    return null;
-  }
-}
-
-async function fetchSimpleIconSvg(name: string): Promise<string | null> {
-  const url = `https://cdn.simpleicons.org/${name}`;
-  const res = await fetch(url);
-  if (!res.ok) return null;
-  return await res.text();
-}
-
-function svgTextToProjectNode(svgText: string, baseNode: any): any {
-  const parser = new XmldomParser();
-  const doc = parser.parseFromString(svgText, "image/svg+xml");
-  const svgEl = doc.getElementsByTagName("svg")[0];
-  if (!svgEl) return baseNode;
-
-  const svgAttrs: Record<string, string> = {};
-  for (let i = 0; i < svgEl.attributes.length; i++) {
-    const attr = svgEl.attributes.item(i);
-    if (!attr) continue;
-    svgAttrs[attr.name] = attr.value;
-  }
-
-  const children: any[] = [];
-  for (let i = 0; i < svgEl.childNodes.length; i++) {
-    const node = svgEl.childNodes.item(i);
-    if (node.nodeType !== 1) continue;
-    const el = node as any;
-
-    const childAttrs: Record<string, string> = {};
-    for (let j = 0; j < el.attributes.length; j++) {
-      const attr = el.attributes.item(j);
-      if (!attr) continue;
-      childAttrs[attr.name] = attr.value;
-    }
-
-    children.push({
-      tag: el.tagName,
-      text: "",
-      class: "",
-      style: "",
-      attributes: childAttrs,
-      children: [],
-    });
-  }
-
-  return {
-    tag: "svg",
-    text: "",
-    class: baseNode.class || "svg-icon",
-    style: (baseNode.style || "") + " overflow: visible;",
-    attributes: {
-      ...svgAttrs,
-      stroke: "currentColor",
-    },
-    children,
+  const pushLine = (selector: string, content: string, depth: number) => {
+    const indent = "  ".repeat(depth);
+    const target = isModifierSelector(selector) ? modLines : baseLines;
+    content
+      .split("\n")
+      .forEach((line) => target.push(indent + line));
   };
-}
 
-async function transformIconsBySrc(nodes: any[]): Promise<any[]> {
-  const result: any[] = [];
+  const walk = (el: HTMLElement, depth = 0) => {
+    const className = el.getAttribute("class");
+    const dataKey = el.getAttribute("data-key");
+    const styleAttr = el.getAttribute("style");
 
-  for (const node of nodes) {
-    let transformed = { ...node };
+    const selector = className
+      ? `.${className.split(" ").join(".")}`
+      : dataKey
+        ? `${el.tagName.toLowerCase()}[data-key="${dataKey}"]`
+        : el.tagName.toLowerCase();
 
-    if (node.children && Array.isArray(node.children)) {
-      transformed.children = await transformIconsBySrc(node.children);
-    }
+    // открываем блок
+    pushLine(selector, `${selector} {`, depth);
 
-    if (node.tag === "img" && node.attributes?.src) {
-      const src = String(node.attributes.src);
-
-      const heroFileName = getIconNameFromSrc(src);
-      if (heroFileName) {
-        const svgText = await fetchHeroiconSvgByFileName(heroFileName);
-        if (svgText) {
-          transformed = svgTextToProjectNode(svgText, node);
-        }
-      }
-      // Simple Icons обрабатываются клиентским скриптом (см. buildJs)
-    }
-
-    result.push(transformed);
-  }
-
-  return result;
-}
-
-// === синхронный обход дерева → HTML ===
-function parseHtmlSync(nodes: any[]): string {
-  let html = "";
-
-  nodes.forEach((node) => {
-    if (!node || !node.tag || node.tag === "style" || node.tag === "script") return;
-
-    const { tag, text, children = [] } = node;
-    const attrsStr = buildAttrs(node);
-    const cleanedText = cleanServiceText(text || "");
-
-    let childHtml = "";
-    if (Array.isArray(children) && children.length > 0) {
-      childHtml = parseHtmlSync(children);
-    }
-
-    const lowerTag = String(tag).toLowerCase();
-    let htmlItem: string;
-
-    if (selfClosingTags.has(lowerTag)) {
-      htmlItem = `<${tag}${attrsStr}/>`;
-    } else {
-      htmlItem = `<${tag}${attrsStr}>${cleanedText}${childHtml}</${tag}>`;
-    }
-
-    html += htmlItem;
-  });
-
-  return html;
-}
-
-// публичная функция: сначала асинхронный transform, потом синхронный parse
-const parseHtml = async (nodes: any[]): Promise<string> => {
-  const transformedNodes = await transformIconsBySrc(nodes);
-  return parseHtmlSync(transformedNodes);
-};
-
-// helper: выпиливаем блоки модификаторов из inline-стиля
-const stripVariantBlocks = (
-  css: string,
-  keepFilled: boolean,
-  keepEmpty: boolean,
-): string => {
-  let result = css;
-
-  // формат комментариев в text:
-  // /* _filled */ .... /* /_filled */
-  if (!keepFilled) {
-    result = result.replace(
-      /\/\* _filled \*\/[\s\S]*?\/\* \/_filled \*\//g,
-      "",
-    );
-  }
-
-  if (!keepEmpty) {
-    result = result.replace(
-      /\/\* _empty \*\/[\s\S]*?\/\* \/_empty \*\//g,
-      "",
-    );
-  }
-
-  return result;
-};
-
-// === SCSS ===
-const buildScss = (nodes: any[]): string => {
-  let resSCSS = "";
-
-  // 1) вытаскиваем текст из <style> тегов
-  const styleTags = nodes.filter((node) => node.tag === "style");
-  if (styleTags.length > 0) {
-    styleTags.forEach((styleTag) => {
-      const styleContent = styleTag.text || "";
-      resSCSS += styleContent;
-    });
-  }
-
-  // 2) inline style + вложенность
-  const selectorMap = new Map<string, { styleStr: string; allChildren: any[] }>();
-
-  nodes.forEach((node) => {
-    if (!node || !node.tag || node.tag === "style" || node.tag === "script") return;
-
-    const rawCls = typeof node.class === "string" ? node.class.trim() : "";
-    let styleStr = (node.style || "").trim();
-
-    const classParts = rawCls ? rawCls.split(/\s+/) : [];
-    const hasFilledClass = classParts.includes("_filled");
-    const hasEmptyClass = classParts.includes("_empty");
-
-    if (styleStr) {
-      styleStr = stripVariantBlocks(styleStr, hasFilledClass, hasEmptyClass);
-    }
-
-    const currentSelector = rawCls
-      ? "." + rawCls.split(/\s+/).join(".")
-      : node.tag;
-
-    if (!selectorMap.has(currentSelector)) {
-      selectorMap.set(currentSelector, { styleStr: "", allChildren: [] });
-    }
-
-    const entry = selectorMap.get(currentSelector)!;
-
-    if (styleStr) {
-      entry.styleStr = entry.styleStr
-        ? `${entry.styleStr}\n${styleStr}`
-        : styleStr;
-    }
-
-    if (Array.isArray(node.children) && node.children.length > 0) {
-      entry.allChildren.push(...node.children);
-    }
-  });
-
-  selectorMap.forEach(({ styleStr, allChildren }, selector) => {
-    const mergedChildren = allChildren.length > 0 ? buildScss(allChildren) : "";
-    if (styleStr) {
-      resSCSS += `${selector} { ${styleStr} ${mergedChildren} }`;
-    } else if (mergedChildren) {
-      resSCSS += mergedChildren;
-    }
-  });
-
-  return resSCSS;
-};
-
-// === JS ===
-
-// Проверяет, есть ли в дереве хоть один img.social-img
-function hasSocialImg(nodes: any[]): boolean {
-  for (const node of nodes) {
-    if (node?.tag === "img" && node?.class?.includes("social-img")) return true;
-    if (Array.isArray(node?.children) && hasSocialImg(node.children)) return true;
-  }
-  return false;
-}
-
-const SOCIAL_IMG_SCRIPT = `/* @component: .social-img */
-(function () {
-  function replaceSocialIcons() {
-    document.querySelectorAll("img.social-img").forEach(async function (img) {
-      const src = img.getAttribute("src");
-      if (!src) return;
-      try {
-        const res = await fetch(src);
-        if (!res.ok) return;
-        const svgText = await res.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(svgText, "image/svg+xml");
-        const svg = doc.querySelector("svg");
-        if (!svg) return;
-        svg.setAttribute("class", img.className);
-        svg.setAttribute("fill", "currentColor");
-        const style = img.getAttribute("style");
-        if (style) svg.setAttribute("style", style);
-        img.parentNode.replaceChild(svg, img);
-      } catch (e) {
-        console.warn("social-img: failed to load", src, e);
-      }
-    });
-  }
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", replaceSocialIcons);
-  } else {
-    replaceSocialIcons();
-  }
-})();
-`;
-
-// рекурсивный сбор <script> тегов без побочных эффектов
-function collectJs(nodes: any[], seenItems = new Set<string>()): string {
-  let resJS = "";
-  nodes.forEach((node) => {
-    if (!node || !node.tag) return;
-    if (node.tag === "script") {
-      const scriptText = (node.text || "").trim();
-      if (!scriptText) return;
-
-      const markerRegex = /\/\*\s*@component:\s*(.+?)\s*\*\//g;
-      const markers: string[] = [];
-      let match;
-      while ((match = markerRegex.exec(scriptText)) !== null) {
-        markers.push(match[1].trim());
-      }
-
-      if (markers.length > 0) {
-        const isDuplicate = markers.some((m) => seenItems.has(m));
-        if (!isDuplicate) {
-          markers.forEach((m) => seenItems.add(m));
-          resJS += scriptText + "\n";
-        }
+    if (styleAttr && styleAttr.trim()) {
+      const hasComplex = /[&{}]/.test(styleAttr);
+      if (hasComplex) {
+        pushLine(selector, styleAttr.trim(), depth + 1);
       } else {
-        if (!seenItems.has(scriptText)) {
-          seenItems.add(scriptText);
-          resJS += scriptText + "\n";
-        }
+        const styleBody = styleAttr
+          .split(";")
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .map((rule) => `${rule};`)
+          .join("\n");
+        if (styleBody) pushLine(selector, styleBody, depth + 1);
       }
+      el.removeAttribute("style");
     }
-    if (Array.isArray(node.children) && node.children.length > 0) {
-      resJS += collectJs(node.children, seenItems);
-    }
-  });
-  return resJS;
+
+    const children = Array.from(el.children) as HTMLElement[];
+    children.forEach((child) => walk(child, depth + 1));
+
+    // закрываем блок
+    pushLine(selector, "}", depth);
+  };
+
+  const rootChildren = Array.from(document.body.children) as HTMLElement[];
+  rootChildren.forEach((child) => walk(child, 0));
+
+  const cleanedHtml = document.body.innerHTML;
+  const scss = [...baseLines, "", ...modLines].join("\n");
+
+  return { html: cleanedHtml, scss };
 }
 
-const buildJs = (nodes: any[]): string => {
-  const resJS = collectJs(nodes);
-  if (hasSocialImg(nodes) && !resJS.includes("/* @component: .social-img */")) {
-    return resJS + SOCIAL_IMG_SCRIPT;
-  }
-  return resJS;
-};
+// 3) дерево → js (скрипты с @component, без дубликатов)
+async function buildJs(nodes: HtmlNode[]): Promise<string> {
+  const scripts: string[] = [];
 
-const clearFunctions = {
-  parseHtml,
-  buildScss,
-  buildJs,
-};
+  const walk = (list: HtmlNode[]) => {
+    list.forEach((node) => {
+      if (node.tag === "script" && node.text && node.text.trim()) {
+        const raw = node.text.trim();
 
-export default clearFunctions;
+        // режем только компонентные комменты, оставляем чистый код
+        const lines = raw.split("\n").map((l) => l.trim());
+        const codeLines = lines.filter(
+          (l) => !l.startsWith("/* @component:")
+        );
+
+        const jsCode = codeLines.join("\n").trim();
+
+        if (jsCode) {
+          scripts.push(jsCode);
+        }
+      }
+
+      if (node.children && node.children.length) {
+        walk(node.children);
+      }
+    });
+  };
+
+  walk(nodes);
+
+  const uniqueScripts = Array.from(new Set(scripts));
+
+  return uniqueScripts.join("\n\n");
+}
+
+// ЕДИНАЯ точка входа: нефть → бензин/керосин/мазут
+async function runClearPipeline(nodes: HtmlNode[]): Promise<{
+  html: string;
+  scss: string;
+  js: string;
+}> {
+  const rawHtml = parseHtml(nodes);
+  const { html, scss } = await buildScssFromHtml(rawHtml);
+  const js = await buildJs(nodes);
+  return { html, scss, js };
+}
+
+export default runClearPipeline;

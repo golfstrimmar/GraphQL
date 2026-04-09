@@ -16,6 +16,7 @@ export default function JsonToHtmlButton({ cN = "py-0.75" }: JsonToHtmlButtonPro
     useStateContext();
   // ===>===>===>===>===>===>===>===>===>===>
   const handleClick = async () => {
+    console.log("<===handleClick====>");
     if (!htmlJson || htmlJson.length === 0) {
       setHTML("");
       setSCSS("");
@@ -53,13 +54,17 @@ export default function JsonToHtmlButton({ cN = "py-0.75" }: JsonToHtmlButtonPro
       });
 
       const data = await res.json();
+      console.log("<===data====>", data);
       if (!res.ok) {
         showModal(data.error || "Unknown error", "error");
         return;
       }
-
+      console.log("<==data.html====>", data.html);
+      console.log("<===data.scss===>", data.scss);
+      console.log("<===data.js===>", data.js);
       setHTML(data.html);
       setSCSS(data.scss);
+
       if (data.js !== undefined) setJS(data.js);
       const el = document.getElementById("preview-section");
       if (el) {

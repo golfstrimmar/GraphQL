@@ -41,6 +41,9 @@ export default function PreviewComponent() {
   const [jsEditorHeight, setJsEditorHeight] = useState<number>(100);
   const monaco = useMonaco();
   const [openDebug, setOpenDebug] = useState<boolean>(false);
+  // ======================================
+  useEffect(() => { console.log('<===HTML, SCSS, JS,===>', HTML, SCSS, JS,); }, [HTML, SCSS, JS,]);
+
   // ------------------------------- Monaco Theme
   useEffect(() => {
     if (!monaco) return;
