@@ -13,8 +13,82 @@ type HtmlNode = {
   children?: HtmlNode[];
   attributes?: Record<string, string>;
 };
+function collectExistingClasses(nodes: HtmlNode[]): Set<string> {
+  const set = new Set<string>();
 
+  const walk = (list: HtmlNode[]) => {
+    list.forEach((node) => {
+      if (node.class) {
+        node.class
+          .split(" ")
+          .map((c) => c.trim())
+          .filter((c) => c.startsWith("_")) // только модификаторы
+          .forEach((c) => set.add(c));
+      }
+      if (node.children && node.children.length) {
+        walk(node.children);
+      }
+    });
+  };
 
+  walk(nodes);
+  return set;
+}
+async function inlineSvgIcons(nodes: HtmlNode[]): Promise<HtmlNode[]> {
+  const parser = new XmldomParser();
+
+  const processNode = async (node: HtmlNode): Promise<HtmlNode> => {
+    const src = node.attributes?.src;
+
+    const isSvgIcon =
+      node.tag === "img" &&
+      node.class === "svg-wrapper" &&
+      typeof src === "string" &&
+      src.trim().toLowerCase().endsWith(".svg");
+
+    if (!isSvgIcon) {
+      const children = node.children
+        ? await Promise.all(node.children.map(processNode))
+        : [];
+      return { ...node, children };
+    }
+
+    const res = await fetch(src);
+    const svgText = await res.text();
+
+    const svgDoc = parser.parseFromString(svgText, "image/svg+xml");
+    const svgEl = svgDoc.getElementsByTagName("svg")[0];
+    if (!svgEl) return node;
+
+    const svgAttrs: Record<string, string> = {};
+    for (let i = 0; i < svgEl.attributes.length; i++) {
+      const a = svgEl.attributes[i];
+      svgAttrs[a.name] = a.value;
+    }
+
+    // пробрасываем размер иконки
+    if (node.style) {
+      svgAttrs.style = (svgAttrs.style ? svgAttrs.style + "; " : "") + node.style;
+    }
+
+    const svgInner = svgText
+      .slice(svgText.indexOf(">") + 1, svgText.lastIndexOf("</svg>"));
+
+    const svgNode: HtmlNode = {
+      tag: "svg",
+      class: "svg-wrapper",
+      style: svgAttrs.style,
+      attributes: svgAttrs,
+      text: svgInner,
+      children: [],
+      _key: node._key,
+    };
+
+    return svgNode;
+  };
+
+  return Promise.all(nodes.map(processNode));
+}
 
 function parseHtml(nodes: HtmlNode[]): string {
   const parseHtmlSync = (nodes: HtmlNode[]): string =>
@@ -67,10 +141,34 @@ function parseHtml(nodes: HtmlNode[]): string {
   return parseHtmlSync(nodes);
 }
 // 2) сырой html → очищенный html + scss (иерархия = DOM)
-async function buildScssFromHtml(html: string): Promise<{
-  html: string;
-  scss: string;
-}> {
+function stripMarkerBlock(style: string, whiteList: Set<string>): string {
+  // ищем маркер начала: /* _something */
+  const startMatch = style.match(/\/\*\s*(_[a-zA-Z0-9_-]+)\s*\*\//);
+  if (!startMatch) return style;
+
+  const cls = startMatch[1]; // "_empty"
+  if (whiteList.has(cls)) return style; // класс есть — ничего не режем
+
+  const startIndex = startMatch.index!;
+  // ищем закрывающий маркер для этого же имени: /* /_something */
+  const endRegex = new RegExp(`/\\*\\s*/${cls}\\s*\\*/`);
+  const endMatch = style.slice(startIndex).match(endRegex);
+  if (!endMatch) {
+    // нет закрывающего — на всякий случай вырежем только комментарий начала
+    return style.slice(0, startIndex) + style.slice(startIndex + startMatch[0].length);
+  }
+
+  const endIndex = startIndex + endMatch.index! + endMatch[0].length;
+
+  // вырезаем блок целиком: от начала маркера до конца закрывающего
+  const before = style.slice(0, startIndex);
+  const after = style.slice(endIndex);
+  return (before + after).trim();
+}
+async function buildScssFromHtml(
+  html: string,
+  whiteList: Set<string>
+): Promise<{ html: string; scss: string }> {
   const dom = new JSDOM(html);
   const { document } = dom.window;
 
@@ -83,15 +181,13 @@ async function buildScssFromHtml(html: string): Promise<{
   const pushLine = (selector: string, content: string, depth: number) => {
     const indent = "  ".repeat(depth);
     const target = isModifierSelector(selector) ? modLines : baseLines;
-    content
-      .split("\n")
-      .forEach((line) => target.push(indent + line));
+    content.split("\n").forEach((line) => target.push(indent + line));
   };
 
   const walk = (el: HTMLElement, depth = 0) => {
     const className = el.getAttribute("class");
     const dataKey = el.getAttribute("data-key");
-    const styleAttr = el.getAttribute("style");
+    let styleAttr = el.getAttribute("style") || "";
 
     const selector = className
       ? `.${className.split(" ").join(".")}`
@@ -99,29 +195,33 @@ async function buildScssFromHtml(html: string): Promise<{
         ? `${el.tagName.toLowerCase()}[data-key="${dataKey}"]`
         : el.tagName.toLowerCase();
 
-    // открываем блок
     pushLine(selector, `${selector} {`, depth);
 
-    if (styleAttr && styleAttr.trim()) {
-      const hasComplex = /[&{}]/.test(styleAttr);
-      if (hasComplex) {
-        pushLine(selector, styleAttr.trim(), depth + 1);
-      } else {
-        const styleBody = styleAttr
-          .split(";")
-          .map((s) => s.trim())
-          .filter(Boolean)
-          .map((rule) => `${rule};`)
-          .join("\n");
-        if (styleBody) pushLine(selector, styleBody, depth + 1);
+    if (styleAttr.trim()) {
+      // сначала вырежем маркерный блок, если его класс не в whiteList
+      styleAttr = stripMarkerBlock(styleAttr, whiteList);
+
+      if (styleAttr.trim()) {
+        const hasComplex = /[&{}]/.test(styleAttr);
+        if (hasComplex) {
+          pushLine(selector, styleAttr.trim(), depth + 1);
+        } else {
+          const styleBody = styleAttr
+            .split(";")
+            .map((s) => s.trim())
+            .filter(Boolean)
+            .map((rule) => `${rule};`)
+            .join("\n");
+          if (styleBody) pushLine(selector, styleBody, depth + 1);
+        }
       }
+
       el.removeAttribute("style");
     }
 
     const children = Array.from(el.children) as HTMLElement[];
     children.forEach((child) => walk(child, depth + 1));
 
-    // закрываем блок
     pushLine(selector, "}", depth);
   };
 
@@ -175,8 +275,11 @@ async function runClearPipeline(nodes: HtmlNode[]): Promise<{
   scss: string;
   js: string;
 }> {
-  const rawHtml = parseHtml(nodes);
-  const { html, scss } = await buildScssFromHtml(rawHtml);
+  const set = collectExistingClasses(nodes);
+  console.log("<=♻️♻️♻️=set=♻️♻️♻️==>", set);
+  const withInlineSvg = await inlineSvgIcons(nodes);   // img → svg
+  const rawHtml = parseHtml(withInlineSvg);
+  const { html, scss } = await buildScssFromHtml(rawHtml, set);
   const js = await buildJs(nodes);
   return { html, scss, js };
 }

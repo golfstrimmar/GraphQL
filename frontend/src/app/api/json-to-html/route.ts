@@ -14,9 +14,9 @@ export async function POST(request: Request) {
     // единый конвейер: дерево -> html / scss / js
     const { html, scss, js } = await runClearPipeline(nodes);
 
-    console.log("<===html===>", html);
-    console.log("<===scss===>", scss);
-    console.log("<===js===>", js);
+    // console.log("<===html===>", html);
+    // console.log("<===scss===>", scss);
+    // console.log("<===js===>", js);
 
     return NextResponse.json({
       html,

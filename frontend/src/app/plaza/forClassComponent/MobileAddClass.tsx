@@ -54,20 +54,20 @@ export default function MobileAddClass({
   });
 
 
-  // function findNodeByRef(nodes: HtmlNode[]): HtmlNode | null {
-  //   for (const node of nodes) {
-  //     if (node._key === activeClassKey) {
-  //       return node;
-  //     }
-  //     if (node.children) {
-  //       const found = findNodeByRef(node.children);
-  //       if (found) {
-  //         return found;
-  //       }
-  //     }
-  //   }
-  //   return null;
-  // }
+  function findNodeByRef(nodes: HtmlNode[]): HtmlNode | null {
+    for (const node of nodes) {
+      if (node._key === activeClassKey) {
+        return node;
+      }
+      if (node.children) {
+        const found = findNodeByRef(node.children);
+        if (found) {
+          return found;
+        }
+      }
+    }
+    return null;
+  }
   const replaceNodeByKey = (
     tree: HtmlNode[] | HtmlNode,
     key: string,
@@ -99,16 +99,6 @@ export default function MobileAddClass({
     const result = data?.jsonDocumentByName?.content;
     if (!result || !result[0]?.text || !activeClassKey) return;
 
-    const svgNode = {
-      tag: "img",
-      text: "",
-      class: "svg-wrapper",
-      style: "width: 30px;\nheight: 30px;",
-      children: [],
-      attributes: {
-        src: "https://cdn.jsdelivr.net/npm/heroicons@latest/24/outline/arrow-left-circle.svg",
-      },
-    };
 
     const fieldset = (node: { class?: string }, arg: string) => {
       const target = `_${arg}`;
@@ -135,7 +125,7 @@ export default function MobileAddClass({
       const updatedTree = JSON.parse(JSON.stringify(prev));
 
       return replaceNodeByKey(updatedTree, activeClassKey, (node) => {
-        if (!node.class?.includes("_container-input")) return node;
+        if (!node.class?.includes("js-container-input")) return node;
 
         const nextStyle =
           arg === "filled"
@@ -150,28 +140,7 @@ export default function MobileAddClass({
           style: nextStyle,
         };
 
-        if (arg !== "svg") return base;
-
-        const children = base.children ?? [];
-        const legendIndex = children.findIndex(
-          (child: any) => child.tag === "legend"
-        );
-
-        if (legendIndex === -1) {
-          return {
-            ...base,
-            children: [...children, svgNode],
-          };
-        }
-
-        return {
-          ...base,
-          children: [
-            ...children.slice(0, legendIndex + 1),
-            svgNode,
-            ...children.slice(legendIndex + 1),
-          ],
-        };
+        return base;
       });
     });
 
@@ -253,112 +222,18 @@ export default function MobileAddClass({
             <CloseIcon />
           </button>
           <div className="modal-inner bg-white p-4 max-w-[95%] mx-auto rounded-lg mt-10 shadow-2xl">
-            <button className="btn btn-primary" onClick={() => handleAdd("filled")}>Add filled</button>
-            <button className="btn btn-primary" onClick={() => handleAdd("empty")}>Add empty</button>
-            <button className="btn btn-primary" onClick={() => handleAdd("svg")}>Add svg</button>
+
+
+            {findNodeByRef(htmlJson)?.class?.includes("js-container-input") && <button className="btn btn-primary" onClick={() => {
+              handleAdd("filled")
+            }}>Add filled</button>}
+            {findNodeByRef(htmlJson)?.class?.includes("js-container-input") && <button className="btn btn-primary" onClick={() => handleAdd("empty")}>Add empty</button>}
             <button className="btn btn-primary" onClick={() => handleAddRev("rev--up")}>Add rev--up</button>
             <button className="btn btn-primary" onClick={() => handleAddRev("rev--down")}>Add rev--down</button>
             <button className="btn btn-primary" onClick={() => handleAddRev("rev--left")}>Add rev--left</button>
             <button className="btn btn-primary" onClick={() => handleAddRev("rev--right")}>Add rev--right</button>
             <button className="btn btn-primary" onClick={() => handleAddRev("rev--zoom")}>Add rev--zoom</button>
           </div>
-          {/* <div ref={modalRef} className="modal-inner bg-white p-4 max-w-md mx-auto rounded-lg mt-10 shadow-2xl">
-            <h3 className="text-lg font-bold mb-4 text-[var(--navy)]">Add Classes</h3>
-
-            <textarea
-              value={addingClass}
-              onChange={(e) => setAddingClass(e.target.value)}
-              className="textarea-styles text-[var(--slate-800)] mb-4 w-full h-24 border border-slate-300 rounded p-2 outline-none focus:border-[var(--teal)]"
-              placeholder="Selected classes will appear here..."
-            />
-
-            {needsRevAssets && !hasRevAssets && (
-              <div className="mb-4 p-3 bg-amber-50 border-l-4 border-amber-400 text-amber-800 text-sm flex flex-col gap-2 rounded shadow-sm shadow-amber-200">
-                <span className="font-medium">⚠️ Animation Assets Required</span>
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-[12px] opacity-90 text-pretty">The 'reveal' engine was not found. Please click to add it.</span>
-                  <button
-                    onClick={handleAddRevAssets}
-                    className="btn btn-primary !h-8 !px-4 !text-[12px] flex items-center gap-1 shadow-md whitespace-nowrap"
-                  >
-                    {loadingAssets ? <Spinner /> : <span>Load Reveal</span>}
-                  </button>
-                </div>
-              </div>
-            )}
-            {needsInputAssets && !hasInputAssets && (
-              <div className="mb-4 p-3 bg-amber-50 border-l-4 border-amber-400 text-amber-800 text-sm flex flex-col gap-2 rounded shadow-sm shadow-amber-200">
-                <span className="font-medium">⚠️ Input Assets Required</span>
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-[12px] opacity-90 text-pretty">The 'Input' engine was not found. Please click to add it.</span>
-                  <button
-                    onClick={handleAddInputAssets}
-                    className="btn btn-primary !h-8 !px-4 !text-[12px] flex items-center gap-1 shadow-md whitespace-nowrap"
-                  >
-                    {loadingAssets ? <Spinner /> : <span>Load Input Assets</span>}
-                  </button>
-                </div>
-              </div>
-            )}
-
-
-
-            <div className={ItemClass}>
-              {commonClasses.map((cls) => {
-                const isActive = addingClass.split(/\s+/).includes(cls);
-                return (
-                  <button
-                    key={cls}
-                    onClick={() => toggleClass(cls)}
-                    className={`px-3 py-1.5 text-xs font-semibold rounded-full border transition-all ${isActive
-                      ? "bg-[var(--teal)] text-white border-[var(--teal)] shadow-md"
-                      : "bg-white text-[var(--slate-800)] border-slate-300 hover:bg-slate-50 hover:border-slate-400"
-                      }`}
-                  >
-                    {cls}
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className={ItemClass}>
-              <h4 className="w-full text-xs font-bold text-slate-500 mb-1">Input Classes</h4>
-              {inputClasses.map((cls) => {
-                const isActive = addingClass.split(/\s+/).includes(cls);
-                return (
-                  <button
-                    key={cls}
-                    onClick={() => toggleClass(cls)}
-                    className={`px-3 py-1.5 text-xs font-semibold rounded-full border transition-all ${isActive
-                      ? "bg-[var(--teal)] text-white border-[var(--teal)] shadow-md"
-                      : "bg-white text-[var(--slate-800)] border-slate-300 hover:bg-slate-50 hover:border-slate-400"
-                      }`}
-                  >
-                    {cls}
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="flex gap-2 mb-4">
-              <button
-                className="btn btn-allert h-10 px-4"
-                onClick={() => setAddingClass("")}
-              >
-                Clear
-              </button>
-              <button
-                onClick={handleAdd}
-                disabled={(needsRevAssets && !hasRevAssets) || (needsInputAssets && !hasInputAssets)}
-                className={`btn btn-primary h-10 flex-1 transition-all ${(needsRevAssets && !hasRevAssets) || (needsInputAssets && !hasInputAssets)
-                  ? "opacity-40 cursor-not-allowed grayscale"
-                  : ""
-                  }`}
-              >
-                Apply Classes
-              </button>
-            </div>
-          </div> */}
         </motion.div>
       )}
     </AnimatePresence>,
