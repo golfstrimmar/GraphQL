@@ -61,7 +61,12 @@ export const resolvers = {
       const Doc = await prisma.jsonDocument.findUnique({ where: { name } });
       return Doc || null;
     },
-
+    jsonDocumentsByNames: async (_, { names }) => {
+      const docs = await prisma.jsonDocument.findMany({
+        where: { name: { in: names } },
+      });
+      return docs || null;
+    },
     figmaProjectsByUser: async (_, { userId }) => {
       return prisma.figmaProject.findMany({
         where: { ownerId: Number(userId) },

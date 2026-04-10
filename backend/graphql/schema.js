@@ -182,6 +182,7 @@ export const typeDefs = gql`
     findProject(id: ID!): Project
     getAllProjectsByUser(userId: ID!): [Project!]
     jsonDocumentByName(name: String!): JsonDocument
+    jsonDocumentsByNames(names: [String!]!): [JsonDocument!]
     figmaProject(id: ID!): FigmaProject
     figmaProjectsByUser(userId: ID!): [FigmaProject!]!
     getFigmaProjectData(projectId: ID!): FigmaProject!

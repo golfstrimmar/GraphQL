@@ -4,7 +4,8 @@ import Spinner from "@/components/icons/Spinner";
 import type { HtmlNode } from "@/types/HtmlNode";
 import dynamic from "next/dynamic";
 import Loading from "@/components/ui/Loading/Loading";
-
+import { useAddClass } from "@/app/plaza/forClassComponent/addClass";
+import { useJsonToHtml } from "@/hooks/useJsonToHtml";
 const MobileAddClass = dynamic(
   () => import("../forClassComponent/MobileAddClass"),
   {
@@ -29,6 +30,9 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
   const [isTransformed, setIsTransformed] = useState<boolean>(false);
   const [openMobile, setOpenMobile] = useState<boolean>(false);
   const [activeClassKey, setActiveClassKey] = useState<string>('');
+  const { loading, runJsonToHtml } = useJsonToHtml();
+  const { addClass } = useAddClass();
+  const [loadingKey, setLoadingKey] = useState<string | null>(null);
   // ================================
   const adjustHeight = (el: HTMLTextAreaElement) => {
     el.style.height = "auto";
@@ -141,7 +145,14 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
       children: updatedNode.children,
     });
   };
-
+  const isNormal = !node?.class?.includes("filled") && !node?.class?.includes("empty");
+  const isFilled = node?.class?.includes("filled");
+  const isEmpty = node?.class?.includes("empty");
+  const states = [
+    { key: "_normal", label: "Normal", isDefault: true, hidden: isNormal },
+    { key: "_filled", label: "Filled", isDefault: false, hidden: isFilled },
+    { key: "_empty", label: "Empty", isDefault: false, hidden: isEmpty },
+  ];
   // ================================
   return (
     <>
@@ -152,7 +163,7 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
         setOpenMobile={setOpenMobile}
       />
       <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]   flex flex-col relative   ">
-        <p className={itemClass}>
+        <div className={itemClass}>
           <span>Class:</span>
           {node?.tag === "section" && (
             <button
@@ -166,13 +177,35 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
               {isTransformed ? <Spinner /> : <span>Add parent class</span>}
             </button>
           )}
-          <button
-            className="btn-teal text-[12px] !max-h-[20px] ml-1"
-            onClick={() => { setActiveClassKey(node._key || ''); setOpenMobile(!openMobile) }}
-          >
-            Add
-          </button>
-        </p>
+          {node?.tag === "fieldset" && (
+            <div className="flex items-center gap-1">
+              {states
+                .filter((s) => !s.hidden)
+                .map((s) => (
+                  <button
+                    key={s.key}
+                    className="btn btn-empty text-[10px] !max-h-[20px] px-1"
+                    onClick={async () => {
+                      const key = s.key ?? "normal";
+                      setLoadingKey(key);
+                      try {
+                        const nextTree = await (s.isDefault
+                          ? addClass(null, node._key || "")
+                          : addClass(s.key, node._key || ""));
+
+                      } finally {
+                        setLoadingKey(null);
+                      }
+                    }}
+
+
+                  >
+                    {loadingKey === s.key ? <Spinner /> : s.label}
+                  </button>
+                ))}
+            </div>
+          )}
+        </div>
         <textarea
           ref={(el) => {
             if (!el) return;

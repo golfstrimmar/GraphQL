@@ -5,13 +5,8 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import CloseIcon from "@/components/icons/CloseIcon";
 import { useStateContext } from "@/providers/StateProvider";
-import { useQuery } from "@apollo/client";
-import { GET_JSON_DOCUMENT } from "@/apollo/queries";
-import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
-import Spinner from "@/components/icons/Spinner";
-import type { HtmlNode } from "@/types/HtmlNode";
-import { findNodeByKey } from "@/utils/findNodeByKey";
 
+import addClass from "@/app/plaza/forClassComponent/addClass";
 
 const commonClasses = [
   "rev-on-scroll",
@@ -50,157 +45,7 @@ export default function MobileAddClass({
   openMobile: boolean;
   setOpenMobile: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-  const { htmlJson, updateHtmlJson } = useStateContext();
-  const [addingClasses, setAddingClasses] = useState<string[]>([]);
-  const modalRef = useRef<HTMLDivElement | null>(null);
-  const [flaClasses, setFlaClasses] = useState<boolean>(false);
-  const addClsRef = useRef<Set<string>>(new Set());
-  const { refetch: refetchJson } = useQuery(GET_JSON_DOCUMENT, {
-    fetchPolicy: "no-cache",
-  });
 
-  function cleanUnderscoreClasses(set: Set<string>): void {
-    const items = Array.from(set);
-    if (items.length === 0) return;
-
-    const lastIndex = items.length - 1;
-
-    const lastItem = items[lastIndex];
-    const hasDoubleDash = lastItem.includes("--");
-    const hasSingleDash = lastItem.includes("_");
-
-
-
-    items.forEach((cls, index) => {
-      if ((hasDoubleDash || hasSingleDash) && index !== lastIndex) {
-        set.delete(cls);
-      }
-    });
-    setAddingClasses([]);
-  }
-  // ===========================================================================
-
-  useEffect(() => {
-    if (!flaClasses) return;
-    if (addingClasses.length === 0) return;
-
-    const addCls = addClsRef.current;
-
-    console.log("<===addingClasses===>", addingClasses);
-    addingClasses.forEach((cls) => addCls.add(cls));
-
-    cleanUnderscoreClasses(addCls);
-
-    console.log("<===addCls===>", addCls);
-
-    // 2) сразу вызываем функцию, которая ходит в базу по Set
-    handleFromSet(addCls);
-    logNodeWithAddedClasses()
-    // 3) сброс флагов/очередей
-    setFlaClasses(false);
-    setAddingClasses([]);
-    setOpenMobile(false);
-  }, [addingClasses, flaClasses]);
-
-
-
-  const handleFromSet = async (addCls: Set<string>) => {
-    const extraNodes: HtmlNode[] = [];
-
-    for (const cls of addCls) {
-      // нам нужны только style-reveal, script-reveal и style-input-field-*
-      if (cls === "style-reveal") {
-        const { data } = await refetchJson({ name: "style-reveal" });
-        const content = data?.jsonDocumentByName?.content as HtmlNode[] | undefined;
-        if (content && content[0]?.text) {
-          extraNodes.push(...content);
-        }
-      }
-
-      if (cls === "script-reveal") {
-        const { data } = await refetchJson({ name: "script-reveal" });
-        const content = data?.jsonDocumentByName?.content as HtmlNode[] | undefined;
-        if (content && content[0]?.text) {
-          extraNodes.push(...content);
-        }
-      }
-
-      if (cls === "_filled" || cls === "_empty") {
-        const mode = cls === "_filled" ? "filled" : "empty";
-        const { data } = await refetchJson({ name: `style-input-field-${mode}` });
-        const content = data?.jsonDocumentByName?.content as HtmlNode[] | undefined;
-        if (content && content[0]?.text) {
-          extraNodes.push(...content);
-        }
-      }
-    }
-
-    if (!extraNodes.length) return;
-
-    const withKeys = ensureNodeKeys(extraNodes) as HtmlNode[];
-    updateHtmlJson((prev) => {
-      const tree = Array.isArray(prev) ? prev : [prev];
-      return [...tree, ...withKeys];
-    });
-  };
-
-
-
-  function logNodeWithAddedClasses() {
-    const node = findNodeByKey(htmlJson, activeClassKey);
-    if (!node) {
-      console.warn("Node not found for key:", activeClassKey);
-      return;
-    }
-
-    const current = node.class?.split(/\s+/).filter(Boolean) ?? [];
-
-    const extra = addingClasses
-      .filter(Boolean)
-      .filter((cls) => cls.includes("--") || cls.includes("_"));
-
-    const result = new Set(current);
-
-    for (const cls of extra) {
-      // взаимоисключение _filled / _empty
-      if (cls === "_filled") {
-        result.delete("_empty");
-        result.add("_filled");
-        continue;
-      }
-      if (cls === "_empty") {
-        result.delete("_filled");
-        result.add("_empty");
-        continue;
-      }
-
-      // ревилы: одно направление + всегда rev-on-scroll
-      if (cls.startsWith("rev--")) {
-        // удаляем только другие направления, базовый rev-on-scroll не трогаем
-        for (const v of Array.from(result)) {
-          if (v.startsWith("rev--")) {
-            result.delete(v);
-          }
-        }
-
-        // добавляем новое направление
-        result.add(cls);
-
-        // гарантируем, что базовый класс есть
-        if (!result.has("rev-on-scroll")) {
-          result.add("rev-on-scroll");
-        }
-
-        continue;
-      }
-
-      // остальные — просто добавляем, без дублей
-      result.add(cls);
-    }
-
-    node.class = Array.from(result).join(" ");
-    console.log("Updated node:", node);
-  }
 
   // ===========================================================================
   const ItemClass =
@@ -232,11 +77,22 @@ export default function MobileAddClass({
           <div className="modal-inner bg-white p-4 max-w-[95%] mx-auto rounded-lg mt-10 shadow-2xl">
 
 
+
+            <button className="btn btn-primary" onClick={() => {
+              addClass("_filled", activeClassKey)
+            }}>Add _filled</button>
+
+            <button className="btn btn-primary" onClick={() => {
+              addClass("_empty", activeClassKey)
+            }}>Add _empty</button>
+
+
+            {/* 
             {findNodeByKey(htmlJson, activeClassKey)?.class?.includes("js-container-input") && <button className="btn btn-primary" onClick={() => {
               setFlaClasses(true)
               setAddingClasses([...addingClasses, "_filled"])
-            }}>Add filled</button>}
-            {findNodeByKey(htmlJson, activeClassKey)?.class?.includes("js-container-input") && <button className="btn btn-primary" onClick={() => {
+            }}>Add filled</button>} */}
+            {/* {findNodeByKey(htmlJson, activeClassKey)?.class?.includes("js-container-input") && <button className="btn btn-primary" onClick={() => {
               setFlaClasses(true)
               setAddingClasses([...addingClasses, "_empty"])
             }}>Add empty</button>}
@@ -259,7 +115,7 @@ export default function MobileAddClass({
             <button className="btn btn-primary" onClick={() => {
               setFlaClasses(true)
               setAddingClasses([...addingClasses, "style-reveal", "script-reveal", "rev--zoom", "rev-on-scroll"])
-            }}>Add rev--zoom</button>
+            }}>Add rev--zoom</button> */}
           </div>
         </motion.div>
       )}

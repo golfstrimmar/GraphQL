@@ -77,7 +77,7 @@ const NodeInfo: React.FC<NodeInfoProps> = ({
     updateHtmlJson((prev) => {
       const updateRecursively = (nodes: HtmlNode[]): HtmlNode[] => {
         return nodes.map((node) => {
-          if (node._key === key) {
+          if (node?._key === key) {
             return { ...node, ...changes };
           }
           if (Array.isArray(node.children)) {

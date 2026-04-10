@@ -85,74 +85,31 @@ const AdminComponent = () => {
 
   async function processScriptsData(sD: string) {
     let r: HtmlNode[] = [];
-    if (sD.includes("textarea") || sD.includes("input")) {
+    if (sD.includes("textarea-field") || sD.includes("input-field")) {
       const re = await loadScript("script-all-inputs");
       r.push(...re);
     }
-
-    // if (sD.includes("svg")) {
-    //   const re = await loadScript("script-input-svg");
-    //   r.push(...re);
-    // }
-
-    if (!sD.includes("input") && !sD.includes("svg")) {
-      const re = await loadScript(`script-${sD}`);
-      r.push(...re);
-    }
-
     return r;
   }
 
-  async function processStylesData(sD: string) {
-    let r: HtmlNode[] = [];
-    // if (sD.includes("container-filled") || sD.includes("container-outlined") || sD.includes("container-empty")) {
-    //   const re = await loadStyle("style-container-input");
-    //   r.push(...re);
-    // }
-
-    // if (sD.includes("svg")) {
-    //   const re = await loadStyle("style-input-svg");
-    //   r.push(...re);
-    // }
-
-    // if (!sD.includes("input") && !sD.includes("svg")) {
-    //   const re = await loadStyle(`style-${sD}`);
-    //   r.push(...re);
-    // }
-
-    return r;
-  }
 
   const handleLoad = async (tag: string) => {
     if (!tag) return;
-    let resultWithKeysStyles = [] as HtmlNode[];
     setLoading(true);
-
-    // 1.грузим стилевые тэги и скрипты
-    const stylesPart = await processStylesData(tag);
-    if (stylesPart?.length) {
-      resultWithKeysStyles.push(...stylesPart);
-    }
+    let resulScripts = [] as HtmlNode[];
     const jsPart = await processScriptsData(tag);
     if (jsPart?.length) {
-      resultWithKeysStyles.push(...jsPart);
+      resulScripts.push(...jsPart);
     }
-
-    // находим все совпадения
-    const matchedList = TAGS.filter((foo) => tag.includes(foo));
-
-    // вызываем стили и скрипты для каждого совпадения
-    for (const m of matchedList) {
-      const sp = await processStylesData(m);
-      if (sp?.length) {
-        resultWithKeysStyles.push(...sp);
-      }
-      const jp = await processScriptsData(m);
-      if (jp?.length) {
-        resultWithKeysStyles.push(...jp);
-      }
-    }
-
+    // // находим все совпадения
+    // const matchedList = TAGS.filter((foo) => tag.includes(foo));
+    // // вызываем стили и скрипты для каждого совпадения
+    // for (const m of matchedList) {
+    //   const jp = await processScriptsData(m);
+    //   if (jp?.length) {
+    //     resultWithKeysStyles.push(...jp);
+    //   }
+    // }
     // 2. Грузим сам компонент
     const { data } = await refetchJson({ name: tag });
     const content = data?.jsonDocumentByName?.content;
@@ -160,24 +117,18 @@ const AdminComponent = () => {
       setLoading(false);
       return;
     }
+
+    console.log("<== ✨ ✨ ✨ tag ✨ ✨ ✨===>", tag);
     console.log("<== ✨ ✨ ✨ content ✨ ✨ ✨===>", content);
+    console.log("<== ✨ ✨ ✨ resulScripts ✨ ✨ ✨===>", resulScripts);
+
     const resultWithKeys = ensureNodeKeys(content) as HtmlNode[];
     setLoading(false);
     setClicked("");
-
-    // Маркируем служебные стили и скрипты как глобальные, 
-    // чтобы их текст не менялся при изоляции и они могли дедуплицироваться.
-    const globalizedServiceNodes = resultWithKeysStyles.map(node => ({
-      ...node,
-      text: `/* @component: ${tag} */\n${node.text}`,
-      attributes: { ...node.attributes, "data-global": "true" }
-    }));
-
-    // Глобальная изоляция (теперь с учетом data-global)
-    const allNodes = [...resultWithKeys, ...globalizedServiceNodes];
-    const swiperIsolated = isolateSwiperNodes(allNodes);
-    const isolatedNodes = isolateComponentNodes(swiperIsolated);
-
+    const allNodes = [...resultWithKeys, ...resulScripts];
+    // const swiperIsolated = isolateSwiperNodes(allNodes);
+    // const isolatedNodes = isolateComponentNodes(swiperIsolated);
+    const isolatedNodes = isolateComponentNodes(allNodes);
     updateHtmlJson((prev) => [
       ...prev,
       ...isolatedNodes,

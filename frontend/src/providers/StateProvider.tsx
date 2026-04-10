@@ -155,13 +155,13 @@ export function StateProvider({
     const seenScripts = new Set<string>();
 
     return nodes.filter((node) => {
-      if (node.tag === "style") {
+      if (node?.tag === "style") {
         const key = String(node.text || "");
         if (seenStyles.has(key)) return false;
         seenStyles.add(key);
         return true;
       }
-      if (node.tag === "script") {
+      if (node?.tag === "script") {
         const key = String(node.text || "");
         if (seenScripts.has(key)) return false;
         seenScripts.add(key);

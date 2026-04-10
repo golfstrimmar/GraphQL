@@ -32,6 +32,18 @@ export const GET_JSON_DOCUMENT = gql`
   }
 `;
 
+// Получить JSON-документы по массиву имен
+export const GET_JSON_DOCUMENTS = gql`
+  query GetJsonDocuments($names: [String!]!) {
+    jsonDocumentsByNames(names: $names) {
+      id
+      name
+      content
+      createdAt
+    }
+  }
+`;
+
 // Найти проект по ID
 export const FIND_PROJECT = gql`
   query findProject($id: ID!) {
