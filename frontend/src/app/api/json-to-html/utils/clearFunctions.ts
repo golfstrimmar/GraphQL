@@ -25,7 +25,7 @@ async function runClearPipeline(nodes: HtmlNode[]): Promise<{
 }> {
   // 1) собираем классы
   const whiteList = collectAllClasses(nodes);
-
+  console.log("<===whiteList===>", whiteList);
   // 2) помечаем, что рев-стили нужны, если rev-классы встречаются
   addRevMarkerIfUsed(nodes, whiteList);
 

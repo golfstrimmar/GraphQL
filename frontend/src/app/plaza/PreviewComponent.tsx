@@ -42,7 +42,7 @@ export default function PreviewComponent() {
   const monaco = useMonaco();
   const [openDebug, setOpenDebug] = useState<boolean>(false);
   // ======================================
-  useEffect(() => { console.log('<===HTML, SCSS, JS,===>', HTML, SCSS, JS,); }, [HTML, SCSS, JS,]);
+
 
   // ------------------------------- Monaco Theme
   useEffect(() => {
@@ -404,8 +404,24 @@ td, th { padding: 0; text-align: left; }
       {(HTML || JS) && (
         <div className="flex flex-col gap-2 ">
           <div className="  border border-slate-500 rounded-md p-1">
-
-            <h5>HTML</h5>
+            <div className="flex gap-2 items-center">
+              <h5>HTML</h5>
+              <button
+                className="btn btn-teal   h-[18px] "
+                type="button"
+                onClick={async () => {
+                  if (code) {
+                    try {
+                      await navigator.clipboard.writeText(code);
+                    } catch (err) {
+                      console.error('Ошибка копирования:', err);
+                    }
+                  }
+                }}
+              >
+                Copy
+              </button>
+            </div>
             <Editor
               height={htmlEditorHeight}
               defaultLanguage="html"
@@ -462,7 +478,24 @@ td, th { padding: 0; text-align: left; }
           </div>
           <div className="flex gap-2 w-full">
             <div className="flex flex-col gap-1 w-1/2   border border-slate-500 rounded-md p-1">
-              <h5>SCSS</h5>
+              <div className="flex gap-2 items-center">
+                <h5>SCSS</h5>
+                <button
+                  className="btn btn-teal   h-[18px] "
+                  type="button"
+                  onClick={async () => {
+                    if (codeCss) {
+                      try {
+                        await navigator.clipboard.writeText(codeCss);
+                      } catch (err) {
+                        console.error('Ошибка копирования:', err);
+                      }
+                    }
+                  }}
+                >
+                  Copy
+                </button>
+              </div>
               <Editor
                 height={scssEditorHeight}
                 language="scss"
@@ -508,7 +541,24 @@ td, th { padding: 0; text-align: left; }
               />
             </div>
             <div className="flex flex-col gap-1 w-1/2  border border-slate-500 rounded-md p-1">
-              <h5>JS</h5>
+              <div className="flex gap-2 items-center">
+                <h5>JS</h5>
+                <button
+                  className="btn btn-teal   h-[18px] "
+                  type="button"
+                  onClick={async () => {
+                    if (codeJs) {
+                      try {
+                        await navigator.clipboard.writeText(codeJs);
+                      } catch (err) {
+                        console.error('Ошибка копирования:', err);
+                      }
+                    }
+                  }}
+                >
+                  Copy
+                </button>
+              </div>
               <Editor
                 height={jsEditorHeight}
                 language="javascript"

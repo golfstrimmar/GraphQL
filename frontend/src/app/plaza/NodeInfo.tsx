@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState, useRef, useMemo } from "react";
-import findNodeByKey from "@/utils/plaza/findNodeByKey";
+import { findNodeByKey } from "@/utils/findNodeByKey";
 import { motion, AnimatePresence } from "framer-motion";
 import СhevronRight from "@/components/icons/СhevronRight";
 import StyleComponent from "./forNodeInfo/StyleComponent";

@@ -16,7 +16,6 @@ export default function JsonToHtmlButton({ cN = "py-0.75" }: JsonToHtmlButtonPro
     useStateContext();
   // ===>===>===>===>===>===>===>===>===>===>
   const handleClick = async () => {
-    console.log("<===handleClick====>");
     if (!htmlJson || htmlJson.length === 0) {
       setHTML("");
       setSCSS("");
@@ -30,21 +29,6 @@ export default function JsonToHtmlButton({ cN = "py-0.75" }: JsonToHtmlButtonPro
     setJS("");
     setLoading(true);
 
-    // очистка дубликатов style по text
-    // const styleNodes = htmlJson.filter((n) => n.tag === "style");
-    // const nonStyleNodes = htmlJson.filter((n) => n.tag !== "style");
-
-    // const map = new Map<string, (typeof styleNodes)[number]>();
-    // for (const item of styleNodes) {
-    //   if (!map.has(item.text)) {
-    //     map.set(item.text, item);
-    //   }
-    // }
-    // const uniqueStyleNodes = Array.from(map.values());
-    // const cleanedHtmlJson = [...nonStyleNodes, ...uniqueStyleNodes];
-
-    //  сохранить очищенное в провайдер
-    // updateHtmlJson(cleanedHtmlJson);
 
     try {
       const res = await fetch("/api/json-to-html", {
@@ -54,14 +38,11 @@ export default function JsonToHtmlButton({ cN = "py-0.75" }: JsonToHtmlButtonPro
       });
 
       const data = await res.json();
-      console.log("<===data====>", data);
       if (!res.ok) {
         showModal(data.error || "Unknown error", "error");
         return;
       }
-      console.log("<==data.html====>", data.html);
-      console.log("<===data.scss===>", data.scss);
-      console.log("<===data.js===>", data.js);
+
       setHTML(data.html);
       setSCSS(data.scss);
 

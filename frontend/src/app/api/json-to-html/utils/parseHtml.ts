@@ -49,6 +49,5 @@ export function parseHtml(nodes: HtmlNode[]): string {
         return `<${node.tag}${attrsString}>${innerText}${childrenHtml}</${node.tag}>`;
       })
       .join("");
-
   return parseHtmlSync(nodes);
 }

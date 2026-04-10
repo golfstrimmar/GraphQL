@@ -30,6 +30,9 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
   const monaco = useMonaco();
   const editorRef = useRef<any>(null);
 
+  // ==================================
+
+
   // ------------------------------- Monaco Theme Logic (matching PreviewComponent)
   useEffect(() => {
     if (!monaco) return;

@@ -89,7 +89,6 @@ export const TagsNamen5 = [
   { tag: "form-avatar", color: "powderblue" },
   { tag: "form-common", color: "powderblue" },
 
-  { tag: "test", color: "powderblue" },
 
 ];
 export const TagsNamen6 = [

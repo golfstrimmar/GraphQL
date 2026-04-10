@@ -1,6 +1,6 @@
 import { JSDOM } from "jsdom";
 
-const REV_MARKER = "_rev_on_scroll";
+
 
 const REV_CLASS_BASES = new Set([
   "rev--on-scroll",
@@ -11,161 +11,160 @@ const REV_CLASS_BASES = new Set([
   "rev--zoom",
 ]);
 
-// грубо проверяем, что блок css относится к рев-стилям
-function wrapRevBlockWithMarker(css: string): string {
-  // если нет ни одного рев-селектора — не трогаем
-  const hasRevSelector = [...REV_CLASS_BASES].some((cls) =>
-    css.includes("." + cls)
-  );
-  if (!hasRevSelector) return css;
+// служебные классы (ревилы, _filled/_empty и т.п.) не должны попадать в селекторы
+function isServiceClass(cls: string): boolean {
+  const name = cls.trim();
+  if (!name) return false;
 
-  // оборачиваем весь блок в маркеры
-  return `/* ${REV_MARKER} */\n${css}\n/* /${REV_MARKER} */`;
+  // точные ревил-классы
+  if (REV_CLASS_BASES.has(name)) return true;
+
+  // любые классы с "--" или начинающиеся с "_"
+  if (name.includes("--") || name.startsWith("_")) return true;
+
+  return false;
 }
 
-// 1) режем маркерный блок внутри CSS/inline-style
-function stripMarkerBlock(style: string, whiteList: Set<string>): string {
-  // ищем маркер начала: /* _something */
-  const startMatch = style.match(/\/\*\s*(_[a-zA-Z0-9_-]+)\s*\*\//);
-  if (!startMatch) return style;
-
-  const cls = startMatch[1]; // "_empty", "_rev_on_scroll", ...
-  if (whiteList.has(cls)) return style; // маркер есть — ничего не режем
-
-  const startIndex = startMatch.index!;
-  // ищем закрывающий маркер для этого же имени: /* /_something */
-  const endRegex = new RegExp(`/\\*\\s*/${cls}\\s*\\*/`);
-  const endMatch = style.slice(startIndex).match(endRegex);
-  if (!endMatch) {
-    // нет закрывающего — на всякий случай вырежем только комментарий начала
-    return (
-      style.slice(0, startIndex) +
-      style.slice(startIndex + startMatch[0].length)
-    );
-  }
-
-  const endIndex = startIndex + endMatch.index! + endMatch[0].length;
-
-  // вырезаем блок целиком: от начала маркера до конца закрывающего
-  const before = style.slice(0, startIndex);
-  const after = style.slice(endIndex);
-  return (before + after).trim();
-}
-
-// 2) сырой html → очищенный html + scss (иерархия = DOM)
-export async function buildScssFromHtml(
-  html: string,
-  whiteList: Set<string>
-): Promise<{ html: string; scss: string }> {
+// html -> nested scss (без <style>, без inline style-классов)
+function htmlToNestedScss(html: string): string {
   const dom = new JSDOM(html);
   const { document } = dom.window;
 
-  const baseLines: string[] = [];
-  const modLines: string[] = [];
+  const lines: string[] = [];
 
-  const isModifierSelector = (sel: string) =>
-    sel.includes("._filled") || sel.includes(".isolate-");
+  const indent = (depth: number) => "  ".repeat(depth);
 
-  const pushLine = (selector: string, content: string, depth: number) => {
-    const indent = "  ".repeat(depth);
-    const target = isModifierSelector(selector) ? modLines : baseLines;
-    content.split("\n").forEach((line) => target.push(indent + line));
+  const walk = (el: HTMLElement, depth: number) => {
+    const className = el.getAttribute("class");
+    const dataKey = el.getAttribute("data-key");
+    const styleAttr = (el.getAttribute("style") || "").trim();
+
+    // селектор
+    let selector: string;
+    if (className) {
+      const normalClasses = className
+        .split(" ")
+        .map((c) => c.trim())
+        .filter(Boolean)
+        .filter((c) => !isServiceClass(c));
+
+      if (normalClasses.length > 0) {
+        selector = "." + normalClasses.join(".");
+      } else if (dataKey) {
+        selector = `${el.tagName.toLowerCase()}[data-key="${dataKey.trim()}"]`;
+      } else {
+        selector = el.tagName.toLowerCase();
+      }
+    } else if (dataKey) {
+      selector = `${el.tagName.toLowerCase()}[data-key="${dataKey.trim()}"]`;
+    } else {
+      selector = el.tagName.toLowerCase();
+    }
+
+    // открывающая строка
+    lines.push(`${indent(depth)}${selector} {`);
+
+    // если есть style — просто вставляем внутрь как есть (без парсинга)
+    if (styleAttr) {
+      styleAttr
+        .split("\n")
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .forEach((s) => {
+          lines.push(`${indent(depth + 1)}${s}`);
+        });
+    }
+
+    // дети
+    const children = Array.from(el.children) as HTMLElement[];
+    children.forEach((child) => walk(child, depth + 1));
+
+    // закрывающая скобка
+    lines.push(`${indent(depth)}}`);
   };
 
-  // === ШАГ 1. Глобальные <style data-global> ===
-  const globalStyleNodes = Array.from(
-    document.querySelectorAll('style[data-global="true"]')
+  const rootChildren = Array.from(document.body.children) as HTMLElement[];
+  rootChildren.forEach((child) => walk(child as HTMLElement, 0));
+
+  return lines.join("\n");
+}
+
+// удаляем inline style из html
+function stripInlineStyles(html: string): string {
+  const dom = new JSDOM(html);
+  const { document } = dom.window;
+
+  const all = Array.from(document.querySelectorAll<HTMLElement>("*"));
+
+  all.forEach((el) => {
+    if (el.hasAttribute("style")) {
+      el.removeAttribute("style");
+    }
+  });
+
+  return document.body.innerHTML;
+}
+
+// забираем содержимое всех <style>, фильтруем по маркеру, удаляем их из html
+function extractStyleBlocks(
+  html: string,
+  whiteList: Set<string>
+): { html: string; css: string } {
+  const dom = new JSDOM(html);
+  const { document } = dom.window;
+
+  const styleNodes = Array.from(
+    document.querySelectorAll("style")
   ) as HTMLStyleElement[];
 
-  const globalCssLines: string[] = [];
+  const cssBlocks: string[] = [];
 
-  globalStyleNodes.forEach((node) => {
-    let css = node.textContent || "";
-    css = css.trim();
+  styleNodes.forEach((node) => {
+    const css = (node.textContent || "").trim();
     if (!css) {
       node.remove();
       return;
     }
 
-    // если это рев-стили — оборачиваем весь блок в маркер _rev_on_scroll
-    css = wrapRevBlockWithMarker(css);
+    // ищем маркер в комментарии: /* _что‑то */
+    const markerMatch = css.match(/\/\*\s*(_[a-zA-Z0-9_-]+)\s*\*\//);
+    const marker = markerMatch?.[1]; // например "_rev_on_scroll"
 
-    // прогоняем stripMarkerBlock, пока есть что резать
-    let prev: string;
-    do {
-      prev = css;
-      css = stripMarkerBlock(css, whiteList);
-    } while (css !== prev);
-
-    if (css.trim()) {
-      globalCssLines.push(css.trim());
+    // если маркер есть и он НЕ в белом списке — пропускаем этот <style>
+    if (marker && !whiteList.has(marker)) {
+      node.remove();
+      return;
     }
 
-    // вырезаем <style> из HTML, чтобы он не просочился в итог
+    // иначе добавляем блок
+    cssBlocks.push(css);
     node.remove();
   });
 
-  // === ШАГ 2. Инлайновые стили, как раньше ===
-  const walk = (el: HTMLElement, depth = 0) => {
-    const className = el.getAttribute("class");
-    const dataKey = el.getAttribute("data-key");
-    let styleAttr = el.getAttribute("style") || "";
-
-    const selector = className
-      ? `.${className
-        .split(" ")
-        .map((c) => c.trim())
-        .filter(Boolean)          // убираем "" и " "
-        .join(".")}`
-      : dataKey
-        ? `${el.tagName.toLowerCase()}[data-key="${dataKey}"]`
-        : el.tagName.toLowerCase();
-
-    pushLine(selector, `${selector} {`, depth);
-
-    if (styleAttr.trim()) {
-      // сначала вырежем маркерный блок, если его класс не в whiteList
-      styleAttr = stripMarkerBlock(styleAttr, whiteList);
-
-      if (styleAttr.trim()) {
-        const hasComplex = /[&{}]/.test(styleAttr);
-        if (hasComplex) {
-          pushLine(selector, styleAttr.trim(), depth + 1);
-        } else {
-          const styleBody = styleAttr
-            .split(";")
-            .map((s) => s.trim())
-            .filter(Boolean)
-            .map((rule) => `${rule};`)
-            .join("\n");
-          if (styleBody) pushLine(selector, styleBody, depth + 1);
-        }
-      }
-
-      el.removeAttribute("style");
-    }
-
-    const children = Array.from(el.children) as HTMLElement[];
-    children.forEach((child) => walk(child, depth + 1));
-
-    pushLine(selector, "}", depth);
+  return {
+    html: document.body.innerHTML,
+    css: cssBlocks.join("\n\n"),
   };
+}
 
-  const rootChildren = Array.from(document.body.children) as HTMLElement[];
-  rootChildren.forEach((child) => walk(child, 0));
+export async function buildScssFromHtml(
+  html: string,
+  whiteList: Set<string>
+): Promise<{ html: string; scss: string }> {
+  // 1) вытащить и отфильтровать <style> по маркеру
+  const { html: withoutStyleTags, css: globalCss } = extractStyleBlocks(
+    html,
+    whiteList
+  );
 
-  const cleanedHtml = document.body.innerHTML;
+  // 2) nested scss из DOM (без служебных классов в селекторах)
+  const scssFromDom = htmlToNestedScss(withoutStyleTags);
 
-  // глобальные стили — в начало SCSS
-  const scssParts = [
-    ...globalCssLines,
-    "",
-    ...baseLines,
-    "",
-    ...modLines,
-  ].filter((block) => block.trim() !== "");
+  // 3) почистить inline style в html
+  const cleanHtml = stripInlineStyles(withoutStyleTags);
 
-  const scss = scssParts.join("\n");
+  // 4) итоговый scss: сначала nested, потом всё из <style>
+  const scss = [scssFromDom, globalCss].filter(Boolean).join("\n\n");
 
-  return { html: cleanedHtml, scss };
+  return { html: cleanHtml, scss };
 }

@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import { removeKeys } from "./utils/removeKeys";
 import Spinner from "@/components/icons/Spinner";
 import type { HtmlNode } from "@/types/HtmlNode";
-
+import { findNodeByKey } from "@/utils/findNodeByKey";
 // ====🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
 const CreateNewProject = () => {
   const { htmlJson, user, showModal, ScssMixVar, activeKey } =
@@ -37,35 +37,7 @@ const CreateNewProject = () => {
     }
     setOpenCreate(true);
   }, [activeKey]);
-  // ------
-  function findNodeByKey(
-    tree: HtmlNode | HtmlNode[] | null,
-    key: string | null,
-  ): HtmlNode | null {
-    if (!tree || !key) return null;
 
-    const dfs = (node: HtmlNode): HtmlNode | null => {
-      if (node._key === key) return node;
-
-      if (Array.isArray(node.children)) {
-        for (const child of node.children) {
-          const found = dfs(child);
-          if (found) return found;
-        }
-      }
-      return null;
-    };
-
-    if (Array.isArray(tree)) {
-      for (const root of tree) {
-        const found = dfs(root);
-        if (found) return found;
-      }
-      return null;
-    }
-
-    return dfs(tree);
-  }
   // ------
 
   const createNewProject = async () => {
