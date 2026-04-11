@@ -70,9 +70,9 @@ export default function ServicesButtons() {
   };
 
   return (
-    <div className="bg-[var(--navi)] flex items-center gap-1 mb-1 px-1 ">
+    <div className=" flex items-center gap-1 mb-1 p-1 bg-black/60 backdrop-blur-lg   flex-col gap-2">
       <button
-        className="btn btn-allert !py-1"
+        className="btn btn-allert !px-0.75 !py-1"
         type="button"
         title="Reset All"
         onClick={() => {
@@ -82,7 +82,7 @@ export default function ServicesButtons() {
         <ClearIcon width={12} height={12} />
       </button>
       <button
-        className="btn-teal   disabled:opacity-50"
+        className="btn-teal !px-0.25  disabled:opacity-50"
         type="button"
         onClick={undo}
         disabled={undoStack.length === 0}
@@ -90,7 +90,7 @@ export default function ServicesButtons() {
         <СhevronLeft width={12} height={12} />
       </button>
       <button
-        className="btn-teal    disabled:opacity-50 "
+        className="btn-teal !px-0.25  disabled:opacity-50 "
         type="button"
         onClick={redo}
         disabled={redoStack.length === 0}
@@ -98,6 +98,14 @@ export default function ServicesButtons() {
         <СhevronRight width={12} height={12} />
       </button>
 
+      {/* <button
+        className="btn-teal  !px-0.25  inline-block items-center  !gap-2 "
+        type="button"
+        onClick={() => handleClean()}
+      >
+        <ClearIcon width={12} height={12} />
+        <p className="!text-[10px] !lh-0">remove servises texts</p>
+      </button> */}
       {/* --- STYLIZE SECTION ---
       <div className="flex bg-[#1a1a1a] rounded mx-2 border border-[#444]">
         <select
@@ -121,14 +129,6 @@ export default function ServicesButtons() {
         </button>
       </div>*/}
 
-      <button
-        className="btn-teal    inline-block items-center  !gap-2 "
-        type="button"
-        onClick={() => handleClean()}
-      >
-        <ClearIcon width={12} height={12} />
-        <p className="!text-[10px] !lh-0">remove servises texts</p>
-      </button>
       {/*-------------*/}
       {/* <div className="flex-[60%] ">
         <JsonToHtmlButton />

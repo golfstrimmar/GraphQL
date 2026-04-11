@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useStateContext } from "@/providers/StateProvider";
 import { useQuery } from "@apollo/client";
 import { GET_JSON_DOCUMENT } from "@/apollo/queries";
@@ -7,10 +7,11 @@ import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
 import { isolateSwiperNodes } from "@/utils/isolateSwiper";
 import { isolateComponentNodes } from "@/utils/isolateComponent";
 import ServicesButtons from "./ServicesButtons";
-import Spinner from "@/components/icons/Spinner";
+
 import Loading from "@/components/ui/Loading/Loading";
 import type { HtmlNode } from "@/types/HtmlNode";
 import dynamic from "next/dynamic";
+import ModRotate from "./ModRotate";
 
 import {
   TagsNamen1,
@@ -19,6 +20,7 @@ import {
   TagsNamen5,
   TagsNamen6,
   TagsNamen7,
+  TagsCategory,
 } from "@/app/plaza/helpers/TagsNamen";
 
 const HeroIconPicker = dynamic(() => import("./HeroIconPicker"), {
@@ -49,6 +51,7 @@ const AdminComponent = () => {
   const [loading, setLoading] = useState(false);
   const [openModSliders, setOpenModSliders] = useState<boolean>(false);
   const [openModSocial, setOpenModSocial] = useState<boolean>(false);
+  const [tempTag, setTempTag] = useState<string>("");
   const { refetch: refetchJson } = useQuery(GET_JSON_DOCUMENT, {
     variables: { name },
     skip: !name,
@@ -136,31 +139,39 @@ const AdminComponent = () => {
   };
 
   // ==>==>==>==>==>==>==>==>==>==>==>==>==>
-  const renderTags = (tags: { tag: string; color: string }[]) => (
-    <div className=" flex flex-wrap gap-1 bg-slate-200 p-1 ">
-      {tags.map((el, i) => (
-        <button
-          key={i}
-          className="btn adminButton px-1.5! border-1 border-[#aaa] text-black text-[12px]"
-          style={{ background: el.color, minWidth: "20px", height: "auto" }}
-          type="button"
-          onClick={() => {
-            if (el.tag === "svg") {
-              setopenSVGModal(true);
-            } else {
-              setClicked(el.tag);
-              handleLoad(el.tag);
-            }
-          }}
-        >
-          {loading && clicked === el.tag ? <Spinner /> : <span>{el.tag}</span>}
-        </button>
-      ))}
-    </div>
-  );
+  useEffect(() => {
+    console.log("<=🔹🟢==tempTag=🟢🔹==>", tempTag);
+    if (tempTag === "svg") {
+      setopenSVGModal(true);
+    } else {
+      handleLoad(tempTag);
+    }
+  }, [tempTag]);
+  // ==>==>==>==>==>==>==>==>==>==>==>==>==>
+  // const renderTags = (tag: string) => (
+  //   // <div className=" flex flex-wrap gap-1 bg-slate-200 p-1 ">
+  //   //   {tags.map((el, i) => (
+  //   <button
+  //     key={i}
+  //     className="btn adminButton px-1.5! border-1 border-[#aaa] text-black text-[12px]"
+  //     type="button"
+  //     onClick={() => {
+  //       if (el.tag === "svg") {
+  //         setopenSVGModal(true);
+  //       } else {
+  //         setClicked(el.tag);
+  //         handleLoad(el.tag);
+  //       }
+  //     }}
+  //   >
+  //     {loading && clicked === el.tag ? <Spinner /> : <span>{el.tag}</span>}
+  //   </button>
+  //   //   ))}
+  //   // </div>
+  // );
   // ==>==>==>==>==>==>==>==>==>==>==>==>==>
   return (
-    <section >
+    <section className="">
       <HeroIconPicker
         openSVGModal={openSVGModal}
         setopenSVGModal={setopenSVGModal}
@@ -173,29 +184,15 @@ const AdminComponent = () => {
         openModSocial={openModSocial}
         setOpenModSocial={setOpenModSocial}
       />
-      <div className="bg-black/60 backdrop-blur-lg py-1">
+
+      <div className="">
         <ServicesButtons />
-        {renderTags(TagsNamen1)}
-        <hr className="bordered border-slate-200 my-0.5 " />
-        {renderTags(TagsNamen2)}
-        <hr className="bordered border-slate-200 my-0.5 " />
-        {renderTags(TagsNamen4)}
-
-
-
-        <hr className="bordered border-slate-200 my-0.5" />
-        <div className=" flex flex-wrap gap-1 bg-slate-200 p-1 items-center">
-          <button className="btn adminButton px-1.5! border-1 border-[#aaa] text-white text-[12px]" style={{ background: "steelblue", maxHeight: "20px" }} onClick={() => setOpenModSocial(true)}>social</button>
-          {renderTags(TagsNamen5)}
+        <div >
+          {TagsCategory.map((el, index) => (
+            <div key={index} >
+              <ModRotate offset={index * 30} tags={el.content} setTempTag={setTempTag} title={el.tag} loading={loading} clicked={clicked} setClicked={setClicked} /></div>
+          ))}
         </div>
-        <hr className="bordered border-slate-200 my-0.5" />
-        {renderTags(TagsNamen6)}
-        <hr className="bordered border-slate-200 my-0.5" />
-        <div className=" flex flex-wrap gap-1 bg-slate-200 p-1 items-center">
-          <button className="btn adminButton px-1.5! border-1 border-[#aaa] text-white text-[12px]" style={{ background: "steelblue", maxHeight: "20px" }} onClick={() => setOpenModSliders(true)}>sliders</button>
-          {renderTags(TagsNamen7)}
-        </div>
-
       </div>
     </section>
   );

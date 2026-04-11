@@ -29,7 +29,7 @@ export const TagsNamen1 = [
   { tag: "ol", color: "#f59e0b" }, // amber
   { tag: "option", color: "#a855f7" }, // purple
   { tag: "optgroup", color: "#d946ef" }, // fuchsia
-  { tag: "select", color: "#8b5cf6" }, // violet
+  // { tag: "select", color: "#8b5cf6" }, // violet
   { tag: "source", color: "#38bdf8" }, // sky-light
   { tag: "legend", color: "#ec4899" }, // pink
 
@@ -61,7 +61,7 @@ export const TagsNamen2 = [
   { tag: "search-f", color: "powderblue" }
 ];
 export const TagsNamen4 = [
-  { tag: "section container wrap", color: "powderblue" },
+
   { tag: "flex row", color: "powderblue" },
   { tag: "flex col", color: "powderblue" },
   { tag: "grid 100px_1fr", color: "powderblue" },
@@ -70,6 +70,7 @@ export const TagsNamen4 = [
   { tag: "ul flex col", color: "powderblue" },
 ];
 export const TagsNamen5 = [
+  { tag: "section container wrap", color: "powderblue" },
   // { tag: "SECTION", color: "powderblue" },
   // { tag: "HERO", color: "powderblue" },
   { tag: "cards", color: "powderblue" },
@@ -104,3 +105,11 @@ export const TagsNamen7 = [
   { tag: "double-slider", color: "powderblue" },
 ];
 
+export const TagsCategory = [
+  { tag: "t", content: TagsNamen1 },
+  { tag: "i", content: TagsNamen2 },
+  { tag: "m", content: TagsNamen4 },
+  { tag: "c", content: TagsNamen5 },
+  { tag: "g", content: TagsNamen6 },
+  { tag: "s", content: TagsNamen7 },
+];
