@@ -6,7 +6,7 @@ import { GET_JSON_DOCUMENT } from "@/apollo/queries";
 import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
 import { isolateSwiperNodes } from "@/utils/isolateSwiper";
 import { isolateComponentNodes } from "@/utils/isolateComponent";
-import ServicesButtons from "./ServicesButtons";
+
 
 import Loading from "@/components/ui/Loading/Loading";
 import type { HtmlNode } from "@/types/HtmlNode";
@@ -52,6 +52,9 @@ const AdminComponent = () => {
   const [openModSliders, setOpenModSliders] = useState<boolean>(false);
   const [openModSocial, setOpenModSocial] = useState<boolean>(false);
   const [tempTag, setTempTag] = useState<string>("");
+  const [tempMod, setTempMod] = useState<string>('');
+  const [hasMod, setHasMod] = useState<boolean>(false);
+  const [openModRotate, setOpenModRotate] = useState<boolean>(false);
   const { refetch: refetchJson } = useQuery(GET_JSON_DOCUMENT, {
     variables: { name },
     skip: !name,
@@ -88,8 +91,33 @@ const AdminComponent = () => {
 
   async function processScriptsData(sD: string) {
     let r: HtmlNode[] = [];
-    if (sD.includes("textarea-field") || sD.includes("input-field")) {
+    if (sD.includes("textarea-field") || sD.includes("input-field") || sD.includes("search-f")) {
       const re = await loadScript("script-all-inputs");
+      r.push(...re);
+    }
+    if (sD.includes("f-number")) {
+      const re = await loadScript("script-f-number");
+      r.push(...re);
+    }
+    if (sD.includes("fildset-rating")) {
+      const re = await loadScript("script-fildset-rating");
+      r.push(...re);
+    }
+    if (sD.includes("range-wrap-js")) {
+      const re = await loadScript("script-range-wrap-js");
+      r.push(...re);
+    }
+
+    if (sD.includes("custom-select")) {
+      const re = await loadScript("script-custom-select");
+      r.push(...re);
+    }
+    // if (sD.includes("f-check")) {
+    //   const re = await loadScript("script-f-check");
+    //   r.push(...re);
+    // }
+    if (sD.includes("f-radio")) {
+      const re = await loadScript("script-f-radio");
       r.push(...re);
     }
     return r;
@@ -97,6 +125,7 @@ const AdminComponent = () => {
 
 
   const handleLoad = async (tag: string) => {
+    console.log("<== ✨ ✨ ✨ tag ✨ ✨ ✨===>", tag);
     if (!tag) return;
     setLoading(true);
     let resulScripts = [] as HtmlNode[];
@@ -104,15 +133,7 @@ const AdminComponent = () => {
     if (jsPart?.length) {
       resulScripts.push(...jsPart);
     }
-    // // находим все совпадения
-    // const matchedList = TAGS.filter((foo) => tag.includes(foo));
-    // // вызываем стили и скрипты для каждого совпадения
-    // for (const m of matchedList) {
-    //   const jp = await processScriptsData(m);
-    //   if (jp?.length) {
-    //     resultWithKeysStyles.push(...jp);
-    //   }
-    // }
+
     // 2. Грузим сам компонент
     const { data } = await refetchJson({ name: tag });
     const content = data?.jsonDocumentByName?.content;
@@ -121,13 +142,13 @@ const AdminComponent = () => {
       return;
     }
 
-    console.log("<== ✨ ✨ ✨ tag ✨ ✨ ✨===>", tag);
     console.log("<== ✨ ✨ ✨ content ✨ ✨ ✨===>", content);
     console.log("<== ✨ ✨ ✨ resulScripts ✨ ✨ ✨===>", resulScripts);
 
     const resultWithKeys = ensureNodeKeys(content) as HtmlNode[];
     setLoading(false);
     setClicked("");
+    setTempTag("");
     const allNodes = [...resultWithKeys, ...resulScripts];
     // const swiperIsolated = isolateSwiperNodes(allNodes);
     // const isolatedNodes = isolateComponentNodes(swiperIsolated);
@@ -141,34 +162,20 @@ const AdminComponent = () => {
   // ==>==>==>==>==>==>==>==>==>==>==>==>==>
   useEffect(() => {
     console.log("<=🔹🟢==tempTag=🟢🔹==>", tempTag);
+    if (!tempTag || tempTag === "") return;
     if (tempTag === "svg") {
       setopenSVGModal(true);
     } else {
       handleLoad(tempTag);
     }
   }, [tempTag]);
+
   // ==>==>==>==>==>==>==>==>==>==>==>==>==>
-  // const renderTags = (tag: string) => (
-  //   // <div className=" flex flex-wrap gap-1 bg-slate-200 p-1 ">
-  //   //   {tags.map((el, i) => (
-  //   <button
-  //     key={i}
-  //     className="btn adminButton px-1.5! border-1 border-[#aaa] text-black text-[12px]"
-  //     type="button"
-  //     onClick={() => {
-  //       if (el.tag === "svg") {
-  //         setopenSVGModal(true);
-  //       } else {
-  //         setClicked(el.tag);
-  //         handleLoad(el.tag);
-  //       }
-  //     }}
-  //   >
-  //     {loading && clicked === el.tag ? <Spinner /> : <span>{el.tag}</span>}
-  //   </button>
-  //   //   ))}
-  //   // </div>
-  // );
+
+  useEffect(() => {
+    console.log("<=🔹🟢==tempMod=🟢🔹==>", tempMod);
+
+  }, [tempMod]);
   // ==>==>==>==>==>==>==>==>==>==>==>==>==>
   return (
     <section className="">
@@ -186,11 +193,28 @@ const AdminComponent = () => {
       />
 
       <div className="">
-        <ServicesButtons />
+        <div>
+          {TagsCategory.map((el, index) => (
+            <button className="btn btn-teal  button-mod-rot !bg-[var(--navy)] rounded-r-sm  !py-3  border-1 border-[#aaa] mb-1 last:mb-0 text-white text-[12px] "
+              style={{
+                background: "steelblue",
+                height: 20,
+                width: 18,
+
+              }} onMouseLeave={(e: any) => e.stopPropagation()}
+              onClick={(e: React.MouseEvent) => {
+                e.stopPropagation();
+                setTempMod(el.tag);
+                setOpenModRotate(true);
+              }}>
+              {el.tag.slice(0, 1).toUpperCase()}
+            </button>
+          ))}
+        </div>
         <div >
           {TagsCategory.map((el, index) => (
             <div key={index} >
-              <ModRotate offset={index * 30} tags={el.content} setTempTag={setTempTag} title={el.tag} loading={loading} clicked={clicked} setClicked={setClicked} /></div>
+              <ModRotate offset={index * 32} tags={el.content} setTempTag={setTempTag} title={el.tag} loading={loading} clicked={clicked} setClicked={setClicked} openModRotate={tempMod === el.tag ? openModRotate : false} setOpenModRotate={setOpenModRotate} /></div>
           ))}
         </div>
       </div>

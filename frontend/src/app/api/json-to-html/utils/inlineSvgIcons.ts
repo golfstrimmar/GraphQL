@@ -8,8 +8,8 @@ export async function inlineSvgIcons(nodes: HtmlNode[]): Promise<HtmlNode[]> {
     const src = node.attributes?.src;
 
     const isSvgIcon =
-      node.tag === "img" &&
-      node.class === "svg-wrapper" &&
+      (node.tag === "svg" || node.tag === "img") &&
+      node.class?.includes("svg-wrapper") &&
       typeof src === "string" &&
       src.trim().toLowerCase().endsWith(".svg");
 
@@ -43,7 +43,7 @@ export async function inlineSvgIcons(nodes: HtmlNode[]): Promise<HtmlNode[]> {
 
     const svgNode: HtmlNode = {
       tag: "svg",
-      class: "svg-wrapper",
+      class: node.class,
       style: svgAttrs.style,
       attributes: svgAttrs,
       text: svgInner,

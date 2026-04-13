@@ -68,11 +68,28 @@ export default function ServicesButtons() {
       setIsStylizing(false);
     }
   };
-
+  // bg-black/60 backdrop-blur-lg
   return (
-    <div className=" flex items-center gap-1 mb-1 p-1 bg-black/60 backdrop-blur-lg   flex-col gap-2">
+    <div className=" flex items-center flex-col gap-2  ">
+
       <button
-        className="btn btn-allert !px-0.75 !py-1"
+        className="btn-teal !bg-[var(--navy)] w-full !p-0.25 flex-[40px] center   disabled:opacity-50"
+        type="button"
+        onClick={undo}
+        disabled={undoStack.length === 0}
+      >
+        <СhevronLeft width={12} height={12} />
+      </button>
+      <button
+        className="btn-teal !bg-[var(--navy)] w-full !p-0.25 flex-[40px] center   disabled:opacity-50"
+        type="button"
+        onClick={redo}
+        disabled={redoStack.length === 0}
+      >
+        <СhevronRight width={12} height={12} />
+      </button>
+      <button
+        className="btn-allert btn w-full !p-0.25 !py-1 flex-[40px] center  "
         type="button"
         title="Reset All"
         onClick={() => {
@@ -81,102 +98,7 @@ export default function ServicesButtons() {
       >
         <ClearIcon width={12} height={12} />
       </button>
-      <button
-        className="btn-teal !px-0.25  disabled:opacity-50"
-        type="button"
-        onClick={undo}
-        disabled={undoStack.length === 0}
-      >
-        <СhevronLeft width={12} height={12} />
-      </button>
-      <button
-        className="btn-teal !px-0.25  disabled:opacity-50 "
-        type="button"
-        onClick={redo}
-        disabled={redoStack.length === 0}
-      >
-        <СhevronRight width={12} height={12} />
-      </button>
 
-      {/* <button
-        className="btn-teal  !px-0.25  inline-block items-center  !gap-2 "
-        type="button"
-        onClick={() => handleClean()}
-      >
-        <ClearIcon width={12} height={12} />
-        <p className="!text-[10px] !lh-0">remove servises texts</p>
-      </button> */}
-      {/* --- STYLIZE SECTION ---
-      <div className="flex bg-[#1a1a1a] rounded mx-2 border border-[#444]">
-        <select
-          className="bg-transparent text-white text-[10px] px-2 outline-none cursor-pointer hover:bg-[#333] h-[28px]"
-          value={selectedTheme}
-          onChange={(e) => setSelectedTheme(e.target.value)}
-        >
-          {Object.keys(themeManifests).map(t => (
-            <option key={t} value={t} className="bg-[#1a1a1a]">{t}</option>
-          ))}
-        </select>
-        <button
-          className={`btn-teal !rounded-none border-l border-[#444] w-[max-content] flex items-center gap-2 px-3 ${isStylizing ? 'animate-pulse' : ''}`}
-          type="button"
-          disabled={isStylizing || htmlJson.length === 0}
-          onClick={handleStylize}
-        >
-          <p className="!text-[10px] uppercase font-bold tracking-wider ">
-            {isStylizing ? "Processing..." : "Stylize"}
-          </p>
-        </button>
-      </div>*/}
-
-      {/*-------------*/}
-      {/* <div className="flex-[60%] ">
-        <JsonToHtmlButton />
-      </div> */}
-      {/*------отложено! обратная генерация в htmlJson-------*/}
-      {/*{HTML.length > 0 && <HtmlToJsonButton />}*/}
-
-      {/*-------------*/}
-      {/* <hr className="border-2-[var(--grey-40)]  w-[25px] rotate-90" />
-      <button
-        className="btn-teal flex-[40px] center"
-        type="button"
-        onClick={() => {
-          const el = document.getElementById("preview-section");
-          if (el) {
-            const y = el.getBoundingClientRect().top + window.scrollY - 80;
-            window.scrollTo({ top: y, behavior: "smooth" });
-          }
-        }}
-      >
-        <PreviewIcon width={12} height={12} />
-      </button>
-      <button
-        className="btn-teal  flex-[40px] center"
-        type="button"
-        onClick={() => {
-          const el = document.getElementById("canvas-section");
-          if (el) {
-            const y = el.getBoundingClientRect().top + window.scrollY - 80;
-            window.scrollTo({ top: y, behavior: "smooth" });
-          }
-        }}
-      >
-        <WorkerIcon width={12} height={12} />
-      </button>
-      <button
-        className="btn-teal    flex-[40px] center"
-        type="button"
-        onClick={() => {
-          const el = document.getElementById("projects-section");
-          if (el) {
-            const y = el.getBoundingClientRect().top + window.scrollY - 80;
-            window.scrollTo({ top: y, behavior: "smooth" });
-          }
-        }}
-      >
-        <ProjectsIcon width={12} height={12} />
-      </button> */}
     </div>
   );
 }

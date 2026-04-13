@@ -45,7 +45,7 @@ export default function HiddenButton() {
   return (
     <button
       disabled={isEmpty}
-      className={`btn-teal !bg-[var(--navy)] w-full !p-0.25 flex-[20px] center cursor-pointer 
+      className={`btn-primary btn  !max-w-[30px] !max-h-[20px] !p-0.25 flex-[20px] center cursor-pointer 
         disabled:opacity-20 disabled:grayscale disabled:cursor-not-allowed 
         ${isCollapsedAll ? "opacity-50" : "opacity-100"}`}
       onClick={toggleAll}

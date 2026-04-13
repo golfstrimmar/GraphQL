@@ -1,4 +1,5 @@
 export const TagsNamen1 = [
+  { tag: "main", color: "rgb(220, 230, 220)" },
   { tag: "section", color: "rgb(220, 230, 220)" },
   { tag: "div", color: "rgb(226, 232, 240)" },
   { tag: "container", color: "dodgerblue" },

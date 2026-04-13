@@ -9,8 +9,9 @@ import Loading from "@/components/ui/Loading/Loading";
 import PreviewIcon from "@/components/icons/PreviewIcon";
 import WorkerIcon from "@/components/icons/WorkerIcon";
 import JsonToHtmlButton from "./JsonToHtmlButton";
-import HiddenButton from "./HiddenButton";
 
+import ServicesButtons from "./ServicesButtons";
+import AdminComponent from "./AdminComponent";
 
 
 
@@ -24,7 +25,7 @@ export default function ScrollButtons() {
   const containerClass = isPlaza() ? "container" : "";
 
   return (
-    <div className=" fixed  flex flex-col gap-4 fixed bottom-[40%] left-[2px] w-4  bg-[var(--lightest-slate)] admin-shimmer rounded-r-sm py-1 pb-[110px] z-[5000]">
+    <div className=" fixed  flex flex-col gap-2 fixed bottom-[45%] left-[2px] w-4  bg-black/60 backdrop-blur-lg admin-shimmer rounded-r-sm py-1  z-[5000]">
       <button
         className="btn-teal !bg-[var(--navy)] w-full !p-0.25 flex-[40px] center"
         type="button"
@@ -36,7 +37,7 @@ export default function ScrollButtons() {
           }
         }}
       >
-        <PreviewIcon width={14} height={14} />
+        ⇧
       </button>
       <button
         className="btn-teal !bg-[var(--navy)] w-full !p-0.25  flex-[40px] center"
@@ -49,25 +50,12 @@ export default function ScrollButtons() {
           }
         }}
       >
-        <WorkerIcon width={14} height={14} />
-
+        ⇩
       </button>
-      <HiddenButton />
+
       <JsonToHtmlButton cN="!py-4" />
-      {/* <button
-        className="btn-teal !bg-[var(--navy)] w-[300px] h-[100px] text-right !p-0.25 absolute bottom-[5px] right-[2px] flex-[100px] flex items-center justify-end"
-        type="button"
-        onMouseEnter={() => {
-          const el = document.getElementById("admin-siction");
-          el.classList.toggle("!translate-y-[0%]");
-        }}
-      >
-        A
-
-      </button> */}
-
-
-
+      <ServicesButtons />
+      <AdminComponent />
     </div>
   );
 }

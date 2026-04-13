@@ -22,6 +22,7 @@ import PreviewIcon from "@/components/icons/PreviewIcon";
 import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
 import { isolateComponentNodes } from "@/utils/isolateComponent";
 import { reIsolateClone } from "@/utils/reIsolateClone";
+import HiddenButton from "./HiddenButton";
 
 const NodeInfo = dynamic(() => import("./NodeInfo"), {
   ssr: false,
@@ -549,6 +550,7 @@ export default function CanvasComponent() {
       <div className="flex items-center gap-2">
         {PageHeader("canvasIcon", "Canvas")}
         {/* <JsonToHtmlButton /> */}
+        <HiddenButton />
       </div>
       <div
         id="plaza-render-area"
