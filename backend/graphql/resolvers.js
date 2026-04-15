@@ -57,14 +57,34 @@ export const resolvers = {
         .then((project) => (project ? { ...project, owner: null } : null)),
     getAllProjectsByUser: (_, { userId }) =>
       prisma.project.findMany({ where: { ownerId: Number(userId) } }),
+    // jsonDocumentByName: async (_, { name }) => {
+    //   const Doc = await prisma.jsonDocument.findUnique({ where: { name } });
+    //   return Doc || null;
+    // },
     jsonDocumentByName: async (_, { name }) => {
-      const Doc = await prisma.jsonDocument.findUnique({ where: { name } });
-      return Doc || null;
+      const doc = await prisma.jsonDocument.findUnique({ where: { name } });
+      var script = null;
+      if (name.includes("textarea-field") || name.includes("input-field") || name.includes("search-f")) {
+        script = await prisma.jsonDocument.findUnique({ where: { name: "script-all-inputs" } });
+      }
+      if (!doc && !script) return null;
+      if (!script) return doc;
+      if (!doc) return script;
+      console.log("<=🔹🟢===doc===🟢🔹==>", doc);
+      console.log("<=🔹🟢==script=🟢🔹==>", script);
+      return {
+        ...doc,
+        content: [
+          ...(Array.isArray(doc.content) ? doc.content : []),
+          ...(Array.isArray(script.content) ? script.content : []),
+        ],
+      };
     },
     jsonDocumentsByNames: async (_, { names }) => {
       const docs = await prisma.jsonDocument.findMany({
         where: { name: { in: names } },
       });
+
       return docs || null;
     },
     figmaProjectsByUser: async (_, { userId }) => {

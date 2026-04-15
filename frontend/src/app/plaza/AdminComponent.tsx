@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useStateContext } from "@/providers/StateProvider";
 import { useQuery } from "@apollo/client";
-import { GET_JSON_DOCUMENT } from "@/apollo/queries";
+import { GET_JSON_DOCUMENT, GET_JSON_DOCUMENTS } from "@/apollo/queries";
 import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
 import { isolateSwiperNodes } from "@/utils/isolateSwiper";
 import { isolateComponentNodes } from "@/utils/isolateComponent";
@@ -60,8 +60,11 @@ const AdminComponent = () => {
     skip: !name,
     fetchPolicy: "no-cache",
   });
+  const { refetch: refetchJsons } = useQuery(GET_JSON_DOCUMENTS, {
+    fetchPolicy: "no-cache",
+  });
   // ==>==>==>==>==>==>==>==>==>==>==>==>==>
-  const TAGS = [
+  const TAGS_TO_LOAD_MANY = [
     "input",
     "svg",
     "number",
@@ -75,88 +78,74 @@ const AdminComponent = () => {
     "select",
   ];
 
-  async function loadStyle(name: string): Promise<HtmlNode[]> {
-    const { data: stylesData } = await refetchJson({ name });
-    const contentStyles = stylesData?.jsonDocumentByName?.content;
-    if (!contentStyles) return [];
-    return ensureNodeKeys(contentStyles) as HtmlNode[];
+  // async function loadStyle(name: string): Promise<HtmlNode[]> {
+  //   const { data: stylesData } = await refetchJson({ name });
+  //   const contentStyles = stylesData?.jsonDocumentByName?.content;
+  //   if (!contentStyles) return [];
+  //   return ensureNodeKeys(contentStyles) as HtmlNode[];
+  // }
+
+  // async function loadScript(name: string): Promise<HtmlNode[]> {
+  //   const { data: scriptsData } = await refetchJson({ name });
+  //   const contentScripts = scriptsData?.jsonDocumentByName?.content;
+  //   if (!contentScripts) return [];
+  //   return ensureNodeKeys(contentScripts) as HtmlNode[];
+  // }
+
+  // async function processScriptsData(sD: string) {
+  //   let r: HtmlNode[] = [];
+  //   if (sD.includes("textarea-field") || sD.includes("input-field") || sD.includes("search-f")) {
+  //     const re = await loadScript("script-all-inputs");
+  //     r.push(...re);
+  //   }
+
+
+  //   const re = await loadScript(`script-${sD}`);
+  //   r.push(...re);
+
+  //   return r;
+  // }
+
+  async function loadJson(tag: string) {
+    const { data } = await refetchJson({ name: tag });
+    const contentJson = data?.jsonDocumentByName?.content;
+    if (!contentJson) {
+      setLoading(false);
+      return [];
+    }
+    return contentJson as HtmlNode[];
   }
 
-  async function loadScript(name: string): Promise<HtmlNode[]> {
-    const { data: scriptsData } = await refetchJson({ name });
-    const contentScripts = scriptsData?.jsonDocumentByName?.content;
-    if (!contentScripts) return [];
-    return ensureNodeKeys(contentScripts) as HtmlNode[];
-  }
+  // async function loadJsons(names: string[]) {
+  //   const { data: jsonsData } = await refetchJsons({ names });
+  //   const contentJsons = jsonsData?.jsonDocumentsByNames;
+  //   if (!contentJsons) return [];
+  //   return contentJsons as HtmlNode[];
+  // }
 
-  async function processScriptsData(sD: string) {
-    let r: HtmlNode[] = [];
-    if (sD.includes("textarea-field") || sD.includes("input-field") || sD.includes("search-f")) {
-      const re = await loadScript("script-all-inputs");
-      r.push(...re);
-    }
-    if (sD.includes("f-number")) {
-      const re = await loadScript("script-f-number");
-      r.push(...re);
-    }
-    if (sD.includes("fildset-rating")) {
-      const re = await loadScript("script-fildset-rating");
-      r.push(...re);
-    }
-    if (sD.includes("range-wrap-js")) {
-      const re = await loadScript("script-range-wrap-js");
-      r.push(...re);
-    }
-
-    if (sD.includes("custom-select")) {
-      const re = await loadScript("script-custom-select");
-      r.push(...re);
-    }
-    // if (sD.includes("f-check")) {
-    //   const re = await loadScript("script-f-check");
-    //   r.push(...re);
-    // }
-    if (sD.includes("f-radio")) {
-      const re = await loadScript("script-f-radio");
-      r.push(...re);
-    }
-    return r;
-  }
-
-
+  // ==>==>==>==>==>==>==>==>==>==>==>==>==>
   const handleLoad = async (tag: string) => {
-    console.log("<== ✨ ✨ ✨ tag ✨ ✨ ✨===>", tag);
     if (!tag) return;
     setLoading(true);
-    let resulScripts = [] as HtmlNode[];
-    const jsPart = await processScriptsData(tag);
-    if (jsPart?.length) {
-      resulScripts.push(...jsPart);
-    }
+    // let resulScripts = [] as HtmlNode[];
+    // const jsPart = await processScriptsData(tag);
+    // if (jsPart?.length) {
+    //   resulScripts.push(...jsPart);
+    // }
+    console.log("<== ✨ ✨ ✨ tag ✨ ✨ ✨===>", tag);
 
-    // 2. Грузим сам компонент
-    const { data } = await refetchJson({ name: tag });
-    const content = data?.jsonDocumentByName?.content;
-    if (!content) {
-      setLoading(false);
-      return;
-    }
-
-    console.log("<== ✨ ✨ ✨ content ✨ ✨ ✨===>", content);
-    console.log("<== ✨ ✨ ✨ resulScripts ✨ ✨ ✨===>", resulScripts);
-
-    const resultWithKeys = ensureNodeKeys(content) as HtmlNode[];
-    setLoading(false);
-    setClicked("");
-    setTempTag("");
-    const allNodes = [...resultWithKeys, ...resulScripts];
-    // const swiperIsolated = isolateSwiperNodes(allNodes);
-    // const isolatedNodes = isolateComponentNodes(swiperIsolated);
+    const json = await loadJson(tag);
+    const resultWithKeys = ensureNodeKeys(json) as HtmlNode[];
+    const allNodes = [...resultWithKeys];
     const isolatedNodes = isolateComponentNodes(allNodes);
+    console.log("<=🔹🟢==isolatedNodes=🟢🔹==>", isolatedNodes);
     updateHtmlJson((prev) => [
       ...prev,
       ...isolatedNodes,
     ]);
+    setLoading(false);
+    setClicked("");
+    setTempTag("");
   };
 
   // ==>==>==>==>==>==>==>==>==>==>==>==>==>
@@ -182,6 +171,7 @@ const AdminComponent = () => {
       <HeroIconPicker
         openSVGModal={openSVGModal}
         setopenSVGModal={setopenSVGModal}
+        setTempTag={setTempTag}
       />
       <ModSliders
         openModSliders={openModSliders}

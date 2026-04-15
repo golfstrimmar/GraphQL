@@ -33,7 +33,7 @@ interface Props {
 // ====>====>====>====>====>====>====>====>====>====>
 export default function HeroIconPicker({
   openSVGModal,
-  setopenSVGModal,
+  setopenSVGModal, setTempTag
 }: Props) {
   const [outline, setOutline] = useState<boolean>(true);
   const [solid, setSolid] = useState<boolean>(false);
@@ -110,6 +110,7 @@ export default function HeroIconPicker({
     setopenSVGModal(false);
     setSelectedIcon("");
     setTypeIcon("outline");
+    setTempTag("");
   };
   const onChange = (id: string, value: string) => {
     setValueOnChange("");
@@ -170,11 +171,10 @@ export default function HeroIconPicker({
           </button>
           <div className="mt-4 center  gap-4">
             <button
-              className={`btn btn-primary modal-inner ${
-                outline
-                  ? "!outline-[var(--teal)] !outline-2 !outline-solid"
-                  : "outline-slate-200"
-              }`}
+              className={`btn btn-primary modal-inner ${outline
+                ? "!outline-[var(--teal)] !outline-2 !outline-solid"
+                : "outline-slate-200"
+                }`}
               onClick={() => {
                 setOutline(true);
                 setSolid(false);
@@ -183,11 +183,10 @@ export default function HeroIconPicker({
               outline
             </button>
             <button
-              className={`btn btn-primary modal-inner ${
-                solid
-                  ? "!outline-[var(--teal)] !outline-2 !outline-solid"
-                  : "outline-slate-200"
-              }`}
+              className={`btn btn-primary modal-inner ${solid
+                ? "!outline-[var(--teal)] !outline-2 !outline-solid"
+                : "outline-slate-200"
+                }`}
               onClick={() => {
                 setOutline(false);
                 setSolid(true);
@@ -206,11 +205,10 @@ export default function HeroIconPicker({
                     onChange(id, "outline");
                     setValueOnChange(id);
                   }}
-                  className={`flex flex-col items-center p-2 border rounded text-[10px] ${
-                    valueOnChange === id
-                      ? "border-teal-800 bg-teal-100"
-                      : "border-slate-200"
-                  }`}
+                  className={`flex flex-col items-center p-2 border rounded text-[10px] ${valueOnChange === id
+                    ? "border-teal-800 bg-teal-100"
+                    : "border-slate-200"
+                    }`}
                   title={label}
                 >
                   <Component className="w-5 h-5 mb-1" color="slate-800" />
@@ -230,11 +228,10 @@ export default function HeroIconPicker({
                     onChange(id, "solid");
                     setValueOnChange(id);
                   }}
-                  className={`flex flex-col items-center p-2 border rounded text-[10px] ${
-                    valueOnChange === id
-                      ? "border-teal-500 bg-teal-100"
-                      : "border-slate-200"
-                  }`}
+                  className={`flex flex-col items-center p-2 border rounded text-[10px] ${valueOnChange === id
+                    ? "border-teal-500 bg-teal-100"
+                    : "border-slate-200"
+                    }`}
                   title={label}
                 >
                   <Component className="w-5 h-5 mb-1" color="slate-800" />
