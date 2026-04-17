@@ -232,7 +232,6 @@ span {
   }
 
   &:active {
-    transform: translateY(1px);
     background-color: #64ffda;
   }
 }
@@ -244,7 +243,6 @@ span {
   padding: 0 5px;
 
   &:active {
-    transform: translateY(1px);
     background-color: rgb(255, 0, 0, 0.8);
   }
 }
@@ -254,7 +252,6 @@ span {
   display: inline-block;
 
   &:active {
-    transform: translateY(1px);
     background-color: #64ffda;
   }
 }
@@ -279,7 +276,6 @@ span {
   }
 
   &:active {
-    transform: translateY(1px);
     background-color: #64ffda;
   }
 }
@@ -492,14 +488,14 @@ li {
   }
 
   50% {
-      background-color: #0d887a44;
-        box-shadow: 0 4px 14px #028a7aef;
+    background-color: #0d887a44;
+    box-shadow: 0 4px 14px #028a7aef;
 
   }
 
   100% {
     background-color: #0d887acb;
-      box-shadow: 0 4px 14px #028a7aef;
+    box-shadow: 0 4px 14px #028a7aef;
 
   }
 }

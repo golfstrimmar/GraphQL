@@ -1,44 +1,49 @@
-export const TagsNamen1 = [
-  { tag: "main", color: "rgb(220, 230, 220)" },
-  { tag: "section", color: "rgb(220, 230, 220)" },
-  { tag: "div", color: "rgb(226, 232, 240)" },
-  { tag: "container", color: "dodgerblue" },
-  { tag: "a", color: "#3b82f6" }, // blue
-  { tag: "button", color: "#06b6d4" }, // cyan
-  { tag: "p", color: "#22c55e" }, // green
-  { tag: "span", color: "#8b5cf6" }, // violet
-  { tag: "ul", color: "#f97316" }, // orange
-  { tag: "li", color: "#eab308" }, // yellow
-  { tag: "is", color: "#0ea5e9" },
-  { tag: "img", color: "#0ea5e9" }, // sky
-  { tag: "svg", color: "#06b6d4" }, // cyan
-  { tag: "nav", color: "#14b8a6" }, // teal
+export const Tags = [
+  { tag: "main", color: "#ebebeb" },
+  { tag: "section", color: "#ebebeb" },
+  { tag: "div", color: "#ebebeb" },
+  { tag: "container", color: "#ebebeb" },
+  { tag: "a", color: "#ebebeb" }, // blue
+  { tag: "button", color: "#ebebeb" }, // cyan
+  { tag: "p", color: "#ebebeb" }, // green
+  { tag: "span", color: "#ebebeb" }, // violet
+  { tag: "ul", color: "#ebebeb" }, // orange
+  { tag: "li", color: "#ebebeb" }, // yellow
+  { tag: "is", color: "#ebebeb" },
+  { tag: "img", color: "#ebebeb" }, // sky
+  { tag: "svg", color: "#ebebeb" }, // cyan
+  { tag: "nav", color: "#ebebeb" }, // teal
 
-  { tag: "h1", color: "#ef4444" }, // red
-  { tag: "h2", color: "#ef4444" },
-  { tag: "h3", color: "#ef4444" },
-  { tag: "h4", color: "#ef4444" },
-  { tag: "h5", color: "#ef4444" },
-  { tag: "h6", color: "#ef4444" },
+  { tag: "h1", color: "#ebebeb" }, // red
+  { tag: "h2", color: "#ebebeb" },
+  { tag: "h3", color: "#ebebeb" },
+  { tag: "h4", color: "#ebebeb" },
+  { tag: "h5", color: "#ebebeb" },
+  { tag: "h6", color: "#ebebeb" },
 
   { tag: "form", color: "#ebebeb" },
   { tag: "br", color: "#ebebeb" }, // gray
   { tag: "hr", color: "#ebebeb" }, // zinc
-  { tag: "aside", color: "#06b6d4" }, // cyan
-  { tag: "fieldset", color: "#f43f5e" },
-  { tag: "article", color: "#14b8a6" },
-  { tag: "ol", color: "#f59e0b" }, // amber
-  { tag: "option", color: "#a855f7" }, // purple
-  { tag: "optgroup", color: "#d946ef" }, // fuchsia
+  { tag: "aside", color: "#ebebeb" }, // cyan
+  { tag: "fieldset", color: "#ebebeb" },
+  { tag: "article", color: "#ebebeb" },
+  { tag: "ol", color: "#ebebeb" }, // amber
+  { tag: "option", color: "#ebebeb" }, // purple
+  { tag: "optgroup", color: "#ebebeb" }, // fuchsia
   // { tag: "select", color: "#8b5cf6" }, // violet
-  { tag: "source", color: "#38bdf8" }, // sky-light
-  { tag: "legend", color: "#ec4899" }, // pink
-
+  { tag: "source", color: "#ebebeb" }, // sky-light
+  { tag: "legend", color: "#ebebeb" }, // pink
+  { tag: "section container wrap", color: "#38bdf8" },
+  { tag: "flex row", color: "#38bdf8" },
+  { tag: "flex col", color: "#38bdf8" },
+  { tag: "grid 100px_1fr", color: "#38bdf8" },
+  { tag: "grid minmax", color: "#38bdf8" },
+  { tag: "ul flex row", color: "#38bdf8" },
+  { tag: "ul flex col", color: "#38bdf8" },
   // { tag: "input", color: "#3b82f6" }, // blue
   // { tag: "textarea", color: "#6366f1" }, // indigo
   // { tag: "label", color: "#f97316" },
-];
-export const TagsNamen2 = [
+
   { tag: "input-field", color: "powderblue" },
   { tag: "textarea-field", color: "powderblue" },
   // { tag: "container-filled", color: "powderblue" },
@@ -59,19 +64,10 @@ export const TagsNamen2 = [
   { tag: "fildset-rating", color: "powderblue" },
   { tag: "range-wrap-js", color: "powderblue" },
   { tag: "custom-select", color: "powderblue" },
-  { tag: "search-f", color: "powderblue" }
-];
-export const TagsNamen4 = [
+  { tag: "search-f", color: "powderblue" },
 
-  { tag: "flex row", color: "powderblue" },
-  { tag: "flex col", color: "powderblue" },
-  { tag: "grid 100px_1fr", color: "powderblue" },
-  { tag: "grid minmax", color: "powderblue" },
-  { tag: "ul flex row", color: "powderblue" },
-  { tag: "ul flex col", color: "powderblue" },
-];
-export const TagsNamen5 = [
-  { tag: "section container wrap", color: "powderblue" },
+
+
   // { tag: "SECTION", color: "powderblue" },
   // { tag: "HERO", color: "powderblue" },
   { tag: "cards", color: "powderblue" },
@@ -85,6 +81,7 @@ export const TagsNamen5 = [
   { tag: "cards-more", color: "powderblue" },
   { tag: "header", color: "powderblue" },
   { tag: "header-item-dropdown", color: "powderblue" },
+  { tag: "soc", color: "powderblue" },
   { tag: "footer", color: "powderblue" },
   { tag: "pagination", color: "powderblue" },
   { tag: "contacts", color: "powderblue" },
@@ -92,25 +89,22 @@ export const TagsNamen5 = [
   { tag: "form-common", color: "powderblue" },
 
 
-];
-export const TagsNamen6 = [
   { tag: "gallery", color: "powderblue" },
   { tag: "gallery-popup", color: "powderblue" },
   { tag: "gallery-slider-popup", color: "powderblue" },
   { tag: "video-gallery-slider", color: "powderblue" },
-];
-export const TagsNamen7 = [
+
   { tag: "slider", color: "powderblue" },
   { tag: "fade-slider", color: "powderblue" },
   { tag: "carousel", color: "powderblue" },
   { tag: "double-slider", color: "powderblue" },
 ];
 
-export const TagsCategory = [
-  { tag: "t", content: TagsNamen1 },
-  { tag: "i", content: TagsNamen2 },
-  { tag: "m", content: TagsNamen4 },
-  { tag: "c", content: TagsNamen5 },
-  { tag: "g", content: TagsNamen6 },
-  { tag: "s", content: TagsNamen7 },
-];
+// export const TagsCategory = [
+//   { tag: "t", content: TagsNamen1 },
+//   { tag: "i", content: TagsNamen2 },
+//   { tag: "m", content: TagsNamen4 },
+//   { tag: "c", content: TagsNamen5 },
+//   { tag: "g", content: TagsNamen6 },
+//   { tag: "s", content: TagsNamen7 },
+// ];

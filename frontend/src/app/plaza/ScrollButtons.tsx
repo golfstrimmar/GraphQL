@@ -55,7 +55,7 @@ export default function ScrollButtons() {
 
       <JsonToHtmlButton cN="!py-4" />
       <ServicesButtons />
-      <AdminComponent />
+
     </div>
   );
 }

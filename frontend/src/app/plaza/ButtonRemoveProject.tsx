@@ -36,11 +36,11 @@ export default function ButtonRemoveProject({ id }) {
   // 🔹🔹🔹🔹🔹🔹🔹🔹🔹
   return (
     <button
-      className=" btn px-2 btn-allert  min-h-[28px] min-w-[36px] "
+      className=" btn px-2 btn-allert  min-h-[18px] min-w-[18px] "
       type="button"
       onClick={() => delProject(id)}
     >
-      {loading ? <Spinner /> : <RemoveIcon width={24} height={24} />}
+      {loading ? <Spinner /> : <RemoveIcon width={18} height={18} />}
     </button>
   );
 }

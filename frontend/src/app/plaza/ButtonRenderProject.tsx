@@ -153,7 +153,7 @@ export default function ButtonRenderProject({
 
   // -----
   return (
-    <>
+    <div className="grid grid-cols-[1fr_60px] gap-2">
       <button
         className="project-item min-w-[200px] text-[12px] flex justify-center"
         onClick={() => addToHtmlJson()}
@@ -162,7 +162,7 @@ export default function ButtonRenderProject({
         {loadingProject ? <Spinner /> : project?.name}
       </button>
       <button
-        className="btn btn-empty mx-2 p-1 text-[12px] flex justify-center"
+        className="btn btn-empty mx-1 p-1 text-[10px] flex justify-center"
         onClick={() => {
           updateProject();
         }}
@@ -170,6 +170,6 @@ export default function ButtonRenderProject({
       >
         {updateProjectLoading ? <Spinner /> : "Update"}
       </button>
-    </>
+    </div>
   );
 }

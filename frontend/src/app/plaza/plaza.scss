@@ -32,7 +32,6 @@
 
 .adminButton {
   &:active {
-    transform: translateY(1px);
     background-color: #64ffda !important;
   }
 }
@@ -260,4 +259,43 @@ img.renderedNode {
 
 .open-mod-rotate {
   transform: translate(0px, 0);
+}
+
+// ===================================
+.device-switch {
+  display: inline-flex;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 999px;
+  background: #020617;
+  border: 1px solid #1f2937;
+}
+
+.device-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.device-btn svg {
+  width: 17px;
+  height: 17px;
+}
+
+.device-btn:hover {
+  background: rgba(148, 163, 184, 0.18);
+  color: #e5e7eb;
+}
+
+.device-btn--active {
+  background: var(--teal);
+  color: #020617;
 }

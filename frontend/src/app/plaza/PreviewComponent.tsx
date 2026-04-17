@@ -9,11 +9,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import CloseIcon from "@/components/icons/CloseIcon";
 import WorkerIcon from "@/components/icons/WorkerIcon";
 import PreviewIcon from "@/components/icons/PreviewIcon";
+import MediaComponent from "./MediaComponent";
 interface ModalFullProps {
   message: string;
   open: boolean;
 }
 
+type Media = "desktop" | "laptop" | "mobile";
 //=== 🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢
 export default function PreviewComponent() {
   const { preview, HTML, SCSS, JS, setSCSS, setHTML, setJS, htmlJson } = useStateContext();
@@ -41,8 +43,9 @@ export default function PreviewComponent() {
   const [jsEditorHeight, setJsEditorHeight] = useState<number>(100);
   const monaco = useMonaco();
   const [openDebug, setOpenDebug] = useState<boolean>(false);
+  const [media, setMedia] = useState<Media>("desktop");
   // ======================================
-
+  useEffect(() => { if (!media) return; console.log('<===media===>', media); }, [media]);
 
   // ------------------------------- Monaco Theme
   useEffect(() => {
@@ -368,6 +371,7 @@ td, th { padding: 0; text-align: left; }
               </path>
             </svg>
           </button>
+          <MediaComponent media={media} setMedia={setMedia} />
           {/* <button
             className="btn btn-primary m-0 w-[28px] h-[18px]"
             type="button"
@@ -389,12 +393,12 @@ td, th { padding: 0; text-align: left; }
         />
 
         {(HTML || JS) && (
-          <div className="max-w-[100vw] min-h-[1000px]  border-2 border-[var(--teal)] rounded-md overflow-hidden ">
+          <div className={` min-h-[1000px] m-auto  border-2 border-[var(--teal)] rounded-md overflow-hidden ${media === "desktop" ? "w-[100%]" : media === "laptop" ? "w-[1024px]" : "w-[320px]"}`}>
             <iframe
               title="preview-iframe"
               srcDoc={srcDoc}
               sandbox="allow-scripts allow-same-origin allow-modals"
-              className="block w-full h-full max-w-[100vw] min-h-[1000px] border-none pointer-events-auto"
+              className="block w-full  h-full  min-h-[1000px] border-none pointer-events-auto"
             />
           </div>
         )}

@@ -14,14 +14,9 @@ import dynamic from "next/dynamic";
 import ModRotate from "./ModRotate";
 
 import {
-  TagsNamen1,
-  TagsNamen2,
-  TagsNamen4,
-  TagsNamen5,
-  TagsNamen6,
-  TagsNamen7,
-  TagsCategory,
+  Tags
 } from "@/app/plaza/helpers/TagsNamen";
+import Spinner from "@/components/icons/Spinner";
 
 const HeroIconPicker = dynamic(() => import("./HeroIconPicker"), {
   ssr: false,
@@ -64,48 +59,6 @@ const AdminComponent = () => {
     fetchPolicy: "no-cache",
   });
   // ==>==>==>==>==>==>==>==>==>==>==>==>==>
-  const TAGS_TO_LOAD_MANY = [
-    "input",
-    "svg",
-    "number",
-    "check",
-    "textarea",
-    "radio",
-    "rating",
-    "range",
-    "search",
-    "modal",
-    "select",
-  ];
-
-  // async function loadStyle(name: string): Promise<HtmlNode[]> {
-  //   const { data: stylesData } = await refetchJson({ name });
-  //   const contentStyles = stylesData?.jsonDocumentByName?.content;
-  //   if (!contentStyles) return [];
-  //   return ensureNodeKeys(contentStyles) as HtmlNode[];
-  // }
-
-  // async function loadScript(name: string): Promise<HtmlNode[]> {
-  //   const { data: scriptsData } = await refetchJson({ name });
-  //   const contentScripts = scriptsData?.jsonDocumentByName?.content;
-  //   if (!contentScripts) return [];
-  //   return ensureNodeKeys(contentScripts) as HtmlNode[];
-  // }
-
-  // async function processScriptsData(sD: string) {
-  //   let r: HtmlNode[] = [];
-  //   if (sD.includes("textarea-field") || sD.includes("input-field") || sD.includes("search-f")) {
-  //     const re = await loadScript("script-all-inputs");
-  //     r.push(...re);
-  //   }
-
-
-  //   const re = await loadScript(`script-${sD}`);
-  //   r.push(...re);
-
-  //   return r;
-  // }
-
   async function loadJson(tag: string) {
     const { data } = await refetchJson({ name: tag });
     const contentJson = data?.jsonDocumentByName?.content;
@@ -116,29 +69,14 @@ const AdminComponent = () => {
     return contentJson as HtmlNode[];
   }
 
-  // async function loadJsons(names: string[]) {
-  //   const { data: jsonsData } = await refetchJsons({ names });
-  //   const contentJsons = jsonsData?.jsonDocumentsByNames;
-  //   if (!contentJsons) return [];
-  //   return contentJsons as HtmlNode[];
-  // }
-
   // ==>==>==>==>==>==>==>==>==>==>==>==>==>
   const handleLoad = async (tag: string) => {
     if (!tag) return;
     setLoading(true);
-    // let resulScripts = [] as HtmlNode[];
-    // const jsPart = await processScriptsData(tag);
-    // if (jsPart?.length) {
-    //   resulScripts.push(...jsPart);
-    // }
-    console.log("<== ✨ ✨ ✨ tag ✨ ✨ ✨===>", tag);
-
     const json = await loadJson(tag);
     const resultWithKeys = ensureNodeKeys(json) as HtmlNode[];
     const allNodes = [...resultWithKeys];
     const isolatedNodes = isolateComponentNodes(allNodes);
-    console.log("<=🔹🟢==isolatedNodes=🟢🔹==>", isolatedNodes);
     updateHtmlJson((prev) => [
       ...prev,
       ...isolatedNodes,
@@ -150,7 +88,6 @@ const AdminComponent = () => {
 
   // ==>==>==>==>==>==>==>==>==>==>==>==>==>
   useEffect(() => {
-    console.log("<=🔹🟢==tempTag=🟢🔹==>", tempTag);
     if (!tempTag || tempTag === "") return;
     if (tempTag === "svg") {
       setopenSVGModal(true);
@@ -160,14 +97,8 @@ const AdminComponent = () => {
   }, [tempTag]);
 
   // ==>==>==>==>==>==>==>==>==>==>==>==>==>
-
-  useEffect(() => {
-    console.log("<=🔹🟢==tempMod=🟢🔹==>", tempMod);
-
-  }, [tempMod]);
-  // ==>==>==>==>==>==>==>==>==>==>==>==>==>
   return (
-    <section className="">
+    <section className="z-5000 mt-[60px] bg-[var(--slate-500)] px-1 pb-2">
       <HeroIconPicker
         openSVGModal={openSVGModal}
         setopenSVGModal={setopenSVGModal}
@@ -183,32 +114,29 @@ const AdminComponent = () => {
       />
 
       <div className="">
-        <div>
-          {TagsCategory.map((el, index) => (
-            <button className="btn btn-teal  button-mod-rot !bg-[var(--navy)] rounded-r-sm  !py-3  border-1 border-[#aaa] mb-1 last:mb-0 text-white text-[12px] "
-              style={{
-                background: "steelblue",
-                height: 20,
-                width: 18,
-
-              }} onMouseLeave={(e: any) => e.stopPropagation()}
-              onClick={(e: React.MouseEvent) => {
-                e.stopPropagation();
-                setTempMod(el.tag);
-                setOpenModRotate(true);
-              }}>
-              {el.tag.slice(0, 1).toUpperCase()}
-            </button>
-          ))}
-        </div>
-        <div >
-          {TagsCategory.map((el, index) => (
-            <div key={index} >
-              <ModRotate offset={index * 32} tags={el.content} setTempTag={setTempTag} title={el.tag} loading={loading} clicked={clicked} setClicked={setClicked} openModRotate={tempMod === el.tag ? openModRotate : false} setOpenModRotate={setOpenModRotate} /></div>
-          ))}
-        </div>
+        {Tags && Tags.map((el, i) => (
+          <button
+            key={i}
+            className="btn w-full adminButton px-1.5! border-1 border-[#aaa] text-black text-[12px] !translate-y-0"
+            style={{
+              background: el.color,
+              maxHeight: 20,
+            }}
+            type="button"
+            onClick={() => { setClicked(el.tag); setTempTag(el.tag); }}
+          >
+            {loading && clicked === el.tag ? (
+              <Spinner />
+            ) : (
+              <span className="">{el.tag}</span>
+            )}
+          </button>
+        ))}
+        <button className="btn-teal !bg-[var(--navy)] w-full !p-0.25 text-[10px] center !mt-2" onClick={() => setOpenModSocial(true)}>
+          Soc
+        </button>
       </div>
-    </section>
+    </section >
   );
 };
 

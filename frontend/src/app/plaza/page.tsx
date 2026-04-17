@@ -11,9 +11,10 @@ import ScrollButtons from "./ScrollButtons";
 
 export default function Plaza() {
   return (
-    <section className=" min-h-[calc(100vh)]  bg-gradient-to-br from-slate-50 via-purple-50 to-slate-50">
-      <div className="container  min-h-[calc(100vh)]">
-        <div className="flex flex-col h-full  pt-[80px]  min-h-[calc(100vh)]">
+    <section className=" min-h-[calc(100vh)] w-full bg-gradient-to-br from-slate-50 via-purple-50 to-slate-50">
+
+      <div className="grid grid-cols-[1fr_150px] w-full gap-2">
+        <div className="flex flex-col h-full  pt-[80px] pl-[25px] min-h-[calc(100vh)]">
           <ScrollButtons />
           <PlazaHeader
             title={"Plaza Editor"}
@@ -24,6 +25,7 @@ export default function Plaza() {
           <CanvasComponent />
           <ProjectsList />
         </div>
+        <AdminComponent />
       </div>
     </section>
   );

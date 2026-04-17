@@ -89,14 +89,14 @@ export default function ServicesButtons() {
         <СhevronRight width={12} height={12} />
       </button>
       <button
-        className="btn-allert btn w-full !p-0.25 !py-1 flex-[40px] center  "
+        className="btn-allert btn w-full !p-0.5 !py-1 flex-[40px] center  "
         type="button"
         title="Reset All"
         onClick={() => {
           resetAll();
         }}
       >
-        <ClearIcon width={12} height={12} />
+        <ClearIcon width={10} height={10} />
       </button>
 
     </div>
