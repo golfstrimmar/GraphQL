@@ -22,8 +22,7 @@ export interface ProjectNode {
 }
 
 // 🔹🔹🔹🔹🔹🔹🔹🔹🔹
-// 🔹🔹🔹🔹🔹🔹🔹🔹🔹
-export default async function ProjectsList() {
+export default async function ProjectsComponent() {
   const cookieStore = await cookies();
   const userCookie = cookieStore.get("user")?.value ?? null;
 
@@ -37,8 +36,8 @@ export default async function ProjectsList() {
     fetchPolicy: "network-only",
   });
   const projects = data?.getAllProjectsByUser ?? [];
-  // 🔹🔹🔹🔹🔹🔹🔹🔹🔹
 
+  // ====>====>====>====>====>====>====>====>====>====>====>====>====>====>====>
   return (
     <>
       <div
@@ -47,7 +46,7 @@ export default async function ProjectsList() {
       >
         <div className="flex items-center gap-2">
           {PageHeader("projectsIcon", "Your Ulon projects")}
-          <CreateNewProject />
+
         </div>
         <div className=" flex flex-col flex-wrap gap-2 ">
           {projects.length > 0 &&
@@ -56,7 +55,7 @@ export default async function ProjectsList() {
             })}
           {projects?.length === 0 && <Bage text="No projects yet" />}
         </div>
-
+        <CreateNewProject />
 
       </div>
     </>

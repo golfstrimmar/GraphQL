@@ -38,12 +38,12 @@ export default function cleanConstructorScss(scss: string): string {
       // 3. Блоки imgs { img { ... } } — чисто конструктор
       .replace(/\.imgs\s*\{[^}]*img\s*\{\s*[^}]*\}[^}]*\}/g, "")
 
-      // 4. Форматирование (экспорт)
-      // .replace(/\s*\n\s*/g, " ")
-      // .replace(/\s{2,}/g, " ")
-      // .replace(/\s*{\s*/g, " { ")
-      // .replace(/\s*}\s*/g, " } ")
-      // .replace(/\s*;\s*/g, ";")
-      .trim()
+    // 4. Форматирование (экспорт)
+    // .replace(/\s*\n\s*/g, " ")
+    // .replace(/\s{2,}/g, " ")
+    // .replace(/\s*{\s*/g, " { ")
+    // .replace(/\s*}\s*/g, " } ")
+    // .replace(/\s*;\s*/g, ";")
+
   );
 }

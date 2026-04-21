@@ -16,15 +16,15 @@ const MobileAddClass = dynamic(
 
 interface ClassComponentProps {
   node: HtmlNode;
-  itemClass: string;
   updateNodeByKey: (key: string, changes: Partial<HtmlNode>) => void;
+  modClass: string;
+  setModClass: (modClass: string) => void;
 }
 
 //🔹🟢🔹🟢🔹🟢🔹🟢
 const ClassComponent: React.FC<ClassComponentProps> = ({
   node,
-  itemClass,
-  updateNodeByKey,
+  updateNodeByKey, modClass, setModClass
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [isTransformed, setIsTransformed] = useState<boolean>(false);
@@ -40,8 +40,8 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
   };
 
   const formatClassForDisplay = (raw: string): string => {
+
     if (!raw) return "";
-    // Если есть переносы или SCSS-конструкции ({}, &), лучше не форматировать наивно
     if (raw.includes("\n") || raw.includes("{") || raw.includes("&")) return raw;
 
     const trimmed = raw.trim();
@@ -62,7 +62,6 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
         return `${key}: ${value}`;
       });
 
-    // Используем реальный \n — React и textarea его правильно отобразят
     return properties.join(";\n") + (hasTrailingSemicolon ? ";" : "");
   };
   // ================================
@@ -154,17 +153,38 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
     { key: "_empty", label: "Empty", isDefault: false, hidden: isEmpty },
   ];
   // ================================
+  const addMod = () => {
+    if (!node?._key) return;
+    if (!modClass) return;
+    const className = `${node.class} ${node.class}--${modClass}`;
+    updateNodeByKey(node._key, {
+      class: className,
+    });
+    setModClass("");
+  }
+  // ================================
   return (
     <>
       <MobileAddClass
         activeClassKey={activeClassKey}
-
         openMobile={openMobile}
         setOpenMobile={setOpenMobile}
       />
-      <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]   flex flex-col relative   ">
-        <div className={itemClass}>
-          <span>Class:</span>
+      <div className="unitStyle">
+        <div className="itemClass">
+          <h6 className="my-1">Class:</h6>
+          <div className="flex items-center gap-1">
+            <span className="text-[12px] text-[var(--black)] ">Add Modifier:</span>
+
+            <input className="input-field-mod" type="text" value={modClass} onChange={(e) => setModClass(e.target.value)} /> <button
+              className="btn btn-empty text-[12px] text-[var(--black)]  px-1 !max-h-[20px]"
+              onClick={() => {
+                addMod()
+              }}
+            >
+              Mod
+            </button>
+          </div>
           {node?.tag === "section" && (
             <button
               className="btn-teal text-[12px] !max-h-[20px]"
@@ -178,13 +198,13 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
             </button>
           )}
           {node?.tag === "fieldset" && (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 mt-2">
               {states
                 .filter((s) => !s.hidden)
                 .map((s) => (
                   <button
                     key={s.key}
-                    className="btn btn-empty text-[10px] !max-h-[20px] px-1"
+                    className="btn btn-empty text-[12px] text-[var(--black)]  px-1 !max-h-[20px]"
                     onClick={async () => {
                       const key = s.key ?? "normal";
                       setLoadingKey(key);

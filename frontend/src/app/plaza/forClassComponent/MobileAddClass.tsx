@@ -87,12 +87,12 @@ export default function MobileAddClass({
             }}>Add _empty</button>
 
 
-            {/* 
-            {findNodeByKey(htmlJson, activeClassKey)?.class?.includes("js-container-input") && <button className="btn btn-primary" onClick={() => {
+
+            {/* {findNodeByKey(htmlJson, activeClassKey)?.class?.includes("js-container-input") && <button className="btn btn-primary" onClick={() => {
               setFlaClasses(true)
               setAddingClasses([...addingClasses, "_filled"])
-            }}>Add filled</button>} */}
-            {/* {findNodeByKey(htmlJson, activeClassKey)?.class?.includes("js-container-input") && <button className="btn btn-primary" onClick={() => {
+            }}>Add filled</button>}
+             {findNodeByKey(htmlJson, activeClassKey)?.class?.includes("js-container-input") && <button className="btn btn-primary" onClick={() => {
               setFlaClasses(true)
               setAddingClasses([...addingClasses, "_empty"])
             }}>Add empty</button>}

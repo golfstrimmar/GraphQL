@@ -1,7 +1,5 @@
 import { JSDOM } from "jsdom";
 
-
-
 const REV_CLASS_BASES = new Set([
   "rev--on-scroll",
   "rev--up",
@@ -10,6 +8,7 @@ const REV_CLASS_BASES = new Set([
   "rev--right",
   "rev--zoom",
 ]);
+
 
 // служебные классы (ревилы, _filled/_empty и т.п.) не должны попадать в селекторы
 function isServiceClass(cls: string): boolean {
@@ -26,21 +25,19 @@ function isServiceClass(cls: string): boolean {
 }
 
 // html -> nested scss (без <style>, без inline style-классов)
-function htmlToNestedScss(html: string): string {
-  const dom = new JSDOM(html);
-  const { document } = dom.window;
-
+function getNestedScssFromDoc(doc: Document): string {
   const lines: string[] = [];
-
   const indent = (depth: number) => "  ".repeat(depth);
 
-  const walk = (el: HTMLElement, depth: number) => {
+  // Вспомогательная функция для определения селектора элемента
+  const getSelector = (el: HTMLElement, depth: number): string => {
+    const elementId = el.getAttribute("id");
     const className = el.getAttribute("class");
-    const dataKey = el.getAttribute("data-key");
-    const styleAttr = (el.getAttribute("style") || "").trim();
 
-    // селектор
-    let selector: string;
+    if (depth === 0 && elementId) {
+      return `#${elementId}`;
+    }
+
     if (className) {
       const normalClasses = className
         .split(" ")
@@ -49,74 +46,88 @@ function htmlToNestedScss(html: string): string {
         .filter((c) => !isServiceClass(c));
 
       if (normalClasses.length > 0) {
-        selector = "." + normalClasses.join(".");
-      } else if (dataKey) {
-        selector = `${el.tagName.toLowerCase()}[data-key="${dataKey.trim()}"]`;
-      } else {
-        selector = el.tagName.toLowerCase();
+        return "." + normalClasses[0];
       }
-    } else if (dataKey) {
-      selector = `${el.tagName.toLowerCase()}[data-key="${dataKey.trim()}"]`;
-    } else {
-      selector = el.tagName.toLowerCase();
     }
 
-    // открывающая строка
-    lines.push(`${indent(depth)}${selector} {`);
-
-    // если есть style — просто вставляем внутрь как есть (без парсинга)
-    if (styleAttr) {
-      styleAttr
-        .split("\n")
-        .map((s) => s.trim())
-        .filter(Boolean)
-        .forEach((s) => {
-          lines.push(`${indent(depth + 1)}${s}`);
-        });
-    }
-
-    // дети
-    const children = Array.from(el.children) as HTMLElement[];
-    children.forEach((child) => walk(child, depth + 1));
-
-    // закрывающая скобка
-    lines.push(`${indent(depth)}}`);
+    return el.tagName.toLowerCase();
   };
 
-  const rootChildren = Array.from(document.body.children) as HTMLElement[];
-  rootChildren.forEach((child) => walk(child as HTMLElement, 0));
+  /**
+   * Рекурсивная функция, которая обрабатывает список элементов-сиблингов.
+   * Мы группируем их по селектору, чтобы не дублировать блоки.
+   */
+  const walk = (elements: HTMLElement[], depth: number) => {
+    const groups = new Map<string, HTMLElement[]>();
+
+    // 1. Группируем элементы по их селектору
+    elements.forEach((el) => {
+      const selector = getSelector(el, depth);
+      if (!groups.has(selector)) {
+        groups.set(selector, []);
+      }
+      groups.get(selector)!.push(el);
+    });
+
+    // 2. Для каждой группы создаем ОДИН блок в SCSS
+    groups.forEach((els, selector) => {
+      lines.push(`${indent(depth)}${selector} {`);
+
+      // Собираем все уникальные свойства стилей из всех элементов группы
+      const uniqueStyles = new Set<string>();
+      els.forEach((el) => {
+        const styleAttr = (el.getAttribute("style") || "").trim();
+        if (styleAttr) {
+          styleAttr
+            .split(";")
+            .map((s) => s.trim())
+            .filter(Boolean)
+            .forEach((s) => uniqueStyles.add(s.endsWith(";") ? s : s + ";"));
+        }
+      });
+
+      // Выводим стили
+      uniqueStyles.forEach((style) => {
+        lines.push(`${indent(depth + 1)}${style}`);
+      });
+
+      // Собираем всех детей от всех элементов этой группы (например, все внутренности всех карточек)
+      const allChildren: HTMLElement[] = [];
+      els.forEach((el) => {
+        allChildren.push(...(Array.from(el.children) as HTMLElement[]));
+      });
+
+      // Рекурсивно идем глубже, если есть дети
+      if (allChildren.length > 0) {
+        walk(allChildren, depth + 1);
+      }
+
+      lines.push(`${indent(depth)}}`);
+    });
+  };
+
+  const rootChildren = Array.from(doc.body.children) as HTMLElement[];
+  walk(rootChildren, 0);
 
   return lines.join("\n");
 }
 
 // удаляем inline style из html
-function stripInlineStyles(html: string): string {
-  const dom = new JSDOM(html);
-  const { document } = dom.window;
-
-  const all = Array.from(document.querySelectorAll<HTMLElement>("*"));
-
+function stripInlineStylesFromDoc(doc: Document): void {
+  const all = Array.from(doc.querySelectorAll<HTMLElement>("*"));
   all.forEach((el) => {
     if (el.hasAttribute("style")) {
       el.removeAttribute("style");
     }
   });
-
-  return document.body.innerHTML;
 }
 
 // забираем содержимое всех <style>, фильтруем по маркеру, удаляем их из html
-function extractStyleBlocks(
-  html: string,
+function extractAndRemoveStyles(
+  doc: Document,
   whiteList: Set<string>
-): { html: string; css: string } {
-  const dom = new JSDOM(html);
-  const { document } = dom.window;
-
-  const styleNodes = Array.from(
-    document.querySelectorAll("style")
-  ) as HTMLStyleElement[];
-
+): string {
+  const styleNodes = Array.from(doc.querySelectorAll("style")) as HTMLStyleElement[];
   const cssBlocks: string[] = [];
 
   styleNodes.forEach((node) => {
@@ -128,7 +139,7 @@ function extractStyleBlocks(
 
     // ищем маркер в комментарии: /* _что‑то */
     const markerMatch = css.match(/\/\*\s*(_[a-zA-Z0-9_-]+)\s*\*\//);
-    const marker = markerMatch?.[1]; // например "_rev_on_scroll"
+    const marker = markerMatch?.[1];
 
     // если маркер есть и он НЕ в белом списке — пропускаем этот <style>
     if (marker && !whiteList.has(marker)) {
@@ -141,30 +152,32 @@ function extractStyleBlocks(
     node.remove();
   });
 
-  return {
-    html: document.body.innerHTML,
-    css: cssBlocks.join("\n\n"),
-  };
+  return cssBlocks.join("\n\n");
 }
 
 export async function buildScssFromHtml(
   html: string,
   whiteList: Set<string>
 ): Promise<{ html: string; scss: string }> {
-  // 1) вытащить и отфильтровать <style> по маркеру
-  const { html: withoutStyleTags, css: globalCss } = extractStyleBlocks(
-    html,
-    whiteList
-  );
+  // 1) Парсим HTML
+  const dom = new JSDOM(html);
+  const { document } = dom.window;
 
-  // 2) nested scss из DOM (без служебных классов в селекторах)
-  const scssFromDom = htmlToNestedScss(withoutStyleTags);
+  // 2) Вытащить и отфильтровать <style> (удаляет их из DOM)
+  const globalCss = extractAndRemoveStyles(document, whiteList);
 
-  // 3) почистить inline style в html
-  const cleanHtml = stripInlineStyles(withoutStyleTags);
 
-  // 4) итоговый scss: сначала nested, потом всё из <style>
+  // 4) nested scss из DOM (теперь с использованием ID для корней и упрощенными классами)
+  const scssFromDom = getNestedScssFromDoc(document);
+
+  // 5) Почистить inline style в DOM
+  stripInlineStylesFromDoc(document);
+
+  // 6) Итоговый scss
   const scss = [scssFromDom, globalCss].filter(Boolean).join("\n\n");
 
-  return { html: cleanHtml, scss };
+  return {
+    html: document.body.innerHTML,
+    scss
+  };
 }

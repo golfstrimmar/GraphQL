@@ -82,22 +82,24 @@ const CreateNewProject = () => {
   // ------
 
   return (
-    <div className="w-full">
+    <div className="w-full mt-2">
       <div
         ref={projectsRef}
         className="flex items-center  gap-2   transition-all duration-200"
       >
         <button
           onClick={() => setOpenCreate(!openCreate)}
-          className={` h-6  btn  btn-primary w-[28px] h-[18px] text-[#ffffff]  ${openCreate ? "admin-shimmer" : ""}`}
+          className={` h-6  btn  btn-primary  h-[24px] text-[#ffffff] text-[12px] flex items-center gap-2  ${openCreate ? "admin-shimmer" : ""}`}
         >
-          <CreateIcon width={14} height={14} />
+          {/* <CreateIcon width={16} height={16} /> */}
+
+          <span className={`nowrap`}> Create New Ulon Project from Canvas</span>
         </button>
         <AnimatePresence>
           {openCreate && (
             <motion.form
               initial={{ width: 0, opacity: 0 }}
-              animate={{ width: "100%", opacity: 1 }}
+              animate={{ width: "auto", opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
               transition={{ duration: 0.1, ease: "easeInOut" }}
               className="  bg-slate-400  rounded-lg !max-h-[24px] p-1 flex items-center gap-2"
@@ -107,7 +109,7 @@ const CreateNewProject = () => {
                 placeholder="Project name"
                 value={newProjectName}
                 onChange={(e) => setNewProjectName(e.target.value)}
-                className="!w-full !h-10 cursor-pointer relative transition-all duration-200 ease-in-out border border-[#adadad] bg-slate-300 !outline-none focus:!outline-none rounded-[5px] focus:bg-slate-100  [&:not(:placeholder-shown)]:bg-slate-100  !px-2.5 !py-0 !max-h-[22px] z-[2]"
+                className="input-field-mod"
 
               />
               <button

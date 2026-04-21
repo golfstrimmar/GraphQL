@@ -4,15 +4,12 @@ import type { HtmlNode } from "@/types/HtmlNode";
 
 interface TagComponentProps {
   node: HtmlNode;
-  itemClass: string;
   updateNodeByKey: (key: string, changes: Partial<HtmlNode>) => void;
 }
 
 // 🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹
-
 const TagComponent: React.FC<TagComponentProps> = ({
   node,
-  itemClass,
   updateNodeByKey,
 }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -30,11 +27,10 @@ const TagComponent: React.FC<TagComponentProps> = ({
       updateNodeByKey(node._key, { tag: newValue });
     }
   };
-
-  // 🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢
+  // ====>====>====>====>====>====>====>====>====>====>====>====>====>====>====>
   return (
-    <div className="bg-white flex flex-col relative rounded max-h-[min-content] ">
-      <p className={itemClass}>Tag:</p>
+    <div className="unitStyle">
+      <h6 className="my-1">Tag:</h6>
       <input
         ref={inputRef}
         value={tagValue}

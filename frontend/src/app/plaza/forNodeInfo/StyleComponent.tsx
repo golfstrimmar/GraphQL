@@ -4,7 +4,8 @@ import dynamic from "next/dynamic";
 import Loading from "@/components/ui/Loading/Loading";
 import cleanConstructorScss from "../forStyleComponent/cleanConstructorScss";
 import Editor, { useMonaco } from "@monaco-editor/react";
-
+import type { HtmlNode } from "@/types/HtmlNode";
+import formatStyleString from "../forStyleComponent/formatStyleString";
 const MobileAddStyle = dynamic(
   () => import("../forStyleComponent/MobileAddStyle"),
   {
@@ -12,28 +13,25 @@ const MobileAddStyle = dynamic(
     loading: () => <Loading />,
   },
 );
-import type { HtmlNode } from "@/types/HtmlNode";
+
 
 interface StyleComponentProps {
   node: HtmlNode;
-  itemClass: string;
   updateNodeByKey: (key: string, changes: Partial<HtmlNode>) => void;
 }
 
-// ================================
+// ====>====>====>====>====>====>====>====>====>====>====>====>====>====>====>
+// ====>====>====>====>====>====>====>====>====>====>====>====>====>====>====>
+// ====>====>====>====>====>====>====>====>====>====>====>====>====>====>====>
 const StyleComponent: React.FC<StyleComponentProps> = ({
   node,
-  itemClass,
   updateNodeByKey,
 }) => {
   const [openMobile, setOpenMobile] = useState(false);
   const monaco = useMonaco();
   const editorRef = useRef<any>(null);
-
-  // ==================================
-
-
-  // ------------------------------- Monaco Theme Logic (matching PreviewComponent)
+  const [styleText, setStyleText] = useState("");
+  // ====>====>====>====>==== Monaco Theme Logic (matching PreviewComponent)
   useEffect(() => {
     if (!monaco) return;
 
@@ -62,60 +60,82 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
     editor.revealLine(1);
     editorRef.current = editor;
 
-    // Auto-format on mount
-    setTimeout(() => {
-      const action = editor.getAction("editor.action.formatDocument");
-      action?.run();
-    }, 100);
+    // // Auto-format on mount
+    // setTimeout(() => {
+    const action = editor.getAction("editor.action.formatDocument");
+    action?.run();
+    // }, 0);
   };
 
   // ====>====>====>====>====>====>====>====>====>====>
-  const formatStyleForDisplay = (raw: string): string => {
-    if (!raw) return "";
-    // Если есть переносы или SCSS-конструкции ({}, &), лучше не форматировать наивно, 
-    // чтобы не сломать селекторы типа &:hover
-    if (raw.includes("\n") || raw.includes("{") || raw.includes("&")) return raw;
 
-    const trimmed = raw.trim();
-    if (!trimmed) return "";
 
-    const hasTrailingSemicolon = trimmed.endsWith(";");
-    const clean = hasTrailingSemicolon ? trimmed.slice(0, -1) : trimmed;
 
-    const properties = clean
-      .split(";")
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0)
-      .map((prop) => {
-        const colonIndex = prop.indexOf(":");
-        if (colonIndex === -1) return prop;
-        const key = prop.slice(0, colonIndex).trim();
-        const value = prop.slice(colonIndex + 1).trim();
-        return `${key}: ${value}`;
-      });
-
-    return properties.join(";\n") + (hasTrailingSemicolon ? ";" : "");
-  };
-
-  // ====>====>====>====>====>====>====>====>====>====>
-  const [styleText, setStyleText] = useState(
-    node?.style ? formatStyleForDisplay(node.style) : "",
-  );
-
-  // синк при смене node / внешнего style
-  useEffect(() => {
-    setStyleText(node?.style ? formatStyleForDisplay(node?.style) : "");
-  }, [node?._key, node?.style]);
 
   useEffect(() => {
     if (!node?._key) return;
-    const id = setTimeout(() => {
-      if (node._key) {
-        updateNodeByKey(node._key, { style: styleText });
-      }
-    }, 1000);
-    return () => clearInterval(id);
-  }, [styleText, node?._key]);
+    console.log('<===node.style===>', node.style);
+    setStyleText(formatStyleString(node.style || ""))
+  }, [node]);
+
+  useEffect(() => {
+    if (!styleText) return;
+    console.log('<===styleText===>', styleText)
+
+    updateNodeByKey(node._key, { style: styleText })
+
+  }, [styleText]);
+
+
+  // useEffect(() => { if (!styleText) return; updateNodeByKey(node._key, { style: styleText }) }, [styleText]);
+
+  // ====>====>====>====>====>====>====>====>====>====>
+  // const formatStyleForDisplay = (raw: string): string => {
+  //   if (!raw) return "";
+
+  //   // Добавлена проверка на "}"
+  //   if (raw.includes("\n") || raw.includes("{") || raw.includes("}") || raw.includes("&")) {
+  //     return raw;
+  //   }
+
+  //   const trimmed = raw.trim();
+  //   if (!trimmed) return "";
+
+  //   const hasTrailingSemicolon = trimmed.endsWith(";");
+  //   const clean = hasTrailingSemicolon ? trimmed.slice(0, -1) : trimmed;
+
+  //   const properties = clean
+  //     .split(";")
+  //     .map((s) => s.trim())
+  //     .filter((s) => s.length > 0)
+  //     .map((prop) => {
+  //       const colonIndex = prop.indexOf(":");
+  //       if (colonIndex === -1) return prop;
+  //       const key = prop.slice(0, colonIndex).trim();
+  //       const value = prop.slice(colonIndex + 1).trim();
+  //       return `${key}: ${value}`;
+  //     });
+
+  //   return properties.join(";\n") + (hasTrailingSemicolon ? ";" : "");
+  // };
+
+  // ====>====>====>====>====>====>====>====>====>====>
+
+
+  // синк при смене node / внешнего style
+  // useEffect(() => {
+  //   setStyleText(node?.style ? formatStyleForDisplay(node?.style) : "");
+  // }, [node?._key, node?.style]);
+
+  // useEffect(() => {
+  //   if (!node?._key) return;
+  //   const id = setTimeout(() => {
+  //     if (node._key) {
+  //       updateNodeByKey(node._key, { style: styleText });
+  //     }
+  //   }, 1000);
+  //   return () => clearTimeout(id);
+  // }, [styleText, node?._key]);
 
   // ====>====>====>====>====>====>====>====>====>====>
   return (
@@ -126,22 +146,22 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
         setOpenMobile={setOpenMobile}
         nodeStyle={JSON.stringify(node?.style)}
       />
-      <div className="bg-white rounded !max-h-[max-content] ml-[5px] flex flex-col relative ">
-        <p className={itemClass}>
-          <span>Style:</span>
+      <div className="unitStyle">
+        <div className="flex  items-center gap-1 p-[5px]">
+          <h6 className="my-1">Style:</h6>
           <button
-            className="btn-teal text-[12px] !max-h-[20px]"
+            className="btn btn-empty text-[12px] text-[var(--black)]  px-1 !max-h-[20px]"
             onClick={() => setOpenMobile(!openMobile)}
           >
             Add
           </button>
-        </p>
+        </div>
 
         <div className="border border-slate-200 rounded overflow-hidden">
           <Editor
             height="230px"
             language="scss"
-            value={cleanConstructorScss(styleText)}
+            value={styleText}
             onChange={(value) => setStyleText(value || "")}
             onMount={handleEditorMount}
             theme="myCustomTheme"

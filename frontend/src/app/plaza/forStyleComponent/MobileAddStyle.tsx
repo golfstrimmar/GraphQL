@@ -22,7 +22,7 @@ import PositionPropsPicker from "./PositionPropsPicker";
 import PresetsPicker from "./PresetsPicker";
 import СhevronDown from "@/components/icons/ChevronDown";
 import CloseIcon from "@/components/icons/CloseIcon";
-
+import formatStyleString from "../forStyleComponent/formatStyleString";
 export default function MobileAddStyle({
   setStyleText,
   openMobile,
@@ -171,7 +171,7 @@ export default function MobileAddStyle({
                 onClick={() => {
                   setAddingScss("");
                   setStyleText((prev: string) => {
-                    return NormalizeSCSS(prev, addingScss);
+                    return prev + formatStyleString(addingScss);
                   });
                   setOpenMobile(false);
                 }}

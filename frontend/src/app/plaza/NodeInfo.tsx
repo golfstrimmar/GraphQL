@@ -3,10 +3,11 @@ import React, { useEffect, useState, useRef, useMemo } from "react";
 import { findNodeByKey } from "@/utils/findNodeByKey";
 import { motion, AnimatePresence } from "framer-motion";
 import СhevronRight from "@/components/icons/СhevronRight";
-import StyleComponent from "./forNodeInfo/StyleComponent";
+import TagComponent from "./forNodeInfo/TagComponent";
 import ClassComponent from "./forNodeInfo/ClassComponent";
 import TextComponent from "./forNodeInfo/TextComponent";
-import TagComponent from "./forNodeInfo/TagComponent";
+import StyleComponent from "./forNodeInfo/StyleComponent";
+import ModStyleComponent from "./forNodeInfo/ModStyleComponent";
 import { useStateContext } from "@/providers/StateProvider";
 import CreateIcon from "@/components/icons/CreateIcon";
 import CloseIcon from "@/components/icons/CloseIcon";
@@ -46,6 +47,8 @@ const NodeInfo: React.FC<NodeInfoProps> = ({
   const [nodeToSend, setNodeToSend] = useState<HtmlNode | null>(null);
   const [localAttrs, setLocalAttrs] = useState(nodeToSend?.attributes ?? {});
   const attrTimeoutsRef = useRef<Record<string, any>>({});
+  const [modClass, setModClass] = useState<string>('');
+
   // ====>====>====>====>====>====>====>====>====>====>
   // синхронизируемся, когда NodeToSend сменился (другая нода)
   useEffect(() => {
@@ -74,10 +77,13 @@ const NodeInfo: React.FC<NodeInfoProps> = ({
   }, [activeKey, htmlJson]);
   // ================================
   const updateNodeByKey = (key: string, changes: Partial<HtmlNode>) => {
+
     updateHtmlJson((prev) => {
       const updateRecursively = (nodes: HtmlNode[]): HtmlNode[] => {
         return nodes.map((node) => {
           if (node?._key === key) {
+            console.log("<=🔹🟢==node=🟢🔹==>", node);
+            console.log("<=🔹🟢==changes=🟢🔹==>", changes);
             return { ...node, ...changes };
           }
           if (Array.isArray(node.children)) {
@@ -94,10 +100,8 @@ const NodeInfo: React.FC<NodeInfoProps> = ({
     el.style.height = "auto";
     el.style.height = `${el.scrollHeight}px`;
   };
-  const itemStyle =
-    "flex flex-col items-start justify-center p-2 m-1 border border-gray-300 rounded bg-gray-100 text-sm";
-  const itemClass =
-    "absolute top-[-27px] !font-bold  inline-flex items-center gap-1 z-30 py-1 min-h-[26px] text-white w-[max-content]";
+
+
 
   // ====>====>====>====>====>====>====>====>====>====>
   return (
@@ -115,7 +119,7 @@ const NodeInfo: React.FC<NodeInfoProps> = ({
           }}
         >
           <div className="flex gap-1 w-[calc(100%-10px)] absolute top-0 left-1  !py-1 z-10">
-            <button
+            {/* <button
               className="btn btn-allert !py-1 flex-[40px]"
               type="button"
               onClick={() => {
@@ -123,7 +127,7 @@ const NodeInfo: React.FC<NodeInfoProps> = ({
               }}
             >
               <ClearIcon width={12} height={12} />
-            </button>
+            </button> */}
             <button
               className="btn btn-primary  flex-[40px]"
               onClick={() => setActiveKey(null)}
@@ -138,7 +142,7 @@ const NodeInfo: React.FC<NodeInfoProps> = ({
             <div className="flex-[70%]">
               <JsonToHtmlButton />
             </div>
-            <button
+            {/* <button
               className="btn-teal flex-[140px] center"
               type="button"
               onClick={() => {
@@ -179,40 +183,45 @@ const NodeInfo: React.FC<NodeInfoProps> = ({
               }}
             >
               <ProjectsIcon width={12} height={12} />
-            </button>
+            </button> */}
           </div>
 
-          <div className="grid grid-cols-[1fr_2fr] relative rounded border-2 border-[var(--teal)] p-1 pt-6  text-[#000] w-full h-full  bg-slate-200">
+          <div className="grid grid-cols-[1fr_2fr] gap-2 relative rounded border-2 border-[var(--teal)] p-1  w-full h-full  bg-slate-200">
             {nodeToSend && (
               <>
-                <div className="flex flex-col gap-8">
+                <div className="flex flex-col gap-2">
                   <TagComponent
                     node={nodeToSend}
-                    itemClass={itemClass}
                     updateNodeByKey={updateNodeByKey}
                   />
                   <ClassComponent
                     node={nodeToSend}
-                    itemClass={itemClass}
                     updateNodeByKey={updateNodeByKey}
+                    modClass={modClass}
+                    setModClass={setModClass}
                   />
                   <TextComponent
                     node={nodeToSend}
-                    itemClass={itemClass}
                     updateNodeByKey={updateNodeByKey}
                   />
 
                 </div>
-                <StyleComponent
-                  node={nodeToSend}
-                  itemClass={itemClass}
-                  updateNodeByKey={updateNodeByKey}
-                />
+                <div className="grid grid-cols-2 w-full gap-2">
+                  <StyleComponent
+                    node={nodeToSend}
+                    updateNodeByKey={updateNodeByKey}
+                  />
+                  {modClass && <ModStyleComponent
+                    node={nodeToSend}
+                    updateNodeByKey={updateNodeByKey}
+                    modClass={modClass}
+                  />}
+                </div>
               </>
             )}
             {nodeToSend?.tag === "img" && (
               <div className="bg-white  rounded !max-h-[max-content]  ml-[5px]  mt-10  flex flex-col relative ">
-                <p className={itemClass}>
+                <p className="itemClass">
                   <span>Src:</span>
                 </p>
                 <textarea
@@ -246,7 +255,7 @@ const NodeInfo: React.FC<NodeInfoProps> = ({
                     key={k}
                     className="bg-white  flex-[0_1_100%] flex flex-col relative rounded max-h-[min-content] "
                   >
-                    <p className={itemClass}>{k}:</p>
+                    <p className="itemClass">{k}:</p>
                     <textarea
                       value={String(value)}
                       ref={(el) => {
