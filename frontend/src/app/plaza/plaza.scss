@@ -365,7 +365,7 @@ img.renderedNode {
 
   .pseudos-admin {
     display: grid;
-    grid-template-columns: max-content 1fr;
+    grid-template-columns: max-content 1fr max-content;
     gap: 4px;
     padding: 4px;
     border-radius: 5px;

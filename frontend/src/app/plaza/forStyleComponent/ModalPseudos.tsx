@@ -4,11 +4,19 @@ import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
 import CloseIcon from "@/components/icons/CloseIcon";
 import Monaco from "@/app/plaza/Monaco";
+import dynamic from "next/dynamic";
+import Loading from "@/components/ui/Loading/Loading";
 interface PropsModalPseudos {
   openModalPseudos: boolean;
   setOpenModalPseudos: (openModalPseudos: boolean) => void;
 }
-
+const MobileAddStyle = dynamic(
+  () => import("../forStyleComponent/MobileAddStyle"),
+  {
+    ssr: false,
+    loading: () => <Loading />,
+  },
+);
 export const PSEUDO_CLASSES = [
   // Состояния (User action)
   "hover", "active", "focus", "focus-visible", "focus-within",
@@ -41,12 +49,11 @@ export const PSEUDO_ELEMENTS = [
 export default function ModalPseudos({ openModalPseudos, setOpenModalPseudos }: PropsModalPseudos) {
   const [mounted, setMounted] = useState(false);
   const [textValue, setTextValue] = useState<string>('');
-  const [stylepseudos, setStylepseudos] = useState<string[]>([]);
+  const [openMobile, setOpenMobile] = useState(false);
+  // ====>====>====>====>====>====>====>====>====>====>====>====>====>====>====>
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  // ====>====>====>====>====>====>====>====>====>====>====>====>====>====>====>
 
   useEffect(() => {
     const plazacontainer = document.querySelector(".plaza-container")
@@ -66,33 +73,7 @@ export default function ModalPseudos({ openModalPseudos, setOpenModalPseudos }: 
 
   if (!mounted) return null;
 
-
-
-
-  // useEffect(() => { if (!stylepseudos) return; console.log('<===stylepseudos===>', stylepseudos); }, [stylepseudos]);
-
-  // ====>====>====>====>====>====>====>====>====>====>====>====>====>====>====>
-
-
-
-  //   const madeText = (t: string) => {
-  //     const newText = `&:${t}{ 
-
-  // }`;
-  //     console.log("<=🔹🟢==t=🟢🔹==>", t);
-
-
-  //   };
-
-
-  // useEffect(() => {
-  //   if (!textValue) return;
-  //   console.log('<===textValue===>', textValue);
-  //   //   // const res = splitStyles(textValue);
-  //   //   // if (!res) return;
-  //   //   // console.log("<=🔹🟢==res=🟢🔹==>", res);
-  //   //   // setStylepseudos((prev) => { return [...prev, ...res.pseudosArray] });
-  // }, [textValue]);
+  useEffect(() => { if (!textValue) return; console.log('<===textValue===>', textValue); }, [textValue]);
 
 
   // ====>====>====>====>====>====>====>====>====>====>====>====>====>====>====>
@@ -137,6 +118,10 @@ export default function ModalPseudos({ openModalPseudos, setOpenModalPseudos }: 
 
   // ====>====>====>====>====>====>====>====>====>====>====>====>====>====>====>
   return createPortal(
+
+
+
+
     <AnimatePresence mode="wait">
       {openModalPseudos && (
         <motion.div
@@ -163,7 +148,20 @@ export default function ModalPseudos({ openModalPseudos, setOpenModalPseudos }: 
             >
               <CloseIcon />
             </button>
+            <button
+              className="btn btn-primary"
+              onClick={() => setOpenMobile(true)}
+            >
+              Open Style Builder
+            </button>
 
+            {openMobile && (
+              <MobileAddStyle
+                setCurrentStyle={setTextValue} // Теперь MobileAddStyle пишет сразу в textValue
+                openMobile={openMobile}
+                setOpenMobile={setOpenMobile}
+              />
+            )}
             <section id="pseudos" className="p-10">
               <div className="pseudos-admin">
                 <nav className="pseudos-admin-nav flex flex-wrap gap-2">
@@ -199,6 +197,20 @@ ${pseudo === 'before' || pseudo === 'after' ? `content:"";` : ''}
                 <div className="h-full">
                   <Monaco text={textValue} setText={setTextValue} />
                 </div>
+                {/* // ====>====>====>====>====>====>====>====>====>====>====>====>====>====>====> */}
+                <div className="h-full">
+                  {/* <button
+                    value="background: red;"
+                    onClick={(e) => {
+                      const val = e.currentTarget.value;
+                      setTextValue(prev => prev.trim() ? `${prev}\n${val}` : val);
+                    }}
+                  >
+                    background: red;
+                  </button> */}
+
+                </div>
+                {/* // ====>====>====>====>====>====>====>====>====>====>====>====>====>====>====> */}
               </div>
 
             </section>
@@ -207,5 +219,6 @@ ${pseudo === 'before' || pseudo === 'after' ? `content:"";` : ''}
       )}
     </AnimatePresence>,
     document.body
+
   );
 }
