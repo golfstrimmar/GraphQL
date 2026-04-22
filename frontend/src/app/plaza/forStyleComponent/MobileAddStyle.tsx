@@ -23,12 +23,20 @@ import PresetsPicker from "./PresetsPicker";
 import СhevronDown from "@/components/icons/ChevronDown";
 import CloseIcon from "@/components/icons/CloseIcon";
 import formatStyleString from "../forStyleComponent/formatStyleString";
-export default function MobileAddStyle({
-  setStyleText,
+
+
+interface PropsMobileAddStyle {
+  setCurrentStyle: (text: string) => void;
+  openMobile: boolean;
+  setOpenMobile: (open: boolean) => void;
+}
+
+// ====>====>====>====>====>====>====>====>====>====>====>====>====>====>====>
+const MobileAddStyle: React.FC<PropsMobileAddStyle> = ({
+  setCurrentStyle,
   openMobile,
-  setOpenMobile,
-  nodeStyle,
-}) {
+  setOpenMobile
+}) => {
   const { } = useStateContext();
   const [addingScss, setAddingScss] = useState<string>("");
   const [history, setHistory] = useState<string[]>([""]);
@@ -107,7 +115,7 @@ export default function MobileAddStyle({
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.1, transition: { duration: 0.2 } }}
           transition={{ duration: 0.2 }}
-          className="  bg-black/60 backdrop-blur-lg fixed  w-[100vw] h-[100vh] overflow-y-scroll py-15 z-6050 top-0 left-0 "
+          className="  bg-black/60 backdrop-blur-lg   w-[100vw] h-[100vh] overflow-y-scroll py-2   "
           onClick={(e) => {
             e.stopPropagation();
             if (
@@ -170,7 +178,7 @@ export default function MobileAddStyle({
               <button
                 onClick={() => {
                   setAddingScss("");
-                  setStyleText((prev: string) => {
+                  setCurrentStyle((prev: string) => {
                     return prev + formatStyleString(addingScss);
                   });
                   setOpenMobile(false);
@@ -238,3 +246,5 @@ export default function MobileAddStyle({
     document.body
   );
 }
+
+export default MobileAddStyle;

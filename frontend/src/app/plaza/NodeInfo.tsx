@@ -48,7 +48,9 @@ const NodeInfo: React.FC<NodeInfoProps> = ({
   const [localAttrs, setLocalAttrs] = useState(nodeToSend?.attributes ?? {});
   const attrTimeoutsRef = useRef<Record<string, any>>({});
   const [modClass, setModClass] = useState<string>('');
-
+  const [styleText, setStyleText] = useState<string>("");
+  const [modStyleText, setModStyleText] = useState<string>('');
+  const [fullStyle, setFullStyle] = useState<string>('');
   // ====>====>====>====>====>====>====>====>====>====>
   // синхронизируемся, когда NodeToSend сменился (другая нода)
   useEffect(() => {
@@ -76,14 +78,78 @@ const NodeInfo: React.FC<NodeInfoProps> = ({
     }
   }, [activeKey, htmlJson]);
   // ================================
+  const splitStyles = (fullStyle: string) => {
+    if (!fullStyle) return { base: "", mods: "", modClass: "" };
+
+    // 1. Находим блок модификатора целиком (&--name { ... })
+    const modifierRegex = /(&--[^{]+\{[^}]+\})/;
+    const match = fullStyle.match(modifierRegex);
+
+    let mods = "";
+    let MClass = "";
+
+    if (match) {
+      mods = match[0]; // Весь текст блока
+
+      // 2. Извлекаем только имя (то, что между &-- и началом скобки {)
+      const nameMatch = mods.match(/&--([^{ \s]+)/);
+      if (nameMatch) {
+        MClass = nameMatch[1]; // Например: "active"
+      }
+    }
+
+    // 3. Убираем блок модификатора из основной строки, чтобы оставить чистые стили
+    const base = fullStyle.replace(modifierRegex, "").trim();
+
+    // 4. Форматируем базовые стили: каждое свойство на новой строке
+    const baseFormatted = base
+      .split(";")
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0)
+      .join(";\n");
+
+    if (MClass) setModClass(MClass || '');
+
+    return {
+      base: baseFormatted ? baseFormatted + ";" : "",
+      mods: mods,      // Весь блок стилей для второго редактора
+
+    };
+  };
+  // ================================
+  useEffect(() => {
+    if (!nodeToSend) return;
+    const rawStyle = nodeToSend.style || "";
+    const { base, mods } = splitStyles(rawStyle);
+    setStyleText(base);    // Тут будут свойства типа display: flex;
+    setModStyleText(mods); // Тут будут только &--active { ... }
+  }, [nodeToSend]);
+  // ================================
+  // useEffect(() => {
+  //   if (!styleText) return;
+  //   console.log('<==🔹🟢🔹🟢==styleText==🟢🔹==>', styleText);
+  //   setFullStyle(`${styleText}\n${modStyleText}`);
+  // }, [styleText]);
+  useEffect(() => {
+    if (!modStyleText) return;
+    console.log('<==🔹🟢🔹🟢==modStyleText==🟢🔹==>', modStyleText);
+    updateNodeByKey(nodeToSend?._key, { style: styleText + modStyleText });
+  }, [modStyleText]);
+
+  // useEffect(() => {
+  //   if (!fullStyle) return; console.log('<===fullStyle===>', fullStyle);
+  //   updateNodeByKey(nodeToSend?._key, { style: fullStyle });
+  // }, [fullStyle]);
+
+  // ================================
   const updateNodeByKey = (key: string, changes: Partial<HtmlNode>) => {
 
     updateHtmlJson((prev) => {
       const updateRecursively = (nodes: HtmlNode[]): HtmlNode[] => {
         return nodes.map((node) => {
           if (node?._key === key) {
-            console.log("<=🔹🟢==node=🟢🔹==>", node);
-            console.log("<=🔹🟢==changes=🟢🔹==>", changes);
+            // console.log("<=🔹🟢==node=🟢🔹==>", node);
+            // console.log("<=🔹🟢==changes=🟢🔹==>", changes);
             return { ...node, ...changes };
           }
           if (Array.isArray(node.children)) {
@@ -119,15 +185,6 @@ const NodeInfo: React.FC<NodeInfoProps> = ({
           }}
         >
           <div className="flex gap-1 w-[calc(100%-10px)] absolute top-0 left-1  !py-1 z-10">
-            {/* <button
-              className="btn btn-allert !py-1 flex-[40px]"
-              type="button"
-              onClick={() => {
-                resetAll();
-              }}
-            >
-              <ClearIcon width={12} height={12} />
-            </button> */}
             <button
               className="btn btn-primary  flex-[40px]"
               onClick={() => setActiveKey(null)}
@@ -142,48 +199,6 @@ const NodeInfo: React.FC<NodeInfoProps> = ({
             <div className="flex-[70%]">
               <JsonToHtmlButton />
             </div>
-            {/* <button
-              className="btn-teal flex-[140px] center"
-              type="button"
-              onClick={() => {
-                const el = document.getElementById("preview-section");
-                if (el) {
-                  const y =
-                    el.getBoundingClientRect().top + window.scrollY - 80;
-                  window.scrollTo({ top: y, behavior: "smooth" });
-                }
-              }}
-            >
-              <PreviewIcon width={12} height={12} />
-            </button>
-            <button
-              className="btn-teal  flex-[140px] center"
-              type="button"
-              onClick={() => {
-                const el = document.getElementById("canvas-section");
-                if (el) {
-                  const y =
-                    el.getBoundingClientRect().top + window.scrollY - 80;
-                  window.scrollTo({ top: y, behavior: "smooth" });
-                }
-              }}
-            >
-              <WorkerIcon width={12} height={12} />
-            </button>
-            <button
-              className="btn-teal  flex-[140px] center"
-              type="button"
-              onClick={() => {
-                const el = document.getElementById("projects-section");
-                if (el) {
-                  const y =
-                    el.getBoundingClientRect().top + window.scrollY - 80;
-                  window.scrollTo({ top: y, behavior: "smooth" });
-                }
-              }}
-            >
-              <ProjectsIcon width={12} height={12} />
-            </button> */}
           </div>
 
           <div className="grid grid-cols-[1fr_2fr] gap-2 relative rounded border-2 border-[var(--teal)] p-1  w-full h-full  bg-slate-200">
@@ -209,13 +224,15 @@ const NodeInfo: React.FC<NodeInfoProps> = ({
                 <div className="grid grid-cols-2 w-full gap-2">
                   <StyleComponent
                     node={nodeToSend}
-                    updateNodeByKey={updateNodeByKey}
+                    styleText={styleText}
+                    setStyleText={setStyleText}
                   />
-                  {modClass && <ModStyleComponent
+                  <ModStyleComponent
                     node={nodeToSend}
-                    updateNodeByKey={updateNodeByKey}
                     modClass={modClass}
-                  />}
+                    modStyleText={modStyleText}
+                    setModStyleText={setModStyleText}
+                  />
                 </div>
               </>
             )}

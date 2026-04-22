@@ -348,8 +348,54 @@ img.renderedNode {
   color: #020617;
 }
 
+// ====>====>====>====>====>====>====>====>====>====>====>====>====>====>====>
+// 🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
+// ====>====>====>====>====>====>====>====>====>====>====>====>====>====>====>
+#pseudos {
+  background: var(--lightest-navy);
+  padding: 2px;
+  position: relative;
+  border-radius: 5px;
+  border: 2px solid var(--teal);
+  overflow-y: scroll;
+  height: 98vh;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 
 
+  .pseudos-admin {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 5px;
+  }
+
+  .pseudos-admin-nav {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 4px;
+    background: var(--light-navy);
+    padding: 4px;
+    border-radius: 5px;
+  }
+}
+
+/* Класс для скрытия скроллбара на любом элементе */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  /* IE и Edge */
+  scrollbar-width: none;
+
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari, Opera */
+}
 
 
-
+.hidden {
+  overflow: hidden;
+}

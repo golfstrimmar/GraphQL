@@ -173,8 +173,8 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
       <div className="unitStyle">
         <div className="itemClass">
           <h6 className="my-1">Class:</h6>
-          <div className="flex items-center gap-1">
-            <span className="text-[12px] text-[var(--black)] ">Add Modifier:</span>
+          {/* <div className="flex items-center gap-1"> */}
+          {/* <span className="text-[12px] text-[var(--black)] ">Add Modifier:</span>
 
             <input className="input-field-mod" type="text" value={modClass} onChange={(e) => setModClass(e.target.value)} /> <button
               className="btn btn-empty text-[12px] text-[var(--black)]  px-1 !max-h-[20px]"
@@ -183,8 +183,8 @@ const ClassComponent: React.FC<ClassComponentProps> = ({
               }}
             >
               Mod
-            </button>
-          </div>
+            </button> */}
+          {/* </div> */}
           {node?.tag === "section" && (
             <button
               className="btn-teal text-[12px] !max-h-[20px]"
