@@ -361,24 +361,23 @@ img.renderedNode {
   height: 98vh;
   -ms-overflow-style: none;
   scrollbar-width: none;
-
+  width: 100%;
+  padding: 30px 10px 10px 10px;
 
   .pseudos-admin {
-    display: grid;
-    grid-template-columns: max-content 1fr max-content;
-    gap: 4px;
+    width: 100%;
     padding: 4px;
     border-radius: 5px;
   }
 
   .pseudos-admin-nav {
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 4px;
     background: var(--light-navy);
     padding: 4px;
     border-radius: 5px;
+    width: 100%;
   }
 }
 
@@ -398,4 +397,9 @@ img.renderedNode {
 
 .hidden {
   overflow: hidden;
+}
+
+.decorationsOverviewRuler {
+  display: none !important;
+
 }

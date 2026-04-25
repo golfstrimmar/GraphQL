@@ -2,14 +2,25 @@
 import React, { useState, useEffect, useMemo, useLayoutEffect, useRef } from "react";
 import formatStyleString from "@/app/plaza/forStyleComponent/formatStyleString";
 import Editor, { useMonaco } from "@monaco-editor/react";
+import { useStateContext } from "@/providers/StateProvider";
 
 
 // --- 🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢🔹🟢
 export default function Monaco({ text, setText }: { text: string, setText: (text: string) => void }) {
+  const { setNewtextMarker } = useStateContext();
   const monaco = useMonaco();
   const editorRef = useRef<any>(null);
-
+  const isReadyRef = useRef(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
   // ====>====>====>====>====>====>====>====>====>====>====>====>====>====>====>
+  useEffect(() => {
+    isReadyRef.current = false;
+    const timer = setTimeout(() => {
+      isReadyRef.current = true;
+    }, 1000); // Даем 1 секунду на загрузку и авто-форматирование
+
+    return () => clearTimeout(timer);
+  }, [text]);
   useEffect(() => {
     if (!monaco) return;
 
@@ -30,23 +41,43 @@ export default function Monaco({ text, setText }: { text: string, setText: (text
     monaco.editor.setTheme("myCustomTheme");
   }, [monaco]);
 
-  const handleEditorMount = (
-    editor: any,
-  ) => {
+  const handleEditorMount = (editor: any, monaco: any) => {
     if (monaco) monaco.editor.setTheme("myCustomTheme");
     editor.setScrollTop(0);
     editor.revealLine(1);
     editorRef.current = editor;
 
-    // // Auto-format on mount
+    // Авто-форматирование при монтировании
     setTimeout(() => {
       const action = editor.getAction("editor.action.formatDocument");
       action?.run();
+
+      // После того как форматирование отработало, через небольшую паузу 
+      // разрешаем ставить маркер "изменено"
+      setTimeout(() => {
+        isReadyRef.current = true;
+      }, 100);
     }, 0);
   };
 
   // ====>====>====>====>====>====>====>====>====>====>
+  const handleOnChange = (value: string | undefined) => {
+    // 1. Сразу ставим маркер (пользователь должен видеть реакцию мгновенно)
+    if (isReadyRef.current) {
+      setNewtextMarker(true);
+    }
 
+    // 2. Очищаем предыдущий таймер, если он был запущен
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+
+    // 3. Запускаем новый таймер
+    timerRef.current = setTimeout(() => {
+      setText(value || "");
+      console.log("State updated");
+    }, 500);
+  };
 
 
 
@@ -56,7 +87,14 @@ export default function Monaco({ text, setText }: { text: string, setText: (text
         height="100%"
         language="scss"
         value={formatStyleString(text)}
-        onChange={(value) => setText(value || "")}
+        onChange={(value) => {
+          const val = value || "";
+          setText(val); // Обновляем текст мгновенно для плавности печати
+
+          if (isReadyRef.current) {
+            setNewtextMarker(true);
+          }
+        }}
         onMount={handleEditorMount}
         theme="myCustomTheme"
         options={{

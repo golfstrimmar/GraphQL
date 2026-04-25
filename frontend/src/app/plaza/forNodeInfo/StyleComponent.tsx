@@ -3,6 +3,7 @@ import React, { useRef, useEffect, useState } from "react";
 import Loading from "@/components/ui/Loading/Loading";
 import type { HtmlNode } from "@/types/HtmlNode";
 import Monaco from "@/app/plaza/Monaco";
+import { useStateContext } from "@/providers/StateProvider";
 import dynamic from "next/dynamic";
 
 const MobileAddStyle = dynamic(
@@ -24,6 +25,7 @@ interface StyleComponentProps {
   node: HtmlNode;
   styleText: string;
   setStyleText: (styleText: string) => void;
+  updateNodeByKey: (key: string, data: any) => void;
 }
 
 // ====>====>====>====>====>====>====>====>====>====>====>====>====>====>====>
@@ -33,15 +35,22 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
   node,
   styleText,
   setStyleText,
+  updateNodeByKey
 }) => {
-  const [openMobile, setOpenMobile] = useState(false);
-  const [openModalPseudos, setOpenModalPseudos] = useState(false);
+  const [openMobile, setOpenMobile] = useState<boolean>(false);
+  const [openModalPseudos, setOpenModalPseudos] = useState<boolean>(false);
 
-  // ====>====>====>====>==== Monaco Theme Logic (matching PreviewComponent)
+  const { newtextMarker, setNewtextMarker } = useStateContext();
 
+  // ====>====>====>====>===
 
+  useEffect(() => { if (!openMobile) return; console.log('<===openMobile===>', openMobile); }, [openMobile]);
 
+  useEffect(() => {
+    if (!styleText) return;
+    console.log('<===styleText===>', styleText);
 
+  }, [styleText]);
 
   useEffect(() => {
     if (!node?._key) return;
@@ -53,19 +62,25 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
   // ====>====>====>====>====>====>====>====>====>====>
   return (
     <>
-      <ModalPseudos openModalPseudos={openModalPseudos} setOpenModalPseudos={setOpenModalPseudos} />
 
-      {/*{openMobile && <MobileAddStyle
-        setCurrentStyle={setCurrentStyle}
-        openMobile={openMobile}
-        setOpenMobile={setOpenMobile}
-      // nodeStyle={JSON.stringify(node?.style)}
-      /> } */}
+
       <div className="unitStyle">
         <div className="flex  items-center gap-1 p-[5px]">
-          <h6 className="my-1">Style:</h6>
+          <button className={`
+          ${newtextMarker ? "admin-shimmer--red" : "bg-transparent"} 
+          btn btn-empty text-[12px]  mr-1 px-1 !-h-[20px]`}
+            onClick={() => {
+              setNewtextMarker(false);
+              updateNodeByKey(node._key, { style: styleText });
+            }}>
+            <h6>Style:</h6>
+
+          </button>
+          <button className="btn btn-empty text-[12px] text-[var(--black)] mr-1 px-1 !h-[20px]" onClick={() => setOpenMobile(!openMobile)}>
+            Add style
+          </button>
           <button
-            className="btn btn-empty text-[12px] text-[var(--black)] mr-1 px-1 !max-h-[20px"
+            className="btn btn-empty text-[12px] text-[var(--black)] mr-1 px-1 !h-[20px]"
             onClick={() =>
               setOpenModalPseudos((prev) => {
                 return !prev;
@@ -74,14 +89,29 @@ const StyleComponent: React.FC<StyleComponentProps> = ({
           >
             Pseudos
           </button>
-          {/* <button
-            className="btn btn-empty text-[12px] text-[var(--black)]  px-1 !max-h-[20px]"
-            onClick={() => setOpenMobile(!openMobile)}
-          >
-            Add
-          </button> */}
         </div>
-        <Monaco text={styleText} setText={setStyleText} />
+        {openMobile &&
+          <MobileAddStyle
+            currentStyle={styleText}
+            setCurrentStyle={setStyleText}
+            openMobile={openMobile}
+            setOpenMobile={setOpenMobile}
+
+          />
+        }
+        {openModalPseudos && (
+          <ModalPseudos
+            styleText={styleText}
+            setStyleText={setStyleText}
+            openModalPseudos={openModalPseudos}
+            setOpenModalPseudos={setOpenModalPseudos}
+
+          />)}
+        <Monaco
+          text={styleText}
+          setText={setStyleText}
+
+        />
 
       </div>
     </>

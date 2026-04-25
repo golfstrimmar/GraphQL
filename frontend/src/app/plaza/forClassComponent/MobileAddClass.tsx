@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import CloseIcon from "@/components/icons/CloseIcon";
 import { useStateContext } from "@/providers/StateProvider";
 
-import addClass from "@/app/plaza/forClassComponent/addClass";
+import { useAddClass } from "@/app/plaza/forClassComponent/addClass";
 
 const commonClasses = [
   "rev-on-scroll",
@@ -45,7 +45,7 @@ export default function MobileAddClass({
   openMobile: boolean;
   setOpenMobile: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-
+  const { addClass } = useAddClass();
 
   // ===========================================================================
   const ItemClass =

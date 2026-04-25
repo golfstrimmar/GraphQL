@@ -21,13 +21,13 @@ const commonProps3 = [
   "margin: 0 auto;",
   "!important",
 ] as const;
-const commonProps4 = [
-  // Hover states
-  "&:hover{ transform: scale(1.05); transition: 0.2s; }",
-  "&:hover{ background-color: #f0f0f0; }",
-  "&:hover{ box-shadow: 0 4px 12px rgba(0,0,0,0.15); }",
-  "&:hover{ border-color: #4164ff; }",
-] as const;
+// const commonProps4 = [
+// Hover states
+// "&:hover{ transform: scale(1.05); transition: 0.2s; }",
+// "&:hover{ background-color: #f0f0f0; }",
+// "&:hover{ box-shadow: 0 4px 12px rgba(0,0,0,0.15); }",
+// "&:hover{ border-color: #4164ff; }",
+// ] as const;
 const commonProps5 = [
   // 🔥 Transitions
   "transition: all 0.2s ease-in-out;",
@@ -53,8 +53,8 @@ const commonProps6 = [
   "cursor: pointer;",
 ] as const;
 const commonProps7 = [
-    "filter: blur(4px);",
-      "transform: scale(1.1);",
+  "filter: blur(4px);",
+  "transform: scale(1.1);",
   "box-shadow: inset 0 0 5px red;",
   "box-shadow: 0 0px 10px 0 rgba(40, 40, 40, 0.2);",
   "text-shadow: 0 0px 10px 0 rgba(40, 40, 40, 0.2);",
@@ -125,18 +125,7 @@ export default function CommonPropsPicker({
           </button>
         ))}
       </div>
-      <div className="flex flex-wrap gap-2">
-        {commonProps4.map((prop: string) => (
-          <button
-            key={prop}
-            className="px-2 btn btn-empty text-[12px] text-[var(--slate-800)]"
-            onClick={() => toAdd(prop)}
-            title={prop}
-          >
-            {prop.split(";")[0].trim()}
-          </button>
-        ))}
-      </div>
+
       <div className="flex flex-wrap gap-2">
         {commonProps5.map((prop: string) => (
           <button

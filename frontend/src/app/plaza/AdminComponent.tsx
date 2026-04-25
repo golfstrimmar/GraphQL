@@ -6,8 +6,7 @@ import { GET_JSON_DOCUMENT, GET_JSON_DOCUMENTS } from "@/apollo/queries";
 import { ensureNodeKeys } from "@/utils/ensureNodeKeys";
 import { isolateSwiperNodes } from "@/utils/isolateSwiper";
 import { isolateComponentNodes } from "@/utils/isolateComponent";
-
-
+import Spinner from "@/components/icons/Spinner";
 import Loading from "@/components/ui/Loading/Loading";
 import type { HtmlNode } from "@/types/HtmlNode";
 import dynamic from "next/dynamic";
@@ -16,7 +15,7 @@ import ModRotate from "./ModRotate";
 import {
   Tags
 } from "@/app/plaza/helpers/TagsNamen";
-import Spinner from "@/components/icons/Spinner";
+
 
 const HeroIconPicker = dynamic(() => import("./HeroIconPicker"), {
   ssr: false,
@@ -117,18 +116,19 @@ const AdminComponent = () => {
         {Tags && Tags.map((el, i) => (
           <button
             key={i}
-            className="btn w-full adminButton px-1.5! border-1 border-[#aaa] text-black text-[12px] !translate-y-0"
+            className="btn w-full adminButton px-1.5! border-1 border-[#aaa] text-black text-[12px] h-[20px] flex items-center justify-center overflow-hidden" // добавил flex и центрирование
             style={{
               background: el.color,
               maxHeight: 20,
+              lineHeight: 1 // чтобы текст не раздувал высоту
             }}
             type="button"
             onClick={() => { setClicked(el.tag); setTempTag(el.tag); }}
           >
             {loading && clicked === el.tag ? (
-              <Spinner />
+              <Spinner width={14} height={14} />
             ) : (
-              <span className="">{el.tag}</span>
+              <span>{el.tag}</span>
             )}
           </button>
         ))}

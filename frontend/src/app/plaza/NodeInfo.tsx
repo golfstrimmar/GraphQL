@@ -121,20 +121,26 @@ const NodeInfo: React.FC<NodeInfoProps> = ({
     if (!nodeToSend) return;
     const rawStyle = nodeToSend.style || "";
     const { base, mods } = splitStyles(rawStyle);
-    setStyleText(base);    // Тут будут свойства типа display: flex;
-    setModStyleText(mods); // Тут будут только &--active { ... }
+    setStyleText(base);
+    setModStyleText(mods);
   }, [nodeToSend]);
+  // useEffect(() => {
+  //   if (!styleText) return;
+  //   console.log('<=🔹🟢🔹🟢==styleText===>', styleText);
+  //   updateNodeByKey(nodeToSend?._key, { style: styleText });
+  // }, [styleText]);
+
   // ================================
   // useEffect(() => {
   //   if (!styleText) return;
   //   console.log('<==🔹🟢🔹🟢==styleText==🟢🔹==>', styleText);
   //   setFullStyle(`${styleText}\n${modStyleText}`);
   // }, [styleText]);
-  useEffect(() => {
-    if (!modStyleText) return;
-    console.log('<==🔹🟢🔹🟢==modStyleText==🟢🔹==>', modStyleText);
-    updateNodeByKey(nodeToSend?._key, { style: styleText + modStyleText });
-  }, [modStyleText]);
+  // useEffect(() => {
+  //   if (!modStyleText) return;
+  //   console.log('<==🔹🟢🔹🟢==modStyleText==🟢🔹==>', modStyleText);
+  //   updateNodeByKey(nodeToSend?._key, { style: styleText + modStyleText });
+  // }, [modStyleText]);
 
   // useEffect(() => {
   //   if (!fullStyle) return; console.log('<===fullStyle===>', fullStyle);
@@ -221,18 +227,19 @@ const NodeInfo: React.FC<NodeInfoProps> = ({
                   />
 
                 </div>
-                <div className="grid grid-cols-2 w-full gap-2">
+                <div className="grid grid-cols-1 w-full gap-2">
                   <StyleComponent
                     node={nodeToSend}
                     styleText={styleText}
                     setStyleText={setStyleText}
+                    updateNodeByKey={updateNodeByKey}
                   />
-                  <ModStyleComponent
+                  {/* <ModStyleComponent
                     node={nodeToSend}
                     modClass={modClass}
                     modStyleText={modStyleText}
                     setModStyleText={setModStyleText}
-                  />
+                  /> */}
                 </div>
               </>
             )}
@@ -263,7 +270,7 @@ const NodeInfo: React.FC<NodeInfoProps> = ({
 
 
           </div>
-
+          {/* 
           {nodeToSend?.attributes &&
             Object.keys(nodeToSend.attributes).length > 0 && (
               <div className="flex gap-2 mt-6 rounded border-2 border-[var(--teal)] p-1 pt-6 text-[#000]  bg-slate-200">
@@ -285,27 +292,27 @@ const NodeInfo: React.FC<NodeInfoProps> = ({
                         adjustHeight(e.target);
 
                         // 1. сразу обновляем локальный стейт — курсор остаётся
-                        setLocalAttrs((prev) => ({
-                          ...prev,
-                          [k]: val,
-                        }));
+                        // setLocalAttrs((prev) => ({
+                        //   ...prev,
+                        //   [k]: val,
+                        // }));
 
                         // 2. дебаунсим обновление дерева
-                        const timeouts = attrTimeoutsRef.current;
-                        if (timeouts[k]) {
-                          clearTimeout(timeouts[k]);
-                        }
+                        // const timeouts = attrTimeoutsRef.current;
+                        // if (timeouts[k]) {
+                        //   clearTimeout(timeouts[k]);
+                        // }
 
-                        timeouts[k] = window.setTimeout(() => {
-                          if (nodeToSend) {
-                            updateNodeByKey(nodeToSend._key, {
-                              attributes: {
-                                ...nodeToSend.attributes,
-                                [k]: val,
-                              },
-                            });
-                          }
-                        }, 300);
+                        // timeouts[k] = window.setTimeout(() => {
+                          // if (nodeToSend) {
+                          //   updateNodeByKey(nodeToSend._key, {
+                          //     attributes: {
+                          //       ...nodeToSend.attributes,
+                          //       [k]: val,
+                          //     },
+                          //   });
+                          // }
+                        // }, 300);
                       }}
                       className="textarea-styles"
                       placeholder=""
@@ -313,7 +320,7 @@ const NodeInfo: React.FC<NodeInfoProps> = ({
                   </div>
                 ))}
               </div>
-            )}
+            )} */}
         </motion.div>
       )}
     </AnimatePresence>

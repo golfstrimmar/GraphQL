@@ -105,6 +105,10 @@ interface StateContextType {
   setDesignTexts: React.Dispatch<React.SetStateAction<designText[]>>;
   isCollapsedAll: boolean;
   setIsCollapsedAll: React.Dispatch<React.SetStateAction<boolean>>;
+  newtextMarker: boolean;
+  setNewtextMarker: React.Dispatch<React.SetStateAction<boolean>>;
+  MarkerJson: boolean;
+  setMarkerJson: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const StateContext = createContext<StateContextType | null>(null);
@@ -138,6 +142,8 @@ export function StateProvider({
   const [colors, setColors] = useState<string[]>([]);
   const [designTexts, setDesignTexts] = useState<designText[]>([]);
   const [isCollapsedAll, setIsCollapsedAll] = useState<boolean>(false);
+  const [newtextMarker, setNewtextMarker] = useState<boolean>(false);
+  const [MarkerJson, setMarkerJson] = useState<boolean>(false);
 
   const { data: usersData, subscribeToMore: subscribeToUsers } = useQuery(
     GET_USERS,
@@ -280,7 +286,7 @@ export function StateProvider({
         setUndoStack((stack) => [...stack, prevClone]);
         // при любом новом действии редо очищаем
         setRedoStack([]);
-
+        setMarkerJson(true);
         return cleaned;
       });
     } else {
@@ -291,7 +297,7 @@ export function StateProvider({
 
         setUndoStack((stack) => [...stack, prevClone]);
         setRedoStack([]);
-
+        setMarkerJson(true);
         return cleaned;
       });
     }
@@ -371,6 +377,10 @@ export function StateProvider({
         setDesignTexts,
         isCollapsedAll,
         setIsCollapsedAll,
+        newtextMarker,
+        setNewtextMarker,
+        MarkerJson,
+        setMarkerJson,
       }}
     >
       <AnimatePresence initial={false} mode="wait">

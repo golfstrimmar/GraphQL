@@ -2,10 +2,7 @@
 
 import React, {
   useState,
-  useEffect,
-  useMemo,
-  useLayoutEffect,
-  useRef,
+  useEffect
 } from "react";
 import { createPortal } from "react-dom";
 import { useStateContext } from "@/providers/StateProvider";
@@ -23,9 +20,11 @@ import PresetsPicker from "./PresetsPicker";
 import СhevronDown from "@/components/icons/ChevronDown";
 import CloseIcon from "@/components/icons/CloseIcon";
 import formatStyleString from "../forStyleComponent/formatStyleString";
-
+import PropsNamen from "../helpers/PropsNamen";
+import PropsButton from "./PropsButton";
 
 interface PropsMobileAddStyle {
+  currentStyle: string;
   setCurrentStyle: (text: string) => void;
   openMobile: boolean;
   setOpenMobile: (open: boolean) => void;
@@ -33,23 +32,34 @@ interface PropsMobileAddStyle {
 
 // ====>====>====>====>====>====>====>====>====>====>====>====>====>====>====>
 const MobileAddStyle: React.FC<PropsMobileAddStyle> = ({
+  currentStyle,
   setCurrentStyle,
   openMobile,
-  setOpenMobile
+  setOpenMobile,
+
 }) => {
-  const { } = useStateContext();
+  const { newtextMarker, setNewtextMarker } = useStateContext();
   const [addingScss, setAddingScss] = useState<string>("");
   const [history, setHistory] = useState<string[]>([""]);
   const [historyIndex, setHistoryIndex] = useState(0);
   const canUndo = historyIndex > 0;
   const canRedo = historyIndex < history.length - 1;
-  const modalRef = useRef<HTMLDivElement | null>(null);
 
-  const scrollModalToTop = () => {
-    const el = modalRef.current;
-    if (!el) return;
-    el.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-  };
+  useEffect(() => {
+    const plazacontainer = document.querySelector(".plaza-container")
+    if (openMobile) {
+      plazacontainer.classList.add("hidden");
+      document.body.classList.add("hide-scrollbar");
+      document.body.style.overflow = "hidden";
+    } else {
+      // const timeout = setTimeout(() => {
+      document.body.classList.remove("hide-scrollbar");
+      document.body.style.overflow = "auto";
+      plazacontainer.classList.remove("hidden");
+      // }, 200);
+      // return () => clearTimeout(timeout);
+    }
+  }, [openMobile]);
 
   const handleUndo = () => {
     if (!canUndo) return;
@@ -81,21 +91,41 @@ const MobileAddStyle: React.FC<PropsMobileAddStyle> = ({
   };
 
   const toAdd = (foo: string) => {
-    setAddingScss((prev) => {
-      const base = prev ?? "";
-      if (foo.includes("display:")) {
-        if (base.includes("display:")) {
-          return applyValue(foo);
-        }
+    const newItem = foo.trim();
+    let base = addingScss.trim();
+    setNewtextMarker(true);
+    if (base === "") {
+      applyValue(newItem);
+      return;
+    }
+
+    if (base.includes(newItem) && !newItem.includes("!important")) {
+      return;
+    }
+
+    const propMatch = newItem.match(/^([^:]+):/);
+    const propName = propMatch ? propMatch[1].trim() : null;
+
+    let resultBase = base;
+
+    if (propName) {
+      const singleInstanceProps = ["display", "color", "background", "position", "z-index", "justify-content", "align-items"];
+
+      if (singleInstanceProps.some(p => propName === p || propName.includes(p))) {
+        const regex = new RegExp(`(^|\\n|;)\\s*${propName}:[^;]+;?`, 'gi');
+        resultBase = resultBase.replace(regex, "").trim();
       }
-      if (base.includes(foo)) {
-        return applyValue(base);
-      }
-      if (foo.includes("!important")) {
-        return applyValue(base.replace(";", "") + foo + ";");
-      }
-      return applyValue(base + foo);
-    });
+    }
+
+    if (newItem.includes("!important") && resultBase.includes("!important")) {
+      resultBase = resultBase.replace(/;(?=[^;]*$)/, " !important;");
+    }
+
+    const cleanBase = resultBase === "" ? "" : resultBase.endsWith(";") ? resultBase : resultBase + ";";
+    const newBase = cleanBase === "" ? newItem : `${cleanBase}\n${newItem}`;
+    console.log("<=🔹🟢==newBase=🟢🔹==>", newBase);
+    applyValue(newBase);
+
   };
 
   const adjustHeight = (el: HTMLTextAreaElement) => {
@@ -103,147 +133,181 @@ const MobileAddStyle: React.FC<PropsMobileAddStyle> = ({
     el.style.height = `${el.scrollHeight}px`;
   };
 
-  const ItemClass =
-    "grid grid-cols-[100px_1fr] gap-2 rounded-2xl shadow-xl p-2 bg-[var(--lightest-slate)] border border-slate-200";
-
+  // ====>====>====>====>====>====>====>====>====>====>====>====>====>====>====>
+  const ToRender = [
+    [
+      "Presets",
+      [PropsNamen.presetsProps]
+    ],
+    [
+      "Common",
+      [
+        PropsNamen.commonProps1,
+        PropsNamen.commonProps2,
+        PropsNamen.commonProps3,
+        PropsNamen.commonProps6,
+        PropsNamen.commonProps7
+      ]
+    ],
+  ];
+  // ====>====>====>====>====>====>====>====>====>====>====>====>====>====>====>
   return createPortal(
-    <AnimatePresence>
-      {openMobile && (
-        <motion.div
-          key="modal-message"
-          initial={{ opacity: 0, scale: 0.2 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.1, transition: { duration: 0.2 } }}
-          transition={{ duration: 0.2 }}
-          className="  bg-black/60 backdrop-blur-lg   w-[100vw] h-[100vh] overflow-y-scroll py-2   "
-          onClick={(e) => {
-            e.stopPropagation();
-            if (
-              !(e.target as HTMLElement).closest(".modal-inner") &&
-              !(e.target as HTMLElement).closest(".button-top")
-            ) {
-              setOpenMobile(false);
-            }
-          }}
+    <section className="bg-white p-[30px_5px_5px_5px] fixed top-0  left-0 w-[100vw] h-[100vh]   relative z-10000 ">
+      <button
+        className="w-[15px] h-[15px] flex items-center justify-center text-black absolute top-1 right-1 z-100000 hover:text-gray-400 cursor-pointer transition-colors "
+        onClick={() => {
+          document.body.classList.remove("hide-scrollbar"); document.body.style.overflow = "auto"; document.querySelector(".plaza-container")?.classList.remove("hidden");
+          setTimeout(() => {
+            setOpenMobile(false)
+          }, 200);
+        }}
+      >
+        <CloseIcon />
+      </button>
+      <textarea
+        ref={(el) => {
+          if (!el) return;
+          adjustHeight(el);
+        }}
+        value={addingScss}
+        onChange={(e) => {
+          const target = e.target.value;
+          applyValue(target);
+          adjustHeight(e.target);
+        }}
+        onInput={(e) => adjustHeight(e.target as HTMLTextAreaElement)}
+        className="textarea-styles text-[var(--slate-800)]"
+      />
+
+      <div className="flex items-center">
+        <button
+          className="btn  mr-2 px-1 btn btn-empty"
+          onClick={handleUndo}
+          disabled={!canUndo}
         >
-          <button
-            className="w-4 h-4 block text-white absolute top-4 right-6 z-10000 hover:text-gray-500 cursor-pointer transition-colors duration-300"
-            onClick={() => setOpenMobile(false)}
-          >
-            <CloseIcon />
-          </button>
+          ⇦
+        </button>
+        <button
+          className="btn  mr-2 px-1 btn btn-empty"
+          onClick={handleRedo}
+          disabled={!canRedo}
+        >
+          ⇨
+        </button>
+        <button
+          className="btn btn-allert h-6 mr-2"
+          onClick={() => applyValue("")}
+        >
+          <Image
+            src="/svg/clear.svg"
+            alt="clear"
+            width={16}
+            height={16}
+          />
+        </button>
+        <button
+          onClick={() => {
+            setAddingScss("");
+            setCurrentStyle(`${currentStyle}${addingScss} `);
+            setNewtextMarker(true);
+            document.body.classList.remove("hide-scrollbar"); document.body.style.overflow = "auto"; document.querySelector(".plaza-container")?.classList.remove("hidden");
+            setTimeout(() => {
+              setOpenMobile(false)
+            }, 200);
+          }}
+          className="btn btn-primary  "
+        >
+          Add
+        </button>
+      </div>
 
-          <div ref={modalRef} className="modal-inner     bg-white p-2 ">
-            <textarea
-              ref={(el) => {
-                if (!el) return;
-                adjustHeight(el);
-              }}
-              value={addingScss}
-              onChange={(e) => {
-                const target = e.target.value;
-                applyValue(target);
-                adjustHeight(e.target);
-              }}
-              onInput={(e) => adjustHeight(e.target as HTMLTextAreaElement)}
-              className="textarea-styles text-[var(--slate-800)]"
-            />
-
-            <div className="flex items-center">
-              <button
-                className="btn h-8 mr-2 px-1 btn btn-empty"
-                onClick={handleUndo}
-                disabled={!canUndo}
-              >
-                ⇦
-              </button>
-              <button
-                className="btn h-8 mr-2 px-1 btn btn-empty"
-                onClick={handleRedo}
-                disabled={!canRedo}
-              >
-                ⇨
-              </button>
-              <button
-                className="btn btn-allert h-8 mr-2"
-                onClick={() => applyValue("")}
-              >
-                <Image
-                  src="/svg/clear.svg"
-                  alt="clear"
-                  width={16}
-                  height={16}
-                />
-              </button>
-              <button
-                onClick={() => {
-                  setAddingScss("");
-                  setCurrentStyle((prev: string) => {
-                    return prev + formatStyleString(addingScss);
-                  });
-                  setOpenMobile(false);
-                }}
-                className="btn btn-primary h-8 m-0 flex-[1_1_100%]"
-              >
-                Add
-              </button>
-            </div>
-
-            <div className="flex flex-col gap-2 mt-6">
-              <div className={ItemClass}>
-                <span className="text-[var(--navy)] font-bold text-[14px]">
-                  Presets
-                </span>
-                <PresetsPicker toAdd={toAdd} />
+      <div className="flex flex-col gap-2 mt-2">
+        {ToRender.map(([title, groups], index) => (
+          <div key={index}>
+            <h6>{title}</h6>
+            {groups.map((subGroup, subIndex) => (
+              <div key={subIndex}>
+                {subGroup.map((el, i) => (
+                  <PropsButton key={i} el={el} toAdd={toAdd} />
+                ))}
               </div>
-
-              <div className={ItemClass}>
-                <span className="text-[var(--navy)] font-bold text-[14px]">
-                  Common
-                </span>
-                <CommonPropsPicker toAdd={toAdd} />
-              </div>
-
-              <div className={ItemClass}>
-                <span className="text-[var(--navy)] font-bold text-[14px]">
-                  Text
-                </span>
-                <TextPropsPicker toAdd={toAdd} />
-              </div>
-
-              <div className={ItemClass}>
-                <span className="text-[var(--navy)] font-bold text-[14px]">
-                  Position
-                </span>
-                <PositionPropsPicker toAdd={toAdd} />
-              </div>
-
-              <div className={ItemClass}>
-                <span className="text-[var(--navy)] font-bold text-[14px]">
-                  Display
-                </span>
-                <DisplayPicker toAdd={toAdd} />
-              </div>
-
-              <div className={ItemClass}>
-                <span className="text-[var(--navy)] font-bold text-[14px]">
-                  Flex
-                </span>
-                <FlexContainerPicker toAdd={toAdd} />
-              </div>
-
-              <div className={ItemClass}>
-                <span className="text-[var(--navy)] font-bold text-[14px]">
-                  Grid
-                </span>
-                <GridContainerPicker toAdd={toAdd} />
-              </div>
-            </div>
+            ))}
           </div>
-        </motion.div>
-      )}
-    </AnimatePresence>,
-    document.body
+        ))}
+        {/* <PropsButtonBlock title='Presets' PropsArray={PropsNamen.presetsProps} toAdd={toAdd} /> */}
+
+
+        {/* <div className={ItemClass}>
+          <h6 className={titleClass}>
+            Presets
+          </h6>
+          {PropsNamen.presetsProps.map((item) => (
+            <PropsButton key={item} item={item} toAdd={toAdd} />
+          ))}
+        </div> */}
+
+        {/* <div className={ItemClass}>
+          <h6 className={titleClass}>
+            Common
+          </h6>
+          {PropsNamen.commonProps1.map((item) => (
+            <PropsButton key={item} item={item} toAdd={toAdd} />
+          ))}
+          <hr className="opacity-0" />
+          {PropsNamen.commonProps2.map((item) => (
+            <PropsButton key={item} item={item} toAdd={toAdd} />
+          ))}
+          <hr className="opacity-0" />
+          {PropsNamen.commonProps3.map((item) => (
+            <PropsButton key={item} item={item} toAdd={toAdd} />
+          ))}
+
+          <hr className="opacity-0" />
+          {PropsNamen.commonProps6.map((item) => (
+            <PropsButton key={item} item={item} toAdd={toAdd} />
+          ))}
+          <hr className="opacity-0" />
+          {PropsNamen.commonProps7.map((item) => (
+            <PropsButton key={item} item={item} toAdd={toAdd} />
+          ))}
+        </div> */}
+
+        {/* <div className={ItemClass}>
+          <h6 className={titleClass}>
+            Text
+          </h6>
+          <TextPropsPicker toAdd={toAdd} />
+        </div>
+
+        <div className={ItemClass}>
+          <h6 className={titleClass}>
+            Position
+          </h6>
+          <PositionPropsPicker toAdd={toAdd} />
+        </div>
+
+        <div className={ItemClass}>
+          <h6 className={titleClass}>
+            Display
+          </h6>
+          <DisplayPicker toAdd={toAdd} />
+        </div>
+
+        <div className={ItemClass}>
+          <h6 className={titleClass}>
+            Flex
+          </h6>
+          <FlexContainerPicker toAdd={toAdd} />
+        </div>
+
+        <div className={ItemClass}>
+          <h6 className={titleClass}>
+            Grid
+          </h6>
+          <GridContainerPicker toAdd={toAdd} />
+        </div>*/}
+      </div>
+    </section >, document.body
   );
 }
 
