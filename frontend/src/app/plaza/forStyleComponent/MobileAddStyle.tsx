@@ -48,18 +48,21 @@ const MobileAddStyle: React.FC<PropsMobileAddStyle> = ({
   useEffect(() => {
     const plazacontainer = document.querySelector(".plaza-container")
     if (openMobile) {
-      plazacontainer.classList.add("hidden");
+      plazacontainer?.classList.add("hidden");
       document.body.classList.add("hide-scrollbar");
       document.body.style.overflow = "hidden";
     } else {
       // const timeout = setTimeout(() => {
       document.body.classList.remove("hide-scrollbar");
       document.body.style.overflow = "auto";
-      plazacontainer.classList.remove("hidden");
+      plazacontainer?.classList.remove("hidden");
       // }, 200);
       // return () => clearTimeout(timeout);
     }
   }, [openMobile]);
+
+  useEffect(() => { if (!history) return; console.log('<=!!!==history=!!!==>', history); }, [history]);
+
 
   const handleUndo = () => {
     if (!canUndo) return;
@@ -80,52 +83,89 @@ const MobileAddStyle: React.FC<PropsMobileAddStyle> = ({
       return ni;
     });
   };
+  const smartMerge = (oldStyle: string, newStyle: string) => {
+    // 1. Извлекаем список свойств, которые мы хотим добавить (только названия до двоеточия)
+    const newProps = newStyle
+      .split(';')
+      .map(s => s.trim())
+      .filter(s => s.includes(':'))
+      .map(s => s.split(':')[0].trim());
 
+    let result = oldStyle;
+
+    newProps.forEach(prop => {
+      const escapedProp = prop.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+
+      /**
+       * РЕГУЛЯРНОЕ ВЫРАЖЕНИЕ С ПРИОРИТЕТОМ БЛОКОВ:
+       * 
+       * Группа 1 (Блоки): ([^{};]+\{[^{}]*\})
+       * Ищет любой селектор (включая те, что начинаются с &), за которым следуют фигурные скобки.
+       * 
+       * Группа 2 (Свойства на верхнем уровне): ((?:^|\n|;)\s*${escapedProp}\s*:[^;{}]+;?)
+       * Ищет конкретное свойство, но только если оно НЕ попало в Группу 1.
+       */
+      const regex = new RegExp(`([^{};]+\\{[^{}]*\\})|((?:^|\\n|;)\\s*${escapedProp}\\s*:[^;{}]+;?)`, "gi");
+
+      result = result.replace(regex, (match, block, property) => {
+        // Если регулярка нашла блок {...}, мы возвращаем его целиком и не трогаем
+        if (block) return block;
+
+        // Если нашла свойство на верхнем уровне, возвращаем пустую строку (удаляем старое значение)
+        return "";
+      });
+    });
+
+    // 3. Чистим результат от лишних пустых строк и склеиваем
+    const cleanOld = result.trim();
+    const cleanNew = newStyle.trim();
+
+    // Если старых стилей не осталось, просто возвращаем новые
+    if (cleanOld === "") return cleanNew;
+
+    // Иначе склеиваем через перенос строки
+    return `${cleanOld}\n${cleanNew}`;
+  };
   const applyValue = (next: string) => {
+    // Очищаем строку от случайных двойных точек с запятой или пустых строк
+    const cleanedNext = next
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line !== "" && line !== ";")
+      .join('\n');
+
     setHistory((prev) => {
       const trimmed = prev.slice(0, historyIndex + 1);
-      return [...trimmed, next];
+      return [...trimmed, cleanedNext];
     });
+
     setHistoryIndex((i) => i + 1);
-    setAddingScss(next);
+    setAddingScss(cleanedNext);
   };
 
   const toAdd = (foo: string) => {
-    const newItem = foo.trim();
+    const newItem = foo.trim().endsWith(";") ? foo.trim() : foo.trim() + ";";
     let base = addingScss.trim();
-    setNewtextMarker(true);
-    if (base === "") {
-      applyValue(newItem);
-      return;
-    }
 
-    if (base.includes(newItem) && !newItem.includes("!important")) {
-      return;
-    }
-
+    // Извлекаем имя свойства (например, "color")
     const propMatch = newItem.match(/^([^:]+):/);
     const propName = propMatch ? propMatch[1].trim() : null;
 
     let resultBase = base;
 
     if (propName) {
-      const singleInstanceProps = ["display", "color", "background", "position", "z-index", "justify-content", "align-items"];
-
-      if (singleInstanceProps.some(p => propName === p || propName.includes(p))) {
-        const regex = new RegExp(`(^|\\n|;)\\s*${propName}:[^;]+;?`, 'gi');
-        resultBase = resultBase.replace(regex, "").trim();
-      }
+      // Удаляем это свойство из ТЕКУЩЕГО набора в модалке (addingScss)
+      const escapedProp = propName.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+      const regex = new RegExp(`(^|\\n|;)\\s*${escapedProp}\\s*:[^;]+;?`, "gi");
+      resultBase = resultBase.replace(regex, "$1").trim();
     }
 
-    if (newItem.includes("!important") && resultBase.includes("!important")) {
-      resultBase = resultBase.replace(/;(?=[^;]*$)/, " !important;");
-    }
-
+    // Добавляем новое значение
     const cleanBase = resultBase === "" ? "" : resultBase.endsWith(";") ? resultBase : resultBase + ";";
-    const newBase = cleanBase === "" ? newItem : `${cleanBase}\n${newItem}`;
-    console.log("<=🔹🟢==newBase=🟢🔹==>", newBase);
-    applyValue(newBase);
+    const newBase = (cleanBase + "\n" + newItem).trim();
 
+    setNewtextMarker(true);
+    applyValue(newBase);
   };
 
   const adjustHeight = (el: HTMLTextAreaElement) => {
@@ -149,6 +189,51 @@ const MobileAddStyle: React.FC<PropsMobileAddStyle> = ({
         PropsNamen.commonProps7
       ]
     ],
+    ["Typograhy", [
+      PropsNamen.textProps
+    ]],
+
+    ["Position", [
+      PropsNamen.positionProps
+    ]],
+    ["Display:", [
+      PropsNamen.displayOptions
+    ]],
+    ["Flex", [
+      PropsNamen.flexOptions
+    ]],
+    ["Flex Direction", [
+      PropsNamen.flexDirectionOptions
+    ]],
+    ["Flex Wrap", [
+      PropsNamen.flexWrapOptions
+    ]],
+    ["Justify Content", [
+      PropsNamen.justifyContentOptions
+    ]],
+    ["Align Items", [
+      PropsNamen.alignItemsOptions
+    ]],
+    ["Align Content", [
+      PropsNamen.alignContentOptions
+    ]],
+    ["Gap", [
+      PropsNamen.gapOptions
+    ]],
+    ["Grid Template Columns Presets", [
+      PropsNamen.gridTemplateColumnsPresets
+    ]],
+    ["Grid Template Columns Simple", [
+      PropsNamen.gridTemplateColumnsSimple
+    ]],
+    ["Grid Auto Flow", [
+      PropsNamen.gridAutoFlowOptions
+    ]],
+    ["Grid Auto Rows", [
+      PropsNamen.gridAutoRowsOptions
+    ]],
+    ["Template Areas Options", [PropsNamen.gridTemplateAreasOptions]]
+
   ];
   // ====>====>====>====>====>====>====>====>====>====>====>====>====>====>====>
   return createPortal(
@@ -205,7 +290,7 @@ const MobileAddStyle: React.FC<PropsMobileAddStyle> = ({
             height={16}
           />
         </button>
-        <button
+        {/* <button
           onClick={() => {
             setAddingScss("");
             setCurrentStyle(`${currentStyle}${addingScss} `);
@@ -216,6 +301,28 @@ const MobileAddStyle: React.FC<PropsMobileAddStyle> = ({
             }, 200);
           }}
           className="btn btn-primary  "
+        >
+          Add
+        </button> */}
+        <button
+          onClick={() => {
+            // Используем умное слияние вместо простого сложения строк
+            const mergedStyle = smartMerge(currentStyle, addingScss);
+
+            setCurrentStyle(mergedStyle); // Это обновит styleText в родительском StyleComponent
+            setAddingScss("");
+            setNewtextMarker(true);
+
+            // Закрытие модалки
+            document.body.classList.remove("hide-scrollbar");
+            document.body.style.overflow = "auto";
+            document.querySelector(".plaza-container")?.classList.remove("hidden");
+
+            setTimeout(() => {
+              setOpenMobile(false);
+            }, 200);
+          }}
+          className="btn btn-primary"
         >
           Add
         </button>

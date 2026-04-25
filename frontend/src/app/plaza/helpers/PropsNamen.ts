@@ -110,107 +110,102 @@ const positionProps = [
 
 
 const displayOptions = [
-  "block",
-  "inline",
-  "inline-block",
-  "flex",
-  "inline-flex",
-  "grid",
-  "inline-grid",
-  "flow-root",
-  "contents",
-  "table",
-  "table-row",
-  "table-cell",
-  "list-item",
-  "none",
+  "display: block;",
+  "display: inline;",
+  "display: inline-block;",
+  "display: flex;",
+  "display: inline-flex;",
+  "display: grid;",
+  "display: inline-grid;",
+  "display: flow-root;",
+  "display: contents;",
+  "display: table;",
+  "display: table-row;",
+  "display: table-cell;",
+  "display: list-item;",
+  "display: none;",
 ] as const;
 
 
-const flexOptions = ["0 0 100%", "0 1 100%", "1 0 100%", "1 1 100%"] as const;
+const flexOptions = ["flex: 0 0 100%;", "flex: 0 1 100%;", "flex: 1 0 100%;", "flex: 1 1 100%;"] as const;
 
 const flexDirectionOptions = [
-  "column",
-  "column-reverse",
-  "row",
-  "row-reverse",
-  "0 0 100%",
-  "0 1 100%",
-  "1 0 100%",
-  "1 1 100%",
+  "flex-direction: column;",
+  "flex-direction: column-reverse;",
+  "flex-direction: row;",
+  "flex-direction: row-reverse;",
 ] as const;
 
-const flexWrapOptions = ["nowrap", "wrap", "wrap-reverse"] as const;
+const flexWrapOptions = ["flex-wrap: nowrap;", "flex-wrap: wrap;", "flex-wrap: wrap-reverse;"] as const;
 
 const justifyContentOptions = [
-  "flex-start",
-  "center",
-  "flex-end",
-  "space-between",
-  "space-around",
-  "space-evenly",
+  "justify-content: flex-start;",
+  "justify-content: center;",
+  "justify-content: flex-end;",
+  "justify-content: space-between;",
+  "justify-content: space-around;",
+  "justify-content: space-evenly;",
 ] as const;
 
 const alignItemsOptions = [
-  "stretch",
-  "flex-start",
-  "center",
-  "flex-end",
-  "baseline",
+  "align-items: stretch;",
+  "align-items: flex-start;",
+  "align-items: center;",
+  "align-items: flex-end;",
+  "align-items: baseline;",
 ] as const;
 
 const alignContentOptions = [
-  "stretch",
-  "flex-start",
-  "center",
-  "flex-end",
-  "space-between",
-  "space-around",
+  "align-content: stretch;",
+  "align-content: flex-start;",
+  "align-content: center;",
+  "align-content: flex-end;",
+  "align-content: space-between;",
+  "align-content: space-around;",
 ] as const;
 
-const gapOptions = ["0", "4px", "8px", "12px", "16px", "24px"] as const;
+const gapOptions = ["gap: 0;", "gap: 4px;", "gap: 8px;", "gap: 12px;", "gap: 16px;", "gap: 24px;"] as const;
 
 
 const gridTemplateColumnsPresets = [
-  "100px 1fr",
-  "minmax(100px, 1fr)",
-  "fit-content(40%)",
-  "repeat(3, 200px)",
-  "repeat(auto-fill, 300px)",
-  "repeat(auto-fill, minmax(min(250px, 100%), 1fr))",
-  "repeat(auto-fitt, minmax(min(250px, 100%), 1fr));",
+  "grid-template-columns: 100px 1fr;",
+  "grid-template-columns: minmax(100px, 1fr);",
+  "grid-template-columns: fit-content(40%);",
+  "grid-template-columns: repeat(3, 200px);",
+  "grid-template-columns: repeat(auto-fill, 300px);",
+  "grid-template-columns: repeat(auto-fill, minmax(min(250px, 100%), 1fr));",
+  "grid-template-columns: repeat(auto-fitt, minmax(min(250px, 100%), 1fr));",
 ] as const;
 
 const gridTemplateColumnsSimple = [
-  "repeat(2, 1fr)",
-  "repeat(3, 1fr)",
-  "repeat(4, 1fr)",
-  "1fr 2fr",
-  "2fr 1fr",
+  "grid-template-columns: repeat(2, 1fr);",
+  "grid-template-columns: repeat(3, 1fr);",
+  "grid-template-columns: repeat(4, 1fr);",
+  "grid-template-columns: 1fr 2fr;",
+  "grid-template-columns: 2fr 1fr;",
 ] as const;
 
 const gridTemplateRowsOptions = [
-  "repeat(2, 1fr)",
-  "repeat(3, 1fr)",
-  "auto 1fr auto",
+  "grid-template-rows: repeat(2, 1fr);",
+  "grid-template-rows: repeat(3, 1fr);",
+  "grid-template-rows: auto 1fr auto;",
 ] as const;
 
 const gridAutoFlowOptions = [
-  "row",
-  "column", // авто создаёт колонки по контенту
-  "row dense",
-  "column dense",
+  "grid-auto-flow: row;",
+  "grid-auto-flow: column;", // авто создаёт колонки по контенту
+  "grid-auto-flow: row dense;",
+  "grid-auto-flow: column dense;",
 ] as const;
 
 const gridAutoRowsOptions = [
-  "auto",
-  "max-content", // «прижимает» по высоте к контенту
-  "min-content",
+  "grid-auto-rows: auto;",
+  "grid-auto-rows: max-content;", // «прижимает» по высоте к контенту
+  "grid-auto-rows: min-content;",
 ] as const;
 
 const gridTemplateAreasOptions = [
-  `"a b c e"
-   "a d c e"`,
+  'grid-template-areas: "a b c e" \n "a d c e";',
 ] as const;
 
 const PropsNamen = {
